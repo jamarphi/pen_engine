@@ -1,0 +1,10 @@
+Pen Engine
+Copyright 2021 Jamar Phillip
+
+Third-party components:
+
+- stb_image.h from Sean Barrett under the MIT license.
+- jni.h and jni_md.h both from Java open-source jdk under the GNU v2, and Android Studio open-source ndk under the Apache 2.0 license.
+- glad.h, glad.c, and khrplatform.h from David Herberth under the MIT license.
+- glfw.h, glfw.cpp, glfw3native.h, glfw.lib 32 bit, glfw.lib 64 bit, glfw.dll, and glfwdll.lib, from Marcus Geelnard and Camilla Löwy under the zlib/libpng license.
+- dirent.h from Toni Ronkko.

@@ -1,0 +1,86 @@
+plugins {
+    id 'com.android.application'
+}
+
+//ndk.dir in local.properties is used for NDK to find the strip tool used for stripping the shared .so library
+
+android {
+    compileSdk 30
+
+    defaultConfig {
+        applicationId "com.jamar.pen_engine"
+        ndkVersion "20.0.5594570"
+        minSdk 21
+        targetSdk 30
+        versionCode 1
+        versionName "1.0"
+        //"-DCMAKE_ANDROID_STL_TYPE=c++_static"
+        externalNativeBuild {
+            cmake {
+                arguments "-DCMAKE_SYSTEM_NAME=ANDROID", "-DCMAKE_ANDROID_API=28",
+                        "-DANDROID_ABI=x86_64",
+                        "-DCMAKE_ANDROID_NDK=/home/jamar/Android/Sdk/ndk/20.0.5594570",
+                        "-DCMAKE_ANDROID_STL_TYPE=gnustl_static"
+            }
+        }
+    }
+
+    sourceSets.main {
+        java.srcDir "src/java"
+        manifest.srcFile "src/AndroidManifest.xml"
+
+        /*
+        * arm64-v8a (64 bit)
+        * armeabi (32 bit)
+        * armeabi-v7a 32 bit)
+        * mips (32 bit)
+        * mips64 (64 bit)
+        * x86 (32 bit)
+        * x86_64 (64 bit)
+        */
+        jniLibs.srcDirs = ["src/main/jniLibs"]
+    }
+
+/*    signingConfigs {
+
+        release {
+
+            storeFile file('../../android-release-key.keystore')
+            storePassword "yourpassword"
+            keyAlias "youralias"
+            keyPassword "yourkeypass"
+
+        }
+    }*/
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            //signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "../../../../CMakeLists.txt"
+            version "3.16.3"
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.so*'])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+}
