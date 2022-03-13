@@ -609,3 +609,9 @@ If you want to send messages to Java for logging use:
 This can be used for debugging for Android once your application has been built and tested on PC.
 
 ---------------------------------------------------------------------------
+
+#1.9 - AI
+
+For documentation on implementing AI go to ext/ai/README.md
+
+---------------------------------------------------------------------------

@@ -53,6 +53,8 @@ under the License.
 #include "renderer/camera.h"
 #include "objects/containers/map.h"
 #include "../ext/platforms/android/app/src/cpp/log.h"
+#include "../ext/ai/agent.h"
+#include "../ext/ai/free_agent.h"
 
 /*UI objects*/
 #include "ui/ui_object.h"

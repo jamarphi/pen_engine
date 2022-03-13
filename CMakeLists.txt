@@ -50,6 +50,7 @@ endif()
 #Project sources for the executable
 file(GLOB_RECURSE PROJECT_LIB_SOURCES "${CMAKE_SOURCE_DIR}/src/*.h" "${CMAKE_SOURCE_DIR}/src/*.cpp"
     "${CMAKE_SOURCE_DIR}/dependencies/*.h" "${CMAKE_SOURCE_DIR}/dependencies/*.cpp"
+    "${CMAKE_SOURCE_DIR}/ext/ai/*.h" "${CMAKE_SOURCE_DIR}/ext/ai/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/*.c")
 
 #Creates the .so library for Android
