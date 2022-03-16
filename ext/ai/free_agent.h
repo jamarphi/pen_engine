@@ -20,18 +20,35 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "agent.h"
+#include "../../src/ops/matrices/mat.h"
+#include "../../src/objects/containers/map.h"
 
 namespace pen {
 	namespace ai {
 		class FreeAgent : public pen::ai::Agent {
-			/*FreeAgent is based on Q learning*/
+			/*FreeAgent is based on semi gradient temporal difference learning*/
+		private:
+			Weight** weights;
+			/*Number of hidden layers including the input layer*/
+			int numLayers;
 		public:
 			FreeAgent();
 			FreeAgent(const std::string& path, pen::ai::Action** userActions, int numActions);
-			void Init(pen::ai::AIState** userStates, long userStateNum, pen::ai::AIState* initialState, int userNumEpisodes, float userEpsilon = 0.1f, float userStepSize = 0.1f);
+			void Init(pen::ai::Weight** userWeights, int userNumLayers, long userStateNum, int userNumEpisodes, float userEpsilon = 0.1f, float userStepSize = 0.1f);
 			void Step();
+
+			Weight** GetWeights();
+			int GetLayers();
+			pen::Mat ComputeOutput(pen::Mat* input, Weight* weights, int numLayers);
+			void UpdateWeights(Weight* weights, pen::Mat* g, int numLayers);
+			pen::Mat OneHot(int state);
+
 			void Save(const std::string& path);
 			void Load(const std::string& path, pen::ai::Action** userActions, int numActions);
+
+		private:
+			pen::Mat* ParseMatrix(std::string input);
+			std::string FormatMatrix(pen::Mat* mat, char character);
 		};
 	}
 }

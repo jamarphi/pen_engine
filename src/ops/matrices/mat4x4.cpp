@@ -45,8 +45,8 @@ namespace pen {
 
 	Mat4x4::~Mat4x4(){}
 
-	float& Mat4x4::operator[](int val) {
-		return matrix[val][val];
+	float& Mat4x4::operator[](int idx) {
+		return matrix[idx][idx];
 	}
 
 	Mat4x4 Mat4x4::operator*(const Mat4x4& b) {

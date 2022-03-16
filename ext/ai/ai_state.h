@@ -30,15 +30,15 @@ namespace pen {
 			int policiesNum;
 			float* state;
 			int stateParamsNum;
-			StateAction** policies;
+			pen::ai::StateAction** policies;
 			float reward;
 			float stateValue;
-			StateAction* optimalPolicy;
+			pen::ai::StateAction* optimalPolicy;
 			bool terminal;
 		public:
 			AIState();
-			AIState(char userId, int numStates, int numActions, float userReward, StateAction** userActions, bool terminalStatus = false, float* userState = nullptr, int numStateParams = 0);
-			Action* FindPolicy(long id);
+			AIState(char userId, int numStates, int numActions, float userReward, pen::ai::StateAction** userActions, bool terminalStatus = false, float* userState = nullptr, int numStateParams = 0);
+			pen::ai::Action* FindPolicy(long id);
 		};
 	}
 }

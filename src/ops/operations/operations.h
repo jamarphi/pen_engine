@@ -22,6 +22,7 @@ under the License.
 #include "../matrices/mat4x4.h"
 #include "../matrices/mat3x3.h"
 #include "../vectors/vec3.h"
+#include "../vectors/vec4.h"
 #include "trig.h"
 
 namespace pen {

@@ -37,6 +37,11 @@ namespace pen {
 
 		Map(){}
 
+		W* operator[](int idx) {
+			/*Returns the value at teh given index*/
+			return &items[idx].second;
+		}
+
 		void Insert(T key, W value) {
 			/*Adds key value pair to the map*/
 			bool exists = false;

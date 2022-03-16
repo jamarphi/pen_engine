@@ -75,21 +75,25 @@ namespace pen {
             return result;
         }
 
-        static float Pow(float base, int exp) {
+        static float Pow(float base, float exp) {
             /*Calculate a number to the power of an exponent*/
+#ifndef __PEN_MOBILE__
+            return std::pow(base, exp);
+#else
             if (base != 0.0f) {
                 if (exp < 0.0f) {
-                    return 1.0f / (base * Pow(base, (-exp) - 1));
+                    return 1.0f / (base * Pow(base, (-exp) - 1.0f));
                 }
-                if (exp == 0) {
-                    return 1;
-                }
-                if (exp == 1) {
+                if (exp == 1.0f) {
                     return base;
                 }
-                return base * Pow(base, exp - 1);
+                if (exp >= 0.0f && exp < 1.0f) {
+                    return 1.0f;
+                }
+                return base * Pow(base, exp - 1.0f);
             }
             return 0.0f;
+#endif
         }
 
         static int Factorial(int num) {

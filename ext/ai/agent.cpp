@@ -121,7 +121,7 @@ namespace pen {
 				float* distribution = new float[rangeBound];
 				float distributionSum = 0.0f;
 				for (int i = 0; i < rangeBound; i++) {
-					distribution[i] = std::pow(2.71828, (-1.0f * std::fabs(i - center) / 5.0f));
+					distribution[i] = pen::op::Pow(2.71828f, (-1.0f * pen::op::Abs(i - center) / 5.0f));
 					distributionSum += distribution[i];
 				}
 
@@ -154,10 +154,10 @@ namespace pen {
 			}
 		}
 
-		void Agent::PrintTransitions() {
-			/*Display the current transitions array*/
-			float numTransitions = FindState(this, shift[0]->stateId)->policiesNum;
-			for (int i = 0; i < numTransitions; i++) {
+		void Agent::PrintShifts() {
+			/*Display the current shifts array*/
+			float numShifts = FindState(this, shift[0]->stateId)->policiesNum;
+			for (int i = 0; i < numShifts; i++) {
 				std::cout << "pen::ai::AIState " << shift[i]->stateId << " -> " << shift[i]->nextStateId << ":\n\t-Reward: " << shift[i]->reward << "\n\t-Prob: " << shift[i]->prob << "\n------------------\n";
 			}
 			std::cout << "\n";
@@ -243,7 +243,7 @@ namespace pen {
 				}
 			}
 
-			return ties[std::max(0, Agent::Rand(ties.size()) - 1)];
+			return ties[(int)pen::op::Max(0.0f, Agent::Rand(ties.size()) - 1.0f)];
 		}
 
 		void Agent::QGreedify(pen::ai::AIState* s) {
@@ -288,7 +288,7 @@ namespace pen {
 				for (int i = 0; i < numStates; i++) {
 					float v = states[i]->stateValue;
 					OptimalityUpdate(states[i]);
-					delta = std::max(delta, std::abs(v - states[i]->stateValue));
+					delta = pen::op::Max(delta, pen::op::Abs(v - states[i]->stateValue));
 				}
 				if (delta < accuracyCap) {
 					policyStable = true;
@@ -341,12 +341,12 @@ namespace pen {
 		void Agent::Plan(bool terminal) {
 			/*This does Q planning*/
 			for (int i = 0; i < planningSteps; i++) {
-				pen::ai::AIState* pastState = states[std::max(Rand(numStates) - 1, 0)];
-				pen::ai::StateAction* pastAction = pastState->policies[std::max(Rand(pastState->policiesNum) - 1, 0)];
+				pen::ai::AIState* pastState = states[(int)pen::op::Max(Rand(numStates) - 1.0f, 0.0f)];
+				pen::ai::StateAction* pastAction = pastState->policies[(int)pen::op::Max(Rand(pastState->policiesNum) - 1.0f, 0.0f)];
 
 				/*The reward for going to the next state*/
 				float reward = pastAction->reward;
-				reward += (bonusFactor * std::sqrt(pastAction->visits));
+				reward += (bonusFactor * pen::op::Sqrt((float)pastAction->visits));
 				pen::ai::AIState* s = FindState(this, pastAction->nextStateId);
 				if (!terminal) {
 					pastAction->value += (stepSize * (reward + discountValue * Max(s) - pastAction->value));
@@ -361,7 +361,7 @@ namespace pen {
 			/*Choose an action using epsilon greedy*/
 			pen::ai::StateAction* action = nullptr;
 			if (((float)std::rand() / RAND_MAX) < epsilon) {
-				action = s->policies[std::max(Rand(s->policiesNum) - 1, 0)];
+				action = s->policies[(int)pen::op::Max(Rand(s->policiesNum) - 1.0f, 0.0f)];
 			}
 			else {
 				action = s->policies[Argmax(s->policies, s->policiesNum)];

@@ -28,7 +28,7 @@ namespace pen {
 		Mat3x3(const float&& val, bool identity);
 		~Mat3x3();
 
-		float& operator[](int val);
+		float& operator[](int idx);
 		Mat3x3 operator*(const Mat3x3& b);
 	};
 }

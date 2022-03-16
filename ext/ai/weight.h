@@ -18,45 +18,25 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#include "mat3x3.h"
+#pragma once
+#include <iostream>
+#include "../../src/ops/matrices/mat.h"
 
 namespace pen {
-	Mat3x3::Mat3x3(const float&& val, bool identity) {
-		if (identity) {
-			for (int i = 0; i < 3; i++) {
-				for (int j = 0; j < 3; j++) {
-					matrix[i][j] = 0.0f;
-				}
-			}
-
-			matrix[0][0] = 1.0f;
-			matrix[1][1] = 1.0f;
-			matrix[2][2] = 1.0f;
-		}
-		else {
-			for (int i = 0; i < 3; i++) {
-				for (int j = 0; j < 3; j++) {
-					matrix[i][j] = val;
-				}
-			}
-		}
-	}
-
-	Mat3x3::~Mat3x3() {}
-
-	float& Mat3x3::operator[](int idx) {
-		return matrix[idx][idx];
-	}
-
-	Mat3x3 Mat3x3::operator*(const Mat3x3& b) {
-		Mat3x3 mat = Mat3x3(1.0f, false);
-
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				mat.matrix[i][j] = matrix[i][j] *= b.matrix[i][j];
-			}
-		}
-
-		return mat;
+	namespace ai {
+		class Weight {
+		public:
+			char stateId;
+			int numLayerNodes;
+			pen::Mat* weights;
+			pen::Mat* weightGrads;
+			pen::Mat* bias;
+			pen::Mat* biasGrads;
+			int length;
+		public:
+			Weight();
+			Weight(int numLayerNodes);
+			~Weight();
+		};
 	}
 }

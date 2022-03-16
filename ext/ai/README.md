@@ -82,11 +82,12 @@ To run an agent, do:
 
 # 1.4 - Running Free Agents
 
-FreeAgents are Agents that perform based on Q learning.
+FreeAgents are Agents that perform based on semi-gradient temporal difference learning.
 
 To run a FreeAgent first make one by doing:
 
 	pen::ai::Agent* agent = new pen::ai::FreeAgent();
+	agent->Init(pen::ai::Weight** userWeights, int userNumLayers, long userStateNum, int userNumEpisodes, float userEpsilon = 0.1f, float userStepSize = 0.1f);
 
 Then to run it do:
 
@@ -103,3 +104,18 @@ There should be at least one terminal state in order for each episode to end.
 Loading and saving FreeAgents work the same way as regular Agents.
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+# 1.5 - Initializing Weights
+
+Weight** weights = new Weight*[numStates];
+for(int i = 0; i < numStates; i++){
+	/*The number of layers is the hidden layers and the input layer*/
+	Weight* layerWeights = new Weight[numLayers];
+
+	for(int j = 0; j < numLayers; j++){
+		layerWeights[j] = new Weight(layers[i]->numNodes);
+	}
+	weights[i] = layerWeights;
+}
+
+Weights should be for every layer based on the the number of nodes for every state.

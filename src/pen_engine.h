@@ -47,6 +47,7 @@ under the License.
 #include "ops/matrices/mat4x4.h"
 #include "ops/matrices/mat2x4.h"
 #include "ops/matrices/mat3x3.h"
+#include "ops/matrices/mat.h"
 #include "ops/operations/operations.h"
 #include "ops/operations/trig.h"
 #include "ops/operations/3d.h"

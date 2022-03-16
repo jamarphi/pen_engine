@@ -28,7 +28,7 @@ namespace pen {
 		Mat2x4(const float&& val);
 		~Mat2x4();
 
-		float& operator[](int val);
+		float& operator[](int idx);
 		Mat2x4 operator*(const Mat2x4& b);
 	};
 }

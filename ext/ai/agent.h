@@ -19,11 +19,13 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
-#include <unordered_map>
 #include <vector>
 #include <fstream>
 #include <sstream>
 #include "ai_state.h"
+#include "../../src/ops/operations/trig.h"
+#include "../../src/ops/operations/operations.h"
+#include "weight.h"
 
 namespace pen {
 	namespace ai {
@@ -67,7 +69,7 @@ namespace pen {
 			float Reward(pen::ai::AIState* s, pen::ai::AIState* nextState);
 			float Prob(pen::ai::AIState* nextState, float reward, pen::ai::AIState* s, pen::ai::StateAction* a);
 			void UpdateShift(pen::ai::AIState* s, pen::ai::StateAction* a);
-			void PrintTransitions();
+			void PrintShifts();
 			virtual void Step(bool terminal);
 			static int Rand(int range);
 			static int WeightedRand(int range, float* probs);
@@ -82,6 +84,13 @@ namespace pen {
 			virtual void Save(const std::string& path);
 			virtual void Load(const std::string& path, pen::ai::Action** userActions, int numActions);
 
+			/*----Free Agents----*/
+			virtual Weight** GetWeights() { return nullptr; };
+			virtual int GetLayers() { return 0; };
+			virtual pen::Mat ComputeOutput(pen::Mat* input, Weight* weights, int numLayers) { return pen::Mat(); };
+			virtual void UpdateWeights(Weight* weights, pen::Mat* g, int numLayers) {};
+			virtual pen::Mat OneHot(int state) { return pen::Mat(); };
+			/*----Free Agents----*/
 		private:
 			std::string FormatList(int idx, char character, bool nested = false);
 			float* ParseStateList(std::string input, char character, int numStateParams);

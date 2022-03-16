@@ -31,8 +31,8 @@ namespace pen {
 
 	Mat2x4::~Mat2x4() {}
 
-	float& Mat2x4::operator[](int val) {
-		return matrix[val][val];
+	float& Mat2x4::operator[](int idx) {
+		return matrix[idx][idx];
 	}
 
 	Mat2x4 Mat2x4::operator*(const Mat2x4& b) {

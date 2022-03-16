@@ -35,7 +35,7 @@ namespace pen {
 			terminal = false;
 		}
 
-		AIState::AIState(char userId, int numStates, int numActions, float userReward, StateAction** userActions, bool terminalStatus, float* userState, int numStateParams) {
+		AIState::AIState(char userId, int numStates, int numActions, float userReward, pen::ai::StateAction** userActions, bool terminalStatus, float* userState, int numStateParams) {
 			/*Creates a state with a given policy*/
 			if (numActions <= numStates) {
 				id = userId;
@@ -43,7 +43,7 @@ namespace pen {
 				reward = userReward;
 				state = userState;
 				stateValue = 0.0f;
-				StateAction** p = new StateAction * [numActions];
+				pen::ai::StateAction** p = new pen::ai::StateAction * [numActions];
 				optimalPolicy = nullptr;
 				terminal = terminalStatus;
 
@@ -59,7 +59,7 @@ namespace pen {
 			}
 		}
 
-		Action* AIState::FindPolicy(long id) {
+		pen::ai::Action* AIState::FindPolicy(long id) {
 			/*Returns a policy based on the id*/
 			for (int i = 0; i < policiesNum; i++) {
 				if (policies[i]->policy->id == id) return policies[i]->policy;
