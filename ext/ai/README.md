@@ -107,15 +107,15 @@ Loading and saving FreeAgents work the same way as regular Agents.
 
 # 1.5 - Initializing Weights
 
-Weight** weights = new Weight*[numStates];
-for(int i = 0; i < numStates; i++){
-	/*The number of layers is the hidden layers and the input layer*/
-	Weight* layerWeights = new Weight[numLayers];
+	Weight** weights = new Weight*[numStates];
+	for(int i = 0; i < numStates; i++){
+		/*The number of layers is the hidden layers and the input layer*/
+		Weight* layerWeights = new Weight[numLayers];
 
-	for(int j = 0; j < numLayers; j++){
-		layerWeights[j] = new Weight(layers[i]->numNodes);
+		for(int j = 0; j < numLayers; j++){
+			layerWeights[j] = new Weight(layers[i]->numNodes);
+		}
+		weights[i] = layerWeights;
 	}
-	weights[i] = layerWeights;
-}
 
 Weights should be for every layer based on the the number of nodes for every state.
