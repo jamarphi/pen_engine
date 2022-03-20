@@ -28,12 +28,14 @@ namespace pen {
 		int height;
 	public:
 		Mat();
+		Mat(float data, int userWidth, int userHeight);
 		Mat(float* data, int userWidth, int userHeight);
 		Mat(float** data, int userWidth, int userHeight);
 		~Mat();
 		static void Delete(Mat* a);
 
 		Mat T();
+		Mat Sqrt();
 		float* operator[](int idx);
 		void operator|=(const Mat& b);
 		void operator|=(const Mat&& b);

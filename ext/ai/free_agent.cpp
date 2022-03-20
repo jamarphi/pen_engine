@@ -28,7 +28,7 @@ namespace pen {
 			pen::ai::Agent::nextId++;
 			lastAction = nullptr;
 			stepSize = 0.1f;
-			epsilon = 0.1f;
+			epsilon = 0.0001f;
 			initialState = nullptr;
 			numStates = 0;
 			states = nullptr;
@@ -40,6 +40,12 @@ namespace pen {
 			planningSteps = 10;
 			bonusFactor = 0.001f;
 			numEpisodes = 0;
+			numLayers = 0;
+			weights = nullptr;
+			mHatW = nullptr;
+			mHatB = nullptr;
+			vHatW = pen::Mat();
+			vHatB = pen::Mat();
 		}
 
 		FreeAgent::FreeAgent(const std::string& path, pen::ai::Action** userActions, int numActions) {
@@ -47,22 +53,28 @@ namespace pen {
 			id = -1;
 			lastAction = nullptr;
 			stepSize = 0.1f;
-			epsilon = 0.1f;
+			epsilon = 0.0001f;
 			initialState = nullptr;
 			numStates = 0;
 			states = nullptr;
 			currentState = nullptr;
 			shift = nullptr;
-			discountValue = 1.0f;
+			discountValue = 0.9f;
 			accuracyCap = 0.1f;
 			totalReward = 0.0f;
 			planningSteps = 10;
 			bonusFactor = 0.001f;
 			numEpisodes = 0;
+			numLayers = 0;
+			weights = nullptr;
+			mHatW = nullptr;
+			mHatB = nullptr;
+			vHatW = pen::Mat();
+			vHatB = pen::Mat();
 			Load(path, userActions, numActions);
 		}
 
-		void FreeAgent::Init(pen::ai::Weight** userWeights, int userNumLayers, long userStateNum, int userNumEpisodes, float userEpsilon, float userStepSize) {
+		void FreeAgent::Init(pen::ai::Weight* userWeights, int userNumLayers, long userStateNum, int userNumEpisodes, float userEpsilon, float userStepSize) {
 			/*Each agent should have its own states unless you want an agent to share learning with another agent*/
 			epsilon = userEpsilon;
 			stepSize = userStepSize;
@@ -71,8 +83,21 @@ namespace pen {
 			initialState = nullptr;
 			currentState = nullptr;
 			numEpisodes = userNumEpisodes;
-			weights = userWeights;
 			numLayers = userNumLayers;
+			weights = userWeights;
+
+			mHatW = new pen::Mat[userNumLayers - 1];
+			mHatB = new pen::Mat[userNumLayers - 1];
+			for (int i = 0; i < userNumLayers - 1; i++) {
+				if (i < userNumLayers - 2) {
+					mHatW[i] = pen::Mat(0.0f, userWeights[i + 1].numCurrLayerNodes, userWeights[i].numCurrLayerNodes);
+					mHatB[i] = pen::Mat(0.0f, userWeights[i + 1].numCurrLayerNodes, 1);
+				}
+				else {
+					vHatW = pen::Mat(0.0f, userWeights[i + 1].numCurrLayerNodes, userWeights[i].numCurrLayerNodes);
+					vHatB = pen::Mat(0.0f, userWeights[i + 1].numCurrLayerNodes, 1);
+				}
+			}
 
 			lastAction = ChooseAction(currentState);
 		}
@@ -81,29 +106,27 @@ namespace pen {
 			/*Take a step through the environment*/
 			pen::ai::AIState* s = states[(int)pen::op::Max(0.0f, Rand(numStates) - 1)];
 			pen::Mat lastStateV = OneHot((int)currentState->id);
-			pen::Mat lastValue = ComputeOutput(&lastStateV, weights[currentState->id], numLayers);
+			pen::Mat lastValue = ComputeOutput(&lastStateV, weights, numLayers);
 			pen::Mat delta = pen::Mat();
 			if (s->terminal) {
 				delta = (lastValue - s->reward) * -1.0f;
 			}
 			else {
 				pen::Mat currentStateV = OneHot((int)s->id);
-				pen::Mat currentValue = ComputeOutput(&currentStateV, weights[s->id], numLayers);
+				pen::Mat currentValue = ComputeOutput(&currentStateV, weights, numLayers);
 				delta = currentValue * discountValue - lastValue + s->reward;
 				lastAction = ChooseAction(s);
 			}
 
-			pen::Mat* g = new pen::Mat[numLayers];
-
 			for (int i = 0; i < numLayers; i++) {
-				g[i] = delta * *weights[0][i].weightGrads;
+				*weights[i].weightGrads = delta * *weights[i].weightGrads;
 			}
 
-			UpdateWeights(weights[s->id], g, numLayers);
+			UpdateWeights(weights, numLayers);
 			currentState = s;
 		}
 
-		Weight** FreeAgent::GetWeights() {
+		Weight* FreeAgent::GetWeights() {
 			/*Return the weights for this neural network*/
 			return weights;
 		}
@@ -160,21 +183,32 @@ namespace pen {
 			return layerVal;
 		}
 
-		void FreeAgent::UpdateWeights(Weight* weights, pen::Mat* grads, int numLayers) {
+		void FreeAgent::UpdateWeights(Weight* weights, int numLayers) {
 			/*Update the weights with the step size and gradients*/
 			for (int i = 0; i < numLayers - 1; i++) {
 				Weight* weight = &weights[i];
-				for (int j = 0; j < weight->length; j++) {
-					weight->weights->matrix[0][j] += (stepSize * grads[i].matrix[i][j]);
+				if (i < numLayers - 2) {
+					mHatW[i] |= (mHatW[i] * betaM + *weight->weightGrads * (1 - betaM)) / (1 - betaM);
+					mHatB[i] |= (mHatB[i] * betaM + *weight->biasGrads * (1 - betaM)) / (1 - betaM);
+					*weight->weights += (mHatW[i] * stepSize / (vHatW.Sqrt() + epsilon));
+					*weight->bias += (mHatB[i] * stepSize / (vHatB.Sqrt() + epsilon));
+				}
+				else {
+					for (int j = 0; j < weight->weightGrads->height; j++) {
+						vHatW |= (vHatW * betaV + *weight->weightGrads * *weight->weightGrads * (1 - betaV)) / (1 - betaV);
+						vHatB |= (vHatB * betaM + *weight->biasGrads * *weight->biasGrads * (1 - betaV)) / (1 - betaV);
+						*weight->weights = (*weight->weights * stepSize / (vHatW.Sqrt() + epsilon));
+						*weight->bias = (*weight->bias * stepSize / (vHatB.Sqrt() + epsilon));
+					}
 				}
 			}
 		}
 
 		pen::Mat FreeAgent::OneHot(int state) {
 			/*Creates a one hot vector representation of the given state*/
-			float* length = new float[numStates] {0.0f};
-			length[state - 1] = 1.0f;
-			return pen::Mat(length, numStates, 1);
+			float* values = new float[numStates] {0.0f};
+			values[state - 1] = 1.0f;
+			return pen::Mat(values, numStates, 1);
 		}
 
 		void FreeAgent::Save(const std::string& path) {
@@ -186,38 +220,46 @@ namespace pen {
 			if (modelFile.is_open()) {
 				bool writing = true;
 
-				/*Each state has weight data for each node of every layer*/
-				int counter = 0;
+				/*Each weight has data for a specific layer*/
 				bool header = true;
 
 				while (writing) {
 					input = "";
 					/*Write a weight*/
 					if (header) {
-						/*Write the header information before states*/
+						/*Write the header information before weights*/
 						input += ("epsilon:" + std::to_string(epsilon) + "\ndiscount value:" + std::to_string(discountValue) + "\nstep size:" + std::to_string(stepSize)
 							+ "\ninitial state id:" + std::to_string(initialState->id)
 							+ "\nnum episodes:" + std::to_string(numEpisodes) + "\nnum layers:" + std::to_string(numLayers)
-							+ "\nstate id/numLayerNodes/[weights]/[weight gradients]/[bias]/[bias gradients]/length\n");
+							+ "\n[m hat weights]^[m hat biases]^[v hat weights]^[v hat biases]");
+						modelFile << input;
+
+						for (int i = 0; i < numLayers - 1; i++) {
+							input = "[";
+							if (i < numLayers - 2) {
+								input += (FormatMatrix(&mHatW[i], ',') + " ]^[" + FormatMatrix(&mHatB[i], ',') + "]^");
+							}
+							else {
+								input += (FormatMatrix(&vHatW, ',') + " ]^[" + FormatMatrix(&vHatB, ',') + "]");
+							}
+						}
+						modelFile << input;
+						input = "\n====\nnum prev layer nodes/num current layer nodes/[weights]/[weight gradients]/[bias]/[bias gradients]/length\n";
 						modelFile << input;
 						header = false;
 					}
 					else {
-						pen::ai::Weight* weight = weights[counter];
 						for (int i = 0; i < numLayers; i++) {
-							input += (std::to_string(weight[i].stateId) + "/" + std::to_string(weight[i].numLayerNodes) + "/[" + FormatMatrix(weight[i].weights, ',') + "]/["
-								+ FormatMatrix(weight[i].weightGrads, ',') + "]/[" + FormatMatrix(weight[i].bias, ',') + "]/[" + FormatMatrix(weight[i].biasGrads, ',') + "]/"
-								+ std::to_string(weight[i].length));
-						}
-						
+							input = "";
+							input += (std::to_string(weights[i].numPrevLayerNodes) + "/" + std::to_string(weights[i].numCurrLayerNodes)
+								+ "/[" + FormatMatrix(weights[i].weights, ',') + "]/["
+								+ FormatMatrix(weights[i].weightGrads, ',') + "]/[" + FormatMatrix(weights[i].bias, ',') + "]/[" + FormatMatrix(weights[i].biasGrads, ',') + "]");
 
-						modelFile << (input + "\n----\n");
-
-						counter++;
-						if (counter == numStates) {
-							writing = false;
-							modelFile << "\n----\n";
+							modelFile << (input + "\n----\n");
 						}
+
+						writing = false;
+						modelFile << "\n----\n";
 					}
 				}
 				modelFile.close();
@@ -235,7 +277,6 @@ namespace pen {
 			bool header = true;
 			int counter = 0;
 			std::vector<pen::ai::Weight*> weightVector;
-			pen::Map<char, int> rowCountMap = pen::Map<char,int>();
 			modelFile.open(tempPath);
 			if (modelFile.is_open()) {
 				while (!modelFile.eof()) {
@@ -255,6 +296,29 @@ namespace pen {
 							counter++;
 						}
 						else {
+							std::getline(modelFile, input);
+							mHatW = new pen::Mat[numLayers - 1];
+							mHatB = new pen::Mat[numLayers - 1];
+
+							for (int i = 0; i < numLayers - 1; i++) {
+								if (i < numLayers - 2) {
+									matrixStr = Agent::Split(input, '^', i * 2);
+									matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
+									mHatW[i] = *ParseMatrix(matrixStr);
+									matrixStr = Agent::Split(input, '^', i * 2 + 1);
+									matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
+									mHatB[i] = *ParseMatrix(matrixStr);
+								}
+								else {
+									matrixStr = Agent::Split(input, '^', i * 2);
+									matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
+									vHatW = *ParseMatrix(matrixStr);
+									matrixStr = Agent::Split(input, '^', i * 2 + 1);
+									matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
+									vHatB = *ParseMatrix(matrixStr);
+								}
+							}
+
 							header = false;
 						}
 					}
@@ -264,8 +328,8 @@ namespace pen {
 						if (input == "----" || input == "====") continue;
 
 						weight = new pen::ai::Weight();
-						weight->stateId = pen::ai::Agent::Split(input, '/', 0)[0];
-						weight->numLayerNodes = std::stoi(pen::ai::Agent::Split(input, '/', 1));
+						weight->numPrevLayerNodes = std::stoi(pen::ai::Agent::Split(input, '/', 0));
+						weight->numCurrLayerNodes = std::stoi(pen::ai::Agent::Split(input, '/', 1));
 						matrixStr = Agent::Split(input, '/', 2);
 						matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
 						weight->weights = ParseMatrix(matrixStr);
@@ -278,34 +342,19 @@ namespace pen {
 						matrixStr = Agent::Split(input, '/', 5);
 						matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
 						weight->biasGrads = ParseMatrix(matrixStr);
-						weight->length = std::stoi(Agent::Split(input, '/', 6));
 
 						weightVector.push_back(weight);
-
-						if (rowCountMap.Find(weight->stateId) != nullptr) {
-							rowCountMap.Find(weight->stateId)->second += 1;
-						}
-						else {
-							rowCountMap.Insert(weight->stateId, 1);
-						}
 					}
 
 				}
 				modelFile.close();
 
-				/*Set the states in the agent*/
-				int rows = rowCountMap.Size();
+				/*Set the weights in the agent*/
+				int weightCount = weightVector.size();
 				int offset = 0;
-				weights = new pen::ai::Weight* [rows];
-				pen::ai::Weight* row = nullptr;
-				for (int j = 0; j < rows; j++) {
-					int groupItems = *rowCountMap[j];
-					row = new pen::ai::Weight[groupItems];
-					for (int i = 0; i < groupItems; i++) {
-						row[i] = *weightVector[offset + i];
-					}
-					offset += groupItems;
-					weights[j] = row;
+				weights = new pen::ai::Weight[weightCount];
+				for (int i = 0; i < weightCount; i++) {
+					weights[i] = *weightVector[i];
 				}
 
 				initialState = FindState(this, initialStateId);

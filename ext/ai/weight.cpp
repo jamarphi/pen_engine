@@ -27,34 +27,40 @@ namespace pen {
 			weightGrads = nullptr;
 			bias = nullptr;
 			biasGrads = nullptr;
-			length = 0;
 		}
 
-		Weight::Weight(int numLayerNodes) {
-			length = numLayerNodes;
-			weights = new pen::Mat();
-			weights->matrix = new float* [1];
-			weights->matrix[0] = new float[numLayerNodes];
-			weightGrads = new pen::Mat();
-			weightGrads->matrix = new float* [1];
-			weightGrads->matrix[0] = new float[numLayerNodes];
-			bias = new pen::Mat();
-			bias->matrix = new float* [1];
-			bias->matrix[0] = new float[numLayerNodes] {0.0f};
-			biasGrads = new pen::Mat();
-			biasGrads->matrix = new float* [1];
-			biasGrads->matrix[0] = new float[numLayerNodes] {0.0f};
+		Weight::Weight(int userNumPrevLayerNodes, int userNumCurrLayerNodes) {
+			numCurrLayerNodes = userNumCurrLayerNodes;
+			numPrevLayerNodes = userNumPrevLayerNodes;
+			weights = new pen::Mat(0.0f, userNumCurrLayerNodes, userNumPrevLayerNodes);
+			weightGrads = new pen::Mat(0.0f, userNumCurrLayerNodes, userNumPrevLayerNodes);
+			bias = new pen::Mat(0.0f, 1, userNumCurrLayerNodes);
+			biasGrads = new pen::Mat(0.0f, 1, userNumCurrLayerNodes);
 
-			for (int i = 0; i < numLayerNodes; i++) {
-				/*Randomize the weights and biases between 0 and 1*/
-				weights->matrix[0][i] = (float)std::rand() / RAND_MAX;
-				bias->matrix[0][i] = (float)std::rand() / RAND_MAX;
+
+			/*Randomize the weights and biases between 0 and 1*/
+			for (int j = 0; j < weights->height; j++) {
+				for (int i = 0; i < weights->width; i++) {
+					weights->matrix[j][i] = (float)std::rand() / RAND_MAX;
+				}
+			}
+
+			for (int j = 0; j < bias->height; j++) {
+				for (int i = 0; i < bias->width; i++) {
+					bias->matrix[j][i] = (float)std::rand() / RAND_MAX;
+				}
 			}
 		}
 
 		Weight::~Weight() {
-			if (weights != nullptr) delete[] weights;
-			if (bias != nullptr) delete[] bias;
+			if (weights != nullptr) {
+				pen::Mat::Delete(weights);
+				weights = nullptr;
+			}
+			if (bias != nullptr) {
+				pen::Mat::Delete(bias);
+				bias = nullptr;
+			}
 		}
 	}
 }

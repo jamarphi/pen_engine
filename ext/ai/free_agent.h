@@ -28,19 +28,25 @@ namespace pen {
 		class FreeAgent : public pen::ai::Agent {
 			/*FreeAgent is based on semi gradient temporal difference learning*/
 		private:
-			Weight** weights;
-			/*Number of hidden layers including the input layer*/
+			Weight* weights;
+			/*Number of hidden layers including the output layer*/
 			int numLayers;
+			float betaM = 0.9f;
+			float betaV = 0.99f;
+			pen::Mat* mHatW;
+			pen::Mat* mHatB;
+			pen::Mat vHatW;
+			pen::Mat vHatB;
 		public:
 			FreeAgent();
 			FreeAgent(const std::string& path, pen::ai::Action** userActions, int numActions);
-			void Init(pen::ai::Weight** userWeights, int userNumLayers, long userStateNum, int userNumEpisodes, float userEpsilon = 0.1f, float userStepSize = 0.1f);
+			void Init(pen::ai::Weight* userWeights, int userNumLayers, long userStateNum, int userNumEpisodes, float userEpsilon = 0.0001f, float userStepSize = 0.1f);
 			void Step();
 
-			Weight** GetWeights();
+			Weight* GetWeights();
 			int GetLayers();
 			pen::Mat ComputeOutput(pen::Mat* input, Weight* weights, int numLayers);
-			void UpdateWeights(Weight* weights, pen::Mat* g, int numLayers);
+			void UpdateWeights(Weight* weights, int numLayers);
 			pen::Mat OneHot(int state);
 
 			void Save(const std::string& path);

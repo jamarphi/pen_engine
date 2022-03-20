@@ -25,17 +25,17 @@ under the License.
 namespace pen {
 	namespace ai {
 		class Weight {
+			/*Each Weight contains the matrices for a given layer*/
 		public:
-			char stateId;
-			int numLayerNodes;
+			int numPrevLayerNodes;
+			int numCurrLayerNodes;
 			pen::Mat* weights;
 			pen::Mat* weightGrads;
 			pen::Mat* bias;
 			pen::Mat* biasGrads;
-			int length;
 		public:
 			Weight();
-			Weight(int numLayerNodes);
+			Weight(int userNumPrevLayerNodes, int userNumCurrLayerNodes);
 			~Weight();
 		};
 	}

@@ -27,6 +27,20 @@ namespace pen {
 		height = 0;
 	}
 
+	Mat::Mat(float data, int userWidth, int userHeight) {
+		width = userWidth;
+		height = userHeight;
+		matrix = new float* [userHeight];
+
+		for (int j = 0; j < userHeight; j++) {
+			float* row = new float[userWidth];
+			for (int i = 0; i < userWidth; i++) {
+				row[i] = data;
+			}
+			matrix[j] = row;
+		}
+	}
+
 	Mat::Mat(float* data, int userWidth, int userHeight) {
 		width = userWidth;
 		height = userHeight;
@@ -88,6 +102,22 @@ namespace pen {
 			float* row = new float[mat.width];
 			for (int i = 0; i < mat.width; i++) {
 				row[i] = matrix[i][j];
+			}
+			mat.matrix[j] = row;
+		}
+		return mat;
+	}
+
+	Mat Mat::Sqrt() {
+		/*Returns a square root of the matrix*/
+		Mat mat = Mat();
+		mat.width = height;
+		mat.height = width;
+		mat.matrix = new float* [width];
+		for (int j = 0; j < mat.height; j++) {
+			float* row = new float[mat.width];
+			for (int i = 0; i < mat.width; i++) {
+				row[i] = pen::op::Sqrt(matrix[i][j]);
 			}
 			mat.matrix[j] = row;
 		}

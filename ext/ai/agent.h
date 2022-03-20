@@ -85,10 +85,10 @@ namespace pen {
 			virtual void Load(const std::string& path, pen::ai::Action** userActions, int numActions);
 
 			/*----Free Agents----*/
-			virtual Weight** GetWeights() { return nullptr; };
+			virtual Weight* GetWeights() { return nullptr; };
 			virtual int GetLayers() { return 0; };
 			virtual pen::Mat ComputeOutput(pen::Mat* input, Weight* weights, int numLayers) { return pen::Mat(); };
-			virtual void UpdateWeights(Weight* weights, pen::Mat* g, int numLayers) {};
+			virtual void UpdateWeights(Weight* weights, int numLayers) {};
 			virtual pen::Mat OneHot(int state) { return pen::Mat(); };
 			/*----Free Agents----*/
 		private:
