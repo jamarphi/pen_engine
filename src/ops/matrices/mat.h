@@ -53,6 +53,7 @@ namespace pen {
 		Mat operator+(const float&& b);
 		void operator+=(const float& b);
 		void operator+=(const float&& b);
+		Mat Sum(bool row = true);
 
 		Mat operator-(const Mat& b);
 		Mat operator-(const Mat&& b);
@@ -73,6 +74,8 @@ namespace pen {
 		void operator*=(const float&& b);
 		Mat Mul(const Mat& b);
 		Mat Mul(const Mat&& b);
+		Mat Dot(const Mat& b);
+		Mat Dot(const Mat&& b);
 
 		Mat operator/(const Mat& b);
 		Mat operator/(const Mat&& b);
@@ -82,6 +85,8 @@ namespace pen {
 		Mat operator/(const float&& b);
 		void operator/=(const float& b);
 		void operator/=(const float&& b);
+
+		Mat Exp();
 
 		static Mat Max(const Mat& a, const Mat& b);
 		static Mat Max(const Mat&& a, const Mat& b);

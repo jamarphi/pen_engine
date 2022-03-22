@@ -34,6 +34,7 @@ namespace pen {
 		public:
 			long id;
 			void (*action)();
+			float value;
 			std::string actionName;
 		public:
 			Action(void (*userAction)(), const std::string& userActionName);
@@ -50,6 +51,16 @@ namespace pen {
 			long nextStateId;
 			std::string actionName;
 		public:
+			StateAction() {
+				id = -1;
+				policy = nullptr;
+				value = 0.0f;
+				reward = 0.0f;
+				visits = 0;
+				nextStateId = 0;
+				actionName = "";
+			}
+
 			StateAction(long* userId, Action* userAction, long userNextStateId, float nextStateReward, const std::string& userActionName, int numActions = -1) {
 				/*A container that has the probability of an action based on the state it is associated with as well as the next state from that current state given that action*/
 				id = *userId;

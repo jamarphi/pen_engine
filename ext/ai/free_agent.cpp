@@ -42,10 +42,9 @@ namespace pen {
 			numEpisodes = 0;
 			numLayers = 0;
 			weights = nullptr;
-			mHatW = nullptr;
-			mHatB = nullptr;
-			vHatW = pen::Mat();
-			vHatB = pen::Mat();
+			mHat = nullptr;
+			vHat = nullptr;
+			replayBuffer = nullptr;
 		}
 
 		FreeAgent::FreeAgent(const std::string& path, pen::ai::Action** userActions, int numActions) {
@@ -67,63 +66,78 @@ namespace pen {
 			numEpisodes = 0;
 			numLayers = 0;
 			weights = nullptr;
-			mHatW = nullptr;
-			mHatB = nullptr;
-			vHatW = pen::Mat();
-			vHatB = pen::Mat();
+			mHat = nullptr;
+			vHat = nullptr;
 			Load(path, userActions, numActions);
 		}
 
-		void FreeAgent::Init(pen::ai::Weight* userWeights, int userNumLayers, long userStateNum, int userNumEpisodes, float userEpsilon, float userStepSize) {
-			/*Each agent should have its own states unless you want an agent to share learning with another agent*/
+		FreeAgent::~FreeAgent() {
+			if (mHat != nullptr) {
+				pen::Mat::Delete(mHat);
+				mHat = nullptr;
+			}
+
+			if (vHat != nullptr) {
+				pen::Mat::Delete(vHat);
+				vHat = nullptr;
+			}
+
+			if (replayBuffer != nullptr) {
+				delete replayBuffer;
+				replayBuffer = nullptr;
+			}
+		}
+
+		void FreeAgent::Init(pen::Mat* userInitialState) {
+			/*Iintialize the environment for the free agent*/
+			prevState = *userInitialState;
+			prevAction = ChoosePolicy(userInitialState);
+			replayBuffer = new pen::ai::ReplayBuffer();
+		}
+
+		void FreeAgent::Init(pen::ai::Action** userActions, pen::ai::Weight* userWeights, pen::Mat* userInitialState, int userNumLayers, long userNumActions, int userNumEpisodes, float userEpsilon, float userStepSize) {
+			/*Iintialize the environment for the free agent*/
 			epsilon = userEpsilon;
 			stepSize = userStepSize;
-			numStates = userStateNum;
+			numActions = userNumActions;
 			states = nullptr;
 			initialState = nullptr;
 			currentState = nullptr;
 			numEpisodes = userNumEpisodes;
 			numLayers = userNumLayers;
+			actions = userActions;
 			weights = userWeights;
 
-			mHatW = new pen::Mat[userNumLayers - 1];
-			mHatB = new pen::Mat[userNumLayers - 1];
+			mHat = new pen::Mat[userNumLayers - 1];
+			vHat = new pen::Mat[userNumLayers - 1];
 			for (int i = 0; i < userNumLayers - 1; i++) {
-				if (i < userNumLayers - 2) {
-					mHatW[i] = pen::Mat(0.0f, userWeights[i + 1].numCurrLayerNodes, userWeights[i].numCurrLayerNodes);
-					mHatB[i] = pen::Mat(0.0f, userWeights[i + 1].numCurrLayerNodes, 1);
-				}
-				else {
-					vHatW = pen::Mat(0.0f, userWeights[i + 1].numCurrLayerNodes, userWeights[i].numCurrLayerNodes);
-					vHatB = pen::Mat(0.0f, userWeights[i + 1].numCurrLayerNodes, 1);
-				}
+				mHat[i] = pen::Mat(0.0f, userWeights[i + 1].numCurrLayerNodes, userWeights[i].numCurrLayerNodes);
+				vHat[i] = pen::Mat(0.0f, userWeights[i + 1].numCurrLayerNodes, userWeights[i].numCurrLayerNodes);
 			}
 
-			lastAction = ChooseAction(currentState);
+			prevState = *userInitialState;
+			prevAction = ChoosePolicy(userInitialState);
+			replayBuffer = new pen::ai::ReplayBuffer();
 		}
 
-		void FreeAgent::Step() {
-			/*Take a step through the environment*/
-			pen::ai::AIState* s = states[(int)pen::op::Max(0.0f, Rand(numStates) - 1)];
-			pen::Mat lastStateV = OneHot((int)currentState->id);
-			pen::Mat lastValue = ComputeOutput(&lastStateV, weights, numLayers);
-			pen::Mat delta = pen::Mat();
-			if (s->terminal) {
-				delta = (lastValue - s->reward) * -1.0f;
-			}
-			else {
-				pen::Mat currentStateV = OneHot((int)s->id);
-				pen::Mat currentValue = ComputeOutput(&currentStateV, weights, numLayers);
-				delta = currentValue * discountValue - lastValue + s->reward;
-				lastAction = ChooseAction(s);
+		void FreeAgent::Step(pen::Mat state, float reward) {
+			/*Take a step through the environment, the state is the vector of parameters that affect learning as a column vector*/
+			totalReward += reward;
+			pen::ai::Action* action = ChoosePolicy(&state);
+			replayBuffer->Insert({ prevState, prevAction, reward, prevState.matrix[0][0] == 0.0f ? state : pen::Mat(0.0f, prevState.width, prevState.height) });
+
+			/*Perform experience steps*/
+			if (replayBuffer->records.size() > replayBuffer->batchSize) {
+				for (int i = 0; i < replayBuffer->batchSize; i++) {
+					pen::ai::ReplayBufferData* experiences = replayBuffer->Sample();
+					Optimize(experiences, 0.001f);
+				}
 			}
 
-			for (int i = 0; i < numLayers; i++) {
-				*weights[i].weightGrads = delta * *weights[i].weightGrads;
+			if (prevState.matrix[0][0] == 0.0f) {
+				prevState = state;
+				prevAction = action;
 			}
-
-			UpdateWeights(weights, numLayers);
-			currentState = s;
 		}
 
 		Weight* FreeAgent::GetWeights() {
@@ -136,7 +150,7 @@ namespace pen {
 			return numLayers;
 		}
 
-		pen::Mat FreeAgent::ComputeOutput(pen::Mat* input, Weight* weights, int numLayers) {
+		pen::Mat FreeAgent::ComputeActionValues(pen::Mat* input, Weight* weights, int numLayers) {
 			/*Compute the output given the weights for the neural network*/
 			pen::Mat activation = pen::Mat();
 			pen::Mat layerVal = pen::Mat();
@@ -146,38 +160,13 @@ namespace pen {
 				pen::Mat biasMatrix = pen::Mat();
 				weightMatrix |= *weights[i].weights;
 				biasMatrix = *weights[i].bias;
-				if (i == 0) {					
-					layerVal |= (input->Mul(weightMatrix.T()) + biasMatrix);
+				if (i == 0) {
+					layerVal |= (input->Dot(weightMatrix.T()) + biasMatrix);
 				}
 				else {
-					layerVal |= activation.Mul(weightMatrix.T() + biasMatrix);
+					layerVal |= activation.Dot(weightMatrix.T() + biasMatrix);
 				}
 				activation |= pen::Mat::Max(layerVal, threshold);
-
-				/*Compute gradients*/
-				if (i < numLayers - 2) {
-					pen::Mat nextWeightMatrix = pen::Mat();
-					nextWeightMatrix |= *weights[i + 1].weights;
-					pen::Mat thresholdMatrix = pen::Mat();
-					pen::Mat weightsByThreshold = pen::Mat();
-					thresholdMatrix.matrix = new float* [activation.height];
-					for (int j = 0; j < activation.height; j++) {
-						float* row = new float[activation.width];
-						for (int k = 0; k < activation.width; k++) {
-							row[k] = (activation[j][k] > 0.0f ? 1.0f : 0.0f);
-						}
-						thresholdMatrix.matrix[j] = row;
-					}
-				
-					weightsByThreshold |= nextWeightMatrix.T() * thresholdMatrix;
-					*weights[i].weightGrads |= activation.Mul(weightsByThreshold);
-					*weights[i].biasGrads |= weightsByThreshold;
-				}
-				else {
-					*weights[i].weightGrads |= activation.T();
-					float* temp = new float[1]{ 1.0f };
-					*weights[i].biasGrads |= pen::Mat(temp, 1, 1);
-				}
 			}
 
 			return layerVal;
@@ -187,28 +176,177 @@ namespace pen {
 			/*Update the weights with the step size and gradients*/
 			for (int i = 0; i < numLayers - 1; i++) {
 				Weight* weight = &weights[i];
-				if (i < numLayers - 2) {
-					mHatW[i] |= (mHatW[i] * betaM + *weight->weightGrads * (1 - betaM)) / (1 - betaM);
-					mHatB[i] |= (mHatB[i] * betaM + *weight->biasGrads * (1 - betaM)) / (1 - betaM);
-					*weight->weights += (mHatW[i] * stepSize / (vHatW.Sqrt() + epsilon));
-					*weight->bias += (mHatB[i] * stepSize / (vHatB.Sqrt() + epsilon));
-				}
-				else {
-					for (int j = 0; j < weight->weightGrads->height; j++) {
-						vHatW |= (vHatW * betaV + *weight->weightGrads * *weight->weightGrads * (1 - betaV)) / (1 - betaV);
-						vHatB |= (vHatB * betaM + *weight->biasGrads * *weight->biasGrads * (1 - betaV)) / (1 - betaV);
-						*weight->weights = (*weight->weights * stepSize / (vHatW.Sqrt() + epsilon));
-						*weight->bias = (*weight->bias * stepSize / (vHatB.Sqrt() + epsilon));
-					}
+
+				for (int j = 0; j < weight->numCurrLayerNodes; j++) {
+					mHat[i] |= mHat[i] * betaM + *weight->weightGrads * (1 - betaM);
+					vHat[i] |= vHat[i] * betaV + *weight->weightGrads * *weight->biasGrads * (1 - betaV);
+					*weight->weights += (mHat[i] * stepSize / (vHat[i].Sqrt() + epsilon));
 				}
 			}
 		}
 
-		pen::Mat FreeAgent::OneHot(int state) {
-			/*Creates a one hot vector representation of the given state*/
-			float* values = new float[numStates] {0.0f};
-			values[state - 1] = 1.0f;
-			return pen::Mat(values, numStates, 1);
+		pen::Mat FreeAgent::Softmax(pen::Mat* actionValues, float tau) {
+			/*Returns action preferences given the action values*/
+			pen::Mat preferences = *actionValues / tau;
+			pen::Mat maxPreferences = pen::Mat(0.0f, 1, preferences.height);
+
+			for (int j = 0; j < preferences.height; j++) {
+				float maxVal = -100000.0f;
+				for (int i = 0; i < preferences.width; i++) {
+					if (maxVal < preferences[j][i]) maxVal = preferences[j][i];
+				}
+				maxPreferences.matrix[j][0] = maxVal;
+			}
+
+			pen::Mat expPreferences = (preferences - maxPreferences).Exp();
+			pen::Mat sumExpPreferences = expPreferences.Sum(true);
+
+			/*The distribution of action probabilities*/
+			return expPreferences / sumExpPreferences;
+		}
+
+		pen::Mat FreeAgent::TDError(pen::Mat* states, pen::Mat* nextStates, pen::Mat* actionsMat, pen::Mat* rewards, pen::Mat* terminals, float tau) {
+			/*Returns a TD error matrix*/
+			pen::Mat qNextMat = ComputeActionValues(nextStates, weights, numLayers);
+
+			/*Softmax policy selection*/
+			pen::Mat probsMat = Softmax(&qNextMat, tau);
+
+			pen::Mat vNextVec = (probsMat * qNextMat).Sum(true) * ((*terminals - 1.0f) * -1.0f);
+
+			/*Expected sarsa*/
+			pen::Mat targetVec = *rewards + vNextVec * discountValue;
+
+			pen::Mat qMat = ComputeActionValues(states, weights, numLayers);
+
+			/*Qvec is a list of the actions taken given the experiences from the replay buffer*/
+			pen::Mat qVec = pen::Mat(0.0f, qMat.height, 1);
+			for (int i = 0; i < qMat.height; i++) {
+				qVec.matrix[0][i] = qMat[i][(int)*actionsMat[0][i]];
+			}
+
+			return targetVec - qVec;
+		}
+
+		void FreeAgent::TDUpdate(pen::Mat* states, pen::Mat* delta) {
+			/*Update the gradients*/
+			pen::Mat activation = pen::Mat();
+			pen::Mat layerVal = pen::Mat();
+			float threshold = 0.0f;
+
+			for (int i = 0; i < numLayers - 1; i++) {
+				pen::Mat weightMatrix = pen::Mat();
+				pen::Mat biasMatrix = pen::Mat();
+				weightMatrix |= *weights[i].weights;
+				biasMatrix = *weights[i].bias;
+				if (i == 0) {
+					layerVal |= (states->Dot(weightMatrix.T()) + biasMatrix);
+				}
+				else {
+					layerVal |= activation.Dot(weightMatrix.T() + biasMatrix);
+				}
+				activation |= pen::Mat::Max(layerVal, threshold);
+
+				/*Compute the gradients*/
+				pen::Mat nextWeightMatrix = pen::Mat();
+				nextWeightMatrix |= *weights[i + 1].weights;
+				pen::Mat thresholdMatrix = pen::Mat();
+				thresholdMatrix.matrix = new float* [layerVal.height];
+				for (int j = 0; j < layerVal.height; j++) {
+					float* row = new float[layerVal.width];
+					for (int k = 0; k < layerVal.width; k++) {
+						row[k] = (layerVal[j][k] > 0.0f ? 1.0f : 0.0f);
+					}
+					thresholdMatrix.matrix[j] = row;
+				}
+
+				if (i == 0) {
+					pen::Mat v = *delta;
+					v |= v.Dot(nextWeightMatrix.T()) * thresholdMatrix;
+					*weights[i].weightGrads |= states->T().Dot(v) / numStateParams;
+					*weights[i].biasGrads |= v.Sum(false) / numStateParams;
+				}
+				else {
+					pen::Mat v = *delta;
+					*weights[i].weightGrads |= activation.T().Dot(v) / numStateParams;
+					*weights[i].biasGrads |= v.Sum(false) / numStateParams;
+				}
+			}
+		}
+
+		void FreeAgent::Optimize(pen::ai::ReplayBufferData* experiences, float tau) {
+			/*Optimize the network based on the replay experience*/
+			pen::Mat statesMat = pen::Mat(0.0f, replayBuffer->batchSize * numStateParams, 1);
+			pen::Mat actionMat = pen::Mat(0.0f, replayBuffer->batchSize, 1);
+			pen::Mat rewardsMat = pen::Mat(0.0f, replayBuffer->batchSize, 1);
+			pen::Mat terminalsMat = pen::Mat(0.0f, replayBuffer->batchSize, 1);
+			pen::Mat nextStatesMat = pen::Mat(0.0f, replayBuffer->batchSize * numStateParams, 1);
+			for (int i = 0; i < replayBuffer->batchSize; i++) {
+				/*The states and nextStates compact all state params into a row vector*/
+				for (int j = 0; j < numStateParams; j++) {
+					statesMat[0][i * numStateParams + j] = experiences[i].state.matrix[j][0];
+					nextStatesMat[0][i * numStateParams + j] = experiences[i].nextState.matrix[j][0];
+				}
+
+				actionMat[0][i] = experiences[i].action->id;
+				rewardsMat[0][i] = experiences[i].reward;
+				terminalsMat[0][i] = experiences[i].state.matrix[0][0];
+			}
+
+			pen::Mat deltaVec = TDError(&statesMat, &nextStatesMat, &actionMat, &rewardsMat, &terminalsMat, tau);
+
+			pen::Mat deltaMat = pen::Mat(0.0f, numActions, numStateParams);
+
+			for (int i = 0; i < deltaVec.width; i++) {
+				deltaMat.matrix[i][(int)actionMat[i]] = deltaVec.matrix[0][i];
+			}
+
+			TDUpdate(&statesMat, &deltaMat);
+			UpdateWeights(weights, numLayers);
+		}
+
+		pen::ai::Action* FreeAgent::ChoosePolicy(pen::Mat* s) {
+			/*Choose an action based on the softmax policy*/
+			pen::Mat actionValues = ComputeActionValues(s, weights, numLayers);
+			pen::Mat probs = Softmax(&actionValues, 0.001f);
+			return actions[WeightedRand(&probs)];
+		}
+
+		int FreeAgent::WeightedRand(pen::Mat* vec) {
+			/*Returns an index based on the weighted distribution of probability*/
+			int range = 0;
+			int weightSum = 0;
+			if (vec->height == 1) {
+				/*Row vector*/
+				range = vec->width;
+				for (int i = 0; i < range; i++) {
+					weightSum += vec->matrix[0][i];
+				}
+
+				int randNum = Rand(weightSum);
+				for (int j = 0; j < range; j++) {
+					if (randNum < vec->matrix[0][j]) {
+						return j;
+					}
+					randNum -= vec->matrix[0][j];
+				}
+			}
+			else if (vec->width == 1) {
+				/*Column vector*/
+				range = vec->height;
+				for (int i = 0; i < range; i++) {
+					weightSum += vec->matrix[i][0];
+				}
+
+				int randNum = Rand(weightSum);
+				for (int j = 0; j < range; j++) {
+					if (randNum < vec->matrix[j][0]) {
+						return j;
+					}
+					randNum -= vec->matrix[j][0];
+				}
+			}
+			return -1;
 		}
 
 		void FreeAgent::Save(const std::string& path) {
@@ -229,18 +367,18 @@ namespace pen {
 					if (header) {
 						/*Write the header information before weights*/
 						input += ("epsilon:" + std::to_string(epsilon) + "\ndiscount value:" + std::to_string(discountValue) + "\nstep size:" + std::to_string(stepSize)
-							+ "\ninitial state id:" + std::to_string(initialState->id)
-							+ "\nnum episodes:" + std::to_string(numEpisodes) + "\nnum layers:" + std::to_string(numLayers)
+							+ "\nnum actions:" + std::to_string(numActions)
+							+ "\nnum episodes:" + std::to_string(numEpisodes) + "\nnum layers:" + std::to_string(numLayers) + "\nnum state params:" + std::to_string(numStateParams)
 							+ "\n[m hat weights]^[m hat biases]^[v hat weights]^[v hat biases]");
 						modelFile << input;
 
 						for (int i = 0; i < numLayers - 1; i++) {
 							input = "[";
 							if (i < numLayers - 2) {
-								input += (FormatMatrix(&mHatW[i], ',') + " ]^[" + FormatMatrix(&mHatB[i], ',') + "]^");
+								input += (FormatMatrix(&mHat[i], ',') + " ]^[" + FormatMatrix(&vHat[i], ',') + "]^");
 							}
 							else {
-								input += (FormatMatrix(&vHatW, ',') + " ]^[" + FormatMatrix(&vHatB, ',') + "]");
+								input += (FormatMatrix(&mHat[i], ',') + " ]^[" + FormatMatrix(&vHat[i], ',') + "]");
 							}
 						}
 						modelFile << input;
@@ -266,14 +404,13 @@ namespace pen {
 			}
 		}
 
-		void FreeAgent::Load(const std::string& path, pen::ai::Action** userActions, int numActions) {
+		void FreeAgent::Load(const std::string& path, pen::ai::Action** userActions, long userNumActions) {
 			/*Load a free agent model*/
 			std::string tempPath = (path.find(".farlpen") != std::string::npos ? path : path + ".farlpen");
 			std::ifstream modelFile;
 			std::string input = "";
 			pen::ai::Weight* weight = nullptr;
 			std::string matrixStr = "";
-			char initialStateId = 0x00000000;
 			bool header = true;
 			int counter = 0;
 			std::vector<pen::ai::Weight*> weightVector;
@@ -282,41 +419,32 @@ namespace pen {
 				while (!modelFile.eof()) {
 					input = "";
 
-					/*Load a state*/
+					/*Load the weights*/
 					if (header) {
-						if (counter < 6) {
+						if (counter < 7) {
 							/*Grab the header meta data for the agent*/
 							std::getline(modelFile, input);
 							if (counter == 0) epsilon = std::stof(pen::ai::Agent::Split(input, ':', 1));
 							if (counter == 1) discountValue = std::stof(pen::ai::Agent::Split(input, ':', 1));
 							if (counter == 2) stepSize = std::stof(pen::ai::Agent::Split(input, ':', 1));
-							if (counter == 3) initialStateId = pen::ai::Agent::Split(input, ':', 1)[0];
+							if (counter == 3) numActions = std::stol(pen::ai::Agent::Split(input, ':', 1));
 							if (counter == 4) numEpisodes = std::stoi(pen::ai::Agent::Split(input, ':', 1));
 							if (counter == 5) numLayers = std::stoi(pen::ai::Agent::Split(input, ':', 1));
+							if (counter == 6) numStateParams = std::stoi(pen::ai::Agent::Split(input, ':', 1));
 							counter++;
 						}
 						else {
 							std::getline(modelFile, input);
-							mHatW = new pen::Mat[numLayers - 1];
-							mHatB = new pen::Mat[numLayers - 1];
+							mHat = new pen::Mat[numLayers - 1];
+							vHat = new pen::Mat[numLayers - 1];
 
 							for (int i = 0; i < numLayers - 1; i++) {
-								if (i < numLayers - 2) {
-									matrixStr = Agent::Split(input, '^', i * 2);
-									matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
-									mHatW[i] = *ParseMatrix(matrixStr);
-									matrixStr = Agent::Split(input, '^', i * 2 + 1);
-									matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
-									mHatB[i] = *ParseMatrix(matrixStr);
-								}
-								else {
-									matrixStr = Agent::Split(input, '^', i * 2);
-									matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
-									vHatW = *ParseMatrix(matrixStr);
-									matrixStr = Agent::Split(input, '^', i * 2 + 1);
-									matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
-									vHatB = *ParseMatrix(matrixStr);
-								}
+								matrixStr = Agent::Split(input, '^', i * 2);
+								matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
+								mHat[i] = *ParseMatrix(matrixStr);
+								matrixStr = Agent::Split(input, '^', i * 2 + 1);
+								matrixStr = matrixStr.substr(1, matrixStr.length() - 2);
+								vHat[i] = *ParseMatrix(matrixStr);
 							}
 
 							header = false;
@@ -351,16 +479,10 @@ namespace pen {
 
 				/*Set the weights in the agent*/
 				int weightCount = weightVector.size();
-				int offset = 0;
 				weights = new pen::ai::Weight[weightCount];
 				for (int i = 0; i < weightCount; i++) {
 					weights[i] = *weightVector[i];
 				}
-
-				initialState = FindState(this, initialStateId);
-				currentState = initialState;
-
-				lastAction = ChooseAction(initialState);
 			}
 		}
 

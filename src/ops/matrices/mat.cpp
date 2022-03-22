@@ -343,6 +343,28 @@ namespace pen {
 		}
 	}
 
+	Mat Mat::Sum(bool row) {
+		/*Returns a matrix of the sum from a given matrix*/
+		if (row) {
+			Mat mat = Mat(0.0f, 1, height);
+			for (int j = 0; j < height; j++) {
+				for (int i = 0; i < width; i++) {
+					mat.matrix[j][0] += matrix[j][i];
+				}
+			}
+			return mat;
+		}
+		else {
+			Mat mat = Mat(0.0f, width, 1);
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
+					mat.matrix[0][i] += matrix[j][i];
+				}
+			}
+			return mat;
+		}
+	}
+
 	Mat Mat::operator-(const Mat& b) {
 		/*Broadcasted subtraction between two matrices*/
 		Mat mat = Mat();
@@ -581,6 +603,46 @@ namespace pen {
 		return Mat();
 	}
 
+	Mat Mat::Dot(const Mat& b) {
+		/*Dot multiplication*/
+		if (width == b.height) {
+			Mat mat = Mat();
+			mat.width = 1;
+			mat.height = width;
+			mat.matrix = new float* [width];
+			for (int i = 0; i < width; i++) {
+				float* row = new float[1];
+				row[0] = 0.0f;
+				for (int j = 0; j < b.height; j++) {
+					row[0] += (matrix[i][j] * b.matrix[j][i]);
+				}
+				mat.matrix[i] = row;
+			}
+			return mat;
+		}
+		return Mat();
+	}
+
+	Mat Mat::Dot(const Mat&& b) {
+		/*Dot multiplication*/
+		if (width == b.height) {
+			Mat mat = Mat();
+			mat.width = 1;
+			mat.height = width;
+			mat.matrix = new float* [width];
+			for (int i = 0; i < width; i++) {
+				float* row = new float[1];
+				row[0] = 0.0f;
+				for (int j = 0; j < b.height; j++) {
+					row[0] += (matrix[i][j] * b.matrix[j][i]);
+				}
+				mat.matrix[i] = row;
+			}
+			return mat;
+		}
+		return Mat();
+	}
+
 	Mat Mat::operator/(const Mat& b) {
 		/*Broadcasted division between two matrices*/
 		Mat mat = Mat();
@@ -679,6 +741,22 @@ namespace pen {
 				matrix[j][i] = matrix[j][i] / b;
 			}
 		}
+	}
+
+	Mat Mat::Exp() {
+		/*Returns an exponential matrix of the given matrix*/
+		Mat mat = Mat();
+		mat.width = width;
+		mat.height = height;
+		mat.matrix = new float* [height];
+		for (int j = 0; j < height; j++) {
+			float* row = new float[width];
+			for (int i = 0; i < width; i++) {
+				row[i] = pen::op::Pow(2.71828f, matrix[j][i]);
+			}
+			mat.matrix[j] = row;
+		}
+		return mat;
 	}
 
 	Mat Mat::Max(const Mat& a, const Mat& b) {

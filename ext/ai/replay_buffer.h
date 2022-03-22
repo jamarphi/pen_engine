@@ -18,20 +18,30 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
+#pragma once
 #include "action.h"
+#include "../../src/ops/matrices/mat.h"
+#include <vector>
+#include <iostream>
+
 namespace pen {
 	namespace ai {
-		long Action::nextId = 0;
+		struct ReplayBufferData {
+			pen::Mat state;
+			pen::ai::Action* action;
+			float reward;
+			pen::Mat nextState;
+		};
 
-		Action::Action(void (*userAction)(), const std::string& userActionName) {
-			/*Creates an action to be used in policies*/
-			id = Action::nextId;
-			Action::nextId++;
-			action = userAction;
-			value = 0.0f;
-			actionName = userActionName;
-
-			if (actionName.find("()") != std::string::npos) actionName = actionName.substr(0, actionName.length() - 2);
-		}
+		class ReplayBuffer {
+		public:
+			std::vector<pen::ai::ReplayBufferData> records;
+			int size;
+			int batchSize;
+		public:
+			ReplayBuffer();
+			void Insert(pen::ai::ReplayBufferData data);
+			pen::ai::ReplayBufferData* Sample();
+		};
 	}
 }

@@ -413,7 +413,7 @@ namespace pen {
 			}
 		}
 
-		void Agent::Load(const std::string& path, pen::ai::Action** userActions, int numActions) {
+		void Agent::Load(const std::string& path, pen::ai::Action** userActions, long userNumActions) {
 			/*Load an agent model*/
 			std::string tempPath = (path.find(".arlpen") != std::string::npos ? path : path + ".arlpen");
 			std::ifstream modelFile;
@@ -433,7 +433,7 @@ namespace pen {
 				while (!modelFile.eof()) {
 					input = "";
 
-					/*Load a state*/
+					/*Load the states*/
 					if (header) {
 						if (counter < 6) {
 							/*Grab the header meta data for the agent*/
@@ -464,7 +464,7 @@ namespace pen {
 						s->state = Agent::ParseStateList(stateArr, ',', s->stateParamsNum);
 						policiesArr = Agent::Split(input, '/', 4);
 						policiesArr = policiesArr.substr(1, policiesArr.length() - 2);
-						s->policies = Agent::ParsePoliciesList(userActions, numActions, s->policiesNum, stateArr, ',');
+						s->policies = Agent::ParsePoliciesList(userActions, userNumActions, s->policiesNum, stateArr, ',');
 						s->reward = std::stof(Agent::Split(input, '/', 5));
 						s->stateValue = std::stof(Agent::Split(input, '/', 6));
 						optimalPi = Agent::Split(input, '/', 7);

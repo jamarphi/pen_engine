@@ -20,6 +20,7 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "agent.h"
+#include "replay_buffer.h"
 #include "../../src/ops/matrices/mat.h"
 #include "../../src/objects/containers/map.h"
 
@@ -28,29 +29,40 @@ namespace pen {
 		class FreeAgent : public pen::ai::Agent {
 			/*FreeAgent is based on semi gradient temporal difference learning*/
 		private:
+			pen::Mat prevState;
+			long numActions;
+			int numStateParams;
+			pen::ai::Action* prevAction;
+			pen::ai::Action** actions;
 			Weight* weights;
 			/*Number of hidden layers including the output layer*/
 			int numLayers;
 			float betaM = 0.9f;
 			float betaV = 0.99f;
-			pen::Mat* mHatW;
-			pen::Mat* mHatB;
-			pen::Mat vHatW;
-			pen::Mat vHatB;
+			pen::Mat* mHat;
+			pen::Mat* vHat;
+			pen::ai::ReplayBuffer* replayBuffer;
 		public:
 			FreeAgent();
 			FreeAgent(const std::string& path, pen::ai::Action** userActions, int numActions);
-			void Init(pen::ai::Weight* userWeights, int userNumLayers, long userStateNum, int userNumEpisodes, float userEpsilon = 0.0001f, float userStepSize = 0.1f);
-			void Step();
+			~FreeAgent();
+			void Init(pen::Mat* userInitialState);
+			void Init(pen::ai::Action** userActions, pen::ai::Weight* userWeights, pen::Mat* userInitialState, int userNumLayers, long userNumActions, int userNumEpisodes, float userEpsilon = 0.0001f, float userStepSize = 0.1f);
+			void Step(pen::Mat state, float reward);
 
 			Weight* GetWeights();
 			int GetLayers();
-			pen::Mat ComputeOutput(pen::Mat* input, Weight* weights, int numLayers);
+			pen::Mat ComputeActionValues(pen::Mat* input, Weight* weights, int numLayers);
 			void UpdateWeights(Weight* weights, int numLayers);
-			pen::Mat OneHot(int state);
+			pen::Mat Softmax(pen::Mat* actionValues, float tau);
+			pen::Mat TDError(pen::Mat* states, pen::Mat* nextStates, pen::Mat* actionsMat, pen::Mat* rewards, pen::Mat* terminals, float tau);
+			void TDUpdate(pen::Mat* states, pen::Mat* delta);
+			void Optimize(pen::ai::ReplayBufferData* experiences, float tau);
+			pen::ai::Action* ChoosePolicy(pen::Mat* s);
+			int WeightedRand(pen::Mat* vec);
 
 			void Save(const std::string& path);
-			void Load(const std::string& path, pen::ai::Action** userActions, int numActions);
+			void Load(const std::string& path, pen::ai::Action** userActions, long userNumActions);
 
 		private:
 			pen::Mat* ParseMatrix(std::string input);

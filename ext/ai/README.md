@@ -2,6 +2,9 @@
 
 Agents act within an environment with a set of actions using a model.  Agents are based on the DynaQ+ architecture.
 Agents should have all the information they would need in each state in order to make a decision within the environment.
+For situations where there is an infinite number of states within a range, such as a pixel array for images, FreeAgents should be used.
+If FreeAgents are used, then sections 1.2 and 1.3 do not apply.
+
 To define an Agent, do:
 
 	pen::ai::Agent* agent = new pen::ai::Agent();
@@ -10,7 +13,7 @@ To define an Agent, do:
 You can also create agents without intializing by loading them from .arlpen files by doing:
 	
 	pen::ai::Agent* agent = new pen::ai::Agent();
-	agent->Load(const std::string& path, Action** userActions, int numActions);
+	agent->Load(const std::string& path, Action** userActions, long userNumActions);
 
 For loading you have to have the Action** array already defined with actions passed in to do this.  You don not need to call Init when loading in anything.
 
@@ -82,41 +85,51 @@ To run an agent, do:
 
 # 1.4 - Running Free Agents
 
-FreeAgents are Agents that perform based on semi-gradient temporal difference learning.
+FreeAgents are Agents that perform based on a continuous state environment.
 
-To run a FreeAgent first make one by doing:
-
-	pen::ai::Agent* agent = new pen::ai::FreeAgent();
-	agent->Init(pen::ai::Weight* userWeights, int userNumLayers, long userStateNum, int userNumEpisodes, float userEpsilon = 0.0001f, float userStepSize = 0.1f);
-
-
-
-Then to run it do:
-
-	bool terminal = false;
-	for(int i = 0; i < agent->numEpisodes; i++){
-		while(!terminal){
-			agent->Step();
-			terminal = agent->currentState->terminal;
-		}
-	}
-
-There should be at least one terminal state in order for each episode to end.
-
-Loading and saving FreeAgents work the same way as regular Agents.
-
-----------------------------------------------------------------------------------------------------------------------------------------------------
-
-# 1.5 - Initializing Weights
-
-There should be a Weight for each layer:
+To use a FreeAgent first initialize its weights:
 
 	Weight* weights = new Weight[numLayers];
 	for(int i = 0; i < numLayers; i++){
 		/*The number of layers is the hidden layers and the output layer*/
 		if (i == 0) {
-			weights[i] = new Weight(inputFeaturesNum, layers[i]->numNodes);
+			weights[i] = new Weight(stateFeaturesNum, layers[i]->numNodes);
 		}else{
 			weights[i] = new Weight(layers[i - 1]->numNodes, layers[i]->numNodes);
 		}
 	}
+
+There should be a Weight for each layer.
+
+To run a FreeAgent first make one by doing:
+
+	pen::ai::Agent* agent = new pen::ai::FreeAgent();
+	agent->Init(pen::ai::Action** userActions, pen::ai::Weight* userWeights, pen::Mat* userInitialState, int userNumLayers, long userNumActions, int userNumEpisodes, float userEpsilon = 0.0001f, float userStepSize = 0.1f);
+
+The userInitialState is a column vector for the state features.
+Each state features column vector should be the same length and have the initial element state whether this is a terminal state or not.
+The state features should be a pen::Mat column vector that contains everything within the environment needed to make decisions.
+This vector should always be the same height.
+
+	pen::Mat stateFeatures = pen::Mat(0.0f, 1, numStateParams);
+	stateFeatures.matrix[0][0] = isTerminal ? 1.0f : 0.0f;
+
+Then to run it do:
+
+	bool terminal = false;
+	while(!terminal){
+		agent->Step(pen::Mat stateFeatures, float reward);
+		terminal = SpecificImplementation();
+	}
+
+The reward is based on the specific set of state features passed in, most of these can be 0.0f with the terminal states being a huge positive number.
+Most of these states can also be negative numbers with the terminal states being a huge positive number to encourage the agent to get to the terminal states faster.
+It is up to the specific implementation as to when episodes should end.
+
+Saving FreeAgents work the same way as regular Agents, but loading is different.
+Once you load in a FreeAgent you have to pass in the initial state column vector of the environment since it could have changed since last time:
+
+	agent->Load(const std::string& path, Action** userActions, long userNumActions);
+	agent->Init(pen::Mat* stateFeatures);
+
+----------------------------------------------------------------------------------------------------------------------------------------------------

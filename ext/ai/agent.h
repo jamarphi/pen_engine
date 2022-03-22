@@ -26,6 +26,7 @@ under the License.
 #include "../../src/ops/operations/trig.h"
 #include "../../src/ops/operations/operations.h"
 #include "weight.h"
+#include "replay_buffer.h"
 
 namespace pen {
 	namespace ai {
@@ -71,8 +72,8 @@ namespace pen {
 			void UpdateShift(pen::ai::AIState* s, pen::ai::StateAction* a);
 			void PrintShifts();
 			virtual void Step(bool terminal);
-			static int Rand(int range);
-			static int WeightedRand(int range, float* probs);
+			int Rand(int range);
+			virtual int WeightedRand(int range, float* probs);
 			float Max(pen::ai::AIState* s);
 			int Argmax(pen::ai::StateAction** qValues, int length);
 			void QGreedify(pen::ai::AIState* s);
@@ -82,14 +83,11 @@ namespace pen {
 			void Plan(bool terminal);
 			pen::ai::StateAction* ChooseAction(pen::ai::AIState* s);
 			virtual void Save(const std::string& path);
-			virtual void Load(const std::string& path, pen::ai::Action** userActions, int numActions);
+			virtual void Load(const std::string& path, pen::ai::Action** userActions, long userNumActions);
 
 			/*----Free Agents----*/
 			virtual Weight* GetWeights() { return nullptr; };
 			virtual int GetLayers() { return 0; };
-			virtual pen::Mat ComputeOutput(pen::Mat* input, Weight* weights, int numLayers) { return pen::Mat(); };
-			virtual void UpdateWeights(Weight* weights, int numLayers) {};
-			virtual pen::Mat OneHot(int state) { return pen::Mat(); };
 			/*----Free Agents----*/
 		private:
 			std::string FormatList(int idx, char character, bool nested = false);

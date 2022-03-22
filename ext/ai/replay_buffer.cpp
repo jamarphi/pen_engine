@@ -18,20 +18,35 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#include "action.h"
+#pragma once
+#include "replay_buffer.h"
+
 namespace pen {
 	namespace ai {
-		long Action::nextId = 0;
+		ReplayBuffer::ReplayBuffer() {
+			size = 20;
+			batchSize = 20;
+		}
 
-		Action::Action(void (*userAction)(), const std::string& userActionName) {
-			/*Creates an action to be used in policies*/
-			id = Action::nextId;
-			Action::nextId++;
-			action = userAction;
-			value = 0.0f;
-			actionName = userActionName;
+		void ReplayBuffer::Insert(pen::ai::ReplayBufferData data) {
+			/*Adds a record to the queue*/
+			if (records.size() > size) {
+				std::vector<pen::ai::ReplayBufferData> tempList;
+				for (int i = 1; i < records.size(); i++) {
+					tempList.push_back(records[i]);
+				}
+				records = tempList;
+			}
+			records.push_back(data);
+		}
 
-			if (actionName.find("()") != std::string::npos) actionName = actionName.substr(0, actionName.length() - 2);
+		pen::ai::ReplayBufferData* ReplayBuffer::Sample() {
+			/*Returns a list of indices chosen at random*/
+			pen::ai::ReplayBufferData* samples = new pen::ai::ReplayBufferData[batchSize];
+			for (int i = 0; i < batchSize; i++) {
+				samples[i] = records[((int)(((float)std::rand() / RAND_MAX) + records.size()))];
+			}
+			return samples;
 		}
 	}
 }
