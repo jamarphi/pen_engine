@@ -40,6 +40,9 @@ namespace pen {
 			bonusFactor = 0.001f;
 			numEpisodes = 0;
 			numLayers = 0;
+			betaM = 0.9f;
+			betaV = 0.99f;
+			preferenceFactor = 0.001f;
 			weights = nullptr;
 			mHat = nullptr;
 			vHat = nullptr;
@@ -63,6 +66,9 @@ namespace pen {
 			bonusFactor = 0.001f;
 			numEpisodes = 0;
 			numLayers = 0;
+			betaM = 0.9f;
+			betaV = 0.99f;
+			preferenceFactor = 0.001f;
 			weights = nullptr;
 			mHat = nullptr;
 			vHat = nullptr;
@@ -128,7 +134,7 @@ namespace pen {
 			if (replayBuffer->records.size() > replayBuffer->batchSize) {
 				for (int i = 0; i < replayBuffer->batchSize; i++) {
 					pen::ai::ReplayBufferData* experiences = replayBuffer->Sample();
-					Optimize(experiences, 0.001f);
+					Optimize(experiences);
 				}
 			}
 
@@ -148,7 +154,7 @@ namespace pen {
 			return numLayers;
 		}
 
-		pen::Mat FreeAgent::ComputeActionValues(pen::Mat* input, Weight* weights, int numLayers) {
+		pen::Mat FreeAgent::ComputeActionValues(pen::Mat* input) {
 			/*Compute the output given the weights for the neural network*/
 			pen::Mat activation = pen::Mat();
 			pen::Mat layerVal = pen::Mat();
@@ -183,9 +189,9 @@ namespace pen {
 			}
 		}
 
-		pen::Mat FreeAgent::Softmax(pen::Mat* actionValues, float tau) {
+		pen::Mat FreeAgent::Softmax(pen::Mat* actionValues) {
 			/*Returns action preferences given the action values*/
-			pen::Mat preferences = *actionValues / tau;
+			pen::Mat preferences = *actionValues / preferenceFactor;
 			pen::Mat maxPreferences = pen::Mat(0.0f, 1, preferences.height);
 
 			for (int j = 0; j < preferences.height; j++) {
@@ -203,19 +209,19 @@ namespace pen {
 			return expPreferences / sumExpPreferences;
 		}
 
-		pen::Mat FreeAgent::TDError(pen::Mat* states, pen::Mat* nextStates, pen::Mat* actionsMat, pen::Mat* rewards, pen::Mat* terminals, float tau) {
+		pen::Mat FreeAgent::TDError(pen::Mat* states, pen::Mat* nextStates, pen::Mat* actionsMat, pen::Mat* rewards, pen::Mat* terminals) {
 			/*Returns a TD error matrix*/
-			pen::Mat qNextMat = ComputeActionValues(nextStates, weights, numLayers);
+			pen::Mat qNextMat = ComputeActionValues(nextStates);
 
 			/*Softmax policy selection*/
-			pen::Mat probsMat = Softmax(&qNextMat, tau);
+			pen::Mat probsMat = Softmax(&qNextMat);
 
 			pen::Mat vNextVec = (probsMat * qNextMat).Sum(true) * ((*terminals - 1.0f) * -1.0f);
 
 			/*Expected sarsa*/
 			pen::Mat targetVec = *rewards + vNextVec * discountValue;
 
-			pen::Mat qMat = ComputeActionValues(states, weights, numLayers);
+			pen::Mat qMat = ComputeActionValues(states);
 
 			/*Qvec is a list of the actions taken given the experiences from the replay buffer*/
 			pen::Mat qVec = pen::Mat(0.0f, qMat.height, 1);
@@ -272,7 +278,7 @@ namespace pen {
 			}
 		}
 
-		void FreeAgent::Optimize(pen::ai::ReplayBufferData* experiences, float tau) {
+		void FreeAgent::Optimize(pen::ai::ReplayBufferData* experiences) {
 			/*Optimize the network based on the replay experience*/
 			pen::Mat statesMat = pen::Mat(0.0f, replayBuffer->batchSize * numStateParams, 1);
 			pen::Mat actionMat = pen::Mat(0.0f, replayBuffer->batchSize, 1);
@@ -291,7 +297,7 @@ namespace pen {
 				terminalsMat[0][i] = experiences[i].state.matrix[0][0];
 			}
 
-			pen::Mat deltaVec = TDError(&statesMat, &nextStatesMat, &actionMat, &rewardsMat, &terminalsMat, tau);
+			pen::Mat deltaVec = TDError(&statesMat, &nextStatesMat, &actionMat, &rewardsMat, &terminalsMat);
 
 			pen::Mat deltaMat = pen::Mat(0.0f, numActions, numStateParams);
 
@@ -305,8 +311,8 @@ namespace pen {
 
 		pen::ai::Action* FreeAgent::ChoosePolicy(pen::Mat* s) {
 			/*Choose an action based on the softmax policy*/
-			pen::Mat actionValues = ComputeActionValues(s, weights, numLayers);
-			pen::Mat probs = Softmax(&actionValues, 0.001f);
+			pen::Mat actionValues = ComputeActionValues(s);
+			pen::Mat probs = Softmax(&actionValues);
 			return actions[WeightedRand(&probs)];
 		}
 

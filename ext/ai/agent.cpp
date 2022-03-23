@@ -82,18 +82,6 @@ namespace pen {
 			return nullptr;
 		}
 
-		void Agent::DeleteStates() {
-			/*Deletes the states*/
-			for (int i = 0; i < numStates; i++) {
-				delete[] states[i]->policies;
-				states[i]->policies = nullptr;
-				delete states[i];
-				states[i] = nullptr;
-			}
-			delete[] states;
-			states = nullptr;
-		}
-
 		void Agent::Step(bool terminal) {
 			/*Take a step through the environment*/
 

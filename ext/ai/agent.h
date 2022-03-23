@@ -56,9 +56,7 @@ namespace pen {
 			pen::ai::AIState* FindState(Agent* agent, char stateId);
 			virtual void Step(bool terminal);
 			virtual void Save(const std::string& path);
-			virtual void Load(const std::string& path, pen::ai::Action** userActions, long userNumActions);
-			void DeleteStates();
-			
+			virtual void Load(const std::string& path, pen::ai::Action** userActions, long userNumActions);			
 		private:
 			int Rand(int range);
 			virtual int WeightedRand(int range, float* probs);

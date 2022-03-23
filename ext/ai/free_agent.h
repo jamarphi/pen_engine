@@ -37,8 +37,9 @@ namespace pen {
 			Weight* weights;
 			/*Number of hidden layers including the output layer*/
 			int numLayers;
-			float betaM = 0.9f;
-			float betaV = 0.99f;
+			float betaM;
+			float betaV;
+			float preferenceFactor;
 			pen::Mat* mHat;
 			pen::Mat* vHat;
 			pen::ai::ReplayBuffer* replayBuffer;
@@ -54,12 +55,12 @@ namespace pen {
 			Weight* GetWeights();
 			int GetLayers();
 		private:
-			pen::Mat ComputeActionValues(pen::Mat* input, Weight* weights, int numLayers);
+			pen::Mat ComputeActionValues(pen::Mat* input);
 			void UpdateWeights(Weight* weights, int numLayers);
-			pen::Mat Softmax(pen::Mat* actionValues, float tau);
-			pen::Mat TDError(pen::Mat* states, pen::Mat* nextStates, pen::Mat* actionsMat, pen::Mat* rewards, pen::Mat* terminals, float tau);
+			pen::Mat Softmax(pen::Mat* actionValues);
+			pen::Mat TDError(pen::Mat* states, pen::Mat* nextStates, pen::Mat* actionsMat, pen::Mat* rewards, pen::Mat* terminals);
 			void TDUpdate(pen::Mat* states, pen::Mat* delta);
-			void Optimize(pen::ai::ReplayBufferData* experiences, float tau);
+			void Optimize(pen::ai::ReplayBufferData* experiences);
 			pen::ai::Action* ChoosePolicy(pen::Mat* s);
 			int WeightedRand(pen::Mat* vec);
 			pen::Mat* ParseMatrix(std::string input);
