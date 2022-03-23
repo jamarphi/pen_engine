@@ -41,7 +41,7 @@ The action name that gets passed in is case-sensitive.  Every action that is pos
 # 1.2 - Creating AIStates
 
 The ids for AIStates should be defined in a look up structure before creating these states since each application
-is different.
+is different.  The states can be used for multiple agents at the same time or separately depending on the application.
 
 When creating AIStates, StateActions need to be passed into the AIState from the given Actions:
 
@@ -63,7 +63,7 @@ The userState and numStateParams fields are optional if you want to add data for
 
 You can grab pointers to states by doing:
 
-	pen::ai::AIState* state = FindState(pen::ai::Agent* agent, char stateId);
+	pen::ai::AIState* state = pen::ai::Agent::FindState(pen::ai::Agent* agent, char stateId);
 
 You can grab pointers to actions from a state by doing:
 

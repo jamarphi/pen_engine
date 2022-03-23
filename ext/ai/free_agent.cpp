@@ -33,7 +33,6 @@ namespace pen {
 			numStates = 0;
 			states = nullptr;
 			currentState = nullptr;
-			shift = nullptr;
 			discountValue = 0.9f;
 			accuracyCap = 0.1f;
 			totalReward = 0.0f;
@@ -48,7 +47,7 @@ namespace pen {
 		}
 
 		FreeAgent::FreeAgent(const std::string& path, pen::ai::Action** userActions, int numActions) {
-			/*Load in an agent with the actions already defined*/
+			/*Load in an agent from file*/
 			id = -1;
 			lastAction = nullptr;
 			stepSize = 0.1f;
@@ -57,7 +56,6 @@ namespace pen {
 			numStates = 0;
 			states = nullptr;
 			currentState = nullptr;
-			shift = nullptr;
 			discountValue = 0.9f;
 			accuracyCap = 0.1f;
 			totalReward = 0.0f;
@@ -89,14 +87,14 @@ namespace pen {
 		}
 
 		void FreeAgent::Init(pen::Mat* userInitialState) {
-			/*Iintialize the environment for the free agent*/
+			/*Initialize the environment for the free agent*/
 			prevState = *userInitialState;
 			prevAction = ChoosePolicy(userInitialState);
 			replayBuffer = new pen::ai::ReplayBuffer();
 		}
 
 		void FreeAgent::Init(pen::ai::Action** userActions, pen::ai::Weight* userWeights, pen::Mat* userInitialState, int userNumLayers, long userNumActions, int userNumEpisodes, float userEpsilon, float userStepSize) {
-			/*Iintialize the environment for the free agent*/
+			/*Initialize the environment for the free agent*/
 			epsilon = userEpsilon;
 			stepSize = userStepSize;
 			numActions = userNumActions;

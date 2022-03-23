@@ -30,18 +30,8 @@ under the License.
 
 namespace pen {
 	namespace ai {
-		struct Shift {
-			long stateId;
-			long nextStateId;
-			pen::ai::StateAction* action;
-			/*Reward of the given state and the successor state*/
-			float reward;
-			/*Probability of a successor state given a state*/
-			float prob;
-		};
-
 		class Agent {
-			/*The base agent is based on the dynaq+ architecture*/
+			/*This agent is based on the dynaq+ architecture*/
 			friend class FreeAgent;
 		public:
 			static long nextId;
@@ -53,7 +43,6 @@ namespace pen {
 			long numStates;
 			pen::ai::AIState** states;
 			pen::ai::AIState* currentState;
-			Shift** shift;
 			float discountValue;
 			float accuracyCap;
 			float totalReward;
@@ -64,36 +53,29 @@ namespace pen {
 			Agent();
 			Agent(const std::string& path, pen::ai::Action** userActions, int numActions);
 			virtual void Init(pen::ai::AIState** userStates, long userStateNum, pen::ai::AIState* initialState, int numPlanningSteps, float userEpsilon = 0.1f, float userStepSize = 0.1f);
-			~Agent();
 			pen::ai::AIState* FindState(Agent* agent, char stateId);
-			void DeleteStates();
-			float Reward(pen::ai::AIState* s, pen::ai::AIState* nextState);
-			float Prob(pen::ai::AIState* nextState, float reward, pen::ai::AIState* s, pen::ai::StateAction* a);
-			void UpdateShift(pen::ai::AIState* s, pen::ai::StateAction* a);
-			void PrintShifts();
 			virtual void Step(bool terminal);
+			virtual void Save(const std::string& path);
+			virtual void Load(const std::string& path, pen::ai::Action** userActions, long userNumActions);
+			void DeleteStates();
+			
+		private:
 			int Rand(int range);
 			virtual int WeightedRand(int range, float* probs);
 			float Max(pen::ai::AIState* s);
 			int Argmax(pen::ai::StateAction** qValues, int length);
-			void QGreedify(pen::ai::AIState* s);
-			void ValueIteration();
-			void OptimalityUpdate(pen::ai::AIState* s);
 			void UpdateModel(pen::ai::AIState* s, float reward);
 			void Plan(bool terminal);
 			pen::ai::StateAction* ChooseAction(pen::ai::AIState* s);
-			virtual void Save(const std::string& path);
-			virtual void Load(const std::string& path, pen::ai::Action** userActions, long userNumActions);
+			std::string FormatList(int idx, char character, bool nested = false);
+			float* ParseStateList(std::string input, char character, int numStateParams);
+			pen::ai::StateAction** ParsePoliciesList(pen::ai::Action** actionList, int numActions, int policiesNum, std::string input, char character);
+			std::string Split(const std::string& line, const char& character, const unsigned int& section);
 
 			/*----Free Agents----*/
 			virtual Weight* GetWeights() { return nullptr; };
 			virtual int GetLayers() { return 0; };
 			/*----Free Agents----*/
-		private:
-			std::string FormatList(int idx, char character, bool nested = false);
-			float* ParseStateList(std::string input, char character, int numStateParams);
-			pen::ai::StateAction** ParsePoliciesList(pen::ai::Action** actionList, int numActions, int policiesNum, std::string input, char character);
-			std::string Split(const std::string& line, const char& character, const unsigned int& section);
 		};
 	}
 }

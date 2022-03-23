@@ -27,7 +27,7 @@ under the License.
 namespace pen {
 	namespace ai {
 		class FreeAgent : public pen::ai::Agent {
-			/*FreeAgent is based on semi gradient temporal difference learning*/
+			/*FreeAgent is based on learning within an infinite state environment*/
 		private:
 			pen::Mat prevState;
 			long numActions;
@@ -49,9 +49,11 @@ namespace pen {
 			void Init(pen::Mat* userInitialState);
 			void Init(pen::ai::Action** userActions, pen::ai::Weight* userWeights, pen::Mat* userInitialState, int userNumLayers, long userNumActions, int userNumEpisodes, float userEpsilon = 0.0001f, float userStepSize = 0.1f);
 			void Step(pen::Mat state, float reward);
-
+			void Save(const std::string& path);
+			void Load(const std::string& path, pen::ai::Action** userActions, long userNumActions);
 			Weight* GetWeights();
 			int GetLayers();
+		private:
 			pen::Mat ComputeActionValues(pen::Mat* input, Weight* weights, int numLayers);
 			void UpdateWeights(Weight* weights, int numLayers);
 			pen::Mat Softmax(pen::Mat* actionValues, float tau);
@@ -60,11 +62,6 @@ namespace pen {
 			void Optimize(pen::ai::ReplayBufferData* experiences, float tau);
 			pen::ai::Action* ChoosePolicy(pen::Mat* s);
 			int WeightedRand(pen::Mat* vec);
-
-			void Save(const std::string& path);
-			void Load(const std::string& path, pen::ai::Action** userActions, long userNumActions);
-
-		private:
 			pen::Mat* ParseMatrix(std::string input);
 			std::string FormatMatrix(pen::Mat* mat, char character);
 		};

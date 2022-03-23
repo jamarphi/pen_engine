@@ -34,7 +34,6 @@ namespace pen {
 			numStates = 0;
 			states = nullptr;
 			currentState = nullptr;
-			shift = nullptr;
 			discountValue = 1.0f;
 			accuracyCap = 0.1f;
 			totalReward = 0.0f;
@@ -44,7 +43,7 @@ namespace pen {
 		}
 
 		Agent::Agent(const std::string& path, pen::ai::Action** userActions, int numActions) {
-			/*Load in an agent with the actions already defined*/
+			/*Load in an agent from file*/
 			id = -1;
 			lastAction = nullptr;
 			stepSize = 0.1f;
@@ -53,7 +52,6 @@ namespace pen {
 			numStates = 0;
 			states = nullptr;
 			currentState = nullptr;
-			shift = nullptr;
 			discountValue = 1.0f;
 			accuracyCap = 0.1f;
 			totalReward = 0.0f;
@@ -63,19 +61,8 @@ namespace pen {
 			Load(path, userActions, numActions);
 		}
 
-		Agent::~Agent() {
-			if (shift != nullptr) {
-				int numPolicies = FindState(this, shift[0]->stateId)->policiesNum;
-				for (int i = 0; i < numPolicies; i++) {
-					delete shift[i];
-				}
-				delete[] shift;
-				shift = nullptr;
-			}
-		}
-
 		void Agent::Init(pen::ai::AIState** userStates, long userStateNum, pen::ai::AIState* userInitialState, int numPlanningSteps, float userEpsilon, float userStepSize) {
-			/*Each agent should have its own states unless you want an agent to share learning with another agent*/
+			/*Initialize the environment for the agent*/
 			epsilon = userEpsilon;
 			stepSize = userStepSize;
 			initialState = userInitialState;
@@ -99,68 +86,12 @@ namespace pen {
 			/*Deletes the states*/
 			for (int i = 0; i < numStates; i++) {
 				delete[] states[i]->policies;
+				states[i]->policies = nullptr;
 				delete states[i];
+				states[i] = nullptr;
 			}
 			delete[] states;
-		}
-
-		float Agent::Reward(pen::ai::AIState* s, pen::ai::AIState* nextState) {
-			/*Returns the reward of the current state and the next state*/
-			return (s->reward + nextState->reward);
-		}
-
-		float Agent::Prob(pen::ai::AIState* nextState, float reward, pen::ai::AIState* s, pen::ai::StateAction* a) {
-			/*Returns the probability of the next state and the reward given the current state and the policy*/
-			float probFactor = 0.1f;
-			if (reward != Reward(s, nextState)) {
-				return 0.0f;
-			}
-			else {
-				float center = (1 - probFactor) * s->id + probFactor * s->policiesNum * (1 - a->policy->id / s->policiesNum);
-				float rangeBound = 2.0f * s->policiesNum;
-				float* distribution = new float[rangeBound];
-				float distributionSum = 0.0f;
-				for (int i = 0; i < rangeBound; i++) {
-					distribution[i] = pen::op::Pow(2.71828f, (-1.0f * pen::op::Abs(i - center) / 5.0f));
-					distributionSum += distribution[i];
-				}
-
-				float variant = distribution[nextState->id];
-				delete[] distribution;
-				return variant / distributionSum;
-			}
-		}
-
-		void Agent::UpdateShift(pen::ai::AIState* s, pen::ai::StateAction* a) {
-			/*Updates environment transition information for the reward and probabilities for successor states given the current state and policy*/
-			if (shift != nullptr) {
-				if (!(shift[0]->stateId == s->id && shift[0]->action == a)) {
-					float numTransitions = FindState(this, shift[0]->stateId)->policiesNum;
-					for (int i = 0; i < numTransitions; i++) {
-						delete shift[i];
-					}
-					delete[] shift;
-					shift = nullptr;
-				}
-			}
-
-			if (shift == nullptr) {
-				shift = new Shift * [s->policiesNum];
-				for (int j = 0; j < s->policiesNum; j++) {
-					pen::ai::AIState* nextState = FindState(this, s->policies[j]->nextStateId);
-					float reward = Reward(s, nextState);
-					shift[j] = new Shift{ s->id, nextState->id, a, reward, Prob(nextState, reward, s, a) };
-				}
-			}
-		}
-
-		void Agent::PrintShifts() {
-			/*Display the current shifts array*/
-			float numShifts = FindState(this, shift[0]->stateId)->policiesNum;
-			for (int i = 0; i < numShifts; i++) {
-				std::cout << "pen::ai::AIState " << shift[i]->stateId << " -> " << shift[i]->nextStateId << ":\n\t-Reward: " << shift[i]->reward << "\n\t-Prob: " << shift[i]->prob << "\n------------------\n";
-			}
-			std::cout << "\n";
+			states = nullptr;
 		}
 
 		void Agent::Step(bool terminal) {
@@ -246,80 +177,6 @@ namespace pen {
 			return ties[(int)pen::op::Max(0.0f, Agent::Rand(ties.size()) - 1.0f)];
 		}
 
-		void Agent::QGreedify(pen::ai::AIState* s) {
-			/*Update the policy greedily towards the best one*/
-			pen::ai::StateAction** actions = new pen::ai::StateAction * [s->policiesNum];
-			long tempId = 0;
-			for (int i = 0; i < s->policiesNum; i++) {
-				actions[i] = new pen::ai::StateAction(&tempId, s->policies[i]->policy, 0, 0.0f, "");
-				actions[i]->value = 0.0f;
-			}
-
-			for (int j = 0; j < s->policiesNum; j++) {
-				UpdateShift(s, s->policies[j]);
-				for (int k = 0; k < s->policiesNum; k++) {
-					actions[j]->value += (shift[k]->prob * (shift[k]->reward + discountValue * FindState(this, s->policies[k]->nextStateId)->stateValue));
-				}
-			}
-
-			int optimalPi = Argmax(actions, s->policiesNum);
-
-			for (int l = 0; l < s->policiesNum; l++) {
-				if (l == optimalPi) {
-					s->policies[l]->value = 1.0f;
-					s->optimalPolicy = s->policies[l];
-				}
-				else {
-					s->policies[l]->value = 0.0f;
-				}
-			}
-
-			for (int m = 0; m < s->policiesNum; m++) {
-				delete actions[m];
-			}
-			delete[] actions;
-		}
-
-		void Agent::ValueIteration() {
-			/*Iterate over the policies to evaluate and improve them with more generalized estimates*/
-			bool policyStable = false;
-			while (!policyStable) {
-				float delta = 0.0f;
-				for (int i = 0; i < numStates; i++) {
-					float v = states[i]->stateValue;
-					OptimalityUpdate(states[i]);
-					delta = pen::op::Max(delta, pen::op::Abs(v - states[i]->stateValue));
-				}
-				if (delta < accuracyCap) {
-					policyStable = true;
-				}
-			}
-
-			for (int j = 0; j < numStates; j++) {
-				QGreedify(states[j]);
-			}
-		}
-
-		void Agent::OptimalityUpdate(pen::ai::AIState* s) {
-			/*Update the state action pair values based on the best one for a given state*/
-			pen::ai::StateAction** vStar = new pen::ai::StateAction * [s->policiesNum];
-			long tempId = 0;
-			for (int i = 0; i < s->policiesNum; i++) {
-				vStar[i] = new pen::ai::StateAction(&tempId, s->policies[i]->policy, 0, 0.0f, "");
-				vStar[i]->value = 0.0f;
-				UpdateShift(s, vStar[i]);
-				for (int j = 0; j < s->policiesNum; j++) {
-					vStar[i]->value += (shift[j]->prob * (shift[j]->reward + discountValue * FindState(this, s->policies[j]->nextStateId)->stateValue));
-				}
-			}
-			s->stateValue = vStar[Argmax(vStar, s->policiesNum)]->value;
-
-			for (int k = 0; k < s->policiesNum; k++) {
-				delete vStar[k];
-			}
-			delete[] vStar;
-		}
-
 		void Agent::UpdateModel(pen::ai::AIState* s, float reward) {
 			/*Update the model after performing a step within the dynaq+ architecture*/
 			pen::ai::StateAction* action = nullptr;
@@ -341,8 +198,8 @@ namespace pen {
 		void Agent::Plan(bool terminal) {
 			/*This does Q planning*/
 			for (int i = 0; i < planningSteps; i++) {
-				pen::ai::AIState* pastState = states[(int)pen::op::Max(Rand(numStates) - 1.0f, 0.0f)];
-				pen::ai::StateAction* pastAction = pastState->policies[(int)pen::op::Max(Rand(pastState->policiesNum) - 1.0f, 0.0f)];
+				pen::ai::AIState* pastState = states[(int)pen::op::Max(Rand(numStates), 0.0f)];
+				pen::ai::StateAction* pastAction = pastState->policies[(int)pen::op::Max(Rand(pastState->policiesNum), 0.0f)];
 
 				/*The reward for going to the next state*/
 				float reward = pastAction->reward;
@@ -361,7 +218,7 @@ namespace pen {
 			/*Choose an action using epsilon greedy*/
 			pen::ai::StateAction* action = nullptr;
 			if (((float)std::rand() / RAND_MAX) < epsilon) {
-				action = s->policies[(int)pen::op::Max(Rand(s->policiesNum) - 1.0f, 0.0f)];
+				action = s->policies[(int)pen::op::Max(Rand(s->policiesNum), 0.0f)];
 			}
 			else {
 				action = s->policies[Argmax(s->policies, s->policiesNum)];
