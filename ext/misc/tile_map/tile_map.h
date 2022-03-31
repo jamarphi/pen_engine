@@ -20,6 +20,8 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "../../../src/state/pixel.h"
+#include <iostream>
+#include <fstream>
 
 namespace pen {
 	namespace tiles {
@@ -27,7 +29,39 @@ namespace pen {
 			/*Container for tile map image and collision data*/
 			pen::Item* data;
 			char* tiles;
+			int count;
+			int length;
 		};
+
+		static void Save(pen::tiles::Tiles* tileMap, const std::string& path) {
+			/*Save the tile map collision data*/
+			std::string fileName = path;
+			if (tileMap->tiles != nullptr) {
+
+				if(fileName.find(".") != std::string::npos) {
+					fileName = fileName.substr(0, fileName.find(".")) + ".pentm";
+				}
+				else {
+					fileName += ".pentm";
+				}
+
+				/*The first char of the buffer is the number of tiles*/
+				std::ofstream tileFile(fileName, std::ios::out | std::ios::binary);
+				if (tileFile.is_open()) {
+					int tileCount = tileMap->count + 1;
+					for (int i = 0; i < tileCount; i++) {
+						if (i == 0) {
+							tileFile.write((char*)&tileMap->length, sizeof(char));
+						}
+						else {
+							tileFile.write((char*)&tileMap->tiles[i], sizeof(char));
+						}
+						
+					}
+					tileFile.close();
+				}
+			}
+		}
 
 		static pen::tiles::Tiles* Load(const std::string& path) {
 			/*Load in tile map image and collision data*/
@@ -46,22 +80,23 @@ namespace pen {
 
 			std::ifstream tileFile(fileName, std::ios::out | std::ios::binary);
 			if (tileFile.is_open()) {
-				char tileCount = 1000001;
+				char tileCountValue = 1000001;
+				int tileCount = 1;
 				for (int i = 0; i < tileCount; i++) {
 					if (i == 0) {
-						tileFile.read((char*)&tileCount, sizeof(char));
-						tiles = new char[(int)tileCount];
-						tiles[0] = tileCount;
+						tileFile.read((char*)&tileCountValue, sizeof(char));
+						tileCount = (int)tileCountValue * (int)tileCountValue;
+						tiles = new char[tileCount];
 					}
 					else {
 						tileFile.read((char*)&tiles[i], sizeof(char));
 					}
 				}
 				tileFile.close();
-			}
 
-			if (tiles != nullptr) {
-				return new pen::tiles::Tiles{item, tiles};
+				if (tiles != nullptr) {
+					return new pen::tiles::Tiles{ item, tiles, tileCount, (int)tileCountValue };
+				}
 			}
 			return nullptr;
 		}
