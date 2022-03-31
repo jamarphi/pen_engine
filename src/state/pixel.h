@@ -111,6 +111,7 @@ namespace pen {
 		/*The x and y coordinates are in pixel buffer space*/
 		int x;
 		int y;
+		pen::Vec4 color = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		/*The matrix is in column-row format*/
 		pen::Mat3x3 matrix = pen::Mat3x3(1.0f, true);
 		pen::Mat3x3 invMatrix = pen::Mat3x3(1.0f, true);
@@ -225,10 +226,10 @@ namespace pen {
 					}
 
 					/*This 0.5 is added on for the correct pixel to be selected*/
-					pen::Draw(x + (int)i, y + (int)outY, pen::Vec4((float)(data[(int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4))] / 255.0f),
-						(float)(data[(int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4) + 1)] / 255.0f),
-						(float)(data[(int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4) + 2)] / 255.0f),
-						(float)(data[(int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4) + 3)] / 255.0f)));
+					pen::Draw(x + (int)i, y + (int)outY, pen::Vec4((float)(data[(int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4))] / 255.0f) * color.x,
+						(float)(data[(int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4) + 1)] / 255.0f) * color.y,
+						(float)(data[(int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4) + 2)] / 255.0f) * color.z,
+						(float)(data[(int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4) + 3)] / 255.0f) * color.w));
 					counter++;
 				}
 			}
@@ -592,7 +593,7 @@ namespace pen {
 		return new pen::Item{ rect, length, height, startX, startY };
 	}
 
-	static pen::Item* CreateSprite(int startX, int startY, int length, int height, pen::Vec4 color, const std::string& path,
+	static pen::Item* CreateSprite(int startX, int startY, int length, int height, const std::string& path,
 		float spriteTexCoordStartX = 0.0f, float spriteTexCoordStartY = 0.0f, float spriteTexCoordEndX = 1.0f, float spriteTexCoordEndY = 1.0f,
 		bool compress = false, float (*userDisplayFunction)(int, int, float) = nullptr) {
 		/*Create a sprite for the pixel buffer*/
@@ -644,13 +645,13 @@ namespace pen {
 
 			/*Creates a new buffer for the sprite*/
 			unsigned char* pixelItemData = new unsigned char[(widthBound - rowOffsetX) * (heightBound - rowOffsetY) * 4];
-			item = new pen::Item{ pixelItemData, widthBound - rowOffsetX, heightBound - rowOffsetY, startX, startY, pen::Mat3x3(1.0f, true), pen::Mat3x3(1.0f, true), true, userDisplayFunction };
+			item = new pen::Item{ pixelItemData, widthBound - rowOffsetX, heightBound - rowOffsetY, startX, startY, pen::PEN_WHITE, pen::Mat3x3(1.0f, true), pen::Mat3x3(1.0f, true), true, userDisplayFunction };
 			for (int j = rowOffsetY; j < heightBound; j++) {
 				for (int i = rowOffsetX; i < widthBound; i++) {
-					pixelItemData[counter] = spriteData[j * (texWidth * 4) + (i * 4)] * color.x;
-					pixelItemData[counter + 1] = spriteData[j * (texWidth * 4) + (i * 4) + 1] * color.y;
-					pixelItemData[counter + 2] = spriteData[j * (texWidth * 4) + (i * 4) + 2] * color.z;
-					pixelItemData[counter + 3] = spriteData[j * (texWidth * 4) + (i * 4) + 3] * color.w;
+					pixelItemData[counter] = spriteData[j * (texWidth * 4) + (i * 4)];
+					pixelItemData[counter + 1] = spriteData[j * (texWidth * 4) + (i * 4) + 1];
+					pixelItemData[counter + 2] = spriteData[j * (texWidth * 4) + (i * 4) + 2];
+					pixelItemData[counter + 3] = spriteData[j * (texWidth * 4) + (i * 4) + 3];
 					counter += 4;
 				}
 			}
@@ -663,7 +664,7 @@ namespace pen {
 			if (rowOffset % 4 != 0) rowOffset - (rowOffset % 4);
 
 			unsigned char* pixelItemData = new unsigned char[widthBound * heightBound * 4];
-			item = new pen::Item{ pixelItemData, widthBound, heightBound, startX, startY, pen::Mat3x3(1.0f, true), pen::Mat3x3(1.0f, true), true, userDisplayFunction };
+			item = new pen::Item{ pixelItemData, widthBound, heightBound, startX, startY, pen::PEN_WHITE, pen::Mat3x3(1.0f, true), pen::Mat3x3(1.0f, true), true, userDisplayFunction };
 			for (int j = 0; j < heightBound; j++) {
 				for (int i = 0; i < widthBound; i++) {
 					double px = i * (spriteTexCoordEndX * texWidth) / float(length);
@@ -711,11 +712,6 @@ namespace pen {
 					pen::Vec4 resColor = aRes + bRes + cRes + dRes;
 
 					if (texBPP == 3) resColor.w = 255.0f;
-
-					resColor.x *= color.x;
-					resColor.y *= color.y;
-					resColor.z *= color.z;
-					resColor.w *= color.w;
 
 					pixelItemData[j * (widthBound * 4) + (i * 4)] = (unsigned char)(resColor.x);
 					pixelItemData[j * (widthBound * 4) + (i * 4 + 1)] = (unsigned char)(resColor.y);

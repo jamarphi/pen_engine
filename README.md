@@ -217,7 +217,7 @@ You can zoom in or out on the pixel buffer based on screen dimensions with:
 
 You can create sprites as well in the pixel buffer using:
 
-    pen::ui::Item* item = pen::CreateSprite(int startX, int startY, int length, int height, pen::Vec4 color, const std::string& path,
+    pen::ui::Item* item = pen::CreateSprite(int startX, int startY, int length, int height, const std::string& path,
 			float spriteTexCoordStartX = 0.0f, float spriteTexCoordStartY = 0.0f, float spriteTexCoordEndX = 1.0f, float spriteTexCoordEndY = 1.0f,
 			bool compress = false, float (*userDisplayFunction)(int, int, float) = nullptr)
 
