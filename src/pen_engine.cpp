@@ -540,7 +540,7 @@ namespace pen {
         /*Adds in the default assets*/
         pen::Asset::Add(pen::Asset("default"));
         pen::Asset::Add(pen::Asset("fonts/bitmap.png"));
-        pen::Asset::assetMap.Find(1)->second.path = "fonts/bitmap.png";
+        pen::Asset::assetMap.Find(1)->second.name = "fonts/bitmap.png";
         pen::Asset::Add(pen::Asset("pixel"));
     }
 

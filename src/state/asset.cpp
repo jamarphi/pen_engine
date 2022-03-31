@@ -136,14 +136,15 @@ namespace pen {
 		return pathName;
 	}
 
-	Asset Asset::Load(std::string file, char* (*onLoad)(const char* path)) {
+	Asset Asset::Load(std::string file, char* (*onLoad)(const char* path, long* fileLength)) {
 		/*Returns an asset after loading in file*/
 		char* fileData = nullptr;
 		std::string fileName = "";
 		std::string fileRoot = "";
+		long length = 0;
 #ifndef __PEN_MOBILE__
 		/*File name gets parsed after loading in file since file should initially have full path*/
-		fileData = (*onLoad)(file.c_str());
+		fileData = (*onLoad)(file.c_str(), &length);
 		if (file[2] == '/' && file[3] == '/') {
 			file = file.substr(4);
 		}
@@ -162,7 +163,7 @@ namespace pen {
 		}
 		fileName = Asset::ParsePath(file);
 		fileRoot = fileName.substr(0, file.find(fileName));
-		fileData = AndroidLoad(pen::State::Get()->androidAssetManager, fileName);
+		fileData = AndroidLoad(pen::State::Get()->androidAssetManager, fileName, &length);
 #endif
 		Asset asset = Asset();
 		asset.id = Asset::nextId;
@@ -170,6 +171,7 @@ namespace pen {
 		asset.name = fileName;
 		asset.root = fileRoot;
 		asset.data = fileData;
+		asset.length = length;
 		Asset::assetMap.Insert(asset.id, asset);
 		return asset;
 	}

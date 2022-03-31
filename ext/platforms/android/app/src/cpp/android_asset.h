@@ -29,10 +29,11 @@ under the License.
 #include <android/asset_manager.h>
 
 extern "C" {
-    static char* AndroidLoad(void* assetManager, const char* path) {
+    static char* AndroidLoad(void* assetManager, const char* path, long* fileLength) {
         /*Load in a file from assets directory*/
         AAset* javaAsset = AAsetManager_open((AAssetManager*)assetManager, path, AASET_MODE_UNKNOWN);
         int byteCount = AAsset_getLength(javaAsset);
+        *fileLength = (long)byteCount;
         char* data = new char[byteCount];
         AAsset_read(javaAsset, &data, byteCount);
         return data;

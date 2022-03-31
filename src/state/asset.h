@@ -36,6 +36,7 @@ namespace pen {
 		std::string root;
 		std::string name;
 		char* data;
+		long length;
 	public:
 		Asset();
 		Asset(const std::string& assetPath);
@@ -44,13 +45,12 @@ namespace pen {
 		static void Add(Asset asset);
 		static std::string Find(const unsigned int& queryId);
 		static unsigned int GetId(const std::string& name);
-
-	private:
-		static std::string Split(const std::string& line, const char& character, const unsigned int& section);
-		static std::string ParsePath(std::string fileName);
-		static Asset Load(std::string file, char*(*onLoad)(const char* path) = nullptr);
+		static Asset Load(std::string file, char* (*onLoad)(const char* path, long* fileLength) = nullptr);
 #ifdef __PEN_MOBILE__
 		static Asset* LoadMobileDir(std::string dirPath, int* assetCount);
 #endif
+	private:
+		static std::string Split(const std::string& line, const char& character, const unsigned int& section);
+		static std::string ParsePath(std::string fileName);
 	};
 }

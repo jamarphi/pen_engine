@@ -173,7 +173,7 @@ Be sure to exclude the examples folder from your project.
 
 To make managing assets easier you can do:
 
-    pen::Asset asset = pen::Asset::Load(std::string file, char*(*onLoad)(const char* path) = nullptr);
+    pen::Asset asset = pen::Asset::Load(std::string file, char*(*onLoad)(const char* path, long* fileLength) = nullptr);
 
 The file passed in should be the full path.  The onLoad function is your loading function that you pass in for whatever file you want to load.
 If you want to load somewhere else then do:
@@ -184,6 +184,7 @@ If you want to load somewhere else then do:
 	asset.name = fileName;
 	asset.root = fileRoot;
 	asset.data = fileData;
+    asset.length = fileLength;
 	pen::Asset::assetMap.Insert(asset.id, asset);
 
 The assetMap is just for convenience of finding assets.
@@ -474,6 +475,19 @@ This function should be in the OnCreate function of a Pen Engine instantiation, 
             /*All logic in OnCreate should come after the two previous functions*/
         }
     }
+
+pen::Pen::SetMobileTextures is only used for gui sprite sheets, if loading anything else do:
+
+    pen::Asset asset = pen::Asset::Load(std::string file, char*(*onLoad)(const char* path, long* fileLength) = nullptr);
+
+Check out section 1.1.1 for more on managing assets.
+If specifically loading in images to be rendered then you can take the asset data and add it to the sprite map by doing:
+
+    pen::State::Get()->pixelSprites.Insert(asset.name, pen::Sprite{asset.name, (unsigned char*)asset.data, width, height});
+
+When doing this though, the width and height of the image should be known before, such as with png having the width and height in the header of the file.
+The pixelSprites map needs this information so it will not attempt to get it loaded in from the res/drawables folder of android when creating sprites.
+Loading in images from res/drawables is completely fine and is what happens by default when using pen::CreateSprite();
 
 If setting your app orientation horizontal, also add this to the MainActivity tag in the AndroidManifest.xml:
 
