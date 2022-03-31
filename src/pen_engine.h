@@ -56,6 +56,7 @@ under the License.
 #include "../ext/platforms/android/app/src/cpp/log.h"
 #include "../ext/ai/agent.h"
 #include "../ext/ai/free_agent.h"
+#include "../ext/misc/tile_map/tile_map.h"
 
 /*UI objects*/
 #include "ui/ui_object.h"
