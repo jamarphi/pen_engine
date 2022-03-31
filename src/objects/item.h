@@ -65,9 +65,6 @@ namespace pen {
             /*This id is optional for sorting by the user*/
             uint32_t id;
 
-            /*Asset grouping id*/
-            uint16_t assetGroupingId;
-
             /*Texture coordinates for using sprite sheets*/
             float texCoordStartX = 0.0f;
             float texCoordStartY = 0.0f;

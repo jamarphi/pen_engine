@@ -24,7 +24,7 @@ namespace pen {
     
     Layer::Layer(){}
 
-    Layer::Layer(uint16_t generalId, uint16_t layerAssetGroupingId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame) {
+    Layer::Layer(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame) {
         /*Layers are mainly separated based on the shape type of the objects they contain, which asset grouping it is a part of, and if it is fixed*/
         va = VertexArray();
 
@@ -33,7 +33,6 @@ namespace pen {
         isSingular = objectIsSingular;
         isWireFrame = objectIsWireFrame;
         id = generalId;
-        assetGroupingId = layerAssetGroupingId;
         translation = pen::Vec3(1.0f, 1.0f, 0.0f);
         model = pen::Mat4x4(1.0f);
     }

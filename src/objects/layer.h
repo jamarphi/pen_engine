@@ -42,7 +42,6 @@ namespace pen {
 	class Layer {
 	public:
 		uint16_t id;
-		uint16_t assetGroupingId;
 		int batchIndices[RENDERER_INDICES_SIZE];
 		int indexCount;
 		unsigned int itemCount = 0;
@@ -68,7 +67,7 @@ namespace pen {
 		unsigned int itemOffset = 0;
 
 		Layer();
-		Layer(uint16_t generalId, uint16_t layerAssetGroupingId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame);
+		Layer(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame);
 		~Layer();
 
 		void Initialize();

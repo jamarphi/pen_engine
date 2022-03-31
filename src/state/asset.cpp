@@ -28,12 +28,24 @@ namespace pen {
 		/*Creates a new asset and assigns it with an id*/
 		personalId = Asset::id;
 		Asset::id++;
-		path = assetPath;
+		
+		std::string fileName = assetPath;
+
+		if (fileName[2] == '/' && fileName[3] == '/') {
+			fileName = fileName.substr(4);
+		}
+		else if (fileName[0] == '/') {
+			fileName = fileName.substr(1);
+		}
+
+		path = Asset::ParsePath(fileName);
+		root = fileName.substr(0, fileName.find(path));
+		data = nullptr;
 	}
 
 	Asset::~Asset() {}
 
-	void Asset::AddAsset(Asset asset) {
+	void Asset::Add(Asset asset) {
 		/*This adds the asset to memory*/
 		Asset::assetMap.Insert(asset.personalId,asset);
 	}
@@ -50,27 +62,73 @@ namespace pen {
 		}
 	}
 
-	void Asset::Activate(const std::string& queryId) {
-		/*Activates an asset so it does not get created each render as a texture*/
-		for (int i = 0; i < pen::Asset::assetMap.Size(); i++) {
-			if (pen::Asset::assetMap.items[i].second.path == queryId) {
-				pen::Asset::assetMap.items[i].second.active = true;
-				break;
+	std::string Asset::Split(const std::string& line, const char& character, const unsigned int& section) {
+		/*Split a line by a given character*/
+		int counter = 0;
+		int previousSectionIdx = 0;
+		bool keepGoing = true;
+		if (line.find(character) != std::string::npos) {
+			while (keepGoing) {
+				keepGoing = false;
+				if (line.find(character, previousSectionIdx + 1) != std::string::npos) {
+					if (counter == section) {
+						if (counter > 0) {
+							int startIdx = previousSectionIdx + 1;
+							int endIdx = line.find(character, previousSectionIdx + 1);
+
+							return line.substr(startIdx, endIdx - startIdx);
+						}
+						else {
+							return line.substr(0, line.find(character));
+						}
+					}
+					else {
+						previousSectionIdx = line.find(character, previousSectionIdx + 1);
+						counter++;
+						keepGoing = true;
+					}
+				}
+				else {
+					if(counter > 0) return line.substr(previousSectionIdx + 1);
+				}
 			}
+			return "";
+		}
+		else {
+			return line;
 		}
 	}
 
-	void Asset::Deactivate(const int& assetGroupId) {
-		/*Deactivates all assets that are not part of the current asset group to be rendered*/
-		pen::State* inst = pen::State::Get();
-		unsigned int counter = 0;
-		unsigned int minBound = assetGroupId * inst->textureUnits;
-		unsigned int maxBound = (assetGroupId + 1) * inst->textureUnits > Asset::id ? (assetGroupId * inst->textureUnits + (Asset::id
-			- (assetGroupId * inst->textureUnits))) : (assetGroupId + 1) * inst->textureUnits;
+	std::string Asset::ParsePath(std::string fileName) {
+		/*Parses the file name for displaying*/
+		std::vector<std::string> pathList;
+		std::string path = "";
+		std::string prevPath = "";
+		bool keepGoing = true;
+		int counter = 0;
 
-		for (int i = 0; i < pen::Asset::assetMap.Size(); i++) {
-			if (counter < minBound || counter >= maxBound) pen::Asset::assetMap.items[i].second.active = false;
-			counter++;	
+		while (keepGoing) {
+			path = Asset::Split(fileName, '/', counter);
+
+			if (path == prevPath) {
+				keepGoing = false;
+				break;
+			}
+
+			if (path == "") {
+				keepGoing = false;
+				break;
+			}
+
+			counter++;
+
+			/*Load in each path*/
+			prevPath = path;
+
+			pathList.push_back(path);
 		}
+
+		std::string pathName = pathList[pathList.size() - 1];
+		return pathName;
 	}
 }

@@ -23,7 +23,7 @@ under the License.
 namespace pen {
     Layer3D::Layer3D() {}
 
-    Layer3D::Layer3D(uint16_t generalId, uint16_t layerAssetGroupingId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame) {
+    Layer3D::Layer3D(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame) {
         /*Layers are separated mainly based on the shape type of the objects they contain, which asset grouping it is a part of, and if it is fixed*/
         va = VertexArray();
 
@@ -31,7 +31,6 @@ namespace pen {
         isFixed = objectIsFixed;
         isSingular = objectIsSingular;
         id = generalId;
-        assetGroupingId = layerAssetGroupingId;
         is3D = true;
         isWireFrame = objectIsWireFrame;
         translation = pen::Vec3(1.0f, 1.0f, 1.0f);

@@ -538,14 +538,10 @@ namespace pen {
         inst->mobileOnTiltCallback = onTiltCallback;
 
         /*Adds in the default assets*/
-        pen::Asset::AddAsset(pen::Asset("default"));
-        pen::Asset::AddAsset(pen::Asset("fonts/bitmap.png"));
-        pen::Asset::AddAsset(pen::Asset("pixel"));
-
-        /*Activates the default assets if not done already*/
-        pen::Asset::Activate("default");
-        pen::Asset::Activate("fonts/bitmap.png");
-        pen::Asset::Activate("pixel");
+        pen::Asset::Add(pen::Asset("default"));
+        pen::Asset::Add(pen::Asset("fonts/bitmap.png"));
+        pen::Asset::assetMap.Find(1)->second.path = "fonts/bitmap.png";
+        pen::Asset::Add(pen::Asset("pixel"));
     }
 
     void Pen::SetMobileTextures(const std::vector<std::string>& textureList) {
@@ -553,8 +549,7 @@ namespace pen {
         pen::State::Get()->mobileTextureNameList = textureList;
 
         for (int i = 0; i < textureList.size(); i++) {
-            pen::Asset::AddAsset(pen::Asset(textureList[i]));
-            pen::Asset::Activate(textureList[i]);
+            pen::Asset::Add(pen::Asset(textureList[i]));
         }
     }
 #endif

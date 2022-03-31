@@ -134,9 +134,6 @@ extern "C" {
 
         std::string texName = (texNamePos < pen::State::Get()->mobileTextureNameList.size()) ? pen::State::Get()->mobileTextureNameList[texNamePos] : "";
 
-        /*Activates the texture in the Asset class so it will exist and not be created each render*/
-        pen::Asset::Activate(texName);
-
         texName = texName.substr(0, texName.find("."));
         jstring javaTexName = env->NewStringUTF(texName.c_str());
         return javaTexName;

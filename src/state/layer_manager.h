@@ -60,7 +60,7 @@ namespace pen {
 				Layers are separated based on their shape type, asset grouping id, and their isFixed status
 			*/
 			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-				if (pen::ui::LM::layers.at(i)->assetGroupingId == item->assetGroupingId && pen::ui::LM::layers.at(i)->shapeType == item->shapeType &&
+				if (pen::ui::LM::layers.at(i)->shapeType == item->shapeType &&
 					pen::ui::LM::layers.at(i)->isFixed == item->isFixed && pen::ui::LM::layers.at(i)->isSingular == item->isSingular) {
 					if (pen::ui::LM::layers.at(i)->itemCount + item->itemCount + 1 < MAX_OBJECTS) {
 						/*Adds the item to an existing layer that has space available*/
@@ -72,7 +72,7 @@ namespace pen {
 					else {
 						/*Creates a new layer for this asset group, shape type, and/or isFixed status*/
 						pen::ui::LM::layers.push_back(new pen::Layer(pen::ui::LM::generalLayerId,
-							item->assetGroupingId, item->shapeType, item->isFixed, item->isSingular, item->isWireFrame));
+							item->shapeType, item->isFixed, item->isSingular, item->isWireFrame));
 						pen::ui::LM::generalLayerId++;
 						pen::ui::LM::layers.at(pen::ui::LM::layers.size() - 1)->Push(item);
 						pen::ui::LM::layers.at(pen::ui::LM::layers.size() - 1)->Initialize();
@@ -84,7 +84,7 @@ namespace pen {
 
 			/*Create the first layer for this asset group, shape type, and/or isFixed status*/
 			pen::ui::LM::layers.push_back(new pen::Layer(pen::ui::LM::generalLayerId,
-				item->assetGroupingId, item->shapeType, item->isFixed, item->isSingular, item->isWireFrame));
+				item->shapeType, item->isFixed, item->isSingular, item->isWireFrame));
 			pen::ui::LM::generalLayerId++;
 			pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item);
 			pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
@@ -127,7 +127,7 @@ namespace pen {
 				for (int j = 0; j < pen::ui::LM::layers.size(); j++) {
 					if (pen::ui::LM::layers[j] != parentItemLayer &&
 						(pen::ui::LM::layers[j]->itemCount + parentItem->itemCount + 1 < MAX_OBJECTS) &&
-						pen::ui::LM::layers[j]->shapeType == parentItemLayer->shapeType && pen::ui::LM::layers[j]->assetGroupingId == parentItemLayer->assetGroupingId) {
+						pen::ui::LM::layers[j]->shapeType == parentItemLayer->shapeType) {
 						/*Add to an existing layer*/
 						pen::ui::LM::layers[j]->Push(parentItem);
 						return childItem;
@@ -136,7 +136,7 @@ namespace pen {
 
 				/*Create a new layer for this item*/
 				pen::ui::LM::layers.push_back(new pen::Layer(pen::ui::LM::generalLayerId,
-					parentItem->assetGroupingId, parentItem->shapeType, parentItem->isFixed, parentItem->isSingular, parentItem->isWireFrame));
+					parentItem->shapeType, parentItem->isFixed, parentItem->isSingular, parentItem->isWireFrame));
 				pen::ui::LM::generalLayerId++;
 				pen::ui::LM::layers.at(pen::ui::LM::layers.size() - 1)->Push(parentItem);
 				pen::ui::LM::layers.at(pen::ui::LM::layers.size() - 1)->Initialize();
@@ -262,7 +262,7 @@ namespace pen {
 			/*Create a layer specifically for pixel-by-pixel drawing*/
 			if (pen::ui::LM::pixelLayer != nullptr) return true;
 			pen::State::Get()->usingBuffer = true;
-			pen::ui::LM::pixelLayer = new pen::Layer(pen::ui::LM::generalLayerId, 0, pen::ui::Shape::BUFFER, true, false, false);
+			pen::ui::LM::pixelLayer = new pen::Layer(pen::ui::LM::generalLayerId, pen::ui::Shape::BUFFER, true, false, false);
 			pen::ui::LM::layers.push_back(pen::ui::LM::pixelLayer);
 			pen::ui::Sort();
 			pen::ui::LM::generalLayerId++;
@@ -339,6 +339,9 @@ namespace pen {
 							counter++;
 							keepGoing = true;
 						}
+					}
+					else {
+						if (counter > 0) return line.substr(previousSectionIdx + 1);
 					}
 				}
 				return "";
@@ -462,7 +465,7 @@ namespace pen {
 				/*Initialize the layers based on the triangle count*/
 				for (int i = 0; i < faceCounter; i += MAX_OBJECTS) {
 					pen::ui::LM::layers.push_back(new pen::Layer3D(pen::ui::LM::generalLayerId,
-						item3D->assetGroupingId, item3D->shapeType, item3D->isFixed, item3D->isSingular, item3D->isWireFrame));
+						item3D->shapeType, item3D->isFixed, item3D->isSingular, item3D->isWireFrame));
 					pen::ui::LM::generalLayerId++;
 					pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item3D, i);
 					pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();

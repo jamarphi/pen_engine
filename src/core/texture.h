@@ -46,11 +46,8 @@ public:
 		return instance;
 	}
 
-	static void Bind(const char* asset, unsigned int slot, const unsigned int assetGroupingId);
-	static void Initialize(const std::string& path, const unsigned int slot, const unsigned int assetGroupingId);
-	void Unbind() const;
+	static void Initialize(const std::string& path, const unsigned int slot);
 	static void Destroy(unsigned int texRendererId);
-	static bool AssetExists(const char* asset, const unsigned int texId, const unsigned int assetGroupingId);
 	static void LoadTexture(const std::string* textureList, const unsigned int& listSize);
-	static void UpdatePixels(const unsigned int assetGroupingId);
+	static void UpdatePixels();
 };

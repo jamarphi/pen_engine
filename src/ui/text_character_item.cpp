@@ -41,9 +41,6 @@ namespace pen {
 
             textureName = objectTextureName;
 
-            /*Bitmap font will always be in asset group 0*/
-            assetGroupingId = 0;
-
             isUI = true;
             isText = true;
 

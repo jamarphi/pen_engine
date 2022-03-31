@@ -26,7 +26,7 @@ namespace pen {
 	class Layer3D : public pen::Layer {
 	public:
 		Layer3D();
-		Layer3D(uint16_t generalId, uint16_t layerAssetGroupingId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame);
+		Layer3D(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame);
 		~Layer3D();
 
 		bool Push(pen::ui::Item* item, const unsigned int& offset = 0);

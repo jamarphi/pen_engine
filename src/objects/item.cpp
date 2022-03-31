@@ -243,16 +243,10 @@ namespace pen {
                         break;
                     }
                 }
-                pen::State* inst = pen::State::Get();
-
-                /*This gives us the asset grouping id based on the number of allowed texture slots for a given batch*/
-                assetGroupingId = (float)(tempId / inst->textureUnits);
-
-                return (float)(tempId % inst->textureUnits);
+                return (float)(tempId % State::Get()->textureUnits);
             }
             else {
                 /*If there is no texture name, the item will be a solid color*/
-                assetGroupingId = 0;
                 return 0.0f;
             }
         }

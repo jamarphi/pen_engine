@@ -30,16 +30,19 @@ namespace pen {
 		static pen::Map<unsigned int, Asset> assetMap;
 		static uint16_t id;
 		uint16_t personalId;
+		std::string root;
 		std::string path;
-		bool active = false;
+		char* data;
 	public:
 		Asset(const std::string& assetPath);
 		~Asset();
 
-		static void AddAsset(Asset asset);
+		static void Add(Asset asset);
 		static std::string Find(const unsigned int& queryId);
 		static unsigned int GetId(const std::string& name);
-		static void Activate(const std::string& queryId);
-		static void Deactivate(const int& assetGroupId);
+
+	private:
+		static std::string Split(const std::string& line, const char& character, const unsigned int& section);
+		static std::string ParsePath(std::string fileName);
 	};
 }

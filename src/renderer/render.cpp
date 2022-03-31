@@ -39,7 +39,7 @@ namespace pen {
         inst->appShader.Bind();
 
         /*Bind the correct asset groupings for this layer*/
-        TextureSet(layer->assetGroupingId);
+        if (Render::Get()->firstTime) TextureSet();
 
         pen::op::Translate(&layer->model, pen::Vec3(layer->translation.x, layer->translation.y, layer->translation.z));
 
@@ -68,23 +68,20 @@ namespace pen {
         if (inst->firstTime) inst->firstTime = false;
     }
 
-    void Render::TextureSet(uint16_t layerAssetGroupingId) {
+    void Render::TextureSet() {
         pen::State* inst = pen::State::Get();
 
 #ifndef __PEN_MOBILE__
         /*If pixel-by-pixel drawing is needed*/
-        if (pen::State::Get()->usingBuffer) Texture::UpdatePixels(layerAssetGroupingId);
-
-        /*Deactivates other asset groups*/
-        pen::Asset::Deactivate(layerAssetGroupingId);
+        if (pen::State::Get()->usingBuffer) Texture::UpdatePixels();
 
         /*Loops through and binds the assets for a particular batch*/
         for (int i = 0; i < inst->textureUnits; i++) {
-            std::string a = pen::Asset::Find((inst->textureUnits * layerAssetGroupingId) + i);
+            std::string a = pen::Asset::Find(i);
 
             /*Asset regex gets returned if the given asset name could not be found*/
             if (a != ASSET_REGEX) {
-                Texture::Get()->Bind(pen::Asset::Find((inst->textureUnits * layerAssetGroupingId) + i).c_str(), i, layerAssetGroupingId);
+                Texture::Get()->Initialize(pen::Asset::Find(i).c_str(), i);
             }
         }
 #endif

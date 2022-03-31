@@ -55,6 +55,6 @@ namespace pen {
 
 		static void RenderLayer(Renderer* renderer, pen::Layer *layer);
 	private:
-		static void TextureSet(uint16_t layerAssetGroupingId);
+		static void TextureSet();
 	};
 }

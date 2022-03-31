@@ -22,20 +22,7 @@ under the License.
 
 Texture* Texture::instance = nullptr;
 
-void Texture::Bind(const char* asset, unsigned int slot, const unsigned int assetGroupingId) {
-	/*Binds the right textures for a specific asset group, these assets are loaded in the Asset class*/
-	if (AssetExists(asset, slot, assetGroupingId)) {
-		/*If the texture is already loaded in memory, it gets bound*/
-		glActiveTexture(GL_TEXTURE0 + slot);
-		glBindTexture(GL_TEXTURE_2D, Texture::Get()->texSlots.Find(slot)->second);
-	}
-	else {
-		/*Creates new textures, this happens if the asset group is different from the previous one*/
-		Initialize(asset, slot, assetGroupingId);
-	}
-}
-
-void Texture::Initialize(const std::string& path, const unsigned int slot, const unsigned int assetGroupingId) {
+void Texture::Initialize(const std::string& path, const unsigned int slot) {
 	/*Regular textures*/
 	/*Removes the previous texture that occupied this slot*/
 	Destroy(Texture::Get()->texSlots.Find(slot)->second);
@@ -85,31 +72,13 @@ void Texture::Initialize(const std::string& path, const unsigned int slot, const
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
 	}
 
-	/*Activates the texture in the Asset class so it will exist and not be created each render*/
-	pen::Asset::Activate(path);
-
 	if (localBuffer)
 		stbi_image_free(localBuffer);
-}
-
-void Texture::Unbind() const {
-	/*Unbinds the texture*/
-	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::Destroy(unsigned int texRendererId) {
 	/*Removes a texture from memory on the GPU*/
 	glDeleteTextures(1, &texRendererId);
-}
-
-bool Texture::AssetExists(const char* asset, const unsigned int texId, const unsigned int assetGroupingId) {
-	/*Checks if this asset is activated in the Asset class so it will not get created as a new texture each render*/
-	pen::State* inst = pen::State::Get();
-	for (int i = 0; i < pen::Asset::assetMap.Size(); i++) {
-		if ((texId) % inst->textureUnits == pen::Asset::assetMap.items[i].second.personalId % inst->textureUnits &&
-			asset == pen::Asset::assetMap.items[i].second.path && pen::Asset::assetMap.items[i].second.active) return true;
-	}
-	return false;
 }
 
 void Texture::LoadTexture(const std::string* textureList, const unsigned int& listSize) {
@@ -129,7 +98,9 @@ void Texture::LoadTexture(const std::string* textureList, const unsigned int& li
 	}
 
 	for (int j = 0; j < pathList.size(); j++)
-		pen::Asset::AddAsset(pen::Asset(pathList[j]));
+		pen::Asset::Add(pen::Asset(pathList[j]));
+
+	pen::Asset::assetMap.Find(1)->second.path = "fonts/bitmap.png";
 
 	pen::State* inst = pen::State::Get();
 
@@ -140,10 +111,10 @@ void Texture::LoadTexture(const std::string* textureList, const unsigned int& li
 #endif
 }
 
-void Texture::UpdatePixels(const unsigned int assetGroupingId) {
+void Texture::UpdatePixels() {
 	/*Sends new pixel buffer texture to GPU*/
 #ifndef __PEN_MOBILE__
-	if (assetGroupingId == 0 && pen::State::Get()->pixelDrawn) {
+	if (pen::State::Get()->pixelDrawn) {
 		pen::State::Get()->pixelDrawn = false;
 		glActiveTexture(GL_TEXTURE0 + 2);
 		glBindTexture(GL_TEXTURE_2D, Texture::Get()->texSlots.Find(2)->second);
