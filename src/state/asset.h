@@ -43,7 +43,8 @@ namespace pen {
 		~Asset();
 
 		static void Add(Asset asset);
-		static std::string Find(const unsigned int& queryId);
+		static Asset Find(const std::string& fileName);
+		static std::string FindById(const unsigned int& queryId);
 		static unsigned int GetId(const std::string& name);
 		static Asset Load(std::string file, char* (*onLoad)(const char* path, long* fileLength) = nullptr);
 #ifdef __PEN_MOBILE__

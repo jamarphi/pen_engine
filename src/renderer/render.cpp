@@ -77,11 +77,11 @@ namespace pen {
 
         /*Loops through and binds the assets for a particular batch*/
         for (int i = 0; i < inst->textureUnits; i++) {
-            std::string a = pen::Asset::Find(i);
+            std::string a = pen::Asset::FindById(i);
 
             /*Asset regex gets returned if the given asset name could not be found*/
             if (a != ASSET_REGEX) {
-                Texture::Get()->Initialize(pen::Asset::Find(i).c_str(), i);
+                Texture::Get()->Initialize(pen::Asset::FindById(i).c_str(), i);
             }
         }
 #endif

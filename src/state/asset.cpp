@@ -54,8 +54,16 @@ namespace pen {
 		Asset::assetMap.Insert(asset.id,asset);
 	}
 
-	std::string Asset::Find(const unsigned int& queryId) {
-		/*Finds an asset based on its assigned id, this is used for determining which assets should be in which asset group*/
+	Asset Asset::Find(const std::string& fileName) {
+		/*Finds an asset by the name*/
+		for (int i = 0; i < Asset::assetMap.Size(); i++) {
+			if (Asset::assetMap.items[i].second.name == fileName) return Asset::assetMap.items[i].second;
+		}
+		return Asset();
+	}
+
+	std::string Asset::FindById(const unsigned int& queryId) {
+		/*Finds an asset based on its assigned id*/
 	    return (Asset::assetMap.Find(queryId) != nullptr) ? Asset::assetMap.Find(queryId)->second.name : ASSET_REGEX;
 	}
 

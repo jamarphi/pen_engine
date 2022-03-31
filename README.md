@@ -176,18 +176,10 @@ To make managing assets easier you can do:
     pen::Asset asset = pen::Asset::Load(std::string file, char*(*onLoad)(const char* path, long* fileLength) = nullptr);
 
 The file passed in should be the full path.  The onLoad function is your loading function that you pass in for whatever file you want to load.
-If you want to load somewhere else then do:
 
-    pen::Asset asset = pen::Asset();
-	asset.id = pen::Asset::nextId;
-	pen::Asset::nextId++;
-	asset.name = fileName;
-	asset.root = fileRoot;
-	asset.data = fileData;
-    asset.length = fileLength;
-	pen::Asset::assetMap.Insert(asset.id, asset);
+If you want to access the assets use:
 
-The assetMap is just for convenience of finding assets.
+    pen::Asset asset = pen::Asset::Find(const std::string& fileName);
 
 ---------------------------------------------------------------------------
 
