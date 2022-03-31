@@ -98,6 +98,9 @@ namespace pen {
 		/*----Android----*/
 		void* javaEnv = nullptr;
 		std::vector<std::string> mobileTextureNameList;
+#ifdef __PEN_MOBILE__
+		void* androidAssetManager = nullptr;
+#endif
 		/*----Android----*/
 		/*----Mobile----*/
 	public:

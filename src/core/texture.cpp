@@ -100,7 +100,7 @@ void Texture::LoadTexture(const std::string* textureList, const unsigned int& li
 	for (int j = 0; j < pathList.size(); j++)
 		pen::Asset::Add(pen::Asset(pathList[j]));
 
-	pen::Asset::assetMap.Find(1)->second.path = "fonts/bitmap.png";
+	pen::Asset::assetMap.Find(1)->second.name = "fonts/bitmap.png";
 
 	pen::State* inst = pen::State::Get();
 

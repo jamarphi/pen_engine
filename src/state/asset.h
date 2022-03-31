@@ -21,6 +21,9 @@ under the License.
 #pragma once
 #include "state.h"
 #include "../objects/containers/map.h"
+#ifdef __PEN_MOBILE__
+#include ../../ext/platforms/android/app/src/cpp/android_asset.h
+#endif
 
 #define ASSET_REGEX "#$#"
 
@@ -28,12 +31,13 @@ namespace pen {
 	class Asset {
 	public:
 		static pen::Map<unsigned int, Asset> assetMap;
-		static uint16_t id;
-		uint16_t personalId;
+		static uint16_t nextId;
+		uint16_t id;
 		std::string root;
-		std::string path;
+		std::string name;
 		char* data;
 	public:
+		Asset();
 		Asset(const std::string& assetPath);
 		~Asset();
 
@@ -44,5 +48,9 @@ namespace pen {
 	private:
 		static std::string Split(const std::string& line, const char& character, const unsigned int& section);
 		static std::string ParsePath(std::string fileName);
+		static Asset Load(std::string file, char*(*onLoad)(const char* path) = nullptr);
+#ifdef __PEN_MOBILE__
+		static Asset* LoadMobileDir(std::string dirPath, int* assetCount);
+#endif
 	};
 }

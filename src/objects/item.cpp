@@ -238,8 +238,8 @@ namespace pen {
             if (textureName.length() > 0) {
                 uint16_t tempId = 0;
                 for (int i = 0; i < pen::Asset::assetMap.Size(); i++) {
-                    if (pen::Asset::assetMap.items[i].second.path == textureName) {
-                        tempId = pen::Asset::assetMap.items[i].second.personalId;
+                    if (pen::Asset::assetMap.items[i].second.name == textureName) {
+                        tempId = pen::Asset::assetMap.items[i].second.id;
                         break;
                     }
                 }

@@ -169,6 +169,27 @@ Be sure to exclude the examples folder from your project.
 
 ---------------------------------------------------------------------------
 
+# 1.1.1 - Managing Assets
+
+To make managing assets easier you can do:
+
+    pen::Asset asset = pen::Asset::Load(std::string file, char*(*onLoad)(const char* path) = nullptr);
+
+The file passed in should be the full path.  The onLoad function is your loading function that you pass in for whatever file you want to load.
+If you want to load somewhere else then do:
+
+    pen::Asset asset = pen::Asset();
+	asset.id = pen::Asset::nextId;
+	pen::Asset::nextId++;
+	asset.name = fileName;
+	asset.root = fileRoot;
+	asset.data = fileData;
+	pen::Asset::assetMap.Insert(asset.id, asset);
+
+The assetMap is just for convenience of finding assets.
+
+---------------------------------------------------------------------------
+
 # 1.2 - Complex Shapes
 
 To add your own vertex and index data for gui items, pass in pointers to that data like so:
@@ -606,9 +627,22 @@ If you want to send messages to Java for logging use:
 
     pen::platforms::android::AppLog(const char* yourMessage);
 
-This can be used for debugging for Android once your application has been built and tested on PC.
+This can be used for Android debugging once your application has been built and tested on PC.
 
 ---------------------------------------------------------------------------
+
+#1.8.1.4 - Android Loading
+
+You can load in assets such as level packs by doing:
+
+    pen::Asset::Load(std::string file, nullptr);
+
+The full name should be passed in including any sub directory inside the assets directory.
+For example the file could be levels/level1.txt, or it could be music1.mp3, or sounds/enemy1/sound1.wav.
+
+You can also load in a directory in assets by doing:
+
+    pen::Asset::LoadMobileDir(std::string dirPath);
 
 #1.9 - AI
 

@@ -55,6 +55,8 @@ extern "C" {
     }
 #endif // __ANDROID_API__ > 19
 
+#include <android/asset_manager.h>
+
     JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
     {
 
@@ -123,6 +125,12 @@ extern "C" {
         if (pen::State::Get()->mobileOnResumeCallback != nullptr) {
             (*pen::State::Get()->mobileOnResumeCallback)();
         }
+    }
+
+    JNIEXPORT void JNICALL Java_com_jamar_pen_engine_PenSurfaceRenderer_loadAssetManager(JNIEnv* env, jobject obj, jobject assetManager) {
+        /*Used to initialize the android asset manager*/
+        AAssetManager* manager = AAssetManager_fromJava(env, assetManager);
+        pen::State::Get()->androidAssetManager = (void*)manager;
     }
 
     JNIEXPORT jstring JNICALL Java_com_jamar_pen_engine_PenSurfaceRenderer_nativeImageName(JNIEnv* env, jobject obj, jint id) {

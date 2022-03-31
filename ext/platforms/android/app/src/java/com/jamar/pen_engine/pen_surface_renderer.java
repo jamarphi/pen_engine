@@ -23,6 +23,7 @@ package com.jamar.pen_engine;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -53,6 +54,7 @@ public class PenSurfaceRenderer implements GLSurfaceView.Renderer {
     private static MainActivity mainActivity;
     public static Bitmap pixelBitmap = null;
     private static Bitmap spriteBitmap = null;
+    private AssetManager assetManager;
 
     public PenSurfaceRenderer(Context context, MainActivity appMainActivity){
 
@@ -69,12 +71,16 @@ public class PenSurfaceRenderer implements GLSurfaceView.Renderer {
         this.mScreenHeight = surfaceHeight;
     }
 
+    private static native void loadAssetManager(AssetManager assetManager);
+
     @Override
     public void onSurfaceCreated(final GL10 gl, final EGLConfig EGLConfig) {
         PenSurfaceRenderer.nativeInit(this.mScreenWidth, this.mScreenHeight);
         loadTextures(gl, mContext);
         this.mLastTickInPenSeconds = System.nanoTime();
         mNativeInitCompleted = true;
+        assetManager = getResources().getAssets();
+        loadAssetManager(assetManager);
     }
 
     @Override
