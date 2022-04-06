@@ -3,7 +3,7 @@
 ![Pen Engine Logo](https://github.com/fentacoder/pen_engine/blob/master/res/textures/pen_engine_logo.png?raw=true)
 
 Pen Engine is a cross-platform C++ graphics engine that supports 2D/3D drawing, texel drawing, and GUI development. 
-It uses OpenGL underneath for graphics rendering. It is made as a library for other developers to use it in their 
+It uses OpenGL underneath for graphics rendering. It is made as a library for use in
 applications with graphics rendering code being abstracted.
 
 There is an Example.cpp file in Pen Engine to show you how to do the basics.
