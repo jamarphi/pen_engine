@@ -25,8 +25,8 @@ namespace pen {
 
     Layer3D::Layer3D(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame) {
         /*Layers are separated mainly based on the shape type of the objects they contain, which asset grouping it is a part of, and if it is fixed*/
+        indexCount = 0;
         va = VertexArray();
-
         shapeType = objectShapeType;
         isFixed = objectIsFixed;
         isSingular = objectIsSingular;

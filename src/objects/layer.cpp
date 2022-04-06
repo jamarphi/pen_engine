@@ -26,8 +26,8 @@ namespace pen {
 
     Layer::Layer(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame) {
         /*Layers are mainly separated based on the shape type of the objects they contain, which asset grouping it is a part of, and if it is fixed*/
+        indexCount = 0;
         va = VertexArray();
-
         shapeType = objectShapeType;
         isFixed = objectIsFixed;
         isSingular = objectIsSingular;

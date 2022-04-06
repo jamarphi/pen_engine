@@ -38,8 +38,8 @@ namespace pen {
 
         inst->appShader.Bind();
 
-        /*Bind the correct asset groupings for this layer*/
-        if (Render::Get()->firstTime) TextureSet();
+        /*Bind the initial assets*/
+        if (inst->firstTime) TextureSet();
 
         pen::op::Translate(&layer->model, pen::Vec3(layer->translation.x, layer->translation.y, layer->translation.z));
 

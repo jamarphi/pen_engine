@@ -40,7 +40,7 @@ Then install Cmake and create a build directory in the root of Pen Engine.
 
 Go into the CMakeLists.txt file in the root and modify the add_executable line to your main cpp file:
 
-    add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "../YourMainCPP.cpp")
+    add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "../App.cpp")
 
 Next cd into the build directory and call:
 
@@ -48,9 +48,6 @@ Next cd into the build directory and call:
     cmake --build .
 
 This should compile an executable that can be ran on Linux.
-
-If on Windows I suggest using Visual Studio, if on Linux use Cmake.
-Currently on Windows the executable built from Cmake doesn't display the objects due to an issue with linking GLFW although it does link, so for now use Visual Studio on Windows.
 
 For cross-platform projects, use pen::Map for maps, this is to remove the dependency of cmath which causes problems for Android cross compiling.
 Also avoid using the standard math libraries whenever you can inside of your cross-platform projects, using operations such as pen::op::Sin() give
@@ -135,7 +132,7 @@ When doing cross platform development, your file names for assets can only conta
 
 When passing in the Pen Engine Directory, make sure it's an absolute path such as this on Windows:
 
-    C:/Users/user/dev/project
+    C://Users/user/dev/project
 
 Or this on Linux:
 
