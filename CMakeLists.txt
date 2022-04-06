@@ -55,7 +55,9 @@ file(GLOB_RECURSE PROJECT_LIB_SOURCES "${CMAKE_SOURCE_DIR}/src/*.h" "${CMAKE_SOU
     "${CMAKE_SOURCE_DIR}/src/*.c")
 
 #Creates the .so library for Android
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
 add_subdirectory(${CMAKE_SOURCE_DIR}/ext/platforms/android)
+endif()
 
 #Creates an executable
 add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "../app.cpp")

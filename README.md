@@ -531,7 +531,7 @@ To get started building .apk files, first go to pen_engine/state/config.h and un
     //#define __PEN_MOBILE__
 
 If you uncomment this line, your application will not run for PC, so only do this once you have tested
-on the PC version and are ready to build it for mobile.
+on the PC version and are ready to build it for Android.
 
 Now create a build directory inside the root directory of pen_engine, so it would be:
 
