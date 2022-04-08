@@ -117,7 +117,7 @@ namespace pen {
 		pen::Mat3x3 invMatrix = pen::Mat3x3(1.0f, true);
 		bool invert = true;
 		/*This callback is used to load a sprite as a math function*/
-		float (*userDisplayFunction)(int, int, float) = nullptr;
+		float (*displayFunction)(int, int, float) = nullptr;
 
 		void Draw() {
 			/*Draws the sprite to the pixel buffer*/
@@ -218,7 +218,7 @@ namespace pen {
 						oy /= oz;
 					}
 
-					float outY = (userDisplayFunction == nullptr) ? j : (*userDisplayFunction)(width, height, i);
+					float outY = (displayFunction == nullptr) ? j : (*displayFunction)(width, height, i);
 
 					if ((int)(oy + 0.5f) == height) {
 						break;
@@ -593,7 +593,7 @@ namespace pen {
 		return new pen::Item{ rect, length, height, startX, startY };
 	}
 
-	static pen::Item* CreateSprite(int startX, int startY, int length, int height, const std::string& path,
+	static pen::Item* CreateSprite(int startX, int startY, int width, int height, const std::string& path,
 		float spriteTexCoordStartX = 0.0f, float spriteTexCoordStartY = 0.0f, float spriteTexCoordEndX = 1.0f, float spriteTexCoordEndY = 1.0f,
 		bool compress = false, float (*userDisplayFunction)(int, int, float) = nullptr) {
 		/*Create a sprite for the pixel buffer*/
@@ -633,7 +633,7 @@ namespace pen {
 		pen::Item* item = nullptr;
 		int widthBound = 0;
 		int heightBound = 0;
-		if (length >= texWidth || height >= texHeight) compress = false;
+		if (width >= texWidth || height >= texHeight) compress = false;
 		if (!compress) {
 			widthBound = texWidth * spriteTexCoordEndX;
 			heightBound = texHeight * spriteTexCoordEndY;
@@ -658,7 +658,7 @@ namespace pen {
 		}
 		else {
 			/*Interpolates this rgba data into a buffer with the specified dimensions*/
-			widthBound = (spriteTexCoordStartX != 0.0f ? (int)(spriteTexCoordStartX * length) : length);
+			widthBound = (spriteTexCoordStartX != 0.0f ? (int)(spriteTexCoordStartX * width) : width);
 			heightBound = (spriteTexCoordStartY != 0.0f ? (int)(spriteTexCoordStartY * height) : height);
 			int rowOffset = (int)(texWidth * spriteTexCoordStartX * 4);
 			if (rowOffset % 4 != 0) rowOffset - (rowOffset % 4);
@@ -667,7 +667,7 @@ namespace pen {
 			item = new pen::Item{ pixelItemData, widthBound, heightBound, startX, startY, pen::PEN_WHITE, pen::Mat3x3(1.0f, true), pen::Mat3x3(1.0f, true), true, userDisplayFunction };
 			for (int j = 0; j < heightBound; j++) {
 				for (int i = 0; i < widthBound; i++) {
-					double px = i * (spriteTexCoordEndX * texWidth) / float(length);
+					double px = i * (spriteTexCoordEndX * texWidth) / float(width);
 					double py = j * (spriteTexCoordEndY * texHeight) / float(height);
 					int pxi = int(px);
 					int pyi = int(py);
@@ -721,11 +721,23 @@ namespace pen {
 			}
 		}
 
-		if (widthBound != length || heightBound != height) {
-			/*Scale the sprite*/
-			pen::Scale(item, ((float)length / (float)widthBound), ((float)height / (float)heightBound));
+		if (widthBound != width || heightBound != height) {
+			pen::Scale(item, ((float)width / (float)widthBound), ((float)height / (float)heightBound));
 		}
 
 		return item;
+	}
+
+	static void Animate(pen::Item* item, const std::string& path,
+		float spriteTexCoordStartX = 0.0f, float spriteTexCoordStartY = 0.0f, float spriteTexCoordEndX = 1.0f, float spriteTexCoordEndY = 1.0f) {
+		/*Swaps animations for an item*/
+		pen::Item* newItem = pen::CreateSprite(item->x, item->y, item->width, item->height, path, spriteTexCoordStartX, spriteTexCoordStartY, spriteTexCoordEndX, spriteTexCoordEndY);
+		newItem->color = item->color;
+		newItem->matrix = item->matrix;
+		newItem->invMatrix = item->invMatrix;
+		newItem->invert = item->invert;
+		newItem->displayFunction = item->displayFunction;
+		pen::DeleteItem(item);
+		item = newItem;
 	}
 }

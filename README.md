@@ -228,11 +228,11 @@ You can zoom in or out on the pixel buffer based on screen dimensions with:
 
 You can create sprites as well in the pixel buffer using:
 
-    pen::ui::Item* item = pen::CreateSprite(int startX, int startY, int length, int height, const std::string& path,
+    pen::ui::Item* item = pen::CreateSprite(int startX, int startY, int width, int height, const std::string& path,
 			float spriteTexCoordStartX = 0.0f, float spriteTexCoordStartY = 0.0f, float spriteTexCoordEndX = 1.0f, float spriteTexCoordEndY = 1.0f,
-			bool compress = false, float (*userDisplayFunction)(int, int, float) = nullptr)
+			bool compress = false, float (*displayFunction)(int, int, float) = nullptr)
 
-The userDisplayFunction is for using math functions to determine where the texture data gets drawn to with respect to the y axis.
+The displayFunction is for using math functions to determine where the texture data gets drawn to with respect to the y axis.
 
 Then afterwards within the render loop you can do:
 
@@ -256,8 +256,13 @@ There are transformations you can do with pixel items as well:
 When deleting pixel items you can use DeleteItem to make things more convenient, this just deletes the buffer inside of the item and
 then the item itself so there are no memory leaks:
 
-    pen::DeleteItem(pen::ui::Item* item);
+    pen::DeleteItem(pen::Item* item);
     item = nullptr;
+
+Animations for items can be swapped by doing:
+
+    pen::Animate(pen::Item* item, const std::string& path,
+		float spriteTexCoordStartX = 0.0f, float spriteTexCoordStartY = 0.0f, float spriteTexCoordEndX = 1.0f, float spriteTexCoordEndY = 1.0f);
 
 ---------------------------------------------------------------------------
 
