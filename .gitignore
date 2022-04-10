@@ -5,6 +5,7 @@
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+*.DS_Store
 
 /*.gradle
 /*local.properties
