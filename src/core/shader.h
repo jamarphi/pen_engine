@@ -59,7 +59,11 @@ public:
 		"in vec4 color;\n"
 		"in vec2 texCoord;\n"
 		"in float texIndex;\n"
-		"uniform sampler2D uTextures[32];\n"
+#ifdef __APPLE__
+		"uniform sampler2D uTextures[13];\n"
+#else
+        "uniform sampler2D uTextures[32];\n"
+#endif
 		"void main() {\n"
 		"int index = int(texIndex);\n"
 		"FragColor = (texture(uTextures[index], texCoord) * color);\n"
