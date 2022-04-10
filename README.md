@@ -17,7 +17,7 @@ Include these directories in C/C++ -> General:
 Linker config:
 Add this to Additional Library Directories: 
 
-    $(SolutionDir)pen_engine\dependencies\glfw\lib-vc2019;
+    $(SolutionDir)pen_engine\dependencies\glfw\lib-win;
 
 Add additional dependencies in Linker -> Input:
 

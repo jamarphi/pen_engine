@@ -36,7 +36,7 @@ set(NON_LINUX ON)
 add_library(glfw STATIC IMPORTED)
 
 #This is for setting the glfw static lib
-set_property(TARGET glfw PROPERTY IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/dependencies/glfw/lib-vc2019/x64/glfw3.lib")
+set_property(TARGET glfw PROPERTY IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/dependencies/glfw/lib-win/x64/glfw3.lib")
 set_property(TARGET glfw PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/dependencies/glfw")
 
 #Sets the linker language
