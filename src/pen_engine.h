@@ -69,7 +69,9 @@ under the License.
 #include "ui/text_editor.h"
 #include "ui/context_window.h"
 #ifndef __PEN_LINUX__
+#ifndef __APPLE__
 #include "ui/file_modal.h"
+#endif
 #endif
 
 #define SHADER_SOURCE ""

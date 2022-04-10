@@ -32,10 +32,6 @@ If you are on Linux then I suggest using Cmake, first uncomment __PEN_LINUX__ in
 
     //#define __PEN_LINUX__
 
-If you are on a Mac then uncomment __PEN_MAC__ in pen_engine/src/state/config.h:
-
-    //#define __PEN_MAC__
-
 Then install Cmake and create a build directory in the root of Pen Engine.
 
 Go into the CMakeLists.txt file in the root and modify the add_executable line to your main cpp file:

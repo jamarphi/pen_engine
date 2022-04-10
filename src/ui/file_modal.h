@@ -20,6 +20,7 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #ifndef __PEN_LINUX__
+#ifndef __APPLE__
 #include "../objects/item.h"
 #include "text_box.h"
 #include "vertical_list.h"
@@ -52,4 +53,5 @@ namespace pen {
 		};
 	}
 }
+#endif
 #endif

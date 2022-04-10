@@ -40,6 +40,9 @@ namespace pen {
 
         /*Bind the initial assets*/
         if (inst->firstTime) TextureSet();
+        
+        /*If pixel-by-pixel drawing is needed*/
+        if (pen::State::Get()->usingBuffer) Texture::UpdatePixels();
 
         pen::op::Translate(&layer->model, pen::Vec3(layer->translation.x, layer->translation.y, layer->translation.z));
 
@@ -72,9 +75,6 @@ namespace pen {
         pen::State* inst = pen::State::Get();
 
 #ifndef __PEN_MOBILE__
-        /*If pixel-by-pixel drawing is needed*/
-        if (pen::State::Get()->usingBuffer) Texture::UpdatePixels();
-
         /*Loops through and binds the assets for a particular batch*/
         for (int i = 0; i < inst->textureUnits; i++) {
             std::string a = pen::Asset::FindById(i);

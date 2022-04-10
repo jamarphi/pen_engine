@@ -21,6 +21,7 @@ under the License.
 #include "file_modal.h"
 
 #ifndef __PEN_LINUX__
+#ifndef __APPLE__
 
 std::string ParseFileModalFilesList(pen::ui::Item* item) {
     /*Return a formatted path of the current directory*/
@@ -418,4 +419,5 @@ namespace pen {
     }
 }
 
+#endif
 #endif

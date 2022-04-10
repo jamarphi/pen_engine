@@ -150,7 +150,7 @@ GLint Shader::GetUniformLocation(const std::string& name) {
 	GLint location = glGetUniformLocation(rendererId, name.c_str());
 	if (location == -1) {
 		std::cout << "Uniform '" << name << "' does not exist" << std::endl;
-	}
+    }
 
 	uniformLocationCache.Insert(name, location);
 

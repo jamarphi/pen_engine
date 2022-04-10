@@ -302,7 +302,7 @@ namespace pen {
 			pen::Mat deltaMat = pen::Mat(0.0f, numActions, numStateParams);
 
 			for (int i = 0; i < deltaVec.width; i++) {
-				deltaMat.matrix[i][(int)actionMat[i]] = deltaVec.matrix[0][i];
+				deltaMat.matrix[i][(int)actionMat.matrix[0][i]] = deltaVec.matrix[0][i];
 			}
 
 			TDUpdate(&statesMat, &deltaMat);

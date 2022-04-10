@@ -25,12 +25,15 @@ under the License.
 /*For compiling projects on Linux*/
 //#define __PEN_LINUX__
 
-/*For compiling projects on Mac*/
-//#define __PEN_MAC__
-
 /*I suggest using Linux if using Cmake, and using Visual Studio if using Windows*/
 #ifdef __PEN_CMAKE__
 #ifndef __PEN_LINUX__
+#define __PEN_LINUX__
+#endif
+#endif
+
+#ifndef __PEN_LINUX__
+#ifdef __APPLE__
 #define __PEN_LINUX__
 #endif
 #endif

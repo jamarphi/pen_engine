@@ -28,8 +28,11 @@ message(STATUS "OPENGL_GLX_INCLUDE_DIR: ${OPENGL_GLX_INCLUDE_DIR}")
 message(STATUS "OPENGL_glu_LIBRARY: ${OPENGL_glu_LIBRARY}")
 message(STATUS "OpenGL_GLX_FOUND: ${OpenGL_GLX_FOUND}")
 
+set(NON_LINUX OFF)
+
 if(WIN32)
 #glfw gets added via the local lib
+set(NON_LINUX ON)
 add_library(glfw STATIC IMPORTED)
 
 #This is for setting the glfw static lib
@@ -38,8 +41,22 @@ set_property(TARGET glfw PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_
 
 #Sets the linker language
 set_target_properties(glfw PROPERTIES LINKER_LANGUAGE CXX)
+endif()
 
-else()
+if(APPLE)
+#glfw gets added via the local lib
+set(NON_LINUX ON)
+add_library(glfw STATIC IMPORTED)
+
+#This is for setting the glfw static lib
+set_property(TARGET glfw PROPERTY IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/dependencies/glfw/lib-mac/libglfw3.a")
+set_property(TARGET glfw PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/dependencies/glfw")
+
+#Sets the linker language
+set_target_properties(glfw PROPERTIES LINKER_LANGUAGE CXX)
+endif()
+
+if(NOT NON_LINUX)
 #glfw gets added in as a cmake module
     if(NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
         set(glfw3_ROOT "/usr/lib/x86_64-linux-gnu")
@@ -68,7 +85,21 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 #The library directories for linkage
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw ${OPENGL_LIBRARIES})
-else()
+endif()
+
+if(APPLE)
+    if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+    #For Mac builds
+    find_library(COCOA_LIB cocoa)
+    find_library(IOKIT_LIB IOKit)
+    find_library(CORE_VIDEO_LIB CoreVideo)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${COCOA_LIB} ${IOKIT_LIB} ${CORE_VIDEO_LIB} glfw ${OPENGL_LIBRARIES})
+    elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+    target_link_libraries(${PROJECT_NAME} GLESv2 EGL)
+    endif()
+endif()
+
+if(NOT NON_LINUX)
     if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
     #For Linux builds
     target_link_libraries(glfw INTERFACE rt)

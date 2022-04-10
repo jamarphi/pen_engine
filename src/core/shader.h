@@ -33,11 +33,9 @@ under the License.
 class Shader {
 public:
 	unsigned int textureUnits;
-
 	std::string filePath;
 	unsigned int rendererId;
 	pen::Map<std::string, GLint> uniformLocationCache;
-
 
 #ifndef __PEN_ES__
 	const char* shaderProgram = "#version 400 core\n"
