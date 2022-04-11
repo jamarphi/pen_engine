@@ -50,8 +50,8 @@ namespace pen {
 #ifdef __PEN_MOBILE__
 		static Asset* LoadMobileDir(std::string dirPath, int* assetCount);
 #endif
+		static std::string ParsePath(std::string fileName);
 	private:
 		static std::string Split(const std::string& line, const char& character, const unsigned int& section);
-		static std::string ParsePath(std::string fileName);
 	};
 }

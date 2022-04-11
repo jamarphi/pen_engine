@@ -597,7 +597,6 @@ namespace pen {
 		float spriteTexCoordStartX = 0.0f, float spriteTexCoordStartY = 0.0f, float spriteTexCoordEndX = 1.0f, float spriteTexCoordEndY = 1.0f,
 		bool compress = false, float (*userDisplayFunction)(int, int, float) = nullptr) {
 		/*Create a sprite for the pixel buffer*/
-
 		unsigned char* spriteData = nullptr;
 		int texWidth = 0, texHeight = 0, texBPP = 0;
 		pen::State* inst = pen::State::Get();
@@ -624,7 +623,17 @@ namespace pen {
 			unsigned char* localBuffer = stbi_load(tempPath.c_str(), &texWidth, &texHeight, &texBPP, 4);
 			spriteData = localBuffer;
 #else
-			spriteData = AndroidLoadSprite(path.c_str(), texWidth, texHeight);
+			std::string androidFilePath = path;
+			if (androidFilePath[2] == '/' && androidFilePath[3] == '/') {
+				androidFilePath = androidFilePath.substr(4);
+			}
+			else if (androidFilePath[0] == '/') {
+				androidFilePath = androidFilePath.substr(1);
+			}
+			std::string androidFileName = Asset::ParsePath(androidFilePath);
+			/*When loading from res/drawable mimetypes have to be removed*/
+			if(androidFileName.find(".") != std::string::npos) androidFileName = androidFileName.substr(0, androidFileName.find("."));
+			spriteData = AndroidLoadSprite(androidFileName.c_str(), texWidth, texHeight);
 			texBPP = 4;
 #endif
 			pen::State::Get()->pixelSprites.Insert(path, { path, spriteData, texWidth, texHeight });

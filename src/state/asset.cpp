@@ -166,11 +166,11 @@ namespace pen {
 		if (file[2] == '/' && file[3] == '/') {
 			file = file.substr(4);
 		}
-		else if (fileName[0] == '/') {
+		else if (file[0] == '/') {
 			file = file.substr(1);
 		}
 		fileName = Asset::ParsePath(file);
-		fileRoot = fileName.substr(0, file.find(fileName));
+		fileRoot = file.substr(0, file.find(fileName));
 		fileData = AndroidLoadAsset(pen::State::Get()->androidAssetManager, fileName.c_str(), &length);
 #endif
 		Asset asset = Asset();

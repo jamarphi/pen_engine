@@ -138,8 +138,6 @@ public class PenSurfaceRenderer implements GLSurfaceView.Renderer {
         }finally{
             try{
                 is.close();
-                is = null;
-
                 returnBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), texOrientation, true);
             }catch(IOException e){
                 e.printStackTrace();
@@ -148,7 +146,7 @@ public class PenSurfaceRenderer implements GLSurfaceView.Renderer {
         return returnBitmap;
     }
 
-    private Bitmap loadBitmapViaPixelArray(Context context){
+    private Bitmap loadBitmapViaPixelArray(){
         /*Load in the pixel buffer on java side*/
         Bitmap bitmap = null;
         int[] pixelBuffer = new int[2000000];
@@ -172,14 +170,13 @@ public class PenSurfaceRenderer implements GLSurfaceView.Renderer {
 
         InputStream is = mainActivity.getBaseContext().getResources().openRawResource(resourceId);
         Matrix texOrientation = new Matrix();
-        texOrientation.postScale(1.0f, -1.0f);
+        texOrientation.postScale(1.0f, 1.0f);
         Bitmap bitmap = null;
         try{
             bitmap = BitmapFactory.decodeStream(is);
         }finally{
             try{
                 is.close();
-                is = null;
                 tempBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), texOrientation, true);
             }catch(IOException e){
                 e.printStackTrace();
@@ -246,7 +243,7 @@ public class PenSurfaceRenderer implements GLSurfaceView.Renderer {
                 bitmap.recycle();
             }else if (i == 2){
                 /*Pixel buffer*/
-                Bitmap bitmap = loadBitmapViaPixelArray(context);
+                Bitmap bitmap = loadBitmapViaPixelArray();
                 pixelBitmap = bitmap.copy(Bitmap.Config.ARGB_8888,true);
                 gl.glTexParameterf(GL10.GL_TEXTURE_2D,GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
                 gl.glTexParameterf(GL10.GL_TEXTURE_2D,GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_NEAREST);

@@ -67,6 +67,9 @@ extern "C" {
                 jbyte* imageItems = env->GetByteArrayElements(image, 0);
                 for(int i = 0; i < imageArraySize; i++){
                     nativeImage[i] = (unsigned char)imageItems[i];
+                    if(imageItems[i] != 0){
+                        nativeImage[i];
+                    }
                 }
 
                 /*Now update the width and height*/
