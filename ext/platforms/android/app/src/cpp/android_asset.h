@@ -29,31 +29,38 @@ under the License.
 #include <android/asset_manager.h>
 
 extern "C" {
-    static char* AndroidLoad(void* assetManager, const char* path, long* fileLength) {
+    static char* AndroidLoadAsset(void* assetManager, const char* path, long* fileLength) {
         /*Load in a file from assets directory*/
-        AAset* javaAsset = AAsetManager_open((AAssetManager*)assetManager, path, AASET_MODE_UNKNOWN);
-        int byteCount = AAsset_getLength(javaAsset);
-        *fileLength = (long)byteCount;
-        char* data = new char[byteCount];
-        AAsset_read(javaAsset, &data, byteCount);
-        return data;
+
+        /*TODO: AAsset functions are undefined references*/
+        //AAsset* javaAsset = AAssetManager_open((AAssetManager*)assetManager, path, AASSET_MODE_UNKNOWN);
+        //int byteCount = AAsset_getLength(javaAsset);
+        //*fileLength = (long)byteCount;
+        //char* data = new char[byteCount];
+
+        /*TODO: AAsset_read is an undefined reference*/
+        //AAsset_read(javaAsset, &data, byteCount);
+        //return data;
+        return nullptr;
     }
 
     static std::vector<std::string> AndroidLoadDir(void* assetManager, const char* dirPath) {
         /*Load in a directory from assets directory*/
-        std::vector<std::string> pathList;
-        AAssetDir* dir = AAssetManager_openDir((AAssetManager*)assetManager, dirPath);
-        char* input = nullptr;
-        std::string inputStr = "";
-        while (true) {
-            input = AAssetDir_getNextFileName(dir);
-            if (input == nullptr) {
-                break;
-            }
-            inputStr = input;
-            pathList.push_back(inputStr);
-        }
-        AAssetDir_close(dir);
+//        std::vector<std::string> pathList;
+//        AAssetDir* dir = AAssetManager_openDir((AAssetManager*)assetManager, dirPath);
+//        const char* input = nullptr;
+//        std::string inputStr = "";
+//        while (true) {
+//            input = AAssetDir_getNextFileName(dir);
+//            if (input == nullptr) {
+//                break;
+//            }
+//            inputStr = input;
+//            pathList.push_back(inputStr);
+//        }
+
+        /*TODO: AAssetDir_close is an undefined reference*/
+//        AAssetDir_close(dir);
     }
 }
 #endif

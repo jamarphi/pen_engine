@@ -21,6 +21,7 @@ under the License.
 #pragma once
 
 #include "../../../../../../src/state/config.h"
+#include <string>
 #ifdef __PEN_MOBILE__
 
 #include <stdlib.h>

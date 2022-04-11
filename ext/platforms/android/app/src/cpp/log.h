@@ -33,7 +33,7 @@ extern "C" {
                 static void AppLog(const char* message) {
                     /*Sends message to Java for logging*/
                     JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
-                    jclass logClass = env->FindClass("com/jamar/pen_engine/MainActivity");
+                    jclass logClass = env->FindClass("com/jamar/penengine/MainActivity");
                     if (logClass != nullptr) {
                         jmethodID methodID = env->GetStaticMethodID(logClass, "appLog",
                             "(Ljava/lang/String;)V");

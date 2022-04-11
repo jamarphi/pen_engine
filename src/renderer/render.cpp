@@ -41,7 +41,7 @@ namespace pen {
         /*Bind the initial assets*/
         if (inst->firstTime) {
             TextureSet();
-            inst->firstTime = false;
+//            inst->firstTime = false;
         }
         
         /*If pixel-by-pixel drawing is needed*/
@@ -70,6 +70,7 @@ namespace pen {
         }
 
         renderer->Draw(layer->va, layer->ib, layer->indexCount, layer->vb, inst->appShader, 0, layer->shapeType);
+        inst->firstTime = false;
     }
 
     void Render::TextureSet() {

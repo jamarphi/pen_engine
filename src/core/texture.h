@@ -29,7 +29,7 @@ under the License.
 #include "../state/config.h"
 
 #ifdef __PEN_CMAKE__
-#include <AbsAssetDirconfig.h>
+#include <abs_asset_dir_config.h>
 #endif
 
 #define GENERAL_TEXTURE_SOURCE "/pen_engine/res/textures/"

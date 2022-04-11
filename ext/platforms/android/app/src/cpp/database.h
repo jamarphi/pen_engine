@@ -33,7 +33,7 @@ extern "C" {
 					bool AndroidDBStart(const char* dbName, const char* tableName) {
 						/*Initialize the database on the Java end*/
 						jclass localStorageClass = AndroidDB::env->FindClass(
-							"com/jamar/pen_engine/PenLocalStorage");
+							"com/jamar/penengine/PenLocalStorage");
 						if (localStorageClass != nullptr) {
 							jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
 								"init",
@@ -57,7 +57,7 @@ extern "C" {
 					void AndroidDBClose() {
 						/*Close the database connection*/
 						jclass localStorageClass = AndroidDB::env->FindClass(
-							"com/jamar/pen_engine/PenLocalStorage");
+							"com/jamar/penengine/PenLocalStorage");
 						if (localStorageClass != nullptr) {
 							jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
 								"destroy", "()V");
@@ -70,7 +70,7 @@ extern "C" {
 					void AndroidDBSetItem(const char* key, const char* value) {
 						/*Adds or updates key value in database*/
 						jclass localStorageClass = AndroidDB::env->FindClass(
-							"com/jamar/pen_engine/PenLocalStorage");
+							"com/jamar/penengine/PenLocalStorage");
 						if (localStorageClass != nullptr) {
 							jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
 								"setItem",
@@ -91,7 +91,7 @@ extern "C" {
 					std::string AndroidDBGetItem(const char* key) {
 						/*Retrieve item from database*/
 						jclass localStorageClass = AndroidDB::env->FindClass(
-							"com/jamar/pen_engine/PenLocalStorage");
+							"com/jamar/penengine/PenLocalStorage");
 						if (localStorageClass != nullptr) {
 							jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
 								"getItem",
@@ -118,7 +118,7 @@ extern "C" {
 					void AndroidDBRemoveItem(const char* key) {
 						/*Remove key from database*/
 						jclass localStorageClass = AndroidDB::env->FindClass(
-							"com/jamar/pen_engine/PenLocalStorage");
+							"com/jamar/penengine/PenLocalStorage");
 						if (localStorageClass != nullptr) {
 							jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
 								"removeItem",
@@ -136,7 +136,7 @@ extern "C" {
 					void AndroidDBDeleteTable() {
 						/*Delete the table from database*/
 						jclass localStorageClass = AndroidDB::env->FindClass(
-							"com/jamar/pen_engine/PenLocalStorage");
+							"com/jamar/penengine/PenLocalStorage");
 						if (localStorageClass != nullptr) {
 							jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
 								"clear", "()V");

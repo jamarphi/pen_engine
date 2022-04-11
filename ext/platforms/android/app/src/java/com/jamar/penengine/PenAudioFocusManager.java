@@ -18,7 +18,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-package com.jamar.pen_engine;
+package com.jamar.penengine;
 
 import android.content.Context;
 import android.media.AudioManager;

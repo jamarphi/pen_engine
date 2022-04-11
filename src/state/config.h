@@ -20,10 +20,13 @@ under the License.
 *************************************************************************************************/
 
 /*For using cmake*/
-//#define __PEN_CMAKE__
+#define __PEN_CMAKE__
 
 /*For compiling projects on Linux*/
 //#define __PEN_LINUX__
+
+/*For mobile graphics rendering*/
+#define __PEN_MOBILE__
 
 /*I suggest using Linux if using Cmake, and using Visual Studio if using Windows*/
 #ifdef __PEN_CMAKE__
@@ -38,12 +41,15 @@ under the License.
 #endif
 #endif
 
+#ifndef __PEN_LINUX__
+#ifdef __PEN_MOBILE__
+#define __PEN_LINUX__
+#endif
+#endif
+
 #ifndef __PEN_CMAKE__
 #define ROOT_DIR ""
 #endif
-
-/*For mobile graphics rendering*/
-//#define __PEN_MOBILE__
 
 #ifdef __PEN_MOBILE__
 #include <GLES2/gl2.h>

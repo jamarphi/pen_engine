@@ -22,7 +22,7 @@ under the License.
 
 #ifdef __PEN_MOBILE__
 
-static const std::string className = "com.jamar.pen_engine.pen_helper";
+static const std::string className = "com.jamar.penengine.pen_helper";
 
 static void* s_ctx = nullptr;
 
@@ -33,10 +33,10 @@ static std::string g_apkPath;
 
 extern "C" {
 
-    JNIEXPORT void JNICALL Java_com_jamar_pen_engine_PenHelper_nativeSetContext(JNIEnv* env, jobject obj, jobject context, jobject assetManager) {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenHelper_nativeSetContext(JNIEnv* env, jobject obj, jobject context, jobject assetManager) {
     }
 
-    JNIEXPORT void JNICALL Java_com_jamar_pen_engine_PenHelper_nativeSetAudioDeviceInfo(JNIEnv* env, jobject obj, jboolean isSupportLowLatency, jint deviceSampleRate, jint deviceAudioBufferSizeInFrames) {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenHelper_nativeSetAudioDeviceInfo(JNIEnv* env, jobject obj, jboolean isSupportLowLatency, jint deviceSampleRate, jint deviceAudioBufferSizeInFrames) {
         __deviceSampleRate = deviceSampleRate;
         __deviceAudioBufferSizeInFrames = deviceAudioBufferSizeInFrames;
     }

@@ -18,9 +18,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-package com.jamar.pen_engine;
+package com.jamar.penengine;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.AssetManager;
@@ -31,7 +30,6 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.graphics.Matrix;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -79,8 +77,8 @@ public class PenSurfaceRenderer implements GLSurfaceView.Renderer {
         loadTextures(gl, mContext);
         this.mLastTickInPenSeconds = System.nanoTime();
         mNativeInitCompleted = true;
-        //assetManager = getResources().getAssets();
-        //loadAssetManager(assetManager);
+        assetManager = mContext.getResources().getAssets();
+        loadAssetManager(assetManager);
     }
 
     @Override

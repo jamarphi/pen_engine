@@ -18,7 +18,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-package com.jamar.pen_engine;
+package com.jamar.penengine;
 
 import android.graphics.Rect;
 import android.os.Handler;
@@ -27,7 +27,7 @@ import android.util.SparseArray;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.jamar.pen_engine.PenVideoView.OnVideoEventListener;
+import com.jamar.penengine.PenVideoView.OnVideoEventListener;
 
 import java.lang.ref.WeakReference;
 

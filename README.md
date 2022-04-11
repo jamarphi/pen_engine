@@ -526,6 +526,10 @@ The PC function would remain the same with the while loop:
 
 To get started building .apk files, first go to pen_engine/state/config.h and uncomment this line:
 
+    //define __PEN_CMAKE__
+
+As well as this line:
+
     //#define __PEN_MOBILE__
 
 If you uncomment this line, your application will not run for PC, so only do this once you have tested

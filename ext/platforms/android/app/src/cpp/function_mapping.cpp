@@ -31,7 +31,7 @@ under the License.
 #include "../../../../../../../app.h"
 
 #ifdef __PEN_CMAKE__
-#include <AbsAssetDirconfig.h>
+#include <abs_asset_dir_config.h>
 #endif
 
 extern "C" {
@@ -59,22 +59,18 @@ extern "C" {
 
     JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
     {
-
         return JNI_VERSION_1_4;
     }
 
-    JNIEXPORT jintArray Java_com_jamar_pen_engine_MainActivity_getGLContextAttrs(JNIEnv* env, jobject obj)
+    JNIEXPORT jintArray Java_com_jamar_penengine_MainActivity_getGLContextAttrs(JNIEnv* env, jobject obj)
     {
-        jint tmp[7] = { 8, 8, 8, 8, 16, 0, 0 };
-
-
+        jint attributes[7] = { 8, 8, 8, 8, 16, 0, 0 };
         jintArray glContextAttrsJava = env->NewIntArray(7);
-        env->SetIntArrayRegion(glContextAttrsJava, 0, 7, tmp);
-
+        env->SetIntArrayRegion(glContextAttrsJava, 0, 7, attributes);
         return glContextAttrsJava;
     }
 
-    JNIEXPORT void JNICALL Java_com_jamar_pen_engine_PenSurfaceRenderer_nativeInit(JNIEnv* env, jobject obj, jint w, jint h) {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeInit(JNIEnv* env, jobject obj, jint w, jint h) {
         /*Ran when the app first loads*/
         if (pen::State::Get()->screenWidth == 0) {
             /*Initialize app*/
@@ -100,7 +96,7 @@ extern "C" {
         }
     }
 
-    JNIEXPORT void Java_com_jamar_pen_engine_PenSurfaceRenderer_nativeOnSurfaceChanged(JNIEnv* env, jobject obj, jint w, jint h)
+    JNIEXPORT void Java_com_jamar_penengine_PenSurfaceRenderer_nativeOnSurfaceChanged(JNIEnv* env, jobject obj, jint w, jint h)
     {
         /*If the screen size has changed*/
         pen::State::Get()->actualScreenHeight = h;
@@ -108,32 +104,34 @@ extern "C" {
         pen::State::Get()->mobileActive = true;
     }
 
-    JNIEXPORT void JNICALL Java_com_jamar_pen_engine_PenSurfaceRenderer_nativeRender(JNIEnv* env) {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeRender(JNIEnv* env) {
         /*Happens each frame*/
         if (pen::State::Get()->handleMobileRender != nullptr) (*pen::State::Get()->handleMobileRender)();
     }
 
-    JNIEXPORT void JNICALL Java_com_jamar_pen_engine_PenSurfaceRenderer_nativeOnPause() {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeOnPause() {
         /*Pause the application*/
         if (pen::State::Get()->mobileOnPauseCallback != nullptr) {
             (*pen::State::Get()->mobileOnPauseCallback)();
         }
     }
 
-    JNIEXPORT void JNICALL Java_com_jamar_pen_engine_PenSurfaceRenderer_nativeOnResume() {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeOnResume() {
         /*Resume the application*/
         if (pen::State::Get()->mobileOnResumeCallback != nullptr) {
             (*pen::State::Get()->mobileOnResumeCallback)();
         }
     }
 
-    JNIEXPORT void JNICALL Java_com_jamar_pen_engine_PenSurfaceRenderer_loadAssetManager(JNIEnv* env, jobject obj, jobject assetManager) {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_loadAssetManager(JNIEnv* env, jobject obj, jobject assetManager) {
         /*Used to initialize the android asset manager*/
-        AAssetManager* manager = AAssetManager_fromJava(env, assetManager);
-        pen::State::Get()->androidAssetManager = (void*)manager;
+
+        /*TODO: AAssetManager_fromJava is an undefined reference*/
+        //AAssetManager* manager = AAssetManager_fromJava(env, assetManager);
+        //pen::State::Get()->androidAssetManager = (void*)manager;
     }
 
-    JNIEXPORT jstring JNICALL Java_com_jamar_pen_engine_PenSurfaceRenderer_nativeImageName(JNIEnv* env, jobject obj, jint id) {
+    JNIEXPORT jstring JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeImageName(JNIEnv* env, jobject obj, jint id) {
         /*Returns the texture name to java*/
         int texNamePos = (int)id;
 
@@ -147,7 +145,7 @@ extern "C" {
         return javaTexName;
     }
 
-    JNIEXPORT jboolean JNICALL Java_com_jamar_pen_engine_PenSurfaceRenderer_isPixelDrawn(JNIEnv* env, jobject obj) {
+    JNIEXPORT jboolean JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_isPixelDrawn(JNIEnv* env, jobject obj) {
         /*Returns true if pixel has been drawn to pixel buffer*/
         jboolean pixelDrawn = (jboolean)pen::State::Get()->pixelDrawn;
 
