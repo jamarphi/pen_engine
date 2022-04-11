@@ -418,11 +418,11 @@ For rotation, the axis can be chosen using:
 #1.8 - Cross Platform
 
 I would like to thank the developers and contributors of Cocos2DX because I used their cross platform implementation
-to help me as I worked on the platforms below.  Cocos2DX is a well known open source game engine that has tons of support.
+to help me as I worked on the Android implementation.  Cocos2DX is a well known open source game engine that has tons of support.
 They have amazing documentation and readable code that helps people understand why they implement
 the platforms the way they do.
 
-When building for cross platform use Linux.
+When building for cross platform use Linux or Mac.
 
 Cross platform is currently supported for the following:
 
@@ -486,7 +486,7 @@ If setting your app orientation horizontal, also add this to the MainActivity ta
 The GLSurfaceView orientation can not be changed at run time otherwise it will mess up the resources and crash.
 
 Pen Engine looks for this instantiation in app.h, but you can change the name of that file include in 
-pen_engine/ext/platforms/android/app/src/cpp/FunctionMapping.cpp.
+pen_engine/ext/platforms/android/app/src/cpp/function_mapping.cpp.
 
 There is a difference for how you would do the mobile render callback function for android though, notice instead of
 a while loop for PC, you do an if statement:
@@ -543,7 +543,10 @@ sdk path:
 Also set your ndk directory path like so, although this is claimed by Android to be deprecated in the future, this was necessary for ndk to find
 its library stripping tool:
 
-    ndk.dir=/home/user/Android/Sdk/ndk/20.0.5594570
+    Linux: ndk.dir=/home/user/Android/Sdk/ndk/20.0.5594570
+    Mac: ndk.dir=/Users/user/Library/Android/sdk/ndk/20.0.5594570
+
+For getting this specific version of the ndk you have to install Android Studio, go to Android Studio preferences -> Appearance & Behavior -> System Settings -> Android SDK -> SDK Tools and check the version number under NDK.
 
 Also set your java jdk path in the gradle.properties file:
 
@@ -559,6 +562,10 @@ Once that is done install Android Studio, also install these packages for Linux:
     - ninja-build (for using the ninja generator with cmake which is what gradle uses by default for cmake builds)
     - gcc-multilib (for compiling)
     - libncurses5 (for the Android Studio debugger)
+    
+For Mac it would be:
+
+    - brew install ninja
 
 Make sure you have an internet connection because this will download any files needed for the build.
 This will build the apk files into a build/outputs/apk directory inside of the android directory.

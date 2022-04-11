@@ -42,10 +42,6 @@ under the License.
 #define ROOT_DIR ""
 #endif
 
-#ifdef __PEN_MAC__
-#define __PEN_LINUX__
-#endif
-
 /*For mobile graphics rendering*/
 //#define __PEN_MOBILE__
 

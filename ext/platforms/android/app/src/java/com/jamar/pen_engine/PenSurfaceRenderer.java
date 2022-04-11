@@ -79,8 +79,8 @@ public class PenSurfaceRenderer implements GLSurfaceView.Renderer {
         loadTextures(gl, mContext);
         this.mLastTickInPenSeconds = System.nanoTime();
         mNativeInitCompleted = true;
-        assetManager = getResources().getAssets();
-        loadAssetManager(assetManager);
+        //assetManager = getResources().getAssets();
+        //loadAssetManager(assetManager);
     }
 
     @Override

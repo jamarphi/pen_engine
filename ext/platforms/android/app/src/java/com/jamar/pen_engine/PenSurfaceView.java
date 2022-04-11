@@ -112,7 +112,7 @@ public class PenSurfaceView extends GLSurfaceView {
         this.queueEvent(new Runnable() {
             @Override
             public void run() {
-                PenSurfaceView.this.mPenSurfacerenderer.handleOnResume();
+                PenSurfaceView.this.mPenSurfaceRenderer.handleOnResume();
             }
         });
     }
@@ -122,7 +122,7 @@ public class PenSurfaceView extends GLSurfaceView {
         this.queueEvent(new Runnable() {
             @Override
             public void run() {
-                PenSurfaceView.this.mPenSurfacerenderer.handleOnPause();
+                PenSurfaceView.this.mPenSurfaceRenderer.handleOnPause();
             }
         });
         this.setRenderMode(RENDERMODE_WHEN_DIRTY);
@@ -156,7 +156,7 @@ public class PenSurfaceView extends GLSurfaceView {
                 this.queueEvent(new Runnable() {
                     @Override
                     public void run() {
-                        PenSurfaceView.this.mPenSurfacerenderer.handleActionDown(idPointerDown, xPointerDown, yPointerDown);
+                        PenSurfaceView.this.mPenSurfaceRenderer.handleActionDown(idPointerDown, xPointerDown, yPointerDown);
                     }
                 });
                 break;
@@ -170,7 +170,7 @@ public class PenSurfaceView extends GLSurfaceView {
                 this.queueEvent(new Runnable() {
                     @Override
                     public void run() {
-                        PenSurfaceView.this.mPenSurfacerenderer.handleActionDown(idDown, xDown, yDown);
+                        PenSurfaceView.this.mPenSurfaceRenderer.handleActionDown(idDown, xDown, yDown);
                     }
                 });
                 break;
@@ -186,7 +186,7 @@ public class PenSurfaceView extends GLSurfaceView {
                             this.queueEvent(new Runnable() {
                                 @Override
                                 public void run() {
-                                    PenSurfaceView.this.mPenSurfacerenderer.handleActionMove(idsMove, xsMove, ysMove);
+                                    PenSurfaceView.this.mPenSurfaceRenderer.handleActionMove(idsMove, xsMove, ysMove);
                                 }
                             });
                             break;
@@ -196,7 +196,7 @@ public class PenSurfaceView extends GLSurfaceView {
                     this.queueEvent(new Runnable() {
                         @Override
                         public void run() {
-                            PenSurfaceView.this.mPenSurfacerenderer.handleActionMove(ids, xs, ys);
+                            PenSurfaceView.this.mPenSurfaceRenderer.handleActionMove(ids, xs, ys);
                         }
                     });
                 }
@@ -214,7 +214,7 @@ public class PenSurfaceView extends GLSurfaceView {
                 this.queueEvent(new Runnable() {
                     @Override
                     public void run() {
-                        PenSurfaceView.this.mPenSurfacerenderer.handleActionUp(idPointerUp, xPointerUp, yPointerUp);
+                        PenSurfaceView.this.mPenSurfaceRenderer.handleActionUp(idPointerUp, xPointerUp, yPointerUp);
                     }
                 });
                 break;
@@ -228,7 +228,7 @@ public class PenSurfaceView extends GLSurfaceView {
                 this.queueEvent(new Runnable() {
                     @Override
                     public void run() {
-                        PenSurfaceView.this.mPenSurfacerenderer.handleActionUp(idUp, xUp, yUp);
+                        PenSurfaceView.this.mPenSurfaceRenderer.handleActionUp(idUp, xUp, yUp);
                     }
                 });
                 break;
@@ -296,7 +296,7 @@ public class PenSurfaceView extends GLSurfaceView {
                 this.queueEvent(new Runnable() {
                     @Override
                     public void run() {
-                        PenSurfaceView.this.mPenSurfacerenderer.handleKeyDown(pKeyCode);
+                        PenSurfaceView.this.mPenSurfaceRenderer.handleKeyDown(pKeyCode);
                     }
                 });
                 return true;
@@ -320,7 +320,7 @@ public class PenSurfaceView extends GLSurfaceView {
                 this.queueEvent(new Runnable() {
                     @Override
                     public void run() {
-                        PenSurfaceView.this.mPenSurfacerenderer.handleKeyUp(keyCode);
+                        PenSurfaceView.this.mPenSurfaceRenderer.handleKeyUp(keyCode);
                     }
                 });
                 return true;
