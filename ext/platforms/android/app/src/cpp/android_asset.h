@@ -20,47 +20,39 @@ under the License.
 *************************************************************************************************/
 
 #pragma once
-#include "jni/jni.h"
-
 #ifdef __PEN_MOBILE__
 
 #include <cstring>
 #include <vector>
 #include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 
 extern "C" {
     static char* AndroidLoadAsset(void* assetManager, const char* path, long* fileLength) {
         /*Load in a file from assets directory*/
-
-        /*TODO: AAsset functions are undefined references*/
-        //AAsset* javaAsset = AAssetManager_open((AAssetManager*)assetManager, path, AASSET_MODE_UNKNOWN);
-        //int byteCount = AAsset_getLength(javaAsset);
-        //*fileLength = (long)byteCount;
-        //char* data = new char[byteCount];
-
-        /*TODO: AAsset_read is an undefined reference*/
-        //AAsset_read(javaAsset, &data, byteCount);
-        //return data;
-        return nullptr;
+        AAsset* javaAsset = AAssetManager_open((AAssetManager*)assetManager, path, AASSET_MODE_UNKNOWN);
+        int byteCount = AAsset_getLength(javaAsset);
+        *fileLength = (long)byteCount;
+        char* data = new char[byteCount];
+        AAsset_read(javaAsset, &data, byteCount);
+        return data;
     }
 
     static std::vector<std::string> AndroidLoadDir(void* assetManager, const char* dirPath) {
         /*Load in a directory from assets directory*/
-//        std::vector<std::string> pathList;
-//        AAssetDir* dir = AAssetManager_openDir((AAssetManager*)assetManager, dirPath);
-//        const char* input = nullptr;
-//        std::string inputStr = "";
-//        while (true) {
-//            input = AAssetDir_getNextFileName(dir);
-//            if (input == nullptr) {
-//                break;
-//            }
-//            inputStr = input;
-//            pathList.push_back(inputStr);
-//        }
-
-        /*TODO: AAssetDir_close is an undefined reference*/
-//        AAssetDir_close(dir);
+        std::vector<std::string> pathList;
+        AAssetDir* dir = AAssetManager_openDir((AAssetManager*)assetManager, dirPath);
+        const char* input = nullptr;
+        std::string inputStr = "";
+        while (true) {
+            input = AAssetDir_getNextFileName(dir);
+            if (input == nullptr) {
+                break;
+            }
+            inputStr = input;
+            pathList.push_back(inputStr);
+        }
+        AAssetDir_close(dir);
     }
 }
 #endif

@@ -19,7 +19,6 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #include "render.h"
-#include "../../ext/platforms/android/app/src/cpp/log.h"
 
 namespace pen {
     Render* Render::instance = nullptr;

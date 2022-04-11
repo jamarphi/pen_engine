@@ -10,4 +10,4 @@ file(GLOB_RECURSE PROJECT_MOBILE_LIB_SOURCES "../../../src/*.h" "../../../src/*.
     "../../../src/*.c")
 
 add_library(PEN_ENGINE_ANDROID_LIB SHARED ${PROJECT_MOBILE_LIB_SOURCES})
-target_link_libraries(PEN_ENGINE_ANDROID_LIB GLESv2 EGL)
+target_link_libraries(PEN_ENGINE_ANDROID_LIB GLESv2 EGL android)

@@ -25,7 +25,7 @@ under the License.
 #ifdef __PEN_MOBILE__
 
 #include <stdlib.h>
-#include "jni/jni.h"
+#include <android/asset_manager_jni.h>
 #include <cstring>
 
 extern const char* getApkPath();

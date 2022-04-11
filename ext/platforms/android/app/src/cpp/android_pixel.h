@@ -21,7 +21,7 @@ under the License.
 
 #pragma once
 #include <iostream>
-#include "jni/jni.h"
+#include <android/asset_manager_jni.h>
 #include "../../../../../../src/state/state.h"
 
 #ifdef __PEN_MOBILE__

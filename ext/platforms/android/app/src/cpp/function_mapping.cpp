@@ -18,7 +18,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#include "jni/jni.h"
+//#include "jni/jni.h"
 #include "../../../../../../src/pen_engine.h"
 
 #ifdef __PEN_MOBILE__
@@ -56,6 +56,7 @@ extern "C" {
 #endif // __ANDROID_API__ > 19
 
 #include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 
     JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
     {
@@ -125,10 +126,8 @@ extern "C" {
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_loadAssetManager(JNIEnv* env, jclass obj, jobject assetManager) {
         /*Used to initialize the android asset manager*/
-
-        /*TODO: AAssetManager_fromJava is an undefined reference*/
-        //AAssetManager* manager = AAssetManager_fromJava(env, assetManager);
-        //pen::State::Get()->androidAssetManager = (void*)manager;
+        AAssetManager* manager = AAssetManager_fromJava(env, assetManager);
+        pen::State::Get()->androidAssetManager = (void*)manager;
     }
 
     JNIEXPORT jstring JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeImageName(JNIEnv* env, jclass obj, jint id) {

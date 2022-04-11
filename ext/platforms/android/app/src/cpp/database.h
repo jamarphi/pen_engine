@@ -18,7 +18,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#include "jni/jni.h"
+#include <android/asset_manager_jni.h>
 #include <iostream>
 #include "../../../../../../src/state/config.h"
 #include "../../../../../../src/state/state.h"

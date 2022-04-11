@@ -121,7 +121,6 @@ public:
 		"void main() {\n"
 		"int index = int(texIndex);\n"
 		"gl_FragColor = (texture2D(uTextures[index], texCoord) * color);\n"
-		//"gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
 		"}\n\0";
 
 	const char* instancedShaderProgram =

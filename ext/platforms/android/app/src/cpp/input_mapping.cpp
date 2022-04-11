@@ -19,7 +19,7 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #include "../../../../../../src/pen_engine.h"
-#include "jni/jni.h"
+#include <android/asset_manager_jni.h>
 
 #ifdef __PEN_MOBILE__
 
@@ -49,17 +49,17 @@ extern "C" {
         { KEYCODE_DPAD_CENTER  , pen::in::KEYS::ENTER}
     };
 
-    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesBegin(JNIEnv* env, jobject obj, jint id, jfloat x, jfloat y) {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesBegin(JNIEnv* env, jclass obj, jint id, jfloat x, jfloat y) {
         /*Click event*/
         pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
     }
 
-    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesEnd(JNIEnv* env, jobject obj, jint id, jfloat x, jfloat y) {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesEnd(JNIEnv* env, jclass obj, jint id, jfloat x, jfloat y) {
         /*Release event*/
         pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
     }
 
-    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesMove(JNIEnv* env, jobject obj, jintArray ids, jfloatArray xs, jfloatArray ys) {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesMove(JNIEnv* env, jclass obj, jintArray ids, jfloatArray xs, jfloatArray ys) {
         /*Handles drag events*/
         const int size = env->GetArrayLength(ids);
         jint* id = new jint[size];
@@ -78,12 +78,12 @@ extern "C" {
 
     }
 
-    JNIEXPORT jboolean JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeKeyEvent(JNIEnv* env, jobject obj, jint keyCode, jboolean isPressed) {
+    JNIEXPORT jboolean JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeKeyEvent(JNIEnv* env, jclass obj, jint keyCode, jboolean isPressed) {
         /*Initially override these key events such as the back key to do nothing*/
         return JNI_TRUE;
     }
 
-    JNIEXPORT jboolean JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeOnKeyPress(JNIEnv* env, jobject obj, jstring javaCharacter, jboolean isPressed) {
+    JNIEXPORT jboolean JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeOnKeyPress(JNIEnv* env, jclass obj, jstring javaCharacter, jboolean isPressed) {
         /*Handle keyboard input*/
         bool pressed = (bool)isPressed;
         if (pressed) {
@@ -95,7 +95,7 @@ extern "C" {
         return JNI_TRUE;
     }
 
-    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenAccelerometer_onSensorChanged(JNIEnv* env, jobject obj, jfloat x, jfloat y, jfloat z, jlong timeStamp) {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenAccelerometer_onSensorChanged(JNIEnv* env, jclass obj, jfloat x, jfloat y, jfloat z, jlong timeStamp) {
         /*Handle tilt events*/
         double acelX = -((double)x / MOBILE_DENSITY_ACCELERATION_CONSTANT);
         double acelY = -((double)y / MOBILE_DENSITY_ACCELERATION_CONSTANT);

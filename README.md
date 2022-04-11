@@ -446,7 +446,7 @@ Functions that are not compatible with mobile:
 
 #1.8.1 - Cross Platform For Android
 
-When doing cross platform applications not much changes, but a few things do.  Let's start with Android.
+When doing cross platform applications not much changes, but a few things do.
 
 When using OnRender, you now have to pass your logic into a callback function as follows:
 
@@ -550,7 +550,7 @@ its library stripping tool:
     Linux: ndk.dir=/home/user/Android/Sdk/ndk/20.0.5594570
     Mac: ndk.dir=/Users/user/Library/Android/sdk/ndk/20.0.5594570
 
-For getting this specific version of the ndk you have to install Android Studio, go to Android Studio preferences -> Appearance & Behavior -> System Settings -> Android SDK -> SDK Tools and check the version number under NDK.
+For getting this specific version of the ndk you have to install Android Studio, open pen_engine/ext/platforms/android as a project, go to Android Studio preferences -> Appearance & Behavior -> System Settings -> Android SDK -> SDK Tools and check the version number under NDK.
 
 Also set your java jdk path in the gradle.properties file:
 
