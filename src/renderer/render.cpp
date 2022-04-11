@@ -19,6 +19,7 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #include "render.h"
+#include "../../ext/platforms/android/app/src/cpp/log.h"
 
 namespace pen {
     Render* Render::instance = nullptr;
@@ -41,7 +42,7 @@ namespace pen {
         /*Bind the initial assets*/
         if (inst->firstTime) {
             TextureSet();
-//            inst->firstTime = false;
+            inst->firstTime = false;
         }
         
         /*If pixel-by-pixel drawing is needed*/
@@ -70,7 +71,6 @@ namespace pen {
         }
 
         renderer->Draw(layer->va, layer->ib, layer->indexCount, layer->vb, inst->appShader, 0, layer->shapeType);
-        inst->firstTime = false;
     }
 
     void Render::TextureSet() {

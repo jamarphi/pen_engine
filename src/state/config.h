@@ -23,7 +23,7 @@ under the License.
 #define __PEN_CMAKE__
 
 /*For compiling projects on Linux*/
-//#define __PEN_LINUX__
+#define __PEN_LINUX__
 
 /*For mobile graphics rendering*/
 #define __PEN_MOBILE__

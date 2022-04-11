@@ -22,7 +22,7 @@ android {
                 */
                 arguments "-DCMAKE_SYSTEM_NAME=ANDROID", "-DCMAKE_ANDROID_API=28",
                         "-DANDROID_ABI=x86_64",
-                        "-DCMAKE_ANDROID_NDK=/Users/jamar/Library/Android/sdk/ndk/20.0.5594570",
+                        "-DCMAKE_ANDROID_NDK=/home/jamar/Android/Sdk/ndk/20.0.5594570",
                         "-DCMAKE_ANDROID_STL_TYPE=gnustl_static"
             }
         }
