@@ -28,7 +28,7 @@ namespace pen {
 			/*Add animation to the queue*/
 			int frames = 0;
 			float deltaTime = 0.0035f;
-			if (!infinite) frames = (ms / 1000) * (1.0f / deltaTime) * (ms / 1000); /*(ms / 1000) at end extra constant hack to make it more accurate*/
+			if (!infinite) frames = ((float)ms / 1000.0f) * (1.0f / deltaTime) * ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
 
 			pen::ui::AnimationItem newItem;
 			newItem.item = item;
@@ -36,10 +36,10 @@ namespace pen {
 			newItem.infinite = infinite;
 			newItem.frames = frames;
 			newItem.ran = false;
-			newItem.unitA = unitA * deltaTime / (ms / 1000) / (ms / 1000); /*(ms / 1000) at end extra constant hack to make it more accurate*/
-			newItem.unitB = unitB * deltaTime / (ms / 1000) / (ms / 1000); /*(ms / 1000) at end extra constant hack to make it more accurate*/
-			newItem.unitC = unitC * deltaTime / (ms / 1000) / (ms / 1000); /*(ms / 1000) at end extra constant hack to make it more accurate*/
-			pen::ui::Animation::animationList.push_back(newItem);
+			newItem.unitA = unitA * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitB = unitB * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitC = unitC * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			animationList.push_back(newItem);
 		}
 
 		void Animation::Run() {
@@ -84,7 +84,6 @@ namespace pen {
 
 		bool Animation::CheckStatus(const pen::ui::AnimationItem& item) {
 			/*If the item is already transformed from another animation that is not done then return true*/
-
 			for (int i = 0; pen::ui::Animation::animationList.size(); i++) {
 				if (pen::ui::Animation::animationList[i].ran && pen::ui::Animation::animationList[i].item == item.item && pen::ui::Animation::animationList[i].type == item.type) {
 					return true;

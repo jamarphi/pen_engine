@@ -22,6 +22,7 @@ under the License.
 #include "state.h"
 #include "layer_manager.h"
 #include "../ops/matrices/mat3x3.h"
+#include "../ops/operations/operations.h"
 
 #ifdef __PEN_MOBILE__
 #include "../../ext/platforms/android/app/src/cpp/android_pixel.h"

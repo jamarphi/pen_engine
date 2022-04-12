@@ -383,6 +383,19 @@ To animate a gui item, simply add an item to the animation manager:
 5. The three units unitA, unitB, and unitC, are used to pass in values for the transformations.  If you are doing
    rotation for instance, then you only need to use unitA, this means unitB and unitC will be ignored.
 
+To run the animation manager after adding items do:
+
+    pen::ui::Animation::Run();
+
+This will run in OnRender do all animations for each item consecutively until they are all complete.
+
+To animate sprites the same thing applies:
+
+    pen::Anim::Add(item, type, ms, infinite, unitA, unitB, unitC);
+    pen::Anim::Run();
+
+The type is the transformation, an example is pen::AnimType::TRANSLATE.
+
 ---------------------------------------------------------------------------
 
 # 1.7 - 3D
@@ -415,7 +428,7 @@ For rotation, the axis can be chosen using:
 
 ---------------------------------------------------------------------------
 
-#1.8 - Cross Platform
+# 1.8 - Cross Platform
 
 I would like to thank the developers and contributors of Cocos2DX because I used their cross platform implementation
 to help me as I worked on the Android implementation.  Cocos2DX is a well known open source game engine that has tons of support.
@@ -444,7 +457,7 @@ Functions that are not compatible with mobile:
 
 ---------------------------------------------------------------------------
 
-#1.8.1 - Cross Platform For Android
+# 1.8.1 - Cross Platform For Android
 
 When doing cross platform applications not much changes, but a few things do.
 
@@ -595,7 +608,7 @@ These are the events that are not implemented in this version yet:
 
 ---------------------------------------------------------------------------
 
-#1.8.1.1 - Android Persisted Memory
+# 1.8.1.1 - Android Persisted Memory
 
 If you want to perform manipulation of persisted memory for your android application you can call the following:
 
@@ -619,7 +632,7 @@ If you want to perform manipulation of persisted memory for your android applica
 
 ---------------------------------------------------------------------------
 
-#1.8.1.2 - Native Key Events For Android
+# 1.8.1.2 - Native Key Events For Android
 
 If you want to do native key events for android, first go 
 to pen_engine/ext/platforms/android/app/src/java/com/jamar/penengine/PenSurfaceRenderer.java.
@@ -636,7 +649,7 @@ the graphics application runs when it is reloaded.
 
 ---------------------------------------------------------------------------
 
-#1.8.1.3 - Android Logging
+# 1.8.1.3 - Android Logging
 
 If you want to send messages to Java for logging use:
 
@@ -646,7 +659,7 @@ This can be used for Android debugging once your application has been built and 
 
 ---------------------------------------------------------------------------
 
-#1.8.1.4 - Android Loading
+# 1.8.1.4 - Android Loading
 
 You can load in assets such as level packs by doing:
 
@@ -659,7 +672,9 @@ You can also load in a directory in assets by doing:
 
     pen::Asset::LoadMobileDir(std::string dirPath);
 
-#1.9 - AI
+---------------------------------------------------------------------------
+
+# 1.9 - AI
 
 For documentation on implementing AI go to ext/ai/README.md
 

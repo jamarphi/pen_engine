@@ -44,6 +44,7 @@ under the License.
 #include "state/layer_manager.h"
 #include "state/keys.h"
 #include "ui/animation.h"
+#include "state/animate.h"
 #include "ops/matrices/mat4x4.h"
 #include "ops/matrices/mat2x4.h"
 #include "ops/matrices/mat3x3.h"

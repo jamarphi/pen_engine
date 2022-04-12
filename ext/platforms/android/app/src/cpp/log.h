@@ -20,11 +20,11 @@ under the License.
 *************************************************************************************************/
 
 #pragma once
-#include <iostream>
-#include <android/asset_manager_jni.h>
 #include "../../../../../../src/state/state.h"
 
 #ifdef __PEN_MOBILE__
+#include <iostream>
+#include <android/asset_manager_jni.h>
 
 extern "C" {
     namespace pen {

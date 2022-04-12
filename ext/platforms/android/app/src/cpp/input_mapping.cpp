@@ -19,10 +19,9 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #include "../../../../../../src/pen_engine.h"
-#include <android/asset_manager_jni.h>
 
 #ifdef __PEN_MOBILE__
-
+#include <android/asset_manager_jni.h>
 #define MOBILE_DENSITY_ACCELERATION_CONSTANT 9.80665f
 
 extern "C" {
