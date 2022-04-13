@@ -19,13 +19,23 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
-#ifndef __PEN_LINUX__
-#ifndef __APPLE__
+#ifndef __PEN_MOBILE__
 #include "../objects/item.h"
 #include "text_box.h"
 #include "vertical_list.h"
 #include "button.h"
-#include "../util/dirent.h"
+#include "../state/asset.h"
+#ifndef __PEN_LINUX__
+#ifndef __APPLE__
+#include "../util/dirent_win.h"
+#endif
+#else
+#ifdef __APPLE__
+#include "../util/dirent_mac.h"
+#else
+#include <dirent.h>
+#endif
+#endif
 
 namespace pen {
 	namespace ui {
@@ -53,5 +63,4 @@ namespace pen {
 		};
 	}
 }
-#endif
 #endif

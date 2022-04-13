@@ -76,7 +76,7 @@ extern "C" {
         if (pen::State::Get()->screenWidth == 0) {
             /*Initialize app*/
             pen::State::Get()->javaEnv = (void*)env;
-            pen::platforms::android::AppLog("native initialization starting...");
+            pen::platforms::android::AppLog("Native initialization starting...");
             App* app = new App();
             std::string rootDir = ROOT_DIR;
 
@@ -87,7 +87,7 @@ extern "C" {
             glViewport(0, 0, w, h);
 
             app->OnCreate();
-            pen::platforms::android::AppLog("native initialization finished...");
+            pen::platforms::android::AppLog("Native initialization finished...");
         }
         else {
             /*Update window size*/

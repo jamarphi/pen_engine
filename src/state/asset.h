@@ -48,7 +48,7 @@ namespace pen {
 		static unsigned int GetId(const std::string& name);
 		static Asset Load(std::string file, char* (*onLoad)(const char* path, long* fileLength) = nullptr);
 #ifdef __PEN_MOBILE__
-		static Asset* LoadMobileDir(std::string dirPath, int* assetCount);
+		static Asset* LoadMobileDir(std::string dirPath, int* assetCount, bool loadNow = true);
 #endif
 		static std::string ParsePath(std::string fileName);
 	private:

@@ -323,7 +323,7 @@ The sames goes for the Slider component as far as the click callback function, s
 The pen::ui::Item class can also be used for GUIs.  For the slider it has to be double-clicked to use.
 
 If you want Pen Engine to handle GUI component click events, a function pointer can be passed in, make sure that it is not part of a class otherwise
-the type conversion will not work.  Note that the on click listener is only for clicks and releases, not for any cliks that are held.
+the type conversion will not work.  Note that the on click listener is only for clicks and releases, not for any clicks that are held.
 
 For the pen::ui::FileModal component, there are four intents that can get passed in that determine the behavior:
 

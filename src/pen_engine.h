@@ -69,11 +69,7 @@ under the License.
 #include "ui/slider.h"
 #include "ui/text_editor.h"
 #include "ui/context_window.h"
-#ifndef __PEN_LINUX__
-#ifndef __APPLE__
 #include "ui/file_modal.h"
-#endif
-#endif
 #include "ui/div.h"
 
 #define SHADER_SOURCE ""

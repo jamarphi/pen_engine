@@ -20,9 +20,7 @@ under the License.
 *************************************************************************************************/
 #include "file_modal.h"
 
-#ifndef __PEN_LINUX__
-#ifndef __APPLE__
-
+#ifndef __PEN_MOBILE__
 std::string ParseFileModalFilesList(pen::ui::Item* item) {
     /*Return a formatted path of the current directory*/
     std::string currentPaths = "";
@@ -320,9 +318,9 @@ namespace pen {
         FileModal::~FileModal() {}
 
         void FileModal::UpdateFileModalListing(std::string directoryPath, bool recursive, bool firstIter) {
-            /*Load in new list items based on given directory path*/
-            std::ifstream stream;
+            /*Load in new list items based on given directory path for Windows*/      
             std::string entryName;
+            std::ifstream stream;
             DIR* dir;
             struct dirent* entry;
             pen::State* inst = pen::State::Get();
@@ -418,6 +416,4 @@ namespace pen {
         }
     }
 }
-
-#endif
 #endif

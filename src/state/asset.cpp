@@ -185,7 +185,7 @@ namespace pen {
 	}
 
 #ifdef __PEN_MOBILE__
-	Asset* Asset::LoadMobileDir(std::string dirPath, int* assetCount) {
+	Asset* Asset::LoadMobileDir(std::string dirPath, int* assetCount, bool loadNow) {
 		/*Load in a sub directory in the android assets directory*/
 		std::vector<std::string> pathList = AndroidLoadDir(pen::State::Get()->androidAssetManager, dirPath.c_str());
 
@@ -193,6 +193,7 @@ namespace pen {
 		*assetCount = pathList.size();
 		for (int i = 0; i < pathList.size(); i++) {
 			assets[i] = Asset::Load(pathList[i], nullptr);
+			if(loadNow) Asset::assetMap.Insert(assets[i].id, assets[i]);
 		}
 		return assets;
 	}
