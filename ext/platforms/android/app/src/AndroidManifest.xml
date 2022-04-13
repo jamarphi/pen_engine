@@ -5,6 +5,14 @@
     android:versionName="1.0">
 
   <uses-permission android:name="android.permission.VIBRATE" />
+  
+  <!--Bluetooth permissions-->
+  <!--<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+  <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+  <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" /> 
+  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
 
   <uses-feature android:glEsVersion="0x00020000" android:required="true"/>
 

@@ -48,7 +48,7 @@ extern "C" {
             bsd_signal_func = (bsd_signal_func_t)dlsym(RTLD_DEFAULT, "bsd_signal");
 
             if (bsd_signal_func == NULL) {
-                pen::platforms::android::AppLog("bad bsd signal...");
+                pen::android::AppLog("bad bsd signal...");
             }
         }
         return bsd_signal_func(s, f);
@@ -76,7 +76,7 @@ extern "C" {
         if (pen::State::Get()->screenWidth == 0) {
             /*Initialize app*/
             pen::State::Get()->javaEnv = (void*)env;
-            pen::platforms::android::AppLog("Native initialization starting...");
+            pen::android::AppLog("Native initialization starting...");
             App* app = new App();
             std::string rootDir = ROOT_DIR;
 
@@ -87,7 +87,7 @@ extern "C" {
             glViewport(0, 0, w, h);
 
             app->OnCreate();
-            pen::platforms::android::AppLog("Native initialization finished...");
+            pen::android::AppLog("Native initialization finished...");
         }
         else {
             /*Update window size*/
@@ -151,6 +151,13 @@ extern "C" {
         if (pen::State::Get()->pixelDrawn) pen::State::Get()->pixelDrawn = false;
 
         return pixelDrawn;
+    }
+
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_MainActivity_bluetoothConnEstablished(JNIEnv* env, jclass obj) {
+        /*A bluetooth device has been connected*/
+        if (pen::State::Get()->mobileOnBluetoothCallback != nullptr) {
+            (*pen::State::Get()->mobileOnBluetoothCallback)();
+        }
     }
 }
 #endif

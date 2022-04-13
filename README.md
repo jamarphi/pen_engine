@@ -468,7 +468,7 @@ When doing cross platform applications not much changes, but a few things do.
 When using OnRender, you now have to pass your logic into a callback function as follows:
 
     pen::Pen::SetMobileCallbacks(&yourMobileRenderCallback, &yourMobileClickCallback, &yourMobileResumeCallback,
-        &yourMobilePauseCallback, &yourMobileKeyCallback, &yourMobileTiltCallback);
+        &yourMobilePauseCallback, &yourMobileKeyCallback, &yourMobileTiltCallback, &yourMobileBluetoothCallback);
 
 This function should be in the OnCreate function of a Pen Engine instantiation, for example:
 
@@ -476,7 +476,7 @@ This function should be in the OnCreate function of a Pen Engine instantiation, 
     public:
         void OnCreate() override {
             pen::Pen::SetMobileCallbacks(&yourMobileRenderCallback, &yourMobileClickCallback, &yourMobileResumeCallback,
-                &yourMobilePauseCallback, &yourMobileKeyCallback, &yourMobileTiltCallback);
+                &yourMobilePauseCallback, &yourMobileKeyCallback, &yourMobileTiltCallback, &yourMobileBluetoothCallback);
             pen::Pen::SetMobileTextures(pathListVector);
 
             /*All logic in OnCreate should come after the two previous functions*/
@@ -617,22 +617,22 @@ These are the events that are not implemented in this version yet:
 If you want to perform manipulation of persisted memory for your android application you can call the following:
 
     /*Needs to be called before any database operation*/
-    - pen::platforms::android::db::Start(const char* dbName, const char* tableName);
+    - pen::android::db::Start(const char* dbName, const char* tableName);
 
     /*Closes the database connection once you are done*/
-    - pen::platforms::android::db::Close();
+    - pen::android::db::Close();
 
     /*Adds or updates a key value in the database*/
-    - pen::platforms::android::db::SetItem(const char* key, const char* value);
+    - pen::android::db::SetItem(const char* key, const char* value);
 
     /*Retrieves a key value from the database as a string*/
-    - pen::platforms::android::db::GetItem(const char* key);
+    - pen::android::db::GetItem(const char* key);
 
     /*Removes a key from the database*/
-    - pen::platforms::android::db::RemoveItemById(const char* key);
+    - pen::android::db::RemoveItemById(const char* key);
 
     /*Deletes the table from the database*/
-    - pen::platforms::android::db::DeleteTable();
+    - pen::android::db::DeleteTable();
 
 ---------------------------------------------------------------------------
 
@@ -657,7 +657,7 @@ the graphics application runs when it is reloaded.
 
 If you want to send messages to Java for logging use:
 
-    pen::platforms::android::AppLog(const char* yourMessage);
+    pen::android::AppLog(const char* yourMessage);
 
 This can be used for Android debugging once your application has been built and tested on PC.
 
@@ -675,6 +675,35 @@ For example the file could be levels/level1.txt, or it could be music1.mp3, or s
 You can also load in a directory in assets by doing:
 
     pen::Asset::LoadMobileDir(std::string dirPath);
+
+---------------------------------------------------------------------------
+
+# 1.8.1.5 - Android Bluetooth
+
+For connecting to other devices via bluetooth, first search for available devices:
+
+    pen::android::conn::bt::Search(const char* deviceName);
+
+The device name does not need to be known before searching, it will just connect via the first available device.
+
+Once a connection is established captured by the bluetoothCallback, data can be read by doing:
+
+    bluetoothCallback(){
+        int numBytes = 0;
+        char* data =  pen::android::conn::bt::Read(&numBytes);
+    }
+
+Data can also be written by doing:
+
+    bluetoothCallback(){
+         pen::android::conn::bt::Write(char* buffer, int numBytes);
+    }
+
+Once done with a connected device, the connection can be closed by doing:
+
+    bluetoothCallback(){
+         pen::android::conn::bt::Close();
+    }
 
 ---------------------------------------------------------------------------
 

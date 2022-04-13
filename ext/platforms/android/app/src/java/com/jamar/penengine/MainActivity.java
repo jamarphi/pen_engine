@@ -38,6 +38,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.jamar.penengine.PenHelper.PenHelperListener;
+import com.jamar.penengine.PenBluetooth;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -62,6 +63,28 @@ public class MainActivity extends Activity implements PenHelperListener {
     private boolean showVirtualButton = false;
     private boolean gainAudioFocus = false;
     private boolean paused = true;
+
+    private static native bluetoothConnEstablished();
+
+    public final BroadcastReceiver mainBluetoothReceiver = new BroadcastReceiver() {
+       public void onReceive(Context context, Intent intent) {
+           String action = intent.getAction();
+           if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+               // Discovery has found a device. Get the BluetoothDevice
+               // object and its info from the Intent.
+               BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+               PenBluetooth(device);
+               bluetoothConnEstablished();
+           }else if(action == ACTION_SCAN_MODE_CHANGED){
+                int requestCode = 1;
+                int duration = intent.getField(EXTRA_SCAN_MODE);
+                Intent discoverableIntent =
+                    new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, duration);
+                startActivityForResult(discoverableIntent, requestCode);
+           }
+       }
+    };
 
     public PenSurfaceView getGLSurfaceView(){
         return  mGLSurfaceView;
@@ -103,13 +126,66 @@ public class MainActivity extends Activity implements PenHelperListener {
 
     protected void onLoadNativeLibraries() {
         try {
-            //ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-            //Bundle bundle = ai.metaData;
-            //String libName = bundle.getString("lib_name");
             /*Path to generated lib*/
             System.loadLibrary("PEN_ENGINE_ANDROID_LIB");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void bluetoothSearch(String deviceName){
+        /*Starts a search for available devices*/
+        if(deviceName != ""){
+            PenBluetooth.connect(deviceName);
+        }else{
+            IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+            // Register the permissions callback, which handles the user's response to the
+            // system permissions dialog. Save the return value, an instance of
+            // ActivityResultLauncher, as an instance variable.
+            ActivityResultLauncher<String> requestPermissionLauncher =
+                registerForActivityResult(new RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                         registerReceiver(mainBluetoothReceiver, filter);
+                    }
+                });
+            }
+    }
+
+    public static byte[] bluetoothRead(){
+        /*Reads data from a connected device*/
+        if(PenBluetoothService.conn != null){
+            return PenBluetoothService.conn.read();
+        }
+        return null;
+    }
+
+    public static void bluetoothWrite(byte character, int numBytes, int count, int isFinished){
+        /*Writes data to a connected device*/
+        if(PenBluetoothService.conn != null){
+            if(isFinished == 1){
+                PenBluetoothService.writeBuffer[count] = character;
+                PenBluetoothService.conn.write();
+            }else{
+                if(PenBluetoothService.conn.writeBufferNumBytes == 0) PenBluetoothService.conn.writeBufferNumBytes = numBytes;
+                if(PenBluetoothService.conn.writeBuffer == null) PenBluetoothService.conn.writeBuffer = new byte[numBytes];
+                PenBluetoothService.writeBuffer[count] = character; 
+            }
+        }
+    }
+
+    public static int getBluetoothReadNumBytes() {
+        /*Grabs number of bytes read from a connected device*/
+        if(PenBluetoothService.conn != null){
+            return PenBluetoothService.conn.numBytes;
+        }
+        return -1;
+    }
+
+    public static void closeBluetoothConn() {
+        /*Closes the connection a connected device*/
+        if(PenBluetoothService.conn != null){
+            PenBluetoothService.conn.close();
+            PenBluetoothService.conn = null;
         }
     }
     
@@ -131,6 +207,24 @@ public class MainActivity extends Activity implements PenHelperListener {
         }
 
         this.hideVirtualButton();
+
+        if (!bluetoothAdapter.isEnabled()) {
+          Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+          startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+
+        // Register for broadcasts when a device is discovered via bluetooth.
+        if (ContextCompat.checkSelfPermission(
+                CONTEXT, Manifest.permission.REQUESTED_PERMISSION) !=
+                PackageManager.PERMISSION_GRANTED) {
+            requestPermissionLauncher.launch(Manifest.permission.REQUESTED_PERMISSION);
+        }
+
+        int requestCode = 1;
+        Intent discoverableIntent =
+               new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        startActivityForResult(discoverableIntent, requestCode);
 
         onLoadNativeLibraries();
 
@@ -210,6 +304,7 @@ public class MainActivity extends Activity implements PenHelperListener {
     protected void onDestroy() {
         if(gainAudioFocus)
             PenAudioFocusManager.unregisterAudioFocusListener(this);
+        unregisterReceiver(mainBluetoothReceiver);
         super.onDestroy();
     }
 

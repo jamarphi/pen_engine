@@ -20,11 +20,11 @@ under the License.
 *************************************************************************************************/
 
 #pragma once
-#include <iostream>
-#include <android/asset_manager_jni.h>
 #include "../../../../../../src/state/state.h"
 
 #ifdef __PEN_MOBILE__
+#include <iostream>
+#include <android/asset_manager_jni.h>
 
 extern "C" {
     static void AndroidDrawPixel(int x, int y, float r, float g, float b, float a) {
@@ -67,9 +67,6 @@ extern "C" {
                 jbyte* imageItems = env->GetByteArrayElements(image, 0);
                 for(int i = 0; i < imageArraySize; i++){
                     nativeImage[i] = (unsigned char)imageItems[i];
-                    if(imageItems[i] != 0){
-                        nativeImage[i];
-                    }
                 }
 
                 /*Now update the width and height*/

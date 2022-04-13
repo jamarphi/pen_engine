@@ -76,7 +76,7 @@ namespace pen {
 #else
         if (!gladLoadGLLoader((gladloadproc)eglGetProcAddress))
         {
-            pen::platforms::android::AppLog("Failed to initialize glad");
+            pen::android::AppLog("Failed to initialize glad");
         }
 #endif
 
@@ -527,7 +527,8 @@ namespace pen {
     }
 
     void Pen::SetMobileCallbacks(void (*onRenderCallback)(), void (*onClickCallback)(double, double), void (*onResumeCallback)(),
-        void (*onPauseCallback)(), void (*onKeyCallback)(char), void (*onTiltCallback)(double, double, double, double)) {
+        void (*onPauseCallback)(), void (*onKeyCallback)(char), void (*onTiltCallback)(double, double, double, double),
+        void (*onBluetoothCallback)()) {
         /*Sets the mobile callback functions for mobile devices*/
         pen::State* inst = pen::State::Get();
         inst->handleMobileRender = onRenderCallback;
@@ -536,6 +537,7 @@ namespace pen {
         inst->mobileOnPauseCallback = onPauseCallback;
         inst->mobileOnKeyCallback = onKeyCallback;
         inst->mobileOnTiltCallback = onTiltCallback;
+        inst->mobileOnBluetoothCallback = onBluetoothCallback;
 
         /*Adds in the default assets*/
         pen::Asset::Add(pen::Asset("default"));
