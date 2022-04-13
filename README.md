@@ -680,6 +680,7 @@ You can also load in a directory in assets by doing:
 
 # 1.8.1.5 - Android Bluetooth
 
+If using bluetooth the permissions in pen_engine/ext/platforms/android/app/src/AndroidManifest.xml should be uncommented.
 For connecting to other devices via bluetooth, first search for available devices:
 
     pen::android::conn::bt::Search(const char* deviceName);

@@ -59,7 +59,7 @@ extern "C" {
                                 jbyteArray data = (jbyteArray)env->CallStaticObjectMethod(mainClass, methodID);
                                 jsize dataArraySize = env->GetArrayLength(data);
 
-                                char* nativeData = new unsigned char[dataArraySize];
+                                char* nativeData = new char[dataArraySize];
                                 jbyte* dataItems = env->GetByteArrayElements(data, 0);
                                 for (int i = 0; i < dataArraySize; i++) {
                                     nativeData[i] = (char)dataItems[i];

@@ -215,22 +215,14 @@ public class MainActivity extends Activity implements PenHelperListener {
         sContext = this;
 
         penBluetooth = new PenBluetooth();
-        if (!penBluetooth.adapter.isEnabled()) {
-          Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-          startActivityForResult(enableBtIntent, 1);
-        }
 
         // Register for broadcasts when a device is discovered via bluetooth.
         if (ContextCompat.checkSelfPermission(
-                sContext, Manifest.permission.BLUETOOTH) !=
+                sContext, Manifest.permission.BLUETOOTH) ==
                 PackageManager.PERMISSION_GRANTED) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, 1);
         }
-
-        int requestCode = 1;
-        Intent discoverableIntent =
-               new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-        startActivityForResult(discoverableIntent, requestCode);
 
         PenHelper.init(this);
 
