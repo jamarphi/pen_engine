@@ -3,7 +3,6 @@
     package="com.jamar.penengine"
     android:versionCode="1"
     android:versionName="1.0">
-
   <uses-permission android:name="android.permission.VIBRATE" />
   
   <!--Bluetooth permissions-->
