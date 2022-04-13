@@ -92,59 +92,6 @@ namespace pen {
 			return item;
 		}
 
-		static pen::ui::Item* AddChildItem(pen::ui::Item* parentItem, pen::ui::Item* childItem) {
-			/*First find the layer the parent item is connected to*/
-			pen::Layer* parentItemLayer = nullptr;
-			for (auto& layer : pen::ui::LM::layers) {
-				for (int i = 0; i < layer->layerItems.size(); i++) {
-					if (parentItem == layer->layerItems[i]) {
-						parentItemLayer = layer;
-						break;
-						break;
-					}
-				}
-			}
-
-			if (parentItemLayer == nullptr) return childItem;
-
-			/*Check if the layer has enough room*/
-			if (parentItemLayer->itemCount + childItem->itemCount + 1 <= MAX_OBJECTS) {
-				/*Add the child item to this parent item*/
-				parentItem->Push(childItem);
-				return childItem;
-			}
-			else {
-				parentItem->Push(childItem);
-				std::vector<pen::ui::Item*> tempItems;
-
-				/*Remove pointer from old layer*/
-				for (auto& item : parentItemLayer->layerItems) {
-					if (item != parentItem) tempItems.push_back(item);
-				}
-				parentItemLayer->layerItems = tempItems;
-
-				/*Move parentItem with childItem to new layer*/
-				for (int j = 0; j < pen::ui::LM::layers.size(); j++) {
-					if (pen::ui::LM::layers[j] != parentItemLayer &&
-						(pen::ui::LM::layers[j]->itemCount + parentItem->itemCount + 1 < MAX_OBJECTS) &&
-						pen::ui::LM::layers[j]->shapeType == parentItemLayer->shapeType) {
-						/*Add to an existing layer*/
-						pen::ui::LM::layers[j]->Push(parentItem);
-						return childItem;
-					}
-				}
-
-				/*Create a new layer for this item*/
-				pen::ui::LM::layers.push_back(new pen::Layer(pen::ui::LM::generalLayerId,
-					parentItem->shapeType, parentItem->isFixed, parentItem->isSingular, parentItem->isWireFrame));
-				pen::ui::LM::generalLayerId++;
-				pen::ui::LM::layers.at(pen::ui::LM::layers.size() - 1)->Push(parentItem);
-				pen::ui::LM::layers.at(pen::ui::LM::layers.size() - 1)->Initialize();
-				pen::ui::Sort();
-				return childItem;
-			}
-		}
-
 		static pen::ui::Item* FindItem(uint32_t id) {
 			/*Finds a specific item based on its id*/
 			pen::ui::Item* tempItem = nullptr;

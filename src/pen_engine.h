@@ -74,6 +74,7 @@ under the License.
 #include "ui/file_modal.h"
 #endif
 #endif
+#include "ui/div.h"
 
 #define SHADER_SOURCE ""
 #define TEXTURE_SOURCE "res/textures/"

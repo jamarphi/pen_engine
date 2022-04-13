@@ -303,7 +303,7 @@ pen::Pen::HandleGUIClickEvents(true, &yourClickCatchAllFunction);
 
 This only handles items that have isUI and isClickable set to true for GUI components.
 
-There are nine basic components already defined for creating graphical user interfaces:
+There are ten basic components already defined for creating graphical user interfaces:
 
     - pen::ui::TextBox
     - pen::ui::Button
@@ -314,6 +314,7 @@ There are nine basic components already defined for creating graphical user inte
     - pen::ui::TextEditor
     - pen::ui::ContextWindow
     - pen::ui::FileModal
+    - pen::ui::Div
 
 For some of the components above such as the ScrollBar component, 
 when nullptr is passed to it for your click callback function, it handles the event by default.
@@ -330,6 +331,9 @@ For the pen::ui::FileModal component, there are four intents that can get passed
     - pen::ui::FILE_INTENT::SELECT_DIRECTORY
     - pen::ui::FILE_INTENT::SELECT_FILE
     - pen::ui::FILE_INTENT::SELECT_FILES
+
+The pen::ui::Div component is used for aligning items together horizontally or vertically.  The div is horizontal by default 
+and is convenient for quick item alignment.
 
 ---------------------------------------------------------------------------
 
