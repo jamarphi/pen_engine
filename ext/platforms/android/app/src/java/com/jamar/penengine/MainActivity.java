@@ -75,6 +75,8 @@ public class MainActivity extends Activity implements PenHelperListener {
     private boolean gainAudioFocus = false;
     private boolean paused = true;
     public PenBluetooth penBluetooth = null;
+    private MediaPlayer mainMediaPlayer = null;
+    private PenMediaService PenMediaService;
 
     private static native void bluetoothConnEstablished();
 
@@ -188,6 +190,16 @@ public class MainActivity extends Activity implements PenHelperListener {
             sContext.penBluetooth.service.conn.close();
             sContext.penBluetooth.service.conn = null;
         }
+    }
+
+    public static void playSound(String file){
+        /*Plays a sound given a file*/
+        Resources resources = sContext.getResources();
+        int resourceId = resources.getIdentifier(file, "raw",
+                sContext.getPackageName());
+        mainMediaPlayer = MediaPlayer.create(sContext, resourceId);
+        Intent intent = new Intent("com.jamar.penengine.PLAY");
+        penMediaService.onStart(intent, 0, 0);
     }
     
     // ===========================================================
@@ -522,6 +534,23 @@ public class MainActivity extends Activity implements PenHelperListener {
                 return configs[0];
             }
             return null;
+        }
+    }
+
+    public class PenMediaService extends Service implements MediaPlayer.OnPreparedListener {
+        private static final String ACTION_PLAY = "com.jamar.penengine.PLAY";
+        MediaPlayer mediaPlayer = null;
+
+        public int onStart(Intent intent, int flags, int startId) {
+            if (intent.getAction().equals(ACTION_PLAY)) {
+                mediaPlayer = mainMediaPlayer;
+                mediaPlayer.setOnPreparedListener(this);
+                mediaPlayer.prepareAsync();
+            }
+        }
+
+        public void onPrepared(MediaPlayer player) {
+            player.start();
         }
     }
 }
