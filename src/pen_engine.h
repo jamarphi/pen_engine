@@ -54,6 +54,7 @@ under the License.
 #include "ops/operations/3d.h"
 #include "renderer/camera.h"
 #include "objects/containers/map.h"
+#include "objects/containers/json.h"
 #include "../ext/platforms/android/app/src/cpp/log.h"
 #include "../ext/platforms/android/app/src/cpp/android_bluetooth.h"
 #include "../ext/ai/agent.h"

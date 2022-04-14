@@ -712,3 +712,65 @@ Once done with a connected device, the connection can be closed by doing:
 For documentation on implementing AI go to ext/ai/README.md
 
 ---------------------------------------------------------------------------
+
+# 2.0 - JSON
+
+For JSON objects, there are two kinds of items:
+
+    - pen::JSON
+    - pen::JSON::Array
+
+The main item is always going to be pen::JSON object that encapsulates different fields and values that are all strings.
+Each JSON object will have a list of key-value pairs that have the following:
+
+    - std::string data;
+	- char type;
+	- int numBytes;
+
+The type of each field can be the following:
+
+    - a: array, array of arrays
+	- b: bool, bool array
+	- c: char, char array
+	- f: float, float array
+	- i: int, int array
+	- j: sub json object, json object array
+	- s: string, string array
+
+These types can be used for the other kind of item as well.
+For instance, if the field you are retrieving is an int array then do:
+
+    if(type == 'i'){
+        pen::JSON mainObject = pen::JSON(std::string jsonDataString);
+        pen::JSON::Field arrField = mainObject.json.Find("arr")->second;
+        std::vector<pen::JSON::Array> jsonArray = pen::JSON::ParseArrays(arrField.value);
+        /*Parses the first int array from the array of arrays*/
+        std::vector<int> intList = jsonArray[0].GetList<int>();
+    }
+
+For GetList with string specifically, char* has to be passed in like so:
+
+    std::vector<std::string> stringList = jsonArray[0].GetList<char*>();
+
+If it is a simple key-value pair then do:
+
+   pen::JSON mainObject = pen::JSON(std::string jsonDataString);
+   pen::JSON::Field cityField = mainObject.json.Find("city")->second;
+   
+If the city field is a string field, then this pen::JSON::Field object will be for example:
+
+    - std::string data: detroit
+    - char type: 's'
+    - int numBytes: 7
+
+Data can be retrieved from pen::JSON::Field items similarly:
+
+    pen::JSON mainObject = pen::JSON(std::string jsonDataString);
+    pen::JSON::Field highScoreField = mainObject.json.Find("highScore")->second;
+    float highScore = highScoreField::Get<float>();
+
+Also for Get similar to GetList with string specifically, char* has to be passed in like so:
+
+    std::string str = highScoreField.Get<char*>();
+
+---------------------------------------------------------------------------
