@@ -20,27 +20,49 @@ under the License.
 *************************************************************************************************/
 package com.jamar.penengine;
 
+import static android.content.ContentValues.TAG;
+
+import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
+import android.util.Log;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Set;
+import java.util.UUID;
+
 public class PenBluetooth {
 
-    public final String PEN_UUID = "01234567-0123-0123-0123-012345678901"
+    public static final UUID PEN_UUID = UUID.fromString("01234567-0123-0123-0123-012345678901");
 
     public static BluetoothDevice connectedDevice = null;
-    
-    public static manageSocketConnection(BluetoothSocket socket){
-        /*Manages the established connection*/
+    public static BluetoothAdapter adapter = null;
+    public static PenBluetoothService service = null;
+
+    public PenBluetooth(){
 
     }
 
-    public static connect(BluetoothDevice device){
+    public static void manageSocketConnection(BluetoothSocket socket){
+        /*Manages the established connection*/
+        service = new PenBluetoothService(socket);
+    }
+
+    @SuppressLint("MissingPermission")
+    public void connect(BluetoothDevice targetDevice){
         /*Connect to a given device*/
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
         BluetoothDevice target = null;
         if (pairedDevices.size() > 0) {
            // There are paired devices. Get the name and address of each paired device.
            for (BluetoothDevice device : pairedDevices) {
                String deviceName = device.getName();
                String deviceHardwareAddress = device.getAddress(); // MAC address
-               if(device.getName() == deviceName){
+               if(targetDevice.getName() == deviceName){
                     target = device;
                     break;
                }
@@ -49,25 +71,26 @@ public class PenBluetooth {
 
         if (target == null){
             /*New device to connect to*/
-            ConnectThread conn = new ConnectThread(device);
+            ConnectThread conn = new ConnectThread(targetDevice);
             conn.run();
         }
     }
 
-    public static connect(String deviceNameStr){
+    @SuppressLint("MissingPermission")
+    public void connect(String targetDeviceName){
         /*Connect to a given device*/
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
         BluetoothDevice target = null;
         if (pairedDevices.size() > 0) {
-           // There are paired devices. Get the name and address of each paired device.
-           for (BluetoothDevice device : pairedDevices) {
-               String deviceName = device.getName();
-               String deviceHardwareAddress = device.getAddress(); // MAC address
-               if(deviceNameStr == deviceName){
+            // There are paired devices. Get the name and address of each paired device.
+            for (BluetoothDevice device : pairedDevices) {
+                String deviceName = device.getName();
+                String deviceHardwareAddress = device.getAddress(); // MAC address
+                if(targetDeviceName == deviceName){
                     target = device;
                     break;
-               }
-           }
+                }
+            }
         }
 
         if (target != null){
@@ -81,13 +104,14 @@ public class PenBluetooth {
        /*Thread for establishing connection as a server*/
        private final BluetoothServerSocket mmServerSocket;
 
+       @SuppressLint("MissingPermission")
        public AcceptThread() {
            // Use a temporary object that is later assigned to mmServerSocket
            // because mmServerSocket is final.
            BluetoothServerSocket tmp = null;
            try {
                // PEN_UUID is the app's UUID string, also used by the client code.
-               tmp = bluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME, PEN_UUID);
+               tmp = adapter.listenUsingRfcommWithServiceRecord("PEN_ENGINE", PEN_UUID);
            } catch (IOException e) {
                Log.e(TAG, "Socket's listen() method failed", e);
            }
@@ -109,14 +133,18 @@ public class PenBluetooth {
                    // A connection was accepted. Perform work associated with
                    // the connection in a separate thread.
                    PenBluetooth.manageSocketConnection(socket);
-                   mmServerSocket.close();
+                   try {
+                       mmServerSocket.close();
+                   } catch (IOException e) {
+                       e.printStackTrace();
+                   }
                    break;
                }
            }
        }
 
        // Closes the connect socket and causes the thread to finish.
-       public void cancel() {
+       public void close() {
            try {
                mmServerSocket.close();
            } catch (IOException e) {
@@ -130,6 +158,7 @@ public class PenBluetooth {
         private final BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
 
+        @SuppressLint("MissingPermission")
         public ConnectThread(BluetoothDevice device) {
             // Use a temporary object that is later assigned to mmSocket
             // because mmSocket is final.
@@ -146,9 +175,10 @@ public class PenBluetooth {
             mmSocket = tmp;
         }
 
+        @SuppressLint("MissingPermission")
         public void run() {
             // Cancel discovery because it otherwise slows down the connection.
-            bluetoothAdapter.cancelDiscovery();
+            adapter.cancelDiscovery();
 
             try {
                 // Connect to the remote device through the socket. This call blocks
@@ -179,22 +209,23 @@ public class PenBluetooth {
         }
     }
 
-    public class PenBluetoothService {
+    public static class PenBluetoothService {
        private static final String TAG = "PEN_BLUETOOTH_SERVICE";
-       private Handler handler; // handler that gets info from Bluetooth service
-       public static ConnectedThread conn = null;
+       public ConnectedThread conn = null;
 
-       // Defines several constants used when transmitting messages between the
-       // service and the UI.
-       private interface MessageConstants {
-           public static final int MESSAGE_READ = 0;
-           public static final int MESSAGE_WRITE = 1;
-           public static final int MESSAGE_TOAST = 2;
-       }
-
+       @SuppressLint("MissingPermission")
        PenBluetoothService(BluetoothSocket socket) {
+            if(PenBluetooth.service.conn != null){
+                PenBluetooth.service.conn.close();
+                PenBluetooth.service.conn = null;
+            }
+
             if(socket == null){
-                conn = new ConnectedThread(PenBluetooth.connectedDevice.createRfcommSocketToServiceRecord(PEN_UUID));
+                try {
+                    conn = new ConnectedThread(PenBluetooth.connectedDevice.createRfcommSocketToServiceRecord(PEN_UUID));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }else {
                 conn = new ConnectedThread(socket);
             }
@@ -245,28 +276,15 @@ public class PenBluetooth {
                        break;
                    }
                }
+               return mmBuffer;
            }
 
            public void write() {
                /*Write data to a connected device*/
                try {
                    mmOutStream.write(writeBuffer);
-
-                   // Share the sent message with the UI activity.
-                   Message writtenMsg = handler.obtainMessage(
-                           MessageConstants.MESSAGE_WRITE, -1, -1, mmBuffer);
-                   writtenMsg.sendToTarget();
                } catch (IOException e) {
                    Log.e(TAG, "Error occurred when sending data", e);
-
-                   // Send a failure message back to the activity.
-                   Message writeErrorMsg =
-                           handler.obtainMessage(MessageConstants.MESSAGE_TOAST);
-                   Bundle bundle = new Bundle();
-                   bundle.putString("toast",
-                           "Couldn't send data to the other device");
-                   writeErrorMsg.setData(bundle);
-                   handler.sendMessage(writeErrorMsg);
                }
            }
 
