@@ -58,7 +58,11 @@ extern "C" {
                                 jstring javaRoute = env->NewStringUTF(route);
                                 jstring javaParameters = env->NewStringUTF(parameters.c_str());
                                 jstring javaHeaders = env->NewStringUTF(headers.c_str());
-                                jstring javaResponse = env->CallStaticStringMethod(httpClass, methodID, javaRoute, javaParameters, javaHeaders);
+                                jvalue args[3];
+                                args[0].l = javaRoute;
+                                args[1].l = javaParameters;
+                                args[2].l = javaHeaders;
+                                jstring javaResponse = (jstring)env->CallStaticObjectMethodA(httpClass, methodID, args);
                                 const char* responseStr = env->GetStringUTFChars(javaResponse, 0);
                                 std::string response(responseStr);
 
@@ -90,6 +94,7 @@ extern "C" {
                                 env->DeleteLocalRef(javaParameters);
                                 env->DeleteLocalRef(javaHeaders);
                                 env->DeleteLocalRef(javaResponse);
+                                env->DeleteLocalRef((jobject)args);
                                 delete[] responseStr;
                                 return responseMap;
                             }
@@ -117,7 +122,11 @@ extern "C" {
                                 jstring javaRoute = env->NewStringUTF(route);
                                 jstring javaJson = env->NewStringUTF(jsonStr);
                                 jstring javaHeaders = env->NewStringUTF(headers.c_str());
-                                jstring javaResponse = env->CallStaticStringMethod(httpClass, methodID, javaRoute, javaJson, javaHeaders);
+                                jvalue args[3];
+                                args[0].l = javaRoute;
+                                args[1].l = javaJson;
+                                args[2].l = javaHeaders;
+                                jstring javaResponse = (jstring)env->CallStaticObjectMethodA(httpClass, methodID, args);
                                 const char* responseStr = env->GetStringUTFChars(javaResponse, 0);
                                 std::string response(responseStr);
 
@@ -149,6 +158,7 @@ extern "C" {
                                 env->DeleteLocalRef(javaJson);
                                 env->DeleteLocalRef(javaHeaders);
                                 env->DeleteLocalRef(javaResponse);
+                                env->DeleteLocalRef((jobject)args);
                                 delete[] responseStr;
                                 return responseMap;
                             }

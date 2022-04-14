@@ -46,29 +46,29 @@ namespace pen {
 					return std::stof(value);
 				}
 				else if (type == 'a') {
-					return JSON::ParseArrays(value);
+					return JSON::Array::ParseArrays(value);
 				}
 				else {
 					return JSON(value);
 				}
 			}
 
-			template<typename int> int Get() {
+			template<int> int Get() {
 				/*Returns an integer*/
 				return std::stoi(value);
 			}
 
-			template<typename bool> bool Get() {
+			template<bool> bool Get() {
 				/*Returns a boolean*/
 				return value == "true" ? true : false;
 			}
 
-			template<typename char> char Get() {
+			template<char> char Get() {
 				/*Returns a char*/
 				return value[0];
 			}
 
-			template<typename char*> std::string Get() {
+			template<char*> std::string Get() {
 				/*Returns a string*/
 				return value;
 			}
@@ -154,24 +154,24 @@ namespace pen {
 				}
 			}
 
-			template<typename int> std::vector<int> GetList() {
+			template<int> std::vector<int> GetList() {
 				/*Returns a list of integers*/
 				return intList;
 			}
 
-			template<typename bool> std::vector<bool> GetList() {
+			template<bool> std::vector<bool> GetList() {
 				/*Returns a list of booleans*/
 				return boolList;
 			}
 
-			template<typename char> std::vector<char> GetList() {
+			template<char> std::vector<char> GetList() {
 				/*Returns a list of chars*/
 				return charList;
 			}
 
-			template<typename char*> std::vector<std::string> GetList() {
+			template<char*> std::vector<std::string> GetList() {
 				/*Returns a list of booleans*/
-				return boolList;
+				return stringList;
 			}
 
 			static std::vector<Array> ParseArrays(std::string data) {

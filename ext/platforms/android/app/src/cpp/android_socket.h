@@ -57,11 +57,14 @@ extern "C" {
                             jmethodID methodID = env->GetStaticMethodID(socketClass, "send", "(Ljava/lang/String;)Ljava/lang/String;");
                             if (methodID != nullptr) {
                                 jstring javaMessage = env->NewStringUTF(message);
-                                jstring javaResponse = env->CallStaticStringMethod(socketClass, methodID, javaMessage);
+                                jvalue args[1];
+                                args[0].l = javaMessage;
+                                jstring javaResponse = (jstring)env->CallStaticObjectMethodA(socketClass, methodID, args);
                                 const char* responseStr = env->GetStringUTFChars(javaResponse, 0);
                                 std::string response(responseStr);
                                 env->DeleteLocalRef(javaMessage);
                                 env->DeleteLocalRef(javaResponse);
+                                env->DeleteLocalRef((jobject)args);
                                 delete[] responseStr;
                                 return response;
                             }

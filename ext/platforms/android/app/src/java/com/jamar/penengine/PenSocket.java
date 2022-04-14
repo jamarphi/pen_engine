@@ -21,7 +21,12 @@ under the License.
 package com.jamar.penengine;
 
 import android.annotation.SuppressLint;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 public class PenSocket {
 
@@ -36,29 +41,42 @@ public class PenSocket {
     public static void connect(String ip, int port){
         /*Connects to a server hosting a socket*/
         if(client == null) {
-            client = new Socket(ip, port);
-            outputStream = new PrintWriter(client.getOutputStream(), true);
-            inputStream = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            try{
+                client = new Socket(ip, port);
+                outputStream = new PrintWriter(client.getOutputStream(), true);
+                inputStream = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public static String send(String message){
         /*Send a message to the server*/
         if(client != null) {
-            outputStream.println(message);
-            return inputStream.readLine();
+            try{
+                outputStream.println(message);
+                return inputStream.readLine();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+        return "";
     }
 
     public static void close(){
         /*Close connection to the server*/
         if(client != null) {
-            inputStream.close();
-            outputStream.close();
-            client.close();
-            inputStream = null;
-            outputStream = null;
-            client = null;
+            try{
+                inputStream.close();
+                outputStream.close();
+                client.close();
+                inputStream = null;
+                outputStream = null;
+                client = null;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

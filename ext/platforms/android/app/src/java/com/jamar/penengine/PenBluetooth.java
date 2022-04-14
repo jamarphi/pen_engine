@@ -47,9 +47,10 @@ public class PenBluetooth {
 
     }
 
-    public static void manageSocketConnection(BluetoothSocket socket){
+    public void manageSocketConnection(BluetoothSocket socket){
         /*Manages the established connection*/
-        service = new PenBluetoothService(socket);
+        PenBluetoothService penBluetoothService = new PenBluetoothService();
+        penBluetoothService.connect(this, socket);
     }
 
     @SuppressLint("MissingPermission")
@@ -96,7 +97,7 @@ public class PenBluetooth {
         if (target != null){
             /*New device to connect to*/
             ConnectThread conn = new ConnectThread(target);
-            conn.run();
+            conn.run(this);
         }
     }
 
@@ -118,7 +119,7 @@ public class PenBluetooth {
            mmServerSocket = tmp;
        }
 
-       public void run() {
+       public void run(PenBluetooth penBluetooth) {
            BluetoothSocket socket = null;
            // Keep listening until exception occurs or a socket is returned.
            while (true) {
@@ -132,7 +133,7 @@ public class PenBluetooth {
                if (socket != null) {
                    // A connection was accepted. Perform work associated with
                    // the connection in a separate thread.
-                   PenBluetooth.manageSocketConnection(socket);
+                   penBluetooth.manageSocketConnection(socket);
                    try {
                        mmServerSocket.close();
                    } catch (IOException e) {
@@ -176,7 +177,7 @@ public class PenBluetooth {
         }
 
         @SuppressLint("MissingPermission")
-        public void run() {
+        public void run(PenBluetooth penBluetooth) {
             // Cancel discovery because it otherwise slows down the connection.
             adapter.cancelDiscovery();
 
@@ -196,7 +197,7 @@ public class PenBluetooth {
 
             // The connection attempt succeeded. Perform work associated with
             // the connection in a separate thread.
-            PenBluetooth.manageSocketConnection(mmSocket);
+            penBluetooth.manageSocketConnection(mmSocket);
         }
 
         // Closes the client socket and causes the thread to finish.
@@ -209,20 +210,20 @@ public class PenBluetooth {
         }
     }
 
-    public static class PenBluetoothService {
+    public class PenBluetoothService {
        private static final String TAG = "PEN_BLUETOOTH_SERVICE";
        public ConnectedThread conn = null;
 
        @SuppressLint("MissingPermission")
-       PenBluetoothService(BluetoothSocket socket) {
-            if(PenBluetooth.service.conn != null){
-                PenBluetooth.service.conn.close();
-                PenBluetooth.service.conn = null;
+       public void connect(PenBluetooth penBluetooth, BluetoothSocket socket) {
+            if(penBluetooth.service.conn != null){
+                penBluetooth.service.conn.close();
+                penBluetooth.service.conn = null;
             }
 
             if(socket == null){
                 try {
-                    conn = new ConnectedThread(PenBluetooth.connectedDevice.createRfcommSocketToServiceRecord(PEN_UUID));
+                    conn = new ConnectedThread(penBluetooth.connectedDevice.createRfcommSocketToServiceRecord(PEN_UUID));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

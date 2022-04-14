@@ -50,7 +50,6 @@ import android.view.WindowManager;
 import androidx.core.content.ContextCompat;
 
 import com.jamar.penengine.PenHelper.PenHelperListener;
-import com.jamar.penengine.PenBluetooth.*;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -75,7 +74,7 @@ public class MainActivity extends Activity implements PenHelperListener {
     private boolean showVirtualButton = false;
     private boolean gainAudioFocus = false;
     private boolean paused = true;
-    private PenBluetooth penBluetooth = null;
+    public PenBluetooth penBluetooth = null;
 
     private static native void bluetoothConnEstablished();
 
