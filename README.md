@@ -708,6 +708,36 @@ Once done with a connected device, the connection can be closed by doing:
 
 ---------------------------------------------------------------------------
 
+# 1.8.1.6 - Android HTTP
+
+For sending http get and post requests do:
+
+    - Get request: pen::Map<std::string,std::string> response = pen::android::conn::http::Get(const char* route, 
+        pen::Map<std::string, std::string> parameterMap, pen::Map<std::string, std::string> headerMap);
+    - Post request: pen::Map<std::string,std::string> response = pen::android::conn::http::Get(const char* route, 
+        const char* jsonStr, pen::Map<std::string, std::string> headerMap);
+
+In order to parse JSON objects as string look at section 2.0.
+
+---------------------------------------------------------------------------
+
+# 1.8.1.6 - Android Sockets
+
+For using socket connections first connect to the server:
+
+    pen::android::conn::socket::Connect(const char* route, int port);
+
+This client connection can only be connected to one server at a time.
+Once connected, you can send messages by doing:
+
+    std::string response = pen::android::conn::socket::Send(const char* message);
+
+To close a connection do:
+
+    pen::android::conn::Close();
+
+---------------------------------------------------------------------------
+
 # 1.9 - AI
 
 For documentation on implementing AI go to ext/ai/README.md
@@ -773,5 +803,13 @@ Data can be retrieved from pen::JSON::Field items similarly:
 Also for Get similar to GetList with string specifically, char* has to be passed in like so:
 
     std::string str = highScoreField.Get<char*>();
+
+If you have a pen::Map of strings that need parsing do:
+
+    pen::JSON json = pen::JSON(pen::Map<std::string,std::string> jsonMap);
+
+If a pen::JSON object needs to be converted into a string do:
+
+    std::string jsonStr = json.ToString();
 
 ---------------------------------------------------------------------------

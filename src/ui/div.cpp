@@ -83,7 +83,7 @@ namespace pen {
                 else {
                     itemCount -= childItems[idx]->itemCount - 1;
                     pen::ui::Item* tempItem = childItems[idx];
-                    std::vector<pen::ui::Item*> tempList;
+                    std::vector<pen::ui::Item*> tempList = {};
                     for (int i = 0; i < childItems.size(); i++) {
                         if (i != idx) {
                             tempList.push_back(childItems[i]);

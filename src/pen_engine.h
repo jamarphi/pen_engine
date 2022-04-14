@@ -57,6 +57,8 @@ under the License.
 #include "objects/containers/json.h"
 #include "../ext/platforms/android/app/src/cpp/log.h"
 #include "../ext/platforms/android/app/src/cpp/android_bluetooth.h"
+#include "../ext/platforms/android/app/src/cpp/android_http.h"
+#include "../ext/platforms/android/app/src/cpp/android_socket.h"
 #include "../ext/ai/agent.h"
 #include "../ext/ai/free_agent.h"
 #include "../ext/misc/tile_map/tile_map.h"

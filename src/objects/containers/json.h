@@ -287,6 +287,10 @@ namespace pen {
 			json = ParseJSON(jsonStr);
 		}
 
+		JSON(pen::Map<std::string, std::string> jsonMap) {
+			json = ParseMap(jsonMap);
+		}
+
 		static std::vector<int> ParseInts(std::string data) {
 			/*Parse an array of integers*/
 			std::string::iterator it;
@@ -395,6 +399,63 @@ namespace pen {
 				}
 			}
 			return stringList;
+		}
+
+		static char CheckType(std::string value) {
+			/*Check for the type*/
+			size_t objectPos = value.find("{") > 0 ? value.find("{") : 0;
+			size_t arrPos = value.find("[") > 0 ? value.find("[") : 0;
+			if (objectPos < arrPos) {
+				/*This is a json object*/
+				return 'j';
+			}
+			else {
+				value = value.substr(0, value.find(",") != std::string::npos ? value.find(",") : value.length() - 1);
+
+				if (arrPos != std::string::npos) {
+					/*This is an array*/
+					return 'a';
+				}
+				else {
+					bool isNumber = JSON::CheckForNumber(value);
+					if (isNumber) {
+						/*Int or float*/
+						if (value.find(".") != std::string::npos) {
+							/*Type is float*/
+							return 'f';
+						}
+						else {
+							/*Type is integer*/
+							return 'i';
+						}
+					}
+					else {
+						if (value == "true" || value == "false") {
+							/*Type is boolean*/
+							return 'b';
+						}
+						else if (value.length() == 1) {
+							/*Type is char*/
+							return 'c';
+						}
+						else {
+							/*Type is string*/
+							return 's';
+						}
+					}
+				}
+			}
+		}
+
+		std::string ToString() {
+			/*Converts the JSON object into a string*/
+			std::string jsonStr = "{";
+			for (int i = 0; i < json.Size(); i++) {
+				jsonStr += (json.items[i].first + ":" + json.items[i].second.value + ",");
+			}
+			if(jsonStr.length() > 1) jsonStr = jsonStr.substr(0, jsonStr.length() - 1);
+			jsonStr += "}";
+			return jsonStr;
 		}
 
 	private:
@@ -527,6 +588,20 @@ namespace pen {
 				counter++;
 			}
 			return jsonMap;
+		}
+
+		pen::Map<std::string, Field> ParseMap(pen::Map<std::string,std::string> jsonMap) {
+			/*Parses map as a JSON object*/
+			if (jsonMap.Size() > 0) {
+				pen::Map<std::string, Field> fieldMap;
+				char type = '\0';
+				for (int i = 0; i < jsonMap.Size(); i++) {
+					type = CheckType(jsonMap.items[i].second);
+					fieldMap.Insert(jsonMap.items[i].first, { jsonMap.items[i].second, type, (int)jsonMap.items[i].second.length() });
+				}
+				return fieldMap;
+			}
+			return pen::Map<std::string, Field>();
 		}
 
 		static bool CheckForNumber(std::string str) {
