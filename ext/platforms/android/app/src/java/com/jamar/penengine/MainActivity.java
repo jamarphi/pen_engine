@@ -74,7 +74,6 @@ public class MainActivity extends Activity implements PenHelperListener {
     private PenSurfaceView mGLSurfaceView = null;
     private int[] mGLContextAttrs = null;
     private static MainActivity sContext = null;
-    private PenVideoHelper mVideoHelper = null;
     private boolean hasFocus = false;
     private boolean showVirtualButton = false;
     private boolean gainAudioFocus = false;
@@ -246,10 +245,6 @@ public class MainActivity extends Activity implements PenHelperListener {
 
         this.mGLContextAttrs = getGLContextAttrs();
         this.init();
-
-        if (mVideoHelper == null) {
-            mVideoHelper = new PenVideoHelper(this, mFrameLayout);
-        }
 
         Window window = this.getWindow();
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
