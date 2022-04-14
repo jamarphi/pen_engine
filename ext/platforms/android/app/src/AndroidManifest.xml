@@ -13,6 +13,9 @@
   <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
 
+  <!--This permission is needed for http requests, sockets, and media player requests-->
+  <!--<uses-permission android:name="android.permission.INTERNET" />-->
+
   <uses-feature android:glEsVersion="0x00020000" android:required="true"/>
 
   <application android:allowBackup="true">

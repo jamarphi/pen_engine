@@ -738,6 +738,15 @@ To close a connection do:
 
 ---------------------------------------------------------------------------
 
+# 1.8.1.6 - Android Sound
+
+In order to play sounds, the files have to be in the res/raw folder.
+To play a sound do:
+
+    Pen::android::sound::Play(std::string file, bool isMusic = false);
+
+---------------------------------------------------------------------------
+
 # 1.9 - AI
 
 For documentation on implementing AI go to ext/ai/README.md

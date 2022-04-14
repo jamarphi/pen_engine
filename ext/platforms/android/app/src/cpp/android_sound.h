@@ -31,7 +31,7 @@ extern "C" {
     namespace pen {
         namespace android {
             namespace sound {
-                static void Play(std::string file) {
+                static void Play(std::string file, bool isMusic = false) {
                     /*Connects to a server hosting a socket*/
 #ifdef __PEN_MOBILE__
                     if (file != "") {
@@ -42,7 +42,7 @@ extern "C" {
                             jmethodID methodID = env->GetStaticMethodID(mainClass, "playSound", "(Ljava/lang/String;I)V");
                             if (methodID != nullptr) {
                                 jstring javaFile = env->NewStringUTF(file);
-                                env->CallStaticVoidMethod(mainClass, methodID, javaFile);
+                                env->CallStaticVoidMethod(mainClass, methodID, javaFile, isMusic ? 1 : 0);
                                 env->DeleteLocalRef(javaFile);
                             }
                         }

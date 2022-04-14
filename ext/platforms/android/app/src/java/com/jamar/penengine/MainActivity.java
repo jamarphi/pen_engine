@@ -27,6 +27,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.KeyguardManager;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -34,10 +35,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.preference.PreferenceManager.OnActivityResultListener;
@@ -47,6 +51,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.jamar.penengine.PenHelper.PenHelperListener;
@@ -75,8 +80,8 @@ public class MainActivity extends Activity implements PenHelperListener {
     private boolean gainAudioFocus = false;
     private boolean paused = true;
     public PenBluetooth penBluetooth = null;
-    private MediaPlayer mainMediaPlayer = null;
-    private PenMediaService PenMediaService;
+    private static MediaPlayer mainMediaPlayer = null;
+    private static PenMediaService penMediaService;
 
     private static native void bluetoothConnEstablished();
 
@@ -192,14 +197,16 @@ public class MainActivity extends Activity implements PenHelperListener {
         }
     }
 
-    public static void playSound(String file){
+    public static void playSound(String file, int isMusic){
         /*Plays a sound given a file*/
-        Resources resources = sContext.getResources();
-        int resourceId = resources.getIdentifier(file, "raw",
-                sContext.getPackageName());
-        mainMediaPlayer = MediaPlayer.create(sContext, resourceId);
-        Intent intent = new Intent("com.jamar.penengine.PLAY");
-        penMediaService.onStart(intent, 0, 0);
+        try {
+            Resources resources = sContext.getResources();
+            int resourceId = resources.getIdentifier(file, "raw",
+                    sContext.getPackageName());
+            mainMediaPlayer = MediaPlayer.create(sContext, resourceId);
+            Intent intent = new Intent("com.jamar.penengine.PLAY");
+            penMediaService.onStart(intent, 0, isMusic);
+        }catch(Exception e){}
     }
     
     // ===========================================================
@@ -249,6 +256,7 @@ public class MainActivity extends Activity implements PenHelperListener {
 
         // Audio configuration
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        penMediaService = new PenMediaService();
     }
 
     //native method,call GLViewImpl::getGLContextAttrs() to get the OpenGL ES context attributions
@@ -539,18 +547,35 @@ public class MainActivity extends Activity implements PenHelperListener {
 
     public class PenMediaService extends Service implements MediaPlayer.OnPreparedListener {
         private static final String ACTION_PLAY = "com.jamar.penengine.PLAY";
-        MediaPlayer mediaPlayer = null;
+        public MediaPlayer mediaPlayer = null;
+        public MediaPlayer musicPlayer = null;
 
-        public int onStart(Intent intent, int flags, int startId) {
+        PenMediaService(){
+
+        }
+
+        public void onStart(Intent intent, int flags, int startId) {
             if (intent.getAction().equals(ACTION_PLAY)) {
-                mediaPlayer = mainMediaPlayer;
-                mediaPlayer.setOnPreparedListener(this);
-                mediaPlayer.prepareAsync();
+                if(startId == 1){
+                    musicPlayer = mainMediaPlayer;
+                    musicPlayer.setOnPreparedListener(this);
+                    musicPlayer.prepareAsync();
+                }else {
+                    mediaPlayer = mainMediaPlayer;
+                    mediaPlayer.setOnPreparedListener(this);
+                    mediaPlayer.prepareAsync();
+                }
             }
         }
 
         public void onPrepared(MediaPlayer player) {
             player.start();
+        }
+
+        @Nullable
+        @Override
+        public IBinder onBind(Intent intent) {
+            return null;
         }
     }
 }
