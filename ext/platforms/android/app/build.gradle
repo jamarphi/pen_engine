@@ -20,6 +20,7 @@ android {
                 /*
                 Linux: -DCMAKE_ANDROID_NDK=/home/user/Android/Sdk/ndk/20.0.5594570
                 Mac: -DCMAKE_ANDROID_NDK=/Users/user/Library/Android/sdk/ndk/20.0.5594570
+                Windows: -DCMAKE_ANDROID_NDK=C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570
                 */
                 arguments "-DCMAKE_SYSTEM_NAME=ANDROID", "-DCMAKE_ANDROID_API=28",
                         "-DANDROID_ABI=x86_64",
