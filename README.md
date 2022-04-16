@@ -561,14 +561,12 @@ sdk path:
 
     Linux: sdk.dir=/home/user/Android/Sdk
     Mac: sdk.dir=/Users/user/Library/Android/sdk
-    Windows: sdk.dir=C:/Users/user/AppData/Local/Android/Sdk
 
 Also set your ndk directory path like so, although this is claimed by Android to be deprecated in the future, this was necessary for ndk to find
 its library stripping tool:
 
     Linux: ndk.dir=/home/user/Android/Sdk/ndk/20.0.5594570
     Mac: ndk.dir=/Users/user/Library/Android/sdk/ndk/20.0.5594570
-    Windows: ndk.dir=C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570
 
 For getting this specific version of the ndk you have to install Android Studio, open pen_engine/ext/platforms/android as a project, go to Android Studio preferences -> Appearance & Behavior -> System Settings -> Android SDK -> SDK Tools and check the version number under NDK.
 
@@ -576,7 +574,6 @@ Also set your java jdk path in the gradle.properties file:
 
     Linux:  org.gradle.java.home=/usr/lib/jvm/java-11-openjdk-amd64
     Mac:  org.gradle.java.home=/Library/Java/JavaVirtualMachines/jdk-18.jdk/Contents/Home
-    Windows:  org.gradle.java.home=C:/Program Files/Java/jdk
 
 You are going to need the JAVA_HOME environment variable for Linux set as well, after you download openjdk call:
 
@@ -592,8 +589,6 @@ Once that is done install Android Studio, also install these packages for Linux:
 For Mac it would be:
 
     - brew install ninja
-
-If using Windows, download Cygwin with the GCC compiler in order to build the .so file.
 
 Make sure you have an internet connection because this will download any files needed for the build.
 This will build the apk files into a build/outputs/apk directory inside of the android directory.
