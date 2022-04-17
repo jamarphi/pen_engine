@@ -115,10 +115,10 @@ To load in texture files, add an std::string vector to CreateApplication():
 
     app.CreateApplication("App", SCR_WIDTH, SCR_HEIGHT, pen_engineDir, pathList);
 
-When doing this use sprite sheets in order to load more textures.  Once all the texture slots get used,
-for laptops it's 32, then you will get terrible performance when using textures not within that first 29 range.
-The first three slots are used for solid colors, bitmap font rendering, and texel drawing, so that means there are
-29 available texture slots left in this scenario.
+When doing this use sprite sheets in order to load more textures.  There are 32 available texture slots for 
+Windows and Linux.  There are 13 available texture slots for Mac.  The first three slots are used for solid 
+colors, bitmap font rendering, and texel drawing, so that means there are 29 available texture slots left 
+in this scenario for Windows and Linux, 10 available texture slots for Mac.
 
 When doing cross platform development, your file names for assets can only contain:
 
@@ -130,9 +130,13 @@ When passing in the Pen Engine Directory, make sure it's an absolute path such a
 
     C://Users/user/dev/project
 
-Or this on Linux:
+On Linux:
 
     /home/user/dev/project
+
+On Mac:
+
+    /Users/user/dev/project
 
 This means that Pen Engine is inside the project folder, this is used to find the textures if added to res/textures.
 
