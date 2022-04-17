@@ -28,7 +28,6 @@ under the License.
 /*For mobile graphics rendering*/
 //#define __PEN_MOBILE__
 
-/*I suggest using Linux if using Cmake, and using Visual Studio if using Windows*/
 #ifdef __PEN_CMAKE__
 #ifndef __PEN_LINUX__
 #define __PEN_LINUX__

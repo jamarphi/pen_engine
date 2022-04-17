@@ -16,23 +16,20 @@ android {
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
-            cmake {
-                /*
-                Linux: -DCMAKE_ANDROID_NDK=/home/user/Android/Sdk/ndk/20.0.5594570
-                Mac: -DCMAKE_ANDROID_NDK=/Users/user/Library/Android/sdk/ndk/20.0.5594570
-                */
+            /*
+             Linux: -DCMAKE_ANDROID_NDK=/home/user/Android/Sdk/ndk/20.0.5594570
+             Mac: -DCMAKE_ANDROID_NDK=/Users/user/Library/Android/sdk/ndk/20.0.5594570
+             */
+/*            cmake {
                 arguments "-DCMAKE_SYSTEM_NAME=ANDROID", "-DCMAKE_ANDROID_API=28",
                         "-DANDROID_ABI=x86_64",
                         "-DCMAKE_ANDROID_NDK=/Users/user/Library/Android/sdk/ndk/20.0.5594570",
                         "-DCMAKE_ANDROID_STL_TYPE=gnustl_static"
-            }
+            }*/
         }
     }
 
     sourceSets.main {
-        java.srcDir "src/java"
-        manifest.srcFile "src/AndroidManifest.xml"
-
         /*
         * arm64-v8a (64 bit)
         * armeabi (32 bit)
@@ -42,18 +39,16 @@ android {
         * x86 (32 bit)
         * x86_64 (64 bit)
         */
-        jniLibs.srcDirs = ["src/main/jniLibs"]
+        java.srcDir "src/java"
+        manifest.srcFile "src/AndroidManifest.xml"
     }
 
 /*    signingConfigs {
-
         release {
-
             storeFile file('../../android-release-key.keystore')
             storePassword "yourpassword"
             keyAlias "youralias"
             keyPassword "yourkeypass"
-
         }
     }*/
 
@@ -71,10 +66,11 @@ android {
     }
 
     externalNativeBuild {
-        cmake {
+        /*Linux & Mac*/
+/*        cmake {
             path "../../../../CMakeLists.txt"
             version "3.16.3"
-        }
+        }*/
     }
 
     buildFeatures {

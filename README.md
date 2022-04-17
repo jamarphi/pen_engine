@@ -545,11 +545,11 @@ The PC function would remain the same with the while loop:
         }
     }
 
-To get started building .apk files, first go to pen_engine/state/config.h and uncomment this line:
+To get started building .apk files, if on Mac or Linux, first go to pen_engine/state/config.h and uncomment this line:
 
     //define __PEN_CMAKE__
 
-As well as this line:
+Uncomment this line for Windows, Linux, and Mac:
 
     //#define __PEN_MOBILE__
 
@@ -565,12 +565,14 @@ sdk path:
 
     Linux: sdk.dir=/home/user/Android/Sdk
     Mac: sdk.dir=/Users/user/Library/Android/sdk
+    Windows: sdk.dir=C\:/Users/user/AppData/Local/Android/Sdk
 
 Also set your ndk directory path like so, although this is claimed by Android to be deprecated in the future, this was necessary for ndk to find
 its library stripping tool:
 
     Linux: ndk.dir=/home/user/Android/Sdk/ndk/20.0.5594570
     Mac: ndk.dir=/Users/user/Library/Android/sdk/ndk/20.0.5594570
+    Windows: ndk.dir=C\:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570
 
 For getting this specific version of the ndk you have to install Android Studio, open pen_engine/ext/platforms/android as a project, go to Android Studio preferences -> Appearance & Behavior -> System Settings -> Android SDK -> SDK Tools and check the version number under NDK.
 
@@ -578,6 +580,7 @@ Also set your java jdk path in the gradle.properties file:
 
     Linux:  org.gradle.java.home=/usr/lib/jvm/java-11-openjdk-amd64
     Mac:  org.gradle.java.home=/Library/Java/JavaVirtualMachines/jdk-18.jdk/Contents/Home
+    Windows: org.gradle.java.home=C\:/Program Files/Java/jdk
 
 You are going to need the JAVA_HOME environment variable for Linux set as well, after you download openjdk call:
 
@@ -597,18 +600,58 @@ For Mac it would be:
 Make sure you have an internet connection because this will download any files needed for the build.
 This will build the apk files into a build/outputs/apk directory inside of the android directory.
 
-For signed apks in pen_engine/ext/platforms/android/app/gradle.build, you will have to uncomment and add your key store 
+For Linux and Mac, be sure to uncomment the cmake blocks in pen_engine/ext/platforms/android/app/build.gradle.  If
+on Windows then comment these out:
+
+    android {
+        ...
+        defaultConfig {
+            ...
+            externalNativeBuild {
+                 /*cmake {
+                    arguments "-DCMAKE_SYSTEM_NAME=ANDROID", "-DCMAKE_ANDROID_API=28",
+                            "-DANDROID_ABI=x86_64",
+                            "-DCMAKE_ANDROID_NDK=/Users/user/Library/Android/sdk/ndk/20.0.5594570",
+                            "-DCMAKE_ANDROID_STL_TYPE=gnustl_static"
+                }*/
+            }
+        }
+
+        ...
+        externalNativeBuild {
+            /*Linux & Mac*/
+            /*cmake {
+                path "../../../../CMakeLists.txt"
+                version "3.16.3"
+            }*/
+        }
+    }
+
+If on Windows ndk-build gets used instead of cmake.  By default the source file location will be set one directory
+outside of pen_engine, but it can be changed in pen_engine/ext/platforms/android/app/src/main/jni/Android.mk
+
+If on Windows the APP_PROJECT_PATH and NDK_PROJECT_PATH variables have to be updated in
+pen_engine/ext/platforms/android/app/src/main/jni/Application.mk:
+
+    #Replace path with root to pen_engine
+    APP_PROJECT_PATH := path/pen_engine/ext/platforms/android
+
+    #Absolute path to the ndk
+    NDK_PROJECT_PATH := C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570
+
+
+For signed apks in pen_engine/ext/platforms/android/app/build.gradle, you will have to uncomment the signingConfigs block and add your key store 
 file and information here:
 
-    signingConfigs {
-
-        release {
-
-            storeFile file('path_relative_to_pen_engine/ext/platforms/android/app')
-            storePassword "yourpassword"
-            keyAlias "youralias"
-            keyPassword "yourkeypass"
-
+    android {
+        ...
+        signingConfigs {
+            release {
+                storeFile file('path_relative_to_pen_engine/ext/platforms/android/app')
+                storePassword "yourpassword"
+                keyAlias "youralias"
+                keyPassword "yourkeypass"
+            }
         }
     }
 
