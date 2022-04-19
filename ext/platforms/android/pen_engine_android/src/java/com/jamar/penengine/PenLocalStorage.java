@@ -29,19 +29,12 @@ import android.util.Log;
 
 public class PenLocalStorage {
 
-    private static final String TAG = "PenLocalStorage";
-
     private static String DATABASE_NAME = "jsb.sqlite";
     private static String TABLE_NAME = "data";
-    private static final int DATABASE_VERSION = 1;
-    
+    private static final int DATABASE_VERSION = 1;  
     private static DBOpenHelper mDatabaseOpenHelper = null;
     private static SQLiteDatabase mDatabase = null;
-    /**
-     * Constructor
-     * @param context The Context within which to work, used to create the DB
-     * @return 
-     */
+
     public static boolean init(String dbName, String tableName) {
         if (MainActivity.getContext() != null) {
             DATABASE_NAME = dbName;
@@ -74,10 +67,8 @@ public class PenLocalStorage {
         String sql = "select value from "+TABLE_NAME+" where key=?";
         Cursor c = mDatabase.rawQuery(sql, new String[]{key});  
         while (c.moveToNext()) {
-            // only return the first value
             if (ret != null) 
             {
-                Log.e(TAG, "The key contains more than one value.");
                 break;
             }
             ret = c.getString(c.getColumnIndex("value"));  
@@ -119,9 +110,6 @@ public class PenLocalStorage {
         }
         
         @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
-                    + newVersion + ", which will destroy all old data");
-        }
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
     }
 }

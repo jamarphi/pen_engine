@@ -36,12 +36,9 @@ class PenAudioFocusManager {
             new AudioManager.OnAudioFocusChangeListener() {
                 public void onAudioFocusChange(int focusChange) {
 
-                    Log.d(TAG, "onAudioFocusChange: " + focusChange + ", thread: " + Thread.currentThread().getName());
-
                     if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
                         // Permanent loss of audio focus
                         // Pause playback immediately
-                        Log.d(TAG, "Pause music by AUDIOFOCUS_LOSS");
                         PenHelper.runOnGLThread(new Runnable() {
                             @Override
                             public void run() {
@@ -51,7 +48,6 @@ class PenAudioFocusManager {
 
                     } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
                         // Pause playback
-                        Log.d(TAG, "Pause music by AUDIOFOCUS_LOSS_TRANSILENT");
                         PenHelper.runOnGLThread(new Runnable() {
                             @Override
                             public void run() {
@@ -60,7 +56,6 @@ class PenAudioFocusManager {
                         });
                     } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
                         // Lower the volume, keep playing
-                        Log.d(TAG, "Lower the volume, keep playing by AUDIOFOCUS_LOSS_TRANSILENT_CAN_DUCK");
                         PenHelper.runOnGLThread(new Runnable() {
                             @Override
                             public void run() {
@@ -70,7 +65,6 @@ class PenAudioFocusManager {
                     } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
                         // Your pen_engine_android has been granted audio focus again
                         // Raise volume to normal, restart playback if necessary
-                        Log.d(TAG, "Resume music by AUDIOFOCUS_GAIN");
                         PenHelper.runOnGLThread(new Runnable() {
                             @Override
                             public void run() {
@@ -92,23 +86,15 @@ class PenAudioFocusManager {
                 AudioManager.AUDIOFOCUS_GAIN);
 
         if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            Log.d(TAG, "requestAudioFocus succeed");
             return true;
         }
 
-        Log.e(TAG, "requestAudioFocus failed!");
         return false;
     }
 
     static void unregisterAudioFocusListener(Context context) {
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         int result = am.abandonAudioFocus(sAfChangeListener);
-        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            Log.d(TAG, "abandonAudioFocus succeed!");
-        } else {
-            Log.e(TAG, "abandonAudioFocus failed!");
-        }
-
         PenHelper.runOnGLThread(new Runnable() {
             @Override
             public void run() {

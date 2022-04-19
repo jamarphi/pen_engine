@@ -33,6 +33,9 @@ under the License.
 #include <abs_asset_dir_config.h>
 #endif
 
+static int __deviceSampleRate = 44100;
+static int __deviceAudioBufferSizeInFrames = 192;
+
 extern "C" {
 
 #if __ANDROID_API__ > 19
@@ -158,6 +161,11 @@ extern "C" {
         if (pen::State::Get()->mobileOnBluetoothCallback != nullptr) {
             (*pen::State::Get()->mobileOnBluetoothCallback)();
         }
+    }
+
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenHelper_nativeSetAudioDeviceInfo(JNIEnv* env, jclass obj, jboolean isSupportLowLatency, jint deviceSampleRate, jint deviceAudioBufferSizeInFrames) {
+        __deviceSampleRate = deviceSampleRate;
+        __deviceAudioBufferSizeInFrames = deviceAudioBufferSizeInFrames;
     }
 }
 #endif

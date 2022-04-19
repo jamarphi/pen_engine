@@ -28,18 +28,9 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 public class PenSurfaceView extends GLSurfaceView {
-    // ===========================================================
-    // Constants
-    // ===========================================================
-
-    private static final String TAG = PenSurfaceView.class.getSimpleName();
 
     private final static int HANDLER_OPEN_IME_KEYBOARD = 2;
     private final static int HANDLER_CLOSE_IME_KEYBOARD = 3;
-
-    // ===========================================================
-    // Fields
-    // ===========================================================
 
     private static PenSurfaceView mPenSurfaceView;
 
@@ -95,10 +86,6 @@ public class PenSurfaceView extends GLSurfaceView {
     private String getContentText() {
         return "";
     }
-
-    // ===========================================================
-    // Methods for/from SuperClass/Interfaces
-    // ===========================================================
 
     @Override
     public void onResume() {
@@ -323,14 +310,6 @@ public class PenSurfaceView extends GLSurfaceView {
         }
     }
 
-    // ===========================================================
-    // Methods
-    // ===========================================================
-
-    // ===========================================================
-    // Inner and Anonymous Classes
-    // ===========================================================
-
     private static void dumpMotionEvent(final MotionEvent event) {
         final String names[] = { "DOWN", "UP", "MOVE", "CANCEL", "OUTSIDE", "POINTER_DOWN", "POINTER_UP", "7?", "8?", "9?" };
         final StringBuilder sb = new StringBuilder();
@@ -352,6 +331,5 @@ public class PenSurfaceView extends GLSurfaceView {
             }
         }
         sb.append("]");
-        Log.d(PenSurfaceView.TAG, sb.toString());
     }
 }

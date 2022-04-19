@@ -32,8 +32,6 @@ import android.view.WindowManager;
 
 public class PenAccelerometer implements SensorEventListener {
 
-    private static final String TAG = PenAccelerometer.class.getSimpleName();
-
     private final Context mContext;
     private final SensorManager mSensorManager;
     private final Sensor mAccelerometer;
@@ -114,12 +112,6 @@ public class PenAccelerometer implements SensorEventListener {
             }
 
             PenSurfaceView.queueAccelerometer(x,y,z,sensorEvent.timestamp);
-
-            /*
-            if(BuildConfig.DEBUG) {
-                Log.d(TAG, "x = " + sensorEvent.values[0] + " y = " + sensorEvent.values[1] + " z = " + pSensorEvent.values[2]);
-            }
-            */
         }
         else if (sensorEvent.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             // needed by VR code
@@ -133,14 +125,5 @@ public class PenAccelerometer implements SensorEventListener {
     public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
     }
 
-    // ===========================================================
-    // Methods
-        // Native method called from PenSurfaceView (To be in the same thread)
-    // ===========================================================
-
     public static native void onSensorChanged(final float x, final float y, final float z, final long timestamp);
-
-    // ===========================================================
-    // Inner and Anonymous Classes
-    // ===========================================================
 }

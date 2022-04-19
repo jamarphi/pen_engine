@@ -61,16 +61,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
 
 public class MainActivity extends Activity implements PenHelperListener {
-    // ===========================================================
-    // Constants
-    // ===========================================================
 
-    private final static String TAG = MainActivity.class.getSimpleName();
-
-    // ===========================================================
-    // Fields
-    // ===========================================================
-    
     private PenSurfaceView mGLSurfaceView = null;
     private int[] mGLContextAttrs = null;
     private static MainActivity sContext = null;
@@ -81,6 +72,7 @@ public class MainActivity extends Activity implements PenHelperListener {
     public PenBluetooth penBluetooth = null;
     private static MediaPlayer mainMediaPlayer = null;
     private static PenMediaService penMediaService;
+    protected ResizeLayout mFrameLayout = null;
 
     private static native void bluetoothConnEstablished();
 
@@ -207,10 +199,6 @@ public class MainActivity extends Activity implements PenHelperListener {
             penMediaService.onStart(intent, 0, isMusic);
         }catch(Exception e){}
     }
-    
-    // ===========================================================
-    // Constructors
-    // ===========================================================
 
     @SuppressLint("MissingPermission")
     @Override
@@ -222,7 +210,6 @@ public class MainActivity extends Activity implements PenHelperListener {
             //  so just quietly finish and go away, dropping the user back into the activity
             //  at the top of the stack (ie: the last state of this task)
             finish();
-            Log.w(TAG, "[Workaround] Ignore the activity started from icon!");
             return;
         }
 
@@ -257,17 +244,8 @@ public class MainActivity extends Activity implements PenHelperListener {
     //native method,call GLViewImpl::getGLContextAttrs() to get the OpenGL ES context attributions
     private static native int[] getGLContextAttrs();
 
-    // ===========================================================
-    // Getter & Setter
-    // ===========================================================
-
-    // ===========================================================
-    // Methods for/from SuperClass/Interfaces
-    // ===========================================================
-
     @Override
     protected void onResume() {
-    	Log.d(TAG, "onResume()");
         paused = false;
         super.onResume();
         if(gainAudioFocus)
@@ -278,7 +256,6 @@ public class MainActivity extends Activity implements PenHelperListener {
     
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-    	Log.d(TAG, "onWindowFocusChanged() hasFocus=" + hasFocus);
         super.onWindowFocusChanged(hasFocus);
         
         this.hasFocus = hasFocus;
@@ -299,7 +276,6 @@ public class MainActivity extends Activity implements PenHelperListener {
 
     @Override
     protected void onPause() {
-    	Log.d(TAG, "onPause()");
         paused = true;
         super.onPause();
         if(gainAudioFocus)
@@ -336,11 +312,6 @@ public class MainActivity extends Activity implements PenHelperListener {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
-    protected ResizeLayout mFrameLayout = null;
-    // ===========================================================
-    // Methods
-    // ===========================================================
     public void init() {
         
         // FrameLayout
@@ -414,21 +385,17 @@ public class MainActivity extends Activity implements PenHelperListener {
                         new Class[]{Integer.TYPE},
                         parameters);
             } catch (NullPointerException e) {
-                Log.e(TAG, "hideVirtualButton", e);
+                Log.e("MainActivity", "hideVirtualButton", e);
             }
         }
     }
 
    private static boolean isAndroidEmulator() {
-      String model = Build.MODEL;
-      Log.d(TAG, "model=" + model);
       String product = Build.PRODUCT;
-      Log.d(TAG, "product=" + product);
       boolean isEmulator = false;
       if (product != null) {
          isEmulator = product.equals("sdk") || product.contains("_sdk") || product.contains("sdk_");
       }
-      Log.d(TAG, "isEmulator=" + isEmulator);
       return isEmulator;
    }
 
@@ -449,10 +416,6 @@ public class MainActivity extends Activity implements PenHelperListener {
             return !powerManager.isScreenOn();
         }
     }
-    
-    // ===========================================================
-    // Inner and Anonymous Classes
-    // ===========================================================
 
     private class PenEGLConfigChooser implements GLSurfaceView.EGLConfigChooser
     {
