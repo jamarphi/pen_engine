@@ -36,7 +36,7 @@ Then install Cmake and create a build directory in the root of Pen Engine.
 
 Go into the CMakeLists.txt file in the root and modify the add_executable line to your main cpp file:
 
-    add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "../App.cpp")
+    add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "../app.cpp")
 
 Next cd into the build directory and call:
 
@@ -507,7 +507,7 @@ If setting your app orientation horizontal, also add this to the MainActivity ta
 The GLSurfaceView orientation can not be changed at run time otherwise it will mess up the resources and crash.
 
 Pen Engine looks for this instantiation in app.h, but you can change the name of that file include in 
-pen_engine/ext/platforms/android/app/src/cpp/function_mapping.cpp.
+pen_engine/ext/platforms/android/pen_engine_android/src/cpp/function_mapping.cpp.
 
 There is a difference for how you would do the mobile render callback function for android though, notice instead of
 a while loop for PC, you do an if statement:
@@ -600,8 +600,8 @@ For Mac it would be:
 Make sure you have an internet connection because this will download any files needed for the build.
 This will build the apk files into a build/outputs/apk directory inside of the android directory.
 
-For Linux and Mac, be sure to uncomment the cmake blocks in pen_engine/ext/platforms/android/app/build.gradle.  If
-on Windows then comment these out:
+For Linux and Mac, be sure to uncomment the cmake blocks and comment out the ndkBuild block in pen_engine/ext/platforms/android/pen_engine_android/build.gradle.  If
+on Windows then comment the cmake blocks out and uncomment the ndkBuild block:
 
     android {
         ...
@@ -624,14 +624,19 @@ on Windows then comment these out:
                 path "../../../../CMakeLists.txt"
                 version "3.16.3"
             }*/
+
+            /*Windows*/
+            ndkBuild {
+                path "src/main/jni/Android.mk"
+            }
         }
     }
 
 If on Windows ndk-build gets used instead of cmake.  By default the source file location will be set one directory
-outside of pen_engine, but it can be changed in pen_engine/ext/platforms/android/app/src/main/jni/Android.mk
+outside of pen_engine, but it can be changed in pen_engine/ext/platforms/android/pen_engine_android/src/main/jni/Android.mk
 
 If on Windows the APP_PROJECT_PATH and NDK_PROJECT_PATH variables have to be updated in
-pen_engine/ext/platforms/android/app/src/main/jni/Application.mk:
+pen_engine/ext/platforms/android/pen_engine_android/src/main/jni/Application.mk:
 
     #Replace path with root to pen_engine
     APP_PROJECT_PATH := path/pen_engine/ext/platforms/android
@@ -639,15 +644,19 @@ pen_engine/ext/platforms/android/app/src/main/jni/Application.mk:
     #Absolute path to the ndk
     NDK_PROJECT_PATH := C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570
 
+If your main .cpp file is different from app.cpp, update PC_INT_MAIN in
+pen_engine/ext/platforms/android/pen_engine_android/src/main/jni/Android.mk:
 
-For signed apks in pen_engine/ext/platforms/android/app/build.gradle, you will have to uncomment the signingConfigs block and add your key store 
+    PC_INT_MAIN := app.cpp
+
+For signed apks in pen_engine/ext/platforms/android/pen_engine_android/build.gradle, you will have to uncomment the signingConfigs block and add your key store 
 file and information here:
 
     android {
         ...
         signingConfigs {
             release {
-                storeFile file('path_relative_to_pen_engine/ext/platforms/android/app')
+                storeFile file('path_relative_to_pen_engine/ext/platforms/android/pen_engine_android')
                 storePassword "yourpassword"
                 keyAlias "youralias"
                 keyPassword "yourkeypass"
@@ -688,7 +697,7 @@ If you want to perform manipulation of persisted memory for your android applica
 # 1.8.1.2 - Native Key Events For Android
 
 If you want to do native key events for android, first go 
-to pen_engine/ext/platforms/android/app/src/java/com/jamar/penengine/PenSurfaceRenderer.java.
+to pen_engine/ext/platforms/android/pen_engine_android/src/java/com/jamar/penengine/PenSurfaceRenderer.java.
 Once you do that, create a method called nativeOnKeyPress:
     
     private static native String nativeOnKeyPress(final int keyCode,boolean isPressed);
@@ -729,7 +738,7 @@ You can also load in a directory in assets by doing:
 
 # 1.8.1.5 - Android Bluetooth
 
-If using bluetooth the permissions in pen_engine/ext/platforms/android/app/src/AndroidManifest.xml should be uncommented.
+If using bluetooth the permissions in pen_engine/ext/platforms/android/pen_engine_android/src/AndroidManifest.xml should be uncommented.
 For connecting to other devices via bluetooth, first search for available devices:
 
     pen::android::conn::bt::Search(const char* deviceName);

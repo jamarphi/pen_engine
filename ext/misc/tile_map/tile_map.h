@@ -80,7 +80,7 @@ namespace pen {
 
 			std::ifstream tileFile(fileName, std::ios::out | std::ios::binary);
 			if (tileFile.is_open()) {
-				char tileCountValue = 1000001;
+				char tileCountValue = (char)1000;
 				int tileCount = 1;
 				for (int i = 0; i < tileCount; i++) {
 					if (i == 0) {

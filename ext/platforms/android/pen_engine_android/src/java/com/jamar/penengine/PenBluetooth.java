@@ -111,7 +111,7 @@ public class PenBluetooth {
            // because mmServerSocket is final.
            BluetoothServerSocket tmp = null;
            try {
-               // PEN_UUID is the app's UUID string, also used by the client code.
+               // PEN_UUID is the pen_engine_android's UUID string, also used by the client code.
                tmp = adapter.listenUsingRfcommWithServiceRecord("PEN_ENGINE", PEN_UUID);
            } catch (IOException e) {
                Log.e(TAG, "Socket's listen() method failed", e);
@@ -168,7 +168,7 @@ public class PenBluetooth {
 
             try {
                 // Get a BluetoothSocket to connect with the given BluetoothDevice.
-                // PEN_UUID is the app's UUID string, also used in the server code.
+                // PEN_UUID is the pen_engine_android's UUID string, also used in the server code.
                 tmp = device.createRfcommSocketToServiceRecord(PEN_UUID);
             } catch (IOException e) {
                 Log.e(TAG, "Socket's create() method failed", e);

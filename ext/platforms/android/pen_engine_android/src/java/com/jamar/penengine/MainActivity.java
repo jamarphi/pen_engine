@@ -145,7 +145,7 @@ public class MainActivity extends Activity implements PenHelperListener {
     protected void onLoadNativeLibraries() {
         try {
             /*Path to generated lib*/
-            System.loadLibrary("PEN_ENGINE_ANDROID_LIB");
+            System.loadLibrary("pen_engine_android");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -286,7 +286,7 @@ public class MainActivity extends Activity implements PenHelperListener {
     }
     
     private void resumeIfHasFocus() {
-        //It is possible for the app to receive the onWindowsFocusChanged(true) event
+        //It is possible for the pen_engine_android to receive the onWindowsFocusChanged(true) event
         //even though it is locked or asleep
         boolean readyToPlay = !isDeviceLocked() && !isDeviceAsleep();
 

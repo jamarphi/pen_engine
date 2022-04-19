@@ -32,14 +32,9 @@ static int __deviceAudioBufferSizeInFrames = 192;
 static std::string g_apkPath;
 
 extern "C" {
-
-    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenHelper_nativeSetContext(JNIEnv* env, jobject obj, jobject context, jobject assetManager) {
-    }
-
-    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenHelper_nativeSetAudioDeviceInfo(JNIEnv* env, jobject obj, jboolean isSupportLowLatency, jint deviceSampleRate, jint deviceAudioBufferSizeInFrames) {
+    JNIEXPORT void JNICALL Java_com_jamar_penengine_PenHelper_nativeSetAudioDeviceInfo(JNIEnv* env, jclass obj, jboolean isSupportLowLatency, jint deviceSampleRate, jint deviceAudioBufferSizeInFrames) {
         __deviceSampleRate = deviceSampleRate;
         __deviceAudioBufferSizeInFrames = deviceAudioBufferSizeInFrames;
     }
-
 }
 #endif

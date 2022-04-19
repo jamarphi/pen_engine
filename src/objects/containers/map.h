@@ -20,6 +20,7 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include <vector>
+#include <iostream>
 
 namespace pen {
 	template <typename T, typename W> struct Pair {

@@ -18,7 +18,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-//#include "jni/jni.h"
 #include "../../../../../../src/pen_engine.h"
 
 #ifdef __PEN_MOBILE__
@@ -60,6 +59,7 @@ extern "C" {
 
     JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
     {
+        pen::android::AppLog("versionnnnnnnn...");
         return JNI_VERSION_1_4;
     }
 
@@ -81,7 +81,7 @@ extern "C" {
             std::string rootDir = ROOT_DIR;
 
             /*"pen_engine/" is removed at the end since it will be added on later*/
-            app->CreateApplication("App", w, h, rootDir.substr(0, rootDir.length() - 11));
+            app->CreateApplication("App", w, h, rootDir != "" ? rootDir.substr(0, rootDir.length() - 11) : "");
 
             pen::State::Get()->mobileActive = true;
             glViewport(0, 0, w, h);
@@ -107,7 +107,9 @@ extern "C" {
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeRender(JNIEnv* env, jclass obj) {
         /*Happens each frame*/
-        if (pen::State::Get()->handleMobileRender != nullptr) (*pen::State::Get()->handleMobileRender)();
+        if (pen::State::Get()->handleMobileRender != nullptr) {
+            (*pen::State::Get()->handleMobileRender)();
+        }
     }
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeOnPause(JNIEnv* env, jclass obj) {
@@ -147,9 +149,7 @@ extern "C" {
     JNIEXPORT jboolean JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_isPixelDrawn(JNIEnv* env, jclass obj) {
         /*Returns true if pixel has been drawn to pixel buffer*/
         jboolean pixelDrawn = (jboolean)pen::State::Get()->pixelDrawn;
-
         if (pen::State::Get()->pixelDrawn) pen::State::Get()->pixelDrawn = false;
-
         return pixelDrawn;
     }
 

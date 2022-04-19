@@ -150,7 +150,7 @@ namespace pen {
 					return jsonList;
 				}
 				else {
-					children;
+					return children;
 				}
 			}
 
@@ -272,6 +272,7 @@ namespace pen {
 						}
 					}
 				}
+				return arrayList;
 			}
 		};
 

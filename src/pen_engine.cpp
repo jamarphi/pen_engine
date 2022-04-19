@@ -96,7 +96,7 @@ namespace pen {
         stateInst->debug = debug;
 
         /*Get the allowed number of textures*/
-        int textureUnits;
+        int textureUnits = 0;
         glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &textureUnits);
         stateInst->textureUnits = textureUnits / 6;
 
@@ -522,14 +522,15 @@ namespace pen {
         double* xPos = &x;
         double* yPos = &y;
         Pen::GetMousePos(xPos, yPos);
-
         if (pen::State::Get()->mobileOnClickCallback != nullptr) (*pen::State::Get()->mobileOnClickCallback)(*xPos, *yPos);
     }
+#endif
 
     void Pen::SetMobileCallbacks(void (*onRenderCallback)(), void (*onClickCallback)(double, double), void (*onResumeCallback)(),
         void (*onPauseCallback)(), void (*onKeyCallback)(char), void (*onTiltCallback)(double, double, double, double),
         void (*onBluetoothCallback)()) {
         /*Sets the mobile callback functions for mobile devices*/
+#ifdef __PEN_MOBILE__
         pen::State* inst = pen::State::Get();
         inst->handleMobileRender = onRenderCallback;
         inst->mobileOnClickCallback = onClickCallback;
@@ -544,15 +545,16 @@ namespace pen {
         pen::Asset::Add(pen::Asset("fonts/bitmap.png"));
         pen::Asset::assetMap.Find(1)->second.name = "fonts/bitmap.png";
         pen::Asset::Add(pen::Asset("pixel"));
+#endif
     }
 
     void Pen::SetMobileTextures(const std::vector<std::string>& textureList) {
         /*Adds texture list for mobile to load in*/
+#ifdef __PEN_MOBILE__
         pen::State::Get()->mobileTextureNameList = textureList;
-
         for (int i = 0; i < textureList.size(); i++) {
             pen::Asset::Add(pen::Asset(textureList[i]));
         }
-    }
 #endif
+    }
 }

@@ -31,21 +31,22 @@ extern "C" {
 			namespace db {
 				bool AndroidDBStart(const char* dbName, const char* tableName) {
 					/*Initialize the database on the Java end*/
-					jclass localStorageClass = AndroidDB::env->FindClass(
+					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
+					jclass localStorageClass = env->FindClass(
 						"com/jamar/penengine/PenLocalStorage");
 					if (localStorageClass != nullptr) {
-						jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
+						jmethodID methodID = env->GetStaticMethodID(localStorageClass,
 							"init",
 							"(Ljava/lang/String;Ljava/lang/String;)B");
 						if (methodID != nullptr) {
-							jstring javaDBName = AndroidDB::env->NewStringUTF(dbName);
-							jstring javaTableName = AndroidDB::env->NewStringUTF(tableName);
+							jstring javaDBName = env->NewStringUTF(dbName);
+							jstring javaTableName = env->NewStringUTF(tableName);
 
-							bool success = AndroidDB::env->CallStaticBooleanMethod(
+							bool success = env->CallStaticBooleanMethod(
 								localStorageClass, methodID, javaDBName, javaTableName);
 
-							AndroidDB::env->DeleteLocalRef(javaDBName);
-							AndroidDB::env->DeleteLocalRef(javaTableName);
+							env->DeleteLocalRef(javaDBName);
+							env->DeleteLocalRef(javaTableName);
 
 							return success;
 						}
@@ -55,56 +56,59 @@ extern "C" {
 
 				void AndroidDBClose() {
 					/*Close the database connection*/
-					jclass localStorageClass = AndroidDB::env->FindClass(
+					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
+					jclass localStorageClass = env->FindClass(
 						"com/jamar/penengine/PenLocalStorage");
 					if (localStorageClass != nullptr) {
-						jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
+						jmethodID methodID = env->GetStaticMethodID(localStorageClass,
 							"destroy", "()V");
 						if (methodID != nullptr) {
-							AndroidDB::env->CallStaticVoidMethod(localStorageClass, methodID);
+							env->CallStaticVoidMethod(localStorageClass, methodID);
 						}
 					}
 				}
 
 				void AndroidDBSetItem(const char* key, const char* value) {
 					/*Adds or updates key value in database*/
-					jclass localStorageClass = AndroidDB::env->FindClass(
+					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
+					jclass localStorageClass = env->FindClass(
 						"com/jamar/penengine/PenLocalStorage");
 					if (localStorageClass != nullptr) {
-						jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
+						jmethodID methodID = env->GetStaticMethodID(localStorageClass,
 							"setItem",
 							"(Ljava/lang/String;Ljava/lang/String;)V");
 						if (methodID != nullptr) {
-							jstring javaKey = AndroidDB::env->NewStringUTF(key);
-							jstring javaValue = AndroidDB::env->NewStringUTF(value);
+							jstring javaKey = env->NewStringUTF(key);
+							jstring javaValue = env->NewStringUTF(value);
 
-							AndroidDB::env->CallStaticVoidMethod(localStorageClass, methodID, javaKey,
+							env->CallStaticVoidMethod(localStorageClass, methodID, javaKey,
 								javaValue);
 
-							AndroidDB::env->DeleteLocalRef(javaKey);
-							AndroidDB::env->DeleteLocalRef(javaValue);
+							env->DeleteLocalRef(javaKey);
+							env->DeleteLocalRef(javaValue);
 						}
 					}
 				}
 
 				std::string AndroidDBGetItem(const char* key) {
 					/*Retrieve item from database*/
-					jclass localStorageClass = AndroidDB::env->FindClass(
+					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
+					jclass localStorageClass = env->FindClass(
 						"com/jamar/penengine/PenLocalStorage");
 					if (localStorageClass != nullptr) {
-						jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
+						jmethodID methodID = env->GetStaticMethodID(localStorageClass,
 							"getItem",
 							"(Ljava/lang/String;)V");
 						if (methodID != nullptr) {
-							jstring javaKey = AndroidDB::env->NewStringUTF(key);
+							jstring javaKey = env->NewStringUTF(key);
 
-							jstring javaValue = (jstring)AndroidDB::env->CallStaticObjectMethod(
+							jstring javaValue = (jstring)env->CallStaticObjectMethod(
 								localStorageClass, methodID, javaKey);
-							const char* javaValueStrArr = AndroidDB::env->GetStringUTFChars(javaValue,
+							const char* javaValueStrArr = env->GetStringUTFChars(javaValue,
 								0);
 
-							AndroidDB::env->DeleteLocalRef(javaKey);
-							AndroidDB::env->DeleteLocalRef(javaValue);
+							env->DeleteLocalRef(javaKey);
+							env->DeleteLocalRef(javaValue);
 
 							std::string javaValueStr = javaValueStrArr;
 							return javaValueStr;
@@ -116,31 +120,33 @@ extern "C" {
 
 				void AndroidDBRemoveItem(const char* key) {
 					/*Remove key from database*/
-					jclass localStorageClass = AndroidDB::env->FindClass(
+					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
+					jclass localStorageClass = env->FindClass(
 						"com/jamar/penengine/PenLocalStorage");
 					if (localStorageClass != nullptr) {
-						jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
+						jmethodID methodID = env->GetStaticMethodID(localStorageClass,
 							"removeItem",
 							"(Ljava/lang/String;)V");
 						if (methodID != nullptr) {
-							jstring javaKey = AndroidDB::env->NewStringUTF(key);
+							jstring javaKey = env->NewStringUTF(key);
 
-							AndroidDB::env->CallStaticVoidMethod(localStorageClass, methodID, javaKey);
+							env->CallStaticVoidMethod(localStorageClass, methodID, javaKey);
 
-							AndroidDB::env->DeleteLocalRef(javaKey);
+							env->DeleteLocalRef(javaKey);
 						}
 					}
 				}
 
 				void AndroidDBDeleteTable() {
+					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
 					/*Delete the table from database*/
-					jclass localStorageClass = AndroidDB::env->FindClass(
+					jclass localStorageClass = env->FindClass(
 						"com/jamar/penengine/PenLocalStorage");
 					if (localStorageClass != nullptr) {
-						jmethodID methodID = AndroidDB::env->GetStaticMethodID(localStorageClass,
+						jmethodID methodID = env->GetStaticMethodID(localStorageClass,
 							"clear", "()V");
 						if (methodID != nullptr) {
-							AndroidDB::env->CallStaticVoidMethod(localStorageClass, methodID);
+							env->CallStaticVoidMethod(localStorageClass, methodID);
 						}
 					}
 				}

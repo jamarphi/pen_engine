@@ -20,6 +20,8 @@ under the License.
 *************************************************************************************************/
 
 #pragma once
+#include "../../../../../../src/state/state.h"
+
 #ifdef __PEN_MOBILE__
 
 #include <cstring>
@@ -53,6 +55,7 @@ extern "C" {
             pathList.push_back(inputStr);
         }
         AAssetDir_close(dir);
+        return pathList;
     }
 }
 #endif

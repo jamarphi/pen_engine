@@ -44,7 +44,7 @@ namespace pen {
             std::vector<float> bufferPositions;
             unsigned int shapeType;
             pen::Vec4 color;
-            std::vector<Item*> childItems;
+            std::vector<pen::ui::Item*> childItems;
             float itemScaling = 1.0f;
            pen::ui::Item* parent;
             bool isActive = false;

@@ -22,7 +22,7 @@ under the License.
 #include "state.h"
 #include "../objects/containers/map.h"
 #ifdef __PEN_MOBILE__
-#include "../../ext/platforms/android/app/src/cpp/android_asset.h"
+#include "../../ext/platforms/android/pen_engine_android/src/cpp/android_asset.h"
 #endif
 
 #define ASSET_REGEX "#$#"

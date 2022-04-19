@@ -74,9 +74,8 @@ extern "C" {
                                 }
                             }
                         }
-#else
-                        return nullptr;
 #endif
+                        return nullptr;
                     }
 
                     static void Write(char* buffer, int numBytes) {

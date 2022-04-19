@@ -24,7 +24,7 @@ under the License.
 namespace pen {
 	namespace ui {
 		class TextBox : public pen::ui::UIObject {
-			/*The textbox is the most primitive ui element that contains text.  Other text-containing ui items include this class in some way or another*/
+			/*The textbox is the most primitive ui element that contains text.  Other text-containing ui items include this class.*/
 		public:
 			TextBox();
 			/*This is the regular constructor*/

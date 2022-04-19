@@ -141,7 +141,6 @@ public class PenHelper {
             final ApplicationInfo applicationInfo = activity.getApplicationInfo();
             PenHelper.sPackageName = applicationInfo.packageName;
             PenHelper.sAssetManager = activity.getAssets();
-            PenHelper.nativeSetContext((Context)activity, PenHelper.sAssetManager);
             PenHelper.sVibrateService = (Vibrator)activity.getSystemService(Context.VIBRATOR_SERVICE);
             sInited = true;
         }
@@ -222,8 +221,6 @@ public class PenHelper {
     // ===========================================================
     // Methods
     // ===========================================================
-    private static native void nativeSetContext(final Context pContext, final AssetManager pAssetManager);
-
     private static native void nativeSetAudioDeviceInfo(boolean isSupportLowLatency, int deviceSampleRate, int audioBufferSizeInFames);
 
     public static String getActivityPackageName() {

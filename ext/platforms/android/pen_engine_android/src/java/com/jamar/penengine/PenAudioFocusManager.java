@@ -68,7 +68,7 @@ class PenAudioFocusManager {
                             }
                         });
                     } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-                        // Your app has been granted audio focus again
+                        // Your pen_engine_android has been granted audio focus again
                         // Raise volume to normal, restart playback if necessary
                         Log.d(TAG, "Resume music by AUDIOFOCUS_GAIN");
                         PenHelper.runOnGLThread(new Runnable() {

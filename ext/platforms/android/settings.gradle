@@ -6,4 +6,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "pen_android"
-include ':app'
+include ':pen_engine_android'

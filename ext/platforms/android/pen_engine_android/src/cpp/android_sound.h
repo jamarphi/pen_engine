@@ -41,7 +41,7 @@ extern "C" {
                         if (mainClass != nullptr) {
                             jmethodID methodID = env->GetStaticMethodID(mainClass, "playSound", "(Ljava/lang/String;I)V");
                             if (methodID != nullptr) {
-                                jstring javaFile = env->NewStringUTF(file);
+                                jstring javaFile = env->NewStringUTF(file.c_str());
                                 env->CallStaticVoidMethod(mainClass, methodID, javaFile, isMusic ? 1 : 0);
                                 env->DeleteLocalRef(javaFile);
                             }

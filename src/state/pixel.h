@@ -25,7 +25,7 @@ under the License.
 #include "../ops/operations/operations.h"
 
 #ifdef __PEN_MOBILE__
-#include "../../ext/platforms/android/app/src/cpp/android_pixel.h"
+#include "../../ext/platforms/android/pen_engine_android/src/cpp/android_pixel.h"
 #endif
 
 namespace pen {
@@ -671,7 +671,7 @@ namespace pen {
 			widthBound = (spriteTexCoordStartX != 0.0f ? (int)(spriteTexCoordStartX * width) : width);
 			heightBound = (spriteTexCoordStartY != 0.0f ? (int)(spriteTexCoordStartY * height) : height);
 			int rowOffset = (int)(texWidth * spriteTexCoordStartX * 4);
-			if (rowOffset % 4 != 0) rowOffset - (rowOffset % 4);
+			if (rowOffset % 4 != 0) rowOffset = rowOffset - (rowOffset % 4);
 
 			unsigned char* pixelItemData = new unsigned char[widthBound * heightBound * 4];
 			item = new pen::Item{ pixelItemData, widthBound, heightBound, startX, startY, pen::PEN_WHITE, pen::Mat3x3(1.0f, true), pen::Mat3x3(1.0f, true), true, userDisplayFunction };
