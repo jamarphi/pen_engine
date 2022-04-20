@@ -11,14 +11,11 @@
 /**/.DS_Store
 /**/build
 /**/captures
-
-/**/.gradle
 /**/.idea
 /**/.cxx
 /**/*.so
 
 /build
-
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
