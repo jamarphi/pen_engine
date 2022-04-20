@@ -169,6 +169,8 @@ namespace pen {
             void SetColor(pen::Vec4 objectColor);
             bool GetActiveStatus();
             void AllowActive(bool status);
+            virtual void UpdateTexture(const std::string& texture, float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, 
+                float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
 
             /*----For ui objects----*/
             /*----For textboxes----*/

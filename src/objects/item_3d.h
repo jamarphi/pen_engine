@@ -38,7 +38,8 @@ namespace pen {
         ~Item3D();
 
         void Push(pen::ui::Item* item);
-
         void CombineChildBuffers();
+        void UpdateTexture(const std::string& texture, float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f,
+            float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
 	};
 }

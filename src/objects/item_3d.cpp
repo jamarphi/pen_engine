@@ -102,4 +102,18 @@ namespace pen {
             }
         }
     }
+
+    void Item3D::UpdateTexture(const std::string& texture, float itemTexCoordStartX, float itemTexCoordStartY,
+        float itemTexCoordEndX, float itemTexCoordEndY) {
+        /*Updates the texture of the item*/
+        textureName = texture;
+        if (itemTexCoordStartX != 0.0f) texCoordStartX = itemTexCoordStartX;
+        if (itemTexCoordStartY != 0.0f) texCoordStartY = itemTexCoordStartY;
+        if (itemTexCoordEndX != 1.0f) texCoordEndX = itemTexCoordEndX;
+        if (itemTexCoordEndY != 0.0f) texCoordEndY = itemTexCoordEndY;
+
+        for (int i = 0; i < childItems.size(); i++) {
+            childItems[i]->UpdateTexture(texture, itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
+        }
+    }
 }
