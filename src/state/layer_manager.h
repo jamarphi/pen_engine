@@ -23,6 +23,7 @@ under the License.
 #include "../objects/layer.h"
 #include "../objects/layer_3d.h"
 #include "../core/color.h"
+#include "asset.h"
 #include <fstream>
 #include <sstream>
 
@@ -298,13 +299,40 @@ namespace pen {
 			}
 		}
 
+		static std::string ReadLine(const std::string& textFile, unsigned int* offset) {
+			/*Reads a line of a text file until there is an enter character*/
+			bool keepGoing = true;
+			std::string output = "";
+			int charCounter = 0;
+			if (*offset > textFile.length() - 1) {
+				return "";
+			}
+
+			while (keepGoing) {
+				if (textFile[*offset + charCounter] != '\n') {
+					output += textFile[*offset + charCounter];
+				}
+				else {
+					*offset = *offset + charCounter + 2;
+					keepGoing = false;
+				}
+				charCounter++;
+			}
+			return output;
+		}
+
 		static void AddItem3D(const uint32_t& id, const std::string& path, const pen::Vec4& objectColor, const bool& objectIsFixed, const bool& isWireFrame) {
 			/*Scans an obj file for the vertices and indices*/
 			std::string tempPath = (path.find(":") != std::string::npos) ? path : GENERAL_MODEL_SOURCE + path;
-
+#ifndef __PEN_MOBILE__
 			std::ifstream modelFile;
 			modelFile.open(tempPath);
 			if (modelFile.is_open()) {
+#else
+			pen::Asset androidObj = pen::Asset::Load(tempPath, nullptr);
+			int lineOffset = 0;
+			if(androidObj.data != nullptr) {
+#endif
 				/*Create the 3D layer and item*/
 				unsigned int faceCounter = 0;
 				bool quadFormatError = false;
@@ -317,9 +345,25 @@ namespace pen {
 					objectColor, objectIsFixed);
 				item3D->isWireFrame = isWireFrame;
 
+#ifndef __PEN_MOBILE__
 				while (!modelFile.eof()) {
+#else
+				unsigned int fileOffset = 0;
+				std::string androidObjText(androidObj.data);
+				while (true) {
+#endif
 					/*It is assumed that the vertex points in the obj file will be normalized already*/
+
+#ifndef __PEN_MOBILE__
 					char fileLine[150];
+					modelFile.getline(fileLine, 150);
+#else
+					std::string fileLine = pen::ui::ReadLine(androidObjText, &fileOffset);
+					if (fileLine == "") {
+						break;
+					}
+#endif
+
 					std::stringstream stream;
 					std::string firstElement;
 					std::string point1;
@@ -330,7 +374,6 @@ namespace pen {
 					int index2 = 0;
 					int index3 = 0;
 					int index4 = 0;
-					modelFile.getline(fileLine, 150);
 					stream << fileLine;
 
 					if (fileLine[0] == 'v' && fileLine[1] == ' ') {
@@ -397,7 +440,9 @@ namespace pen {
 					}
 				}
 
+#ifndef __PEN_MOBILE__
 				modelFile.close();
+#endif
 
 				/*Check if the element count doesn't match based on the last triangle added*/
 				if (buffPositions.size() % BATCH_VERTEX_ELEMENTS != 0) {
