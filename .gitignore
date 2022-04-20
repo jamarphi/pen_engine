@@ -15,7 +15,7 @@
 /**/.gradle
 /**/.idea
 /**/.cxx
-/**/app/build
+/**/*.so
 
 /build
 

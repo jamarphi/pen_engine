@@ -616,8 +616,8 @@ For Mac it would be:
 Make sure you have an internet connection because this will download any files needed for the build.
 This will build the apk files into a build/outputs/apk directory inside of the android directory.
 
-For Linux and Mac, be sure to uncomment the cmake blocks and comment out the ndkBuild block in pen_engine/ext/platforms/android/pen_engine_android/build.gradle.  If
-on Windows then comment the cmake blocks out and uncomment the ndkBuild block:
+For Linux and Mac, be sure to uncomment the cmake blocks in pen_engine/ext/platforms/android/pen_engine_android/build.gradle.  If
+on Windows then comment the cmake blocks out:
 
     android {
         ...
@@ -640,30 +640,45 @@ on Windows then comment the cmake blocks out and uncomment the ndkBuild block:
                 path "../../../../CMakeLists.txt"
                 version "3.16.3"
             }*/
-
-            /*Windows*/
-            ndkBuild {
-                path "src/main/jni/Android.mk"
-            }
         }
     }
 
 If on Windows ndk-build gets used instead of cmake.  By default the source file location will be set one directory
-outside of pen_engine, but it can be changed in pen_engine/ext/platforms/android/pen_engine_android/src/main/jni/Android.mk
+outside of pen_engine, but it can be changed in pen_engine/ext/platforms/android/pen_engine_android/jni/Android.mk
 
-If on Windows the APP_PROJECT_PATH and NDK_PROJECT_PATH variables have to be updated in
-pen_engine/ext/platforms/android/pen_engine_android/src/main/jni/Application.mk:
+If on Windows the APP_PROJECT_PATH variable has to be updated in
+pen_engine/ext/platforms/android/pen_engine_android/jni/Application.mk:
 
-    #Replace path with root to pen_engine
-    APP_PROJECT_PATH := path/pen_engine/ext/platforms/android
-
-    #Absolute path to the ndk
-    NDK_PROJECT_PATH := C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570
+    #Replace path_to_pen_engine with root to pen_engine
+    APP_PROJECT_PATH := path_to_pen_engine/pen_engine/ext/platforms/android
 
 If your main .cpp file is different from app.cpp, update PC_INT_MAIN in
-pen_engine/ext/platforms/android/pen_engine_android/src/main/jni/Android.mk:
+pen_engine/ext/platforms/android/pen_engine_android/jni/Android.mk:
 
     PC_INT_MAIN := app.cpp
+
+For Windows instead of building through gradle, ndk-build gets called in the command line to build the .so file:
+
+    - C:/Users/user/AppData/local/Android/Sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH=C:/Users/user/AppData/local/Android/Sdk/ndk/20.0.5594570 \
+        NDK_APPLICATION_MK=path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/jni/Application.mk APP_BUILD_SCRIPT=path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/jni/Android.mk
+
+Once the library are built, cd into the libs directory of the ndk:
+
+    cd C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570/libs
+
+There should be four directories there:
+
+    - arm64-v8a
+    - armeabi-v7a
+    - x86
+    - x86_64
+
+Inside these directories is the libpen_engine_android.so file for each android architecture.  Copy these into the respective jniLibs folder:
+
+    - arm64-v8a: cp libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/arm64-v8a
+    - armeabi-v7a: cp libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/armeabi-v7a
+    - x86: cp libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/x86
+    - x86_64: cp libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/x86_64
 
 For signed apks in pen_engine/ext/platforms/android/pen_engine_android/build.gradle, you will have to uncomment the signingConfigs block and add your key store 
 file and information here:
