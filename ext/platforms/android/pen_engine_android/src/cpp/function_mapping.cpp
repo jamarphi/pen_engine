@@ -62,7 +62,6 @@ extern "C" {
 
     JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
     {
-        pen::android::AppLog("versionnnnnnnn...");
         return JNI_VERSION_1_4;
     }
 

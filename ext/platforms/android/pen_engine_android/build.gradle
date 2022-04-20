@@ -77,7 +77,7 @@ android {
 
         /*Windows*/
         ndkBuild {
-            path "src/main/jni/Android.mk"
+            path "jni/Android.mk"
         }
     }
 

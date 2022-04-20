@@ -576,6 +576,22 @@ its library stripping tool:
 
 For getting this specific version of the ndk you have to install Android Studio, open pen_engine/ext/platforms/android as a project, go to Android Studio preferences -> Appearance & Behavior -> System Settings -> Android SDK -> SDK Tools and check the version number under NDK.
 
+If on Windows, use power shell and cd into the build core directory of the ndk:
+
+    cd C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570/build/core
+
+Then use note pad to edit the build-binary.mk file there:
+
+    notepad build-binary.mk
+
+Inside this file, go to line 713 and remove this:
+
+    $(call generate-list-file,$(linker_options),$(linker_list_file))
+
+Update it to this:
+
+    $(call generate-list-file,$(call escape-backslashes,$(linker_options)),$(linker_list_file))
+
 Also set your java jdk path in the gradle.properties file:
 
     Linux:  org.gradle.java.home=/usr/lib/jvm/java-11-openjdk-amd64

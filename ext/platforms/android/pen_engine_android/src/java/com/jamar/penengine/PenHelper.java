@@ -78,6 +78,8 @@ public class PenHelper {
     private static Vibrator sVibrateService = null;
     private static boolean sInited = false;
 
+    private static native void nativeSetAudioDeviceInfo(boolean isSupportLowLatency, int deviceSampleRate, int deviceAudioBufferSizeInFrames);
+
     public static void runOnGLThread(final Runnable r) {
         ((MainActivity)sActivity).runOnGLThread(r);
     }
