@@ -35,6 +35,13 @@ under the License.
 
 namespace pen {
     namespace ui {
+        struct MtlData {
+            std::string file;
+            std::string name;
+            pen::Vec4 color;
+            std::string texture;
+        };
+
         class Item {
         public:
             Texture texture;
@@ -126,6 +133,7 @@ namespace pen {
             /*----For 3D items----*/
             int* indices3D = nullptr;
             unsigned int indexCount3D = 0;
+            static std::vector<MtlData*> mtlList;
             /*----For 3D items----*/
 
             /*----For complex shape items----*/
@@ -161,12 +169,12 @@ namespace pen {
                 const pen::Vec2& objectPointOfOrigin = pen::Vec2(0.0f, 0.0f), const bool& calculatePointOfOrigin = true);
             /*----For updating child item offsets after scaling----*/
 
-            pen::Vec3 GetPosition();
-            void SetPosition(pen::Vec3 objectPos);
-            pen::Vec2 GetSize();
-            void SetSize(pen::Vec2 objectSize);
+            virtual pen::Vec3 GetPosition();
+            virtual void SetPosition(pen::Vec3 objectPos);
+            virtual pen::Vec2 GetSize();
+            virtual void SetSize(pen::Vec2 objectSize);
             pen::Vec4 GetColor();
-            void SetColor(pen::Vec4 objectColor);
+            virtual void SetColor(pen::Vec4 objectColor);
             bool GetActiveStatus();
             void AllowActive(bool status);
             virtual void UpdateTexture(const std::string& texture, float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, 

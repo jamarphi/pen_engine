@@ -321,8 +321,80 @@ namespace pen {
 			return output;
 		}
 
+		static void LoadMtl(pen::ui::Item* item3D, const std::string& path) {
+			/*Loads in a .mtl file*/
+			bool mtlLoaded = false;
+			item3D->textureName = path;
+			std::string tempPath = (path.find(":") != std::string::npos) ? path : GENERAL_MODEL_SOURCE + path;
+			for (int i = 0; i < item3D->mtlList.size(); i++) {
+				if (item3D->mtlList[i]->file == path) {
+					mtlLoaded = true;
+					break;
+				}
+			}
+
+			if (!mtlLoaded) {
+#ifndef __PEN_MOBILE__
+				std::ifstream mtlFile;
+				mtlFile.open(tempPath);
+				if (mtlFile.is_open()) {
+#else
+				pen::Asset androidMtl = pen::Asset::Load(tempPath, nullptr);
+				int lineOffset = 0;
+				if (androidMtl.data != nullptr) {
+#endif
+					std::string material;
+					std::string texture;
+					pen::Vec4 color = pen::Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+#ifndef __PEN_MOBILE__
+					while (!mtlFile.eof()) {
+#else
+					unsigned int fileOffset = 0;
+					std::string androidMtlText(androidMtl.data);
+					while (true) {
+#endif
+
+#ifndef __PEN_MOBILE__
+						char fileLine[150];
+						mtlFile.getline(fileLine, 150);
+#else
+						std::string fileLine = pen::ui::ReadLine(androidMtlText, &fileOffset);
+						if (fileLine == "") {
+							break;
+						}
+#endif
+
+						std::stringstream stream;
+						std::string firstElement;
+						stream << fileLine;
+
+						if (fileLine[0] == 'n' && fileLine[1] == 'e') {
+							/*Name of material*/
+							stream >> firstElement >> material;
+						}
+						else if (fileLine[0] == 'k' && fileLine[1] == 'd') {
+							/*Color data*/
+							stream >> firstElement >> color.x >> color.y >> color.z;
+						}
+						else if (fileLine[1] == 'm') {
+							/*Texture file*/
+							stream >> firstElement >> texture;
+
+							/*The map_Kd information is last line for each material*/
+							item3D->mtlList.push_back(new pen::ui::MtlData{ path, material, color, texture });
+						}
+
+					}
+
+#ifndef __PEN_MOBILE__
+					mtlFile.close();
+#endif
+				}
+			}
+		}
+
 		static void AddItem3D(const uint32_t& id, const std::string& path, const pen::Vec4& objectColor, const bool& objectIsFixed, const bool& isWireFrame) {
-			/*Scans an obj file for the vertices and indices*/
+			/*Loads in an obj file for the vertices and indices*/
 			std::string tempPath = (path.find(":") != std::string::npos) ? path : GENERAL_MODEL_SOURCE + path;
 #ifndef __PEN_MOBILE__
 			std::ifstream modelFile;
@@ -340,10 +412,14 @@ namespace pen {
 				pen::Vec3 vertex1 = pen::Vec3(0.0f, 0.0f, 0.0f);
 				bool firstVertex = true;
 				bool normalize = false;
+				std::string mtlPath;
+				std::vector<pen::ui::MtlData*> materialList;
+				pen::ui::MtlData* material = nullptr;
 
 				pen::ui::Item* item3D = new pen::Item3D(id, pen::Vec3(0.0f, 0.0f, 0.0f), pen::Vec2(50.0f, 50.0f),
 					objectColor, objectIsFixed);
 				item3D->isWireFrame = isWireFrame;
+
 
 #ifndef __PEN_MOBILE__
 				while (!modelFile.eof()) {
@@ -366,6 +442,7 @@ namespace pen {
 
 					std::stringstream stream;
 					std::string firstElement;
+					std::string materialStr;
 					std::string point1;
 					std::string point2;
 					std::string point3;
@@ -376,7 +453,27 @@ namespace pen {
 					int index4 = 0;
 					stream << fileLine;
 
-					if (fileLine[0] == 'v' && fileLine[1] == ' ') {
+					if (fileLine[0] == 'm' && fileLine[1] == 't') {
+						/*Select material file*/
+						stream >> firstElement >> mtlPath;
+						pen::ui::LoadMtl(item3D, mtlPath);
+						materialList.clear();
+						for (int i = 0; i < item3D->mtlList.size(); i++) {
+							if (item3D->mtlList[i]->file == mtlPath) {
+								materialList.push_back(item3D->mtlList[i]);
+							}
+						}
+					}else if (fileLine[0] == 'u' && fileLine[1] == 's') {
+						/*Material to select*/
+						stream >> firstElement >> materialStr;
+						for (int i = 0; i < materialList.size(); i++) {
+							if (materialList[i]->name == materialStr) {
+								material = materialList[i];
+								break;
+							}
+						}
+					}
+					else if (fileLine[0] == 'v' && fileLine[1] == ' ') {
 						/*Vertex point*/
 						stream >> firstElement >> vertex1.x >> vertex1.y >> vertex1.z;
 
@@ -404,7 +501,7 @@ namespace pen {
 						};
 
 						item3D->Push(new pen::Item3D(true, pen::Vec3(vertex1.x, vertex1.y, vertex1.z),
-							pen::ui::Shape::POINT, item3D->color, item3D->isFixed, &buffPositions[0]));
+							pen::ui::Shape::POINT, material != nullptr ? material->color : item3D->color, item3D->isFixed, &buffPositions[0], material != nullptr ? material->texture : ""));
 					}
 					else if (fileLine[0] == 'f') {
 						/*Face data*/

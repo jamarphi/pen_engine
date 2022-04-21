@@ -20,6 +20,10 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "item.h"
+#include "../ops/operations/operations.h"
+#include "../state/asset.h"
+#include <fstream>
+#include <sstream>
 
 #define GENERAL_MODEL_SOURCE "pen_engine/res/models/"
 
@@ -29,7 +33,7 @@ namespace pen {
         Item3D();
 
         Item3D(bool childItem, pen::Vec3 objectPositions, unsigned int objectShapeType, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
-            bool objectIsFixed = false, float* objectBufferPositions = nullptr);
+            bool objectIsFixed = false, float* objectBufferPositions = nullptr, const std::string& objectTexture = "");
 
         Item3D(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
             bool objectIsFixed = false, std::string objectTextureName = "",
@@ -39,7 +43,11 @@ namespace pen {
 
         void Push(pen::ui::Item* item);
         void CombineChildBuffers();
-        void UpdateTexture(const std::string& texture, float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f,
-            float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
+        pen::Vec3 GetPosition();
+        void SetPosition(pen::Vec3 objectPos);
+        pen::Vec2 GetSize();
+        void SetSize(pen::Vec2 objectSize);
+        void SetColor(pen::Vec4 objectColor);
+        void UpdateTexture(const std::string& path);
 	};
 }

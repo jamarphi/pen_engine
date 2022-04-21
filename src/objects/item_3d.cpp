@@ -24,7 +24,7 @@ namespace pen {
     Item3D::Item3D() {}
 
     Item3D::Item3D(bool childItem, pen::Vec3 objectPositions, unsigned int objectShapeType, pen::Vec4 objectColor,
-        bool objectIsFixed, float* objectBufferPositions) {
+        bool objectIsFixed, float* objectBufferPositions, const std::string& objectTexture) {
         /*3D child item constructor*/
         positions = objectPositions;
         size = pen::Vec2(50.0f, 50.0f);
@@ -34,6 +34,7 @@ namespace pen {
         shapeType = objectShapeType;
         color = objectColor;
         model = pen::Mat4x4(1.0f);
+        textureName = objectTexture;
 
         bufferPositions = pen::ui::Shape::GetBatchPosition(positions, size, pen::ui::Shape::OBJ_3D, objectColor, objectBufferPositions, 0.0f, 0.0f, 0.0f, GetAssetId());
 
@@ -103,17 +104,33 @@ namespace pen {
         }
     }
 
-    void Item3D::UpdateTexture(const std::string& texture, float itemTexCoordStartX, float itemTexCoordStartY,
-        float itemTexCoordEndX, float itemTexCoordEndY) {
-        /*Updates the texture of the item*/
-        textureName = texture;
-        if (itemTexCoordStartX != 0.0f) texCoordStartX = itemTexCoordStartX;
-        if (itemTexCoordStartY != 0.0f) texCoordStartY = itemTexCoordStartY;
-        if (itemTexCoordEndX != 1.0f) texCoordEndX = itemTexCoordEndX;
-        if (itemTexCoordEndY != 0.0f) texCoordEndY = itemTexCoordEndY;
+    pen::Vec3 Item3D::GetPosition() {
+        /*Returns the position of the first triangle*/
+        return pen::op::Mat4x4MultVec3(model, childItems[0]->positions, false);
+    }
 
+    void Item3D::SetPosition(pen::Vec3 objectPos) {
+        /*The set position method for 3d items should do nothing*/
+    }
+
+    pen::Vec2 Item3D::GetSize() {
+        /*The get size method for 3d items should do nothing*/
+        return pen::Vec2(0.0f, 0.0f);
+    }
+
+    void Item3D::SetSize(pen::Vec2 objectSize) {
+        /*The set size method for 3d items should do nothing*/
+    }
+
+    void Item3D::SetColor(pen::Vec4 objectColor) {
+        /*Updates the color of the 3d item and its children*/
+        color = objectColor;
         for (int i = 0; i < childItems.size(); i++) {
-            childItems[i]->UpdateTexture(texture, itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
+            childItems[i]->color = objectColor;
         }
+    }
+
+    void Item3D::UpdateTexture(const std::string& path) {
+        /*The update texture method for 3d items should do nothing*/
     }
 }
