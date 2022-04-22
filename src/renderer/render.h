@@ -56,5 +56,6 @@ namespace pen {
 		static void RenderLayer(Renderer* renderer, pen::Layer *layer);
 	private:
 		static void TextureSet();
+		static void UpdatedInstancedUniforms(pen::Layer* layer);
 	};
 }

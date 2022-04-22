@@ -114,32 +114,32 @@ void Shader::SetUniform1f(const std::string& name, float value) {
 	glUniform1f(location, value);
 }
 
-void Shader::SetUniform2f(const std::string& name, const pen::Vec2& value) {
+void Shader::SetUniform2f(const std::string& name, pen::Vec2* value) {
 	/*Sets a vec2 float uniform in the shader*/
 	GLint location = GetUniformLocation(name);
-	glUniform2f(location, value.x,value.y);
+	glUniform2f(location, value->x, value->y);
 }
 
-void Shader::SetUniform3f(const std::string& name, const pen::Vec3& value) {
+void Shader::SetUniform3f(const std::string& name, pen::Vec3* value) {
 	/*Sets a vec3 float uniform in the shader*/
 	GLint location = GetUniformLocation(name);
-	glUniform3f(location, value.x, value.y,value.z);
+	glUniform3f(location, value->x, value->y,value->z);
 }
 
-void Shader::SetUniform4f(const std::string& name, const pen::Vec4& value) {
+void Shader::SetUniform4f(const std::string& name, pen::Vec4* value) {
 	/*Sets a vec4 float uniform in the shader*/
 	GLint location = GetUniformLocation(name);
-	glUniform4f(location, value.x, value.y, value.z, value.w);
+	glUniform4f(location, value->x, value->y, value->z, value->w);
 }
 
-void Shader::SetUniformMat4f(const std::string& name, const pen::Mat4x4& matrix) {
-	/*Sets a mat4 uniform in the shader*/
+void Shader::SetUniformMat4x4f(const std::string& name, const pen::Mat4x4& matrix) {
+	/*Sets a mat4x4 uniform in the shader*/
 	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix.matrix[0][0]);
 }
 
-void Shader::SetUniformMat2x4fv(const std::string& name, const unsigned int count, const pen::Mat2x4& matrix) {
-	/*Sets a mat2x4 uniform array in the shader*/
-	glUniformMatrix2x4fv(GetUniformLocation(name), count, GL_FALSE, &matrix.matrix[0][0]);
+void Shader::SetUniformMat2x4f(const std::string& name, pen::Mat2x4* matrix) {
+	/*Sets a mat2x4 uniform in the shader*/
+	glUniformMatrix2x4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix->matrix[0][0]);
 }
 
 GLint Shader::GetUniformLocation(const std::string& name) {

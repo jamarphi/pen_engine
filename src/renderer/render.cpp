@@ -19,6 +19,7 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #include "render.h"
+#include "../../ext/platforms/android/pen_engine_android/src/cpp/log.h"
 
 namespace pen {
     Render* Render::instance = nullptr;
@@ -26,6 +27,7 @@ namespace pen {
     void Render::RenderLayer(pen::Renderer* renderer, pen::Layer* layer) {
         /*Render a batch of objects*/
         Render* inst = pen::Render::Get();
+        Shader shader = layer->isInstanced ? inst->instancedShader : inst->appShader;
 
 #ifndef __PEN_MOBILE__
         if (layer->isWireFrame) {
@@ -36,13 +38,16 @@ namespace pen {
         }
 #endif
 
-        inst->appShader.Bind();
+        shader.Bind();
 
         /*Bind the initial assets*/
         if (inst->firstTime) {
             TextureSet();
             inst->firstTime = false;
         }
+
+        /*Update the instanced uniforms*/
+        if (layer->isInstanced) UpdatedInstancedUniforms(layer);
         
         /*If pixel-by-pixel drawing is needed*/
         if (pen::State::Get()->usingBuffer) Texture::UpdatePixels();
@@ -55,7 +60,7 @@ namespace pen {
         /*This model view projection matrix is used for transformations of a given layer*/
         pen::Mat4x4 mvp = (layer->model * (layer->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (layer->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
 
-        inst->appShader.SetUniformMat4f("uMVP", mvp);
+        shader.SetUniformMat4x4f("uMVP", mvp);
 
         /*Binds the vertex buffer of a given layer and updates the GPU with the buffer data*/
         layer->vb.Bind();
@@ -69,11 +74,12 @@ namespace pen {
             }
         }
 
-        renderer->Draw(layer->va, layer->ib, layer->indexCount, layer->vb, inst->appShader, 0, layer->shapeType);
+        renderer->Draw(layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
     }
 
     void Render::TextureSet() {
         pen::State* inst = pen::State::Get();
+        pen::Render* render = pen::Render::Get();
 
 #ifndef __PEN_MOBILE__
         /*Loops through and binds the assets for a particular batch*/
@@ -87,10 +93,20 @@ namespace pen {
         }
 #endif
         /*These only get set once otherwise there is a weird texture error of only showing the last loaded texture*/
-        if (Render::Get()->firstTime) {
-            for (int k = 0; k < inst->textureUnits; k++) {
-                Render::Get()->appShader.SetUniform1i("uTextures[" + std::to_string(k) + "]", k);
+        if (render->firstTime) {
+            for (int j = 0; j < inst->textureUnits; j++) {
+                render->appShader.SetUniform1i("uTextures[" + std::to_string(j) + "]", j);
+                //render->instancedShader.SetUniform1i("uTextures[" + std::to_string(j) + "]", j);
             }
+        }
+    }
+
+    void Render::UpdatedInstancedUniforms(pen::Layer* layer) {
+        /*Update the uniforms for the instanced shader*/
+        pen::Render* render = pen::Render::Get();
+        int vecCount = layer->instancedDataList.size() > 400 ? 400 : layer->instancedDataList.size();
+        for (int i = 0; i < vecCount; i++) {
+            render->instancedShader.SetUniform3f("uInstancedOffsets[" + std::to_string(i) + "]", layer->instancedDataList[i]);
         }
     }
 }

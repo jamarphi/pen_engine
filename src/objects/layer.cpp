@@ -25,7 +25,7 @@ namespace pen {
     Layer::Layer(){}
 
     Layer::Layer(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame) {
-        /*Layers are mainly separated based on the shape type of the objects they contain, which asset grouping it is a part of, and if it is fixed*/
+        /*Layers are separated mainly based on the shape type of the objects they contain, if it is fixed, and if it is instanced*/
         indexCount = 0;
         va = VertexArray();
         shapeType = objectShapeType;
@@ -99,6 +99,9 @@ namespace pen {
         /*Removes the most recent item with its children from the layer*/
         if (layerItems.size() > 0) {
             itemCount -= layerItems[layerItems.size() - 1]->itemCount - 1;
+            pen::ui::Item* item = layerItems[layerItems.size() - 1];
+            item->RemoveNestedItems(item);
+            delete item;
             layerItems.pop_back();
         }
     }

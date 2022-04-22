@@ -56,6 +56,8 @@ namespace pen {
 		bool is3D = false;
 		bool isWireFrame = false;
 		pen::Mat4x4 model;
+		bool isInstanced = false;
+		std::vector<pen::Vec3*> instancedDataList;
 
 		/*Only one main item can be pushed to this layer*/
 		bool isSingular = false;

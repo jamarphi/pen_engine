@@ -35,7 +35,8 @@ namespace pen {
         glClearColor(color.x, color.y, color.z, color.w);
     }
 
-    void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const Shader& shader, int indices, const unsigned int& shapeType) const {
+    void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const Shader& shader, int indices, const unsigned int& shapeType,
+        const bool& isInstanced, const unsigned int& instanceCount) const {
         /*Draw a batched object to the screen.
 
         This function goes through the pipeline and does not need to be called directly by you*/
@@ -44,6 +45,6 @@ namespace pen {
         vb.Bind();
         ib.Bind();
 
-        glDrawElements(drawType[shapeType],indexCount, GL_UNSIGNED_INT, 0);
+        isInstanced ? glDrawElementsInstanced(drawType[shapeType], indexCount, GL_UNSIGNED_INT, 0, instanceCount) : glDrawElements(drawType[shapeType],indexCount, GL_UNSIGNED_INT, 0);
     }
 }

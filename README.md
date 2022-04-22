@@ -142,7 +142,7 @@ This means that Pen Engine is inside the project folder, this is used to find th
 
 To add a gui item use:
 
-    pen::ui::AddItem(yourItemPointer);
+    pen::ui::AddItem(pen::ui::Item* yourItemPointer);
 
 You can also make objects wireframe by setting their isWireFrame boolean to true before adding them to LayerManager.
 
@@ -410,7 +410,7 @@ The type is the transformation, an example is pen::AnimType::TRANSLATE.
 
 Before rendering 3D models using .obj files you have to call:
 
-    pen::ui::AddItem3D(0, "your_model_path.obj");
+    pen::ui::Item* = pen::ui::AddItem3D(const uint32_t& id, const std::string& path, const pen::Vec4& objectColor, const bool& isInstanced, const std::vector<pen::Mat2x4*>& dataList, const bool& objectIsFixed, const bool& isWireFrame);
     pen::Pen::EnableDepthTesting(true);
     pen::Pen::HandleCameraInput(true);
 
@@ -431,6 +431,21 @@ For rotation, the axis can be chosen using:
     - pen::_3d::AXIS::X
     - pen::_3d::AXIS::Y
     - pen::_3d::AXIS::Z
+
+If you want to use instancing for 3D items then initialize the data list.  There can be no more than 400 instances of a 3D item:
+
+    int itemCount = 10;
+    std::vector<pen::Vec3*> dataList;
+    for (int i = 0; i < itemCount; i++) {
+        /*Offset from first item position*/
+        pen::Mat2x4* vec = new pen::Vec3(0.0f, 0.0f, 0.0f);       
+        vec.x = 10.0f * i;
+        vec.y = 10.0f * i;
+        vec.z = 0.0f;
+        dataList.push_back(vec);
+    }
+
+There is a bug where the textures of non-instanced items will not show if using instancing for 3D items.
 
 ---------------------------------------------------------------------------
 
@@ -655,28 +670,17 @@ pen_engine/ext/platforms/android/pen_engine_android/jni/Android.mk:
 
     PC_INT_MAIN := app.cpp
 
-For Windows instead of building through gradle, ndk-build gets called in the command line to build the .so file:
+For Windows instead of building through gradle, ndk-build gets called in the command line to build the .so files:
 
     - C:/Users/user/AppData/local/Android/Sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH=C:/Users/user/AppData/local/Android/Sdk/ndk/20.0.5594570 \
         NDK_APPLICATION_MK=path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/jni/Application.mk APP_BUILD_SCRIPT=path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/jni/Android.mk
 
-Once the library are built, cd into the libs directory of the ndk:
+Once the libraries are built, copy the respective libs into the jniLibs folder:
 
-    cd C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570/libs
-
-There should be four directories there:
-
-    - arm64-v8a
-    - armeabi-v7a
-    - x86
-    - x86_64
-
-Inside these directories is the libpen_engine_android.so file for each android architecture.  Copy these into the respective jniLibs folder:
-
-    - arm64-v8a: cp libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/arm64-v8a
-    - armeabi-v7a: cp libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/armeabi-v7a
-    - x86: cp libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/x86
-    - x86_64: cp libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/x86_64
+    - arm64-v8a: cp C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570/libs/arm64-v8a/libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/arm64-v8a
+    - armeabi-v7a: cp C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570/libs/armeabi-v7a/libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/armeabi-v7a
+    - x86: cp C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570/libs/x86/libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/x86
+    - x86_64: cp C:/Users/user/AppData/Local/Android/Sdk/ndk/20.0.5594570/libs/x86_64/libpen_engine_android.so path_to_pen_engine/pen_engine/ext/platforms/android/pen_engine_android/src/main/jniLibs/x86_64
 
 For signed apks in pen_engine/ext/platforms/android/pen_engine_android/build.gradle, you will have to uncomment the signingConfigs block and add your key store 
 file and information here:

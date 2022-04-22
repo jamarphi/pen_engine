@@ -72,6 +72,7 @@ public class MainActivity extends Activity implements PenHelperListener {
     public PenBluetooth penBluetooth = null;
     private static MediaPlayer mainMediaPlayer = null;
     private static PenMediaService penMediaService;
+    private boolean bluetoothActive = false;
     protected ResizeLayout mFrameLayout = null;
 
     private static native void bluetoothConnEstablished();
@@ -224,6 +225,7 @@ public class MainActivity extends Activity implements PenHelperListener {
         if (ContextCompat.checkSelfPermission(
                 sContext, Manifest.permission.BLUETOOTH) ==
                 PackageManager.PERMISSION_GRANTED) {
+            bluetoothActive = true;
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 1);
         }
@@ -286,9 +288,8 @@ public class MainActivity extends Activity implements PenHelperListener {
     
     @Override
     protected void onDestroy() {
-        if(gainAudioFocus)
-            PenAudioFocusManager.unregisterAudioFocusListener(this);
-        unregisterReceiver(mainBluetoothReceiver);
+        if(gainAudioFocus) PenAudioFocusManager.unregisterAudioFocusListener(this);
+        if(bluetoothActive) unregisterReceiver(mainBluetoothReceiver);
         super.onDestroy();
     }
 

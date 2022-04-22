@@ -364,6 +364,7 @@ namespace pen {
                     pen::ui::Submit();
                 }
             }
+            return true;
         }
 
         std::string TextEditor::ConvertChar(const int& character) {

@@ -47,9 +47,6 @@ import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.android.vending.expansion.zipfile.APKExpansionSupport;
-import com.android.vending.expansion.zipfile.ZipResourceFile;
-
 import java.io.IOException;
 import java.io.File;
 import java.io.FilenameFilter;

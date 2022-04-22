@@ -24,8 +24,11 @@ under the License.
 #include "../objects/layer_3d.h"
 #include "../core/color.h"
 #include "asset.h"
-#include <fstream>
 #include <sstream>
+#ifndef __PEN_MOBILE__
+#include <fstream>
+#endif
+
 
 namespace pen {
 	namespace ui {
@@ -40,13 +43,13 @@ namespace pen {
 
 		static void Sort() {
 			/*Sorts the layers to have fixed layers rendered last*/
-			bool stillGoing = true;
-			while (stillGoing) {
-				stillGoing = false;
+			bool keepGoing = true;
+			while (keepGoing) {
+				keepGoing = false;
 				for (int i = 0; i < pen::ui::LM::layers.size() - 1; i++) {
 					/*Put all fixed layers after non-fixed layers*/
 					if (pen::ui::LM::layers[i]->isFixed && !pen::ui::LM::layers[i + 1]->isFixed) {
-						stillGoing = true;
+						keepGoing = true;
 						pen::Layer* tempLayer = pen::ui::LM::layers[i + 1];
 						pen::ui::LM::layers[i + 1] = pen::ui::LM::layers[i];
 						pen::ui::LM::layers[i] = tempLayer;
@@ -55,19 +58,21 @@ namespace pen {
 			}
 		}
 
-		static pen::ui::Item* AddItem(pen::ui::Item* item) {
+		static pen::ui::Item* AddItem(pen::ui::Item* item, bool isInstanced = false, std::vector<pen::Mat2x4*> dataList = {}) {
 			/*Adds a ui item to a layer that can be associated with it, this abstracts away management from the user
 
-				Layers are separated based on their shape type, asset grouping id, and their isFixed status
+				Layers are separated based on their shape type, isFixed, and their isInstanced status
 			*/
+			if (dataList.size() == 0) isInstanced = false;
 			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-				if (pen::ui::LM::layers.at(i)->shapeType == item->shapeType &&
-					pen::ui::LM::layers.at(i)->isFixed == item->isFixed && pen::ui::LM::layers.at(i)->isSingular == item->isSingular) {
-					if (pen::ui::LM::layers.at(i)->itemCount + item->itemCount + 1 < MAX_OBJECTS) {
+				if (pen::ui::LM::layers[i]->shapeType == item->shapeType &&
+					pen::ui::LM::layers[i]->isFixed == item->isFixed && pen::ui::LM::layers[i]->isSingular == item->isSingular
+					&& pen::ui::LM::layers[i]->isInstanced == isInstanced) {
+					if (pen::ui::LM::layers[i]->itemCount + item->itemCount + 1 < MAX_OBJECTS) {
 						/*Adds the item to an existing layer that has space available*/
-						bool pushed = pen::ui::LM::layers.at(i)->Push(item);
+						bool pushed = pen::ui::LM::layers[i]->Push(item);
 						if (!pushed) break;
-						pen::ui::LM::layers.at(i)->Update();
+						pen::ui::LM::layers[i]->Update();
 						return item;
 					}
 					else {
@@ -75,8 +80,8 @@ namespace pen {
 						pen::ui::LM::layers.push_back(new pen::Layer(pen::ui::LM::generalLayerId,
 							item->shapeType, item->isFixed, item->isSingular, item->isWireFrame));
 						pen::ui::LM::generalLayerId++;
-						pen::ui::LM::layers.at(pen::ui::LM::layers.size() - 1)->Push(item);
-						pen::ui::LM::layers.at(pen::ui::LM::layers.size() - 1)->Initialize();
+						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item);
+						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
 						pen::ui::Sort();
 						return item;
 					}
@@ -98,8 +103,8 @@ namespace pen {
 			pen::ui::Item* tempItem = nullptr;
 
 			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-				for (int j = 0; j < pen::ui::LM::layers.at(i)->layerItems.size(); j++) {
-					tempItem = pen::ui::LM::layers.at(i)->layerItems[j]->FindItem(id);
+				for (int j = 0; j < pen::ui::LM::layers[i]->layerItems.size(); j++) {
+					tempItem = pen::ui::LM::layers[i]->layerItems[j]->FindItem(id);
 					if (tempItem != nullptr) {
 						return tempItem;
 					}
@@ -112,23 +117,23 @@ namespace pen {
 			/*Removes a specific item based on its id*/
 
 			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-				for (int j = 0; j < pen::ui::LM::layers.at(i)->layerItems.size(); j++) {
+				for (int j = 0; j < pen::ui::LM::layers[i]->layerItems.size(); j++) {
 					/*Remove all nested items with this id*/
-					pen::ui::LM::layers.at(i)->layerItems[j]->RemoveItemById(id);
+					pen::ui::LM::layers[i]->layerItems[j]->RemoveItemById(id);
 
-					if (pen::ui::LM::layers.at(i)->layerItems[j]->id == id) {
+					if (pen::ui::LM::layers[i]->layerItems[j]->id == id) {
 						/*Remove this main item from the layer since it also has this id*/
 						std::vector<pen::ui::Item*> tempLayerItems;
 						pen::ui::Item* itemToDelete = nullptr;
-						for (int k = 0; k < pen::ui::LM::layers.at(i)->layerItems.size(); k++) {
-							if (pen::ui::LM::layers.at(i)->layerItems[k]->id != id) {
-								tempLayerItems.push_back(pen::ui::LM::layers.at(i)->layerItems[k]);
+						for (int k = 0; k < pen::ui::LM::layers[i]->layerItems.size(); k++) {
+							if (pen::ui::LM::layers[i]->layerItems[k]->id != id) {
+								tempLayerItems.push_back(pen::ui::LM::layers[i]->layerItems[k]);
 							}
 							else {
-								itemToDelete = pen::ui::LM::layers.at(i)->layerItems[k];
+								itemToDelete = pen::ui::LM::layers[i]->layerItems[k];
 							}
 						}
-						pen::ui::LM::layers.at(i)->layerItems = tempLayerItems;
+						pen::ui::LM::layers[i]->layerItems = tempLayerItems;
 						delete itemToDelete;
 					}
 				}
@@ -139,28 +144,28 @@ namespace pen {
 			/*Removes a specific item based on its id*/
 
 			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-				for (int j = 0; j < pen::ui::LM::layers.at(i)->layerItems.size(); j++) {
+				for (int j = 0; j < pen::ui::LM::layers[i]->layerItems.size(); j++) {
 					/*Remove all nested items with this id*/
-					bool removed = pen::ui::LM::layers.at(i)->layerItems[j]->RemoveItem(id);
+					bool removed = pen::ui::LM::layers[i]->layerItems[j]->RemoveItem(id);
 
 					if (removed) {
 						break;
 						break;
 					}
 
-					if (pen::ui::LM::layers.at(i)->layerItems[j] == id) {
+					if (pen::ui::LM::layers[i]->layerItems[j] == id) {
 						/*Remove this main item from the layer since it has this id*/
 						std::vector<pen::ui::Item*> tempLayerItems;
 						pen::ui::Item* itemToDelete = nullptr;
-						for (int k = 0; k < pen::ui::LM::layers.at(i)->layerItems.size(); k++) {
-							if (pen::ui::LM::layers.at(i)->layerItems[k] != id) {
-								tempLayerItems.push_back(pen::ui::LM::layers.at(i)->layerItems[k]);
+						for (int k = 0; k < pen::ui::LM::layers[i]->layerItems.size(); k++) {
+							if (pen::ui::LM::layers[i]->layerItems[k] != id) {
+								tempLayerItems.push_back(pen::ui::LM::layers[i]->layerItems[k]);
 							}
 							else {
-								itemToDelete = pen::ui::LM::layers.at(i)->layerItems[k];
+								itemToDelete = pen::ui::LM::layers[i]->layerItems[k];
 							}
 						}
-						pen::ui::LM::layers.at(i)->layerItems = tempLayerItems;
+						pen::ui::LM::layers[i]->layerItems = tempLayerItems;
 						if (itemToDelete != nullptr) {
 							itemToDelete->RemoveNestedItems(itemToDelete);
 							delete itemToDelete;
@@ -175,10 +180,10 @@ namespace pen {
 		static void Submit() {
 			/*This updates the layers with any modified changes done by the user*/
 			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-				for (int j = 0; j < pen::ui::LM::layers.at(i)->layerItems.size(); j++) {
-					pen::ui::LM::layers.at(i)->layerItems.at(j)->CombineChildBuffers();
+				for (int j = 0; j < pen::ui::LM::layers[i]->layerItems.size(); j++) {
+					pen::ui::LM::layers[i]->layerItems[j]->CombineChildBuffers();
 				}
-				pen::ui::LM::layers.at(i)->CombineBuffers();
+				pen::ui::LM::layers[i]->CombineBuffers();
 			}
 			pen::State::Get()->firstUpdateFrame = true;
 			pen::State::Get()->updateBatch = true;
@@ -232,7 +237,7 @@ namespace pen {
 			if (pen::ui::LM::layers.size() > 1) {
 				int fixedLayers = -1;
 				for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-					if (pen::ui::LM::layers.at(i)->isFixed == true && pen::ui::LM::layers.at(i)->shapeType != pen::ui::Shape::BUFFER) {
+					if (pen::ui::LM::layers[i]->isFixed == true && pen::ui::LM::layers[i]->shapeType != pen::ui::Shape::BUFFER) {
 						fixedLayers = i;
 						break;
 					}
@@ -393,7 +398,7 @@ namespace pen {
 			}
 		}
 
-		static void AddItem3D(const uint32_t& id, const std::string& path, const pen::Vec4& objectColor, const bool& objectIsFixed, const bool& isWireFrame) {
+		static pen::ui::Item* AddItem3D(const uint32_t& id, const std::string& path, const pen::Vec4& objectColor, const bool& isInstanced, const std::vector<pen::Vec3*>& dataList, const bool& objectIsFixed, const bool& isWireFrame) {
 			/*Loads in an obj file for the vertices and indices*/
 			std::string tempPath = (path.find(":") != std::string::npos) ? path : GENERAL_MODEL_SOURCE + path;
 #ifndef __PEN_MOBILE__
@@ -554,13 +559,16 @@ namespace pen {
 				/*Initialize the layers based on the triangle count*/
 				for (int i = 0; i < faceCounter; i += MAX_OBJECTS) {
 					pen::ui::LM::layers.push_back(new pen::Layer3D(pen::ui::LM::generalLayerId,
-						item3D->shapeType, item3D->isFixed, item3D->isSingular, item3D->isWireFrame));
+						item3D->shapeType, item3D->isFixed, item3D->isSingular, item3D->isWireFrame, isInstanced, dataList));
 					pen::ui::LM::generalLayerId++;
 					pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item3D, i);
 					pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
 					pen::ui::Sort();
 				}
+
+				return item3D;
 			}
+			return nullptr;
 		}
 	}
 }

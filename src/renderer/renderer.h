@@ -41,6 +41,7 @@ namespace pen {
 
 		void Clear() const;
 		void Background(pen::Vec4 color) const;
-		void Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const Shader& shader, int indices, const unsigned int& shapeType) const;
+		void Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const Shader& shader, int indices, const unsigned int& shapeType,
+			const bool& isInstanced, const unsigned int& instanceCount) const;
 	};
 }

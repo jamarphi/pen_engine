@@ -23,8 +23,8 @@ under the License.
 namespace pen {
     Layer3D::Layer3D() {}
 
-    Layer3D::Layer3D(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame) {
-        /*Layers are separated mainly based on the shape type of the objects they contain, which asset grouping it is a part of, and if it is fixed*/
+    Layer3D::Layer3D(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame, bool objectIsInstanced, std::vector<pen::Vec3*> dataList) {
+        /*Layers are separated mainly based on the shape type of the objects they contain, if it is fixed, and if it is instanced*/
         indexCount = 0;
         va = VertexArray();
         shapeType = objectShapeType;
@@ -34,6 +34,9 @@ namespace pen {
         is3D = true;
         isWireFrame = objectIsWireFrame;
         translation = pen::Vec3(1.0f, 1.0f, 1.0f);
+        isInstanced = objectIsInstanced;
+        instancedDataList = dataList;
+        if (objectIsInstanced) isSingular = true;
     }
 
     Layer3D::~Layer3D() {}

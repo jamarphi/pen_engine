@@ -100,9 +100,11 @@ namespace pen {
         glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &textureUnits);
         stateInst->textureUnits = textureUnits / 6;
 
-        /*Initialize shader*/
+        /*Initialize shaders*/
         Shader shader(1);
         inst->appShader = shader;
+        //Shader instancedShader(2);
+        //inst->instancedShader = instancedShader;
 
         /*Set initial scaling for text characters*/
         inst->textScaling = 25;
@@ -199,7 +201,6 @@ namespace pen {
             item->UpdateText(frameRate);
             pen::ui::Submit();
         }
-
 #ifndef __PEN_MOBILE__
         return (!glfwWindowShouldClose(Get()->GetWindow())) ? true : false;
 #else

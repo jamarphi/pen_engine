@@ -25,12 +25,14 @@ under the License.
 #ifdef __PEN_MOBILE__
 #include <iostream>
 #include <android/asset_manager_jni.h>
+#endif
 
 extern "C" {
     namespace pen {
         namespace android {
             static void AppLog(const char* message) {
                 /*Sends message to Java for logging*/
+#ifdef __PEN_MOBILE__
                 JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
                 jclass logClass = env->FindClass("com/jamar/penengine/MainActivity");
                 if (logClass != nullptr) {
@@ -42,10 +44,9 @@ extern "C" {
                         env->DeleteLocalRef(javaMessage);
                     }
                 }
+#endif
             }
         }
         
     }
 }
-
-#endif
