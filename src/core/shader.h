@@ -138,7 +138,7 @@ public:
 		"varying float texIndex;\n"
 		"uniform mat4 uMVP;\n"
 		"uniform sampler2D uTextures[32];\n"
-		"uniform vec4 uInstancedOffsets[100];\n"
+		"uniform vec4 uInstancedOffsets[400];\n"
 		"void main() {\n"
 		"color = inColor;\n"
 		"texCoord = inTexCoord;\n"

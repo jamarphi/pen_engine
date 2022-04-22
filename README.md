@@ -480,7 +480,7 @@ Functions that are not compatible with mobile:
 
 # 1.8.1 - Cross Platform For Android
 
-When doing cross platform applications not much changes, but a few things do.
+Currently the Windows build for android does not render any items.  Currently the Mac build for android does not render GUI items.
 
 When using OnRender, you now have to pass your logic into a callback function as follows:
 

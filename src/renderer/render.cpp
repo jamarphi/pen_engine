@@ -19,7 +19,6 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #include "render.h"
-#include "../../ext/platforms/android/pen_engine_android/src/cpp/log.h"
 
 namespace pen {
     Render* Render::instance = nullptr;
@@ -96,7 +95,7 @@ namespace pen {
         if (render->firstTime) {
             for (int j = 0; j < inst->textureUnits; j++) {
                 render->appShader.SetUniform1i("uTextures[" + std::to_string(j) + "]", j);
-                //render->instancedShader.SetUniform1i("uTextures[" + std::to_string(j) + "]", j);
+                render->instancedShader.SetUniform1i("uTextures[" + std::to_string(j) + "]", j);
             }
         }
     }

@@ -7,5 +7,5 @@ file(GLOB_RECURSE PROJECT_MOBILE_LIB_SOURCES "../../../src/*.h" "../../../src/*.
     "../../../dependencies/*.h" "../../../dependencies/*.cpp"
     "../../../src/*.c")
 
-add_library(pen_android SHARED ${PROJECT_MOBILE_LIB_SOURCES})
+add_library(pen_engine_android SHARED ${PROJECT_MOBILE_LIB_SOURCES})
 target_link_libraries(pen_engine_android GLESv2 EGL android)

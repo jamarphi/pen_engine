@@ -103,8 +103,8 @@ namespace pen {
         /*Initialize shaders*/
         Shader shader(1);
         inst->appShader = shader;
-        //Shader instancedShader(2);
-        //inst->instancedShader = instancedShader;
+        Shader instancedShader(2);
+        inst->instancedShader = instancedShader;
 
         /*Set initial scaling for text characters*/
         inst->textScaling = 25;
