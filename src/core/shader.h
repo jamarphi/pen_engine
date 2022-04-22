@@ -30,152 +30,154 @@ under the License.
 #include "../ops/matrices/mat2x4.h"
 #include "../objects/containers/map.h"
 
-class Shader {
-public:
-	unsigned int rendererId;
-    pen::Map<std::string, GLint> uniformLocationCache;
+namespace pen {
+	class Shader {
+	public:
+		unsigned int rendererId;
+		pen::Map<std::string, GLint> uniformLocationCache;
 
 #ifndef __PEN_ES__
-	const char* shaderProgram = "#version 400 core\n"
-		"layout(location = 0) in vec3 position;\n"
-		"layout(location = 1) in vec4 inColor;\n"
-		"layout(location = 2) in vec2 inTexCoord;\n"
-		"layout(location = 3) in float inTexIndex;\n"
-		"out vec4 color;\n"
-		"out vec2 texCoord;\n"
-		"out float texIndex;\n"
-		"uniform mat4 uMVP;\n"
-		"void main() {\n"
-		"color = inColor;\n"
-		"texCoord = inTexCoord;\n"
-		"texIndex = inTexIndex;\n"
-		"gl_Position = uMVP * vec4(position, 1.0);\n"
-		"}\0";
+		const char* shaderProgram = "#version 400 core\n"
+			"layout(location = 0) in vec3 position;\n"
+			"layout(location = 1) in vec4 inColor;\n"
+			"layout(location = 2) in vec2 inTexCoord;\n"
+			"layout(location = 3) in float inTexIndex;\n"
+			"out vec4 color;\n"
+			"out vec2 texCoord;\n"
+			"out float texIndex;\n"
+			"uniform mat4 uMVP;\n"
+			"void main() {\n"
+			"color = inColor;\n"
+			"texCoord = inTexCoord;\n"
+			"texIndex = inTexIndex;\n"
+			"gl_Position = uMVP * vec4(position, 1.0);\n"
+			"}\0";
 
-	const char* fragmentProgram = "#version 400 core\n"
-		"out vec4 FragColor;\n"
-		"in vec4 color;\n"
-		"in vec2 texCoord;\n"
-		"in float texIndex;\n"
+		const char* fragmentProgram = "#version 400 core\n"
+			"out vec4 FragColor;\n"
+			"in vec4 color;\n"
+			"in vec2 texCoord;\n"
+			"in float texIndex;\n"
 #ifdef __APPLE__
-		"uniform sampler2D uTextures[13];\n"
+			"uniform sampler2D uTextures[13];\n"
 #else
-        "uniform sampler2D uTextures[32];\n"
+			"uniform sampler2D uTextures[32];\n"
 #endif
-		"void main() {\n"
-		"int index = int(texIndex);\n"
-		"FragColor = (texture(uTextures[index], texCoord) * color);\n"
-		"}\n\0";
+			"void main() {\n"
+			"int index = int(texIndex);\n"
+			"FragColor = (texture(uTextures[index], texCoord) * color);\n"
+			"}\n\0";
 
-	const char* instancedShaderProgram = "#version 400 core\n"
-		"layout(location = 0) in vec3 position;\n"
-		"layout(location = 1) in vec4 inColor;\n"
-		"layout(location = 2) in vec2 inTexCoord;\n"
-		"layout(location = 3) in float inTexIndex;\n"
-		"out vec4 color;\n"
-		"out vec2 texCoord;\n"
-		"out float texIndex;\n"
-		"uniform mat4 uMVP;\n"
-		"uniform vec4 uInstancedOffsets[400];\n"
-		"void main() {\n"
-		"color = inColor;\n"
-		"texCoord = inTexCoord;\n"
-		"texIndex = inTexIndex;\n"
-		"vec3 offset = vec3(uInstancedOffsets[gl_InstanceID].x, uInstancedOffsets[gl_InstanceID].y, uInstancedOffsets[gl_InstanceID].z);\n"
-		"gl_Position = uMVP * vec4(position.x + offset.x, position.y + offset.y, position.z + offset.z, 1.0);\n"
-		"}\0";
+		const char* instancedShaderProgram = "#version 400 core\n"
+			"layout(location = 0) in vec3 position;\n"
+			"layout(location = 1) in vec4 inColor;\n"
+			"layout(location = 2) in vec2 inTexCoord;\n"
+			"layout(location = 3) in float inTexIndex;\n"
+			"out vec4 color;\n"
+			"out vec2 texCoord;\n"
+			"out float texIndex;\n"
+			"uniform mat4 uMVP;\n"
+			"uniform vec4 uInstancedOffsets[400];\n"
+			"void main() {\n"
+			"color = inColor;\n"
+			"texCoord = inTexCoord;\n"
+			"texIndex = inTexIndex;\n"
+			"vec3 offset = vec3(uInstancedOffsets[gl_InstanceID].x, uInstancedOffsets[gl_InstanceID].y, uInstancedOffsets[gl_InstanceID].z);\n"
+			"gl_Position = uMVP * vec4(position.x + offset.x, position.y + offset.y, position.z + offset.z, 1.0);\n"
+			"}\0";
 
-	const char* instancedFragmentProgram = "#version 400 core\n"
-		"out vec4 FragColor;\n"
-		"in vec4 color;\n"
-		"in vec2 texCoord;\n"
-		"in float texIndex;\n"
+		const char* instancedFragmentProgram = "#version 400 core\n"
+			"out vec4 FragColor;\n"
+			"in vec4 color;\n"
+			"in vec2 texCoord;\n"
+			"in float texIndex;\n"
 #ifdef __APPLE__
-		"uniform sampler2D uTextures[13];\n"
+			"uniform sampler2D uTextures[13];\n"
 #else
-		"uniform sampler2D uTextures[32];\n"
+			"uniform sampler2D uTextures[32];\n"
 #endif
-		"void main() {\n"
-		"int index = int(texIndex);\n"
-		"FragColor = (texture(uTextures[index], texCoord) * color);\n"
-		"}\n\0";
+			"void main() {\n"
+			"int index = int(texIndex);\n"
+			"FragColor = (texture(uTextures[index], texCoord) * color);\n"
+			"}\n\0";
 #else
-	const char* shaderProgram =
-		"attribute vec3 position;\n"
-		"attribute vec4 inColor;\n"
-		"attribute vec2 inTexCoord;\n"
-		"attribute float inTexIndex;\n"
-		"varying vec4 color;\n"
-		"varying vec2 texCoord;\n"
-		"varying float texIndex;\n"
-		"uniform mat4 uMVP;\n"
-		"void main() {\n"
-		"color = inColor;\n"
-		"texCoord = inTexCoord;\n"
-		"texIndex = inTexIndex;\n"
-		"gl_Position = uMVP * vec4(position, 1.0);\n"
-		"}\0";
+		const char* shaderProgram =
+			"attribute vec3 position;\n"
+			"attribute vec4 inColor;\n"
+			"attribute vec2 inTexCoord;\n"
+			"attribute float inTexIndex;\n"
+			"varying vec4 color;\n"
+			"varying vec2 texCoord;\n"
+			"varying float texIndex;\n"
+			"uniform mat4 uMVP;\n"
+			"void main() {\n"
+			"color = inColor;\n"
+			"texCoord = inTexCoord;\n"
+			"texIndex = inTexIndex;\n"
+			"gl_Position = uMVP * vec4(position, 1.0);\n"
+			"}\0";
 
-	/*Default precision definition is required for OpenGL ES*/
-	const char* fragmentProgram =
-		"precision mediump float;\n"
-		"varying vec4 color;\n"
-		"varying vec2 texCoord;\n"
-		"varying float texIndex;\n"
-		"uniform sampler2D uTextures[32];\n"
-		"void main() {\n"
-		"int index = int(texIndex);\n"
-		"gl_FragColor = (texture2D(uTextures[index], texCoord) * color);\n"
-		"}\n\0";
+		/*Default precision definition is required for OpenGL ES*/
+		const char* fragmentProgram =
+			"precision mediump float;\n"
+			"varying vec4 color;\n"
+			"varying vec2 texCoord;\n"
+			"varying float texIndex;\n"
+			"uniform sampler2D uTextures[32];\n"
+			"void main() {\n"
+			"int index = int(texIndex);\n"
+			"gl_FragColor = (texture2D(uTextures[index], texCoord) * color);\n"
+			"}\n\0";
 
-	const char* instancedShaderProgram =
-		"attribute vec3 position;\n"
-		"attribute vec4 inColor;\n"
-		"attribute vec2 inTexCoord;\n"
-		"attribute float inTexIndex;\n"
-		"varying vec4 color;\n"
-		"varying vec2 texCoord;\n"
-		"varying float texIndex;\n"
-		"uniform mat4 uMVP;\n"
-		"uniform sampler2D uTextures[32];\n"
-		"uniform vec4 uInstancedOffsets[400];\n"
-		"void main() {\n"
-		"color = inColor;\n"
-		"texCoord = inTexCoord;\n"
-		"texIndex = inTexIndex;\n"
-		"vec3 offset = vec3(uInstancedOffsets[gl_InstanceID].x, uInstancedOffsets[gl_InstanceID].y, uInstancedOffsets[gl_InstanceID].z);\n"
-		"gl_Position = uMVP * vec4(position.x + offset.x, position.y + offset.y, position.z + offset.z, 1.0);\n"
-		"}\0";
+		const char* instancedShaderProgram =
+			"attribute vec3 position;\n"
+			"attribute vec4 inColor;\n"
+			"attribute vec2 inTexCoord;\n"
+			"attribute float inTexIndex;\n"
+			"varying vec4 color;\n"
+			"varying vec2 texCoord;\n"
+			"varying float texIndex;\n"
+			"uniform mat4 uMVP;\n"
+			"uniform sampler2D uTextures[32];\n"
+			"uniform vec4 uInstancedOffsets[400];\n"
+			"void main() {\n"
+			"color = inColor;\n"
+			"texCoord = inTexCoord;\n"
+			"texIndex = inTexIndex;\n"
+			"vec3 offset = vec3(uInstancedOffsets[gl_InstanceID].x, uInstancedOffsets[gl_InstanceID].y, uInstancedOffsets[gl_InstanceID].z);\n"
+			"gl_Position = uMVP * vec4(position.x + offset.x, position.y + offset.y, position.z + offset.z, 1.0);\n"
+			"}\0";
 
-	/*Default precision definition is required for OpenGL ES*/
-	const char* instancedFragmentProgram =
-		"precision mediump float;\n"
-		"varying vec4 color;\n"
-		"varying vec2 texCoord;\n"
-		"varying float texIndex;\n"
-		"void main() {\n"
-		"int index = int(texIndex);\n"
-		"gl_FragColor = (texture2D(uTextures[index], texCoord) * color);;\n"
-		"}\n\0";
+		/*Default precision definition is required for OpenGL ES*/
+		const char* instancedFragmentProgram =
+			"precision mediump float;\n"
+			"varying vec4 color;\n"
+			"varying vec2 texCoord;\n"
+			"varying float texIndex;\n"
+			"void main() {\n"
+			"int index = int(texIndex);\n"
+			"gl_FragColor = (texture2D(uTextures[index], texCoord) * color);;\n"
+			"}\n\0";
 #endif /*__PEN_ES__*/
 
 
-	Shader();
-	Shader(const int& init);
-	~Shader();
+		Shader();
+		Shader(const int& init);
+		~Shader();
 
-	void Bind() const;
-	void Unbind() const;
-	void Destroy();
-	void SetUniform1i(const std::string& name, int value);
-	void SetUniform1iv(const std::string& name, const unsigned int count, int* value);
-	void SetUniform1f(const std::string& name, float value);
-	void SetUniform2f(const std::string& name, pen::Vec2* value);
-	void SetUniform3f(const std::string& name, pen::Vec3* value);
-	void SetUniform4f(const std::string& name, pen::Vec4* value);
-	void SetUniformMat4x4f(const std::string& name, const pen::Mat4x4& matrix);
-	void SetUniformMat2x4f(const std::string& name, pen::Mat2x4* matrix);
-	unsigned int CompileShader(unsigned int type, const std::string& source);
-	GLint GetUniformLocation(const std::string& name);
-	unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
-};
+		void Bind() const;
+		void Unbind() const;
+		void Destroy();
+		void SetUniform1i(const std::string& name, int value);
+		void SetUniform1iv(const std::string& name, const unsigned int count, int* value);
+		void SetUniform1f(const std::string& name, float value);
+		void SetUniform2f(const std::string& name, pen::Vec2* value);
+		void SetUniform3f(const std::string& name, pen::Vec3* value);
+		void SetUniform4f(const std::string& name, pen::Vec4* value);
+		void SetUniformMat4x4f(const std::string& name, const pen::Mat4x4& matrix);
+		void SetUniformMat2x4f(const std::string& name, pen::Mat2x4* matrix);
+		unsigned int CompileShader(unsigned int type, const std::string& source);
+		GLint GetUniformLocation(const std::string& name);
+		unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
+	};
+}

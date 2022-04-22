@@ -24,8 +24,6 @@ under the License.
 #include "../core/vertex_array.h"
 #include "../core/index_buffer.h"
 #include "../core/shader.h"
-#include "../ops/vectors/vec3.h"
-#include "../ops/vectors/vec4.h"
 
 namespace pen {
 	struct BatchVertexData {
@@ -38,10 +36,9 @@ namespace pen {
 	class Renderer {
 	public:
 		static int drawType[7];
-
-		void Clear() const;
-		void Background(pen::Vec4 color) const;
-		void Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const Shader& shader, int indices, const unsigned int& shapeType,
-			const bool& isInstanced, const unsigned int& instanceCount) const;
+	public:
+		static void Clear();
+		static void Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
+			const bool& isInstanced, const unsigned int& instanceCount);
 	};
 }

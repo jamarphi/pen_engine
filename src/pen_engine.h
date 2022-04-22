@@ -138,16 +138,14 @@ namespace pen {
 
             Create while loop when using this function like this:
 
-            pen::Renderer renderer;
             while (pen::Pen::Running())
             {
                 pen::Pen::OnInput();
-                renderer.Clear();
-                if(pen::Render::Get()->firstTime) renderer.Background();
+                if(pen::Render::Get()->firstTime) pen::Render::Background();
 
                 ***Rendering logic goes here***
                 
-                pen::Pen::ManageRender(&renderer);
+                pen::Pen::ManageRender();
             }
             */
         }
@@ -166,7 +164,7 @@ namespace pen {
             /*Override this function before rendering your application*/
         }
 
-        static void ManageRender(pen::Renderer* renderer);
+        static void ManageRender();
 
 #ifndef __PEN_MOBILE__
         static glfwwindow* GetWindow();

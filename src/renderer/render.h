@@ -36,8 +36,8 @@ namespace pen {
 		static Render* instance;
 	public:
 		bool firstTime = true;
-		Shader appShader;
-		Shader instancedShader;
+		pen::Shader appShader;
+		pen::Shader instancedShader;
 		pen::Mat4x4 appOrthoProj;
 		pen::Mat4x4 appPerspectiveProj;
 		pen::Mat4x4 appOrthoView;
@@ -53,7 +53,9 @@ namespace pen {
 			return instance;
 		}
 
-		static void RenderLayer(Renderer* renderer, pen::Layer *layer);
+	public:
+		static void Background(pen::Vec4 color);
+		static void RenderLayer(pen::Layer *layer);
 	private:
 		static void TextureSet();
 		static void UpdatedInstancedUniforms(pen::Layer* layer);

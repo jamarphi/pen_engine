@@ -25,18 +25,13 @@ namespace pen {
     /*Draw types based on which primitive shape is being used for a given layer*/
     int Renderer::drawType[7] = { GL_POINTS,GL_LINES,GL_TRIANGLES,GL_TRIANGLES,GL_TRIANGLES, GL_TRIANGLES, GL_TRIANGLES };
 
-    void Renderer::Clear() const {
+    void Renderer::Clear() {
         /*Clears the buffer before rendering*/
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void Renderer::Background(pen::Vec4 color) const {
-        /*Sets the background color for a window*/
-        glClearColor(color.x, color.y, color.z, color.w);
-    }
-
-    void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const Shader& shader, int indices, const unsigned int& shapeType,
-        const bool& isInstanced, const unsigned int& instanceCount) const {
+    void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
+        const bool& isInstanced, const unsigned int& instanceCount) {
         /*Draw a batched object to the screen.
 
         This function goes through the pipeline and does not need to be called directly by you*/

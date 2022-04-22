@@ -101,9 +101,9 @@ namespace pen {
         stateInst->textureUnits = textureUnits / 6;
 
         /*Initialize shaders*/
-        Shader shader(1);
+        pen::Shader shader(1);
         inst->appShader = shader;
-        Shader instancedShader(2);
+        pen::Shader instancedShader(2);
         inst->instancedShader = instancedShader;
 
         /*Set initial scaling for text characters*/
@@ -163,10 +163,10 @@ namespace pen {
 #endif
     }
 
-    void Pen::ManageRender(pen::Renderer* renderer) {
+    void Pen::ManageRender() {
         /*Manage swaps for each render*/
         for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-            pen::Render::RenderLayer(renderer, pen::ui::LM::layers[i]);
+            pen::Render::RenderLayer(pen::ui::LM::layers[i]);
         }
 
 #ifndef __PEN_MOBILE__
@@ -201,6 +201,7 @@ namespace pen {
             item->UpdateText(frameRate);
             pen::ui::Submit();
         }
+        pen::Renderer::Clear();
 #ifndef __PEN_MOBILE__
         return (!glfwWindowShouldClose(Get()->GetWindow())) ? true : false;
 #else

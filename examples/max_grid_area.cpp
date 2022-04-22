@@ -216,7 +216,6 @@ public:
         object->SetPosition(pos);
         pen::ui::Submit();
         */
-        pen::Renderer renderer;
         int counter = 0;
         
         /*Left and down directions*/
@@ -231,8 +230,7 @@ public:
         while (pen::Pen::Running())
         {
             OnInput();
-            renderer.Clear();
-            if (pen::Render::Get()->firstTime) renderer.Background(pen::PEN_GRAY);
+            if (pen::Render::Get()->firstTime) pen::Render::Background(pen::PEN_GRAY);
 
             /*Put a delay so it can be seen more clearly*/
             //pen::Pen::Sleep(100);
@@ -400,7 +398,7 @@ public:
                 }
             }
             
-            pen::Pen::ManageRender(&renderer);
+            pen::Pen::ManageRender();
         }
     }
 

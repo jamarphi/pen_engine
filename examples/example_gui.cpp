@@ -98,17 +98,14 @@ public:
     }
 
     void OnRender() override {
-        pen::Renderer renderer;
-
         while (pen::Pen::Running())
         {
             OnInput();
-            renderer.Clear();
-            if (pen::Render::Get()->firstTime) renderer.Background(pen::PEN_CYAN);
+            if (pen::Render::Get()->firstTime) pen::Render::Background(pen::PEN_CYAN);
 
             //ShowMousePos();
 
-            pen::Pen::ManageRender(&renderer);
+            pen::Pen::ManageRender();
         }
     }
 

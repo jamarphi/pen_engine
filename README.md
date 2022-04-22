@@ -84,17 +84,14 @@ To use Pen Engine inherit it with a class like this:
 Setting up the render cycle:
 
     void OnRender() override {
-        pen::Renderer renderer;
-        
         while (pen::Pen::Running())
         {
             OnInput();
-            renderer.Clear();
-            if(pen::Render::Get()->firstTime) renderer.Background(pen::PEN_GRAY);
+            if(pen::Render::Get()->firstTime) pen::Render::Background(pen::PEN_GRAY);
 
             /*Your program logic*/
 
-            pen::Pen::ManageRender(&renderer);
+            pen::Pen::ManageRender();
         }
     }
 
@@ -526,16 +523,13 @@ There is a difference for how you would do the mobile render callback function f
 a while loop for PC, you do an if statement:
 
     void yourAndroidRenderFunction(){
-        pen::Renderer renderer;
-        
         if (pen::Pen::Running())
         {
-            renderer.Clear();
-            if(pen::Render::Get()->firstTime) renderer.Background(pen::PEN_GRAY);
+            if(pen::Render::Get()->firstTime) pen::Render::Background(pen::PEN_GRAY);
 
             /*Your program logic*/
 
-            pen::Pen::ManageRender(&renderer);
+            pen::Pen::ManageRender();
         }
     }
 
@@ -544,17 +538,14 @@ Also input would have to be done on the native side for Android while implementi
 The PC function would remain the same with the while loop:
 
     void OnRender() override {
-        pen::Renderer renderer;
-        
         while (pen::Pen::Running())
         {
             OnInput();
-            renderer.Clear();
-            if(pen::Render::Get()->firstTime) renderer.Background(pen::PEN_GRAY);
+            if(pen::Render::Get()->firstTime) pen::Render::Background(pen::PEN_GRAY);
 
             /*Your program logic*/
 
-            pen::Pen::ManageRender(&renderer);
+            pen::Pen::ManageRender();
         }
     }
 

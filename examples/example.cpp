@@ -49,16 +49,13 @@ public:
         pos.x += 0.01f;
         object->SetPosition(pos);
         pen::ui::Submit();
-        */
-        pen::Renderer renderer;
-        
+        */        
         while (pen::Pen::Running())
         {
             OnInput();
-            renderer.Clear();
-            if (pen::Render::Get()->firstTime) renderer.Background(pen::PEN_GRAY);
+            if (pen::Render::Get()->firstTime) pen::Render::Background(pen::PEN_GRAY);
 
-            pen::Pen::ManageRender(&renderer);
+            pen::Pen::ManageRender();
         }
     }
 

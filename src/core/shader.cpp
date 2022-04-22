@@ -20,139 +20,141 @@ under the License.
 *************************************************************************************************/
 #include "shader.h"
 
-Shader::Shader() {
-	/*The default shader constructor, this one is mainly for declaring Shader variables as member variables of another class*/
-}
-
-Shader::Shader(const int& init) : rendererId(0){
-	/*This constructor gets called when a shader will actually be created*/
-	switch (init) {
-	case 1:
-		rendererId = CreateShader(shaderProgram, fragmentProgram);
-		break;
-	case 2:
-		rendererId = CreateShader(instancedShaderProgram, instancedFragmentProgram);
-		break;
-	default:
-		rendererId = CreateShader(shaderProgram, fragmentProgram);
-		break;
+namespace pen {
+	Shader::Shader() {
+		/*The default shader constructor, this one is mainly for declaring Shader variables as member variables of another class*/
 	}
-}
 
-Shader::~Shader() {
-}
-
-void Shader::Destroy() {
-	/*Removes the shader program from memory on the GPU*/
-	glDeleteProgram(rendererId);
-}
-
-unsigned int Shader::CompileShader(unsigned int type, const std::string& source) {
-	/*Creates a shader and links to program in context*/
-	unsigned int id = glCreateShader(type);
-	const char* src = source.c_str();
-	glShaderSource(id, 1, &src, nullptr);
-	glCompileShader(id);
-
-	int result;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-	if (result == GL_FALSE) {
-		int length;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-		char* message = (char*)alloca(length * sizeof(char));
-		glGetShaderInfoLog(id, length, &length, message);
-		std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << std::endl;
-		std::cout << message << std::endl;
-		glDeleteShader(id);
-		return 0;
+	Shader::Shader(const int& init) : rendererId(0) {
+		/*This constructor gets called when a shader will actually be created*/
+		switch (init) {
+		case 1:
+			rendererId = CreateShader(shaderProgram, fragmentProgram);
+			break;
+		case 2:
+			rendererId = CreateShader(instancedShaderProgram, instancedFragmentProgram);
+			break;
+		default:
+			rendererId = CreateShader(shaderProgram, fragmentProgram);
+			break;
+		}
 	}
-	return id;
-}
 
-void Shader::Bind() const {
-	/*Binds the shader to be used for drawing*/
-	glUseProgram(rendererId);
-}
+	Shader::~Shader() {
+	}
 
-void Shader::Unbind() const {
-	/*Unbinds the shader*/
-	glUseProgram(0);
-}
+	void Shader::Destroy() {
+		/*Removes the shader program from memory on the GPU*/
+		glDeleteProgram(rendererId);
+	}
 
-unsigned int Shader::CreateShader(const std::string& vertexShader,const std::string& fragmentShader) {
-	/*Creates the vertex and fragment shader for rendering*/
-	unsigned int program = glCreateProgram();
-	unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
+	unsigned int Shader::CompileShader(unsigned int type, const std::string& source) {
+		/*Creates a shader and links to program in context*/
+		unsigned int id = glCreateShader(type);
+		const char* src = source.c_str();
+		glShaderSource(id, 1, &src, nullptr);
+		glCompileShader(id);
 
-	unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
+		int result;
+		glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+		if (result == GL_FALSE) {
+			int length;
+			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+			char* message = (char*)alloca(length * sizeof(char));
+			glGetShaderInfoLog(id, length, &length, message);
+			std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << std::endl;
+			std::cout << message << std::endl;
+			glDeleteShader(id);
+			return 0;
+		}
+		return id;
+	}
 
-	glAttachShader(program, vs);
-	glAttachShader(program, fs);
-	glLinkProgram(program);
-	glValidateProgram(program);
+	void Shader::Bind() const {
+		/*Binds the shader to be used for drawing*/
+		glUseProgram(rendererId);
+	}
 
-	glDeleteShader(vs);
-	glDeleteShader(fs);
-	return program;
-}
+	void Shader::Unbind() const {
+		/*Unbinds the shader*/
+		glUseProgram(0);
+	}
 
-void Shader::SetUniform1i(const std::string& name, int value) {
-	/*Sets an integer uniform in the shader*/
-	GLint location = GetUniformLocation(name);
-	glUniform1i(location, value);
-}
+	unsigned int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
+		/*Creates the vertex and fragment shader for rendering*/
+		unsigned int program = glCreateProgram();
+		unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
 
-void Shader::SetUniform1iv(const std::string& name, const unsigned int count, int* value) {
-	/*Sets an integer array uniform in the shader*/
-	GLint location = GetUniformLocation(name);
-	glUniform1iv(location,count, value);
-}
+		unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
 
-void Shader::SetUniform1f(const std::string& name, float value) {
-	/*Sets a float uniform in the shader*/
-	GLint location = GetUniformLocation(name);
-	glUniform1f(location, value);
-}
+		glAttachShader(program, vs);
+		glAttachShader(program, fs);
+		glLinkProgram(program);
+		glValidateProgram(program);
 
-void Shader::SetUniform2f(const std::string& name, pen::Vec2* value) {
-	/*Sets a vec2 float uniform in the shader*/
-	GLint location = GetUniformLocation(name);
-	glUniform2f(location, value->x, value->y);
-}
+		glDeleteShader(vs);
+		glDeleteShader(fs);
+		return program;
+	}
 
-void Shader::SetUniform3f(const std::string& name, pen::Vec3* value) {
-	/*Sets a vec3 float uniform in the shader*/
-	GLint location = GetUniformLocation(name);
-	glUniform3f(location, value->x, value->y,value->z);
-}
+	void Shader::SetUniform1i(const std::string& name, int value) {
+		/*Sets an integer uniform in the shader*/
+		GLint location = GetUniformLocation(name);
+		glUniform1i(location, value);
+	}
 
-void Shader::SetUniform4f(const std::string& name, pen::Vec4* value) {
-	/*Sets a vec4 float uniform in the shader*/
-	GLint location = GetUniformLocation(name);
-	glUniform4f(location, value->x, value->y, value->z, value->w);
-}
+	void Shader::SetUniform1iv(const std::string& name, const unsigned int count, int* value) {
+		/*Sets an integer array uniform in the shader*/
+		GLint location = GetUniformLocation(name);
+		glUniform1iv(location, count, value);
+	}
 
-void Shader::SetUniformMat4x4f(const std::string& name, const pen::Mat4x4& matrix) {
-	/*Sets a mat4x4 uniform in the shader*/
-	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix.matrix[0][0]);
-}
+	void Shader::SetUniform1f(const std::string& name, float value) {
+		/*Sets a float uniform in the shader*/
+		GLint location = GetUniformLocation(name);
+		glUniform1f(location, value);
+	}
 
-void Shader::SetUniformMat2x4f(const std::string& name, pen::Mat2x4* matrix) {
-	/*Sets a mat2x4 uniform in the shader*/
-	glUniformMatrix2x4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix->matrix[0][0]);
-}
+	void Shader::SetUniform2f(const std::string& name, pen::Vec2* value) {
+		/*Sets a vec2 float uniform in the shader*/
+		GLint location = GetUniformLocation(name);
+		glUniform2f(location, value->x, value->y);
+	}
 
-GLint Shader::GetUniformLocation(const std::string& name) {
-	/*Looks for the uniform name and caches it if not found previously*/
-	if (uniformLocationCache.Find(name) != nullptr)
-		return uniformLocationCache.Find(name)->second;
+	void Shader::SetUniform3f(const std::string& name, pen::Vec3* value) {
+		/*Sets a vec3 float uniform in the shader*/
+		GLint location = GetUniformLocation(name);
+		glUniform3f(location, value->x, value->y, value->z);
+	}
 
-	GLint location = glGetUniformLocation(rendererId, name.c_str());
-	if (location == -1) {
-		std::cout << "Uniform '" << name << "' does not exist" << std::endl;
-    }
+	void Shader::SetUniform4f(const std::string& name, pen::Vec4* value) {
+		/*Sets a vec4 float uniform in the shader*/
+		GLint location = GetUniformLocation(name);
+		glUniform4f(location, value->x, value->y, value->z, value->w);
+	}
 
-	uniformLocationCache.Insert(name, location);
+	void Shader::SetUniformMat4x4f(const std::string& name, const pen::Mat4x4& matrix) {
+		/*Sets a mat4x4 uniform in the shader*/
+		glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix.matrix[0][0]);
+	}
 
-	return location;
+	void Shader::SetUniformMat2x4f(const std::string& name, pen::Mat2x4* matrix) {
+		/*Sets a mat2x4 uniform in the shader*/
+		glUniformMatrix2x4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix->matrix[0][0]);
+	}
+
+	GLint Shader::GetUniformLocation(const std::string& name) {
+		/*Looks for the uniform name and caches it if not found previously*/
+		if (uniformLocationCache.Find(name) != nullptr)
+			return uniformLocationCache.Find(name)->second;
+
+		GLint location = glGetUniformLocation(rendererId, name.c_str());
+		if (location == -1) {
+			std::cout << "Uniform '" << name << "' does not exist" << std::endl;
+		}
+
+		uniformLocationCache.Insert(name, location);
+
+		return location;
+	}
 }

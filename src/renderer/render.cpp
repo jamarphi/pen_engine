@@ -23,10 +23,15 @@ under the License.
 namespace pen {
     Render* Render::instance = nullptr;
 
-    void Render::RenderLayer(pen::Renderer* renderer, pen::Layer* layer) {
+    void Render::Background(pen::Vec4 color) {
+        /*Sets the background color for the window*/
+        glClearColor(color.x, color.y, color.z, color.w);
+    }
+
+    void Render::RenderLayer(pen::Layer* layer) {
         /*Render a batch of objects*/
         Render* inst = pen::Render::Get();
-        Shader shader = layer->isInstanced ? inst->instancedShader : inst->appShader;
+        pen::Shader shader = layer->isInstanced ? inst->instancedShader : inst->appShader;
 
 #ifndef __PEN_MOBILE__
         if (layer->isWireFrame) {
@@ -73,7 +78,7 @@ namespace pen {
             }
         }
 
-        renderer->Draw(layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
+        pen::Renderer::Draw(layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
     }
 
     void Render::TextureSet() {
