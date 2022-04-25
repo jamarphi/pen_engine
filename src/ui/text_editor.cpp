@@ -62,7 +62,7 @@ namespace pen {
                 pen::Vec2(0.94f * size.x, 0.94f * size.y), pen::ui::Shape::QUAD, objectColor, this, onClickCallback, true));
             containerWindow = childItems[0];
 
-            float* offset = new float[2];
+            float* offset = new float[2]{0.0f};
             containerWindow->sliderOffset = offset;
             /*----First child item is the container window----*/
 
@@ -124,11 +124,11 @@ namespace pen {
             /*Scroll bar callback*/
             pen::State* inst = pen::State::Get();
 
-            ///*For the horizontal scroll bar*/
+            /*For the horizontal scroll bar*/
             float textBoxLength = windowTextBox->size.x;
             float initialX = windowTextBox->positions.x;
             float finalX = 0.0f;
-            auto t = containerWindow->sliderOffset[1];
+
             if (containerWindow->sliderOffset[1] == 0.0f && windowTextBox->positions.x > containerWindow->positions.x) {
                 /*Caps it off at the beginning*/
                 finalX = containerWindow->positions.x;
@@ -139,7 +139,7 @@ namespace pen {
                 finalX = containerWindow->positions.x - windowTextBox->size.x;
             }
             else {
-                finalX = windowTextBox->positions.x + (containerWindow->sliderOffset[1] * textBoxLength);
+                finalX = containerWindow->positions.x + (-1.0f * containerWindow->sliderOffset[1] * textBoxLength);
             }
 
             /*For the vertical scroll bar*/
@@ -161,7 +161,7 @@ namespace pen {
                     - (containerWindow->sliderOffset[0] * windowTextBox->heightOfScrollParentItems);
             }
             
-            pen::Vec3 translation = pen::Vec3(0.0f, finalY - initialY, 0.0f);
+            pen::Vec3 translation = pen::Vec3(finalX - initialX, finalY - initialY, 0.0f);
             pen::ui::Translate(windowTextBox, translation, true, true, false);
 
             for (int i = 0; i < windowTextBox->childItems.size(); i++) {
@@ -310,10 +310,10 @@ namespace pen {
                         }
                     }
                     else if (key == pen::in::KEYS::LEFT) {
-                        cursorIdx--;
+                        if(cursorIdx > 0) cursorIdx--;
                     }
                     else if (key == pen::in::KEYS::RIGHT) {
-                        cursorIdx++;
+                        if (cursorIdx < windowTextBox->origText.size()) cursorIdx++;
                     }
                     else if (key == pen::in::KEYS::DOWN) {
                         cursorIdx += TEXT_EDITOR_LINE_LENGTH;
@@ -355,11 +355,25 @@ namespace pen {
                     if (windowTextBox->size.y > containerWindow->size.y / 4.0f * 3.0f) {
                         verticalScrollBar->AllowActive(true);
                     }
-                    else {
-                        verticalScrollBar->AllowActive(false);
+
+                    /*Check to see if horizontal scroll bar is needed*/
+                    if (windowTextBox->childItems[windowTextBox->childItems.size() - 1]->positions.x > containerWindow->positions.x + containerWindow->size.x) {
+                        horizontalScrollBar->AllowActive(true);
+                        pen::ui::Translate(windowTextBox, pen::Vec3((containerWindow->positions.x + containerWindow->size.x - windowTextBox->childItems[windowTextBox->childItems.size() - 1]->size.x)
+                            - (windowTextBox->childItems[windowTextBox->childItems.size() - 1]->positions.x), 0.0f, 0.0f), true);
                     }
 
                     UpdateTextCursor(windowTextBox->childItems[(cursorIdx > 0 ? cursorIdx * 2 - 1 : 0)]);
+
+                    for (int i = 1; i < windowTextBox->childItems.size(); i+=2) {
+                        if (windowTextBox->childItems[i]->positions.x < containerWindow->positions.x) {
+                            windowTextBox->childItems[i]->AllowActive(false);
+                        }
+                        else {
+                            windowTextBox->childItems[i]->AllowActive(true);
+                        }
+                    }
+
                     pen::ui::Submit();
                 }
             }

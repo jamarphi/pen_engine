@@ -134,7 +134,7 @@ namespace pen {
                     }
 
                     if (item->childItems[2]->positions.x + item->childItems[2]->size.x > item->childItems[1]->positions.x
-                        || *xPos < 0.0f) {
+                        || *xPos > inst->screenWidth) {
                         /*Set scroll bar back to end*/
                         item->childItems[2]->positions.x = item->childItems[1]->positions.x - item->childItems[2]->size.x;
                         if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = 1.0f;
@@ -149,7 +149,7 @@ namespace pen {
                         }
                     }
                     else if (item->childItems[2]->positions.x < item->childItems[0]->positions.x + item->childItems[0]->size.x
-                        || *xPos > inst->screenWidth) {
+                        || *xPos < 0.0f) {
                         /*Set scroll bar back to beginning*/
                         item->childItems[2]->positions.x = item->childItems[0]->positions.x + item->childItems[0]->size.x;
                         if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = 0.0f;
