@@ -27,7 +27,6 @@ namespace pen {
 
 #ifndef __PEN_MOBILE__
     void framebuffer_size_callback(glfwwindow* window, int width, int height);
-    void scroll_callback(glfwwindow* window, double xOffset, double yOffset);
     void click_callback(glfwwindow* window, int button, int action, int mods);
     void cursor_position_callback(glfwwindow* window, double xpos, double ypos);
     void key_callback(glfwwindow* window, int key, int scancode, int action, int mods);
@@ -60,7 +59,6 @@ namespace pen {
         }
         glfwMakeContextCurrent(window);
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-        glfwSetScrollCallback(window, scroll_callback);
         glfwSetMouseButtonCallback(window, click_callback);
         glfwSetCursorPosCallback(window, cursor_position_callback);
         glfwSetKeyCallback(window, key_callback);
@@ -423,12 +421,6 @@ namespace pen {
         inst->actualScreenHeight = height;
         inst->actualScreenWidth = width;
         glViewport(0, 0, width, height);
-    }
-
-    void scroll_callback(glfwwindow* window, double xOffset, double yOffset) {
-        pen::State* inst = pen::State::Get();
-        inst->mouseScrollXOffset = xOffset;
-        inst->mouseScrollYOffset = yOffset;
     }
 
     bool Pen::HandleClick(pen::ui::Item* item, double* xPos, double* yPos, const int& button, const int& action) {

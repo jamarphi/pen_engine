@@ -23,14 +23,6 @@ under the License.
 pen::State* pen::State::instance = nullptr;
 
 namespace pen {
-	double State::MouseScrollXOffset() {
-		return pen::State::Get()->mouseScrollXOffset;
-	}
-
-	double State::MouseScrollYOffset() {
-		return pen::State::Get()->mouseScrollYOffset;
-	}
-
 	void State::SetDraggable(void* item) {
 		pen::State::Get()->draggableItem = item;
 	}

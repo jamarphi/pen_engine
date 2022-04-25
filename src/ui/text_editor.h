@@ -28,7 +28,7 @@ under the License.
 namespace pen {
 	namespace ui {
 		class TextEditor : public pen::ui::Item {
-		public:
+		private:
 			/*Window that contains the text box, text, and scroll bar*/
 			pen::ui::Item* containerWindow;
 
@@ -38,8 +38,10 @@ namespace pen {
 			pen::ui::Item* horizontalScrollBar;
 			pen::ui::Item* textCursor;
 			int cursorIdx = 0;
-
 			bool textHighlighted = false;
+			bool editorScrolling = false;
+			float prevScrollOffsetX = 0.0f;
+			float prevScrollOffsetY = 0.0f;
 		public:
 			TextEditor();
 			TextEditor(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),

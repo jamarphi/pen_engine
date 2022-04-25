@@ -71,11 +71,6 @@ namespace pen {
 		int pixelBufferHeight = 500;
 		pen::Map <std::string, pen::Sprite> pixelSprites;
 		/*----For pixel-by-pixel drawing----*/
-
-		/*For mouse scroll events*/
-		double mouseScrollXOffset = 0.0;
-		double mouseScrollYOffset = 0.0;
-
 		
 		/*This map is used for text character to unsigned char conversion*/
 		pen::Map<std::string, unsigned char> asciiMap;

@@ -124,6 +124,12 @@ namespace pen {
             /*Scroll bar callback*/
             pen::State* inst = pen::State::Get();
 
+            if (prevScrollOffsetX != containerWindow->sliderOffset[0] || prevScrollOffsetY != containerWindow->sliderOffset[1]) {
+                editorScrolling = true;
+                prevScrollOffsetX = containerWindow->sliderOffset[0];
+                prevScrollOffsetY = containerWindow->sliderOffset[1];
+            }
+
             /*For the horizontal scroll bar*/
             float textBoxLength = windowTextBox->size.x;
             float initialX = windowTextBox->positions.x;
@@ -173,7 +179,7 @@ namespace pen {
                     windowTextBox->childItems[i]->AllowActive(false);
                 }
                 else {
-                    windowTextBox->childItems[i]->AllowActive(true);
+                    if(i % 2 != 0) windowTextBox->childItems[i]->AllowActive(true);
                 }
             }
 
@@ -191,6 +197,7 @@ namespace pen {
                 }
                 else if (button == pen::in::KEYS::MOUSE_LEFT && action == pen::in::KEYS::RELEASED) {
                     textEditorHighlightActive = false;
+                    editorScrolling = false;
                 }
                 return true;
             }
@@ -201,64 +208,66 @@ namespace pen {
                 return (*userOnDragCallback)(item, xPos, yPos);
             }
             else {
-                /*Highlight text, every even child item in this text box will be a highlighting quad and every odd child item will be the text character*/
-                bool highlightBetween = false;
-                int prevCharRow = -1;
-                int prevCharColumn = -1;
-                int firstHighlightedCharRow = -1;
-                int firstHighlightedCharColumn = -1;
-                bool isTextHighlighted = false;
-                textHighlighted = false;
-                if (!textEditorHighlightActive) {
-                    /*Remove previous highlighted text*/
+                if (!editorScrolling) {
+                    /*Highlight text, every even child item in this text box will be a highlighting quad and every odd child item will be the text character*/
+                    bool highlightBetween = false;
+                    int prevCharRow = -1;
+                    int prevCharColumn = -1;
+                    int firstHighlightedCharRow = -1;
+                    int firstHighlightedCharColumn = -1;
+                    bool isTextHighlighted = false;
+                    textHighlighted = false;
+                    if (!textEditorHighlightActive) {
+                        /*Remove previous highlighted text*/
+                        for (int i = 0; i < windowTextBox->childItems.size(); i += 2) {
+                            windowTextBox->childItems[i]->AllowActive(false);
+                        }
+                        textEditorHighlightActive = true;
+                    }
+
+                    int counter = 0;
                     for (int i = 0; i < windowTextBox->childItems.size(); i += 2) {
-                        windowTextBox->childItems[i]->AllowActive(false);
-                    }
-                    textEditorHighlightActive = true;
-                }
+                        if ((*xPos >= windowTextBox->childItems[i + 1]->positions.x && *xPos <= windowTextBox->childItems[i + 1]->positions.x
+                            + windowTextBox->childItems[i + 1]->size.x) && (*yPos >= windowTextBox->childItems[i + 1]->positions.y && *yPos
+                                <= windowTextBox->childItems[i + 1]->positions.y + windowTextBox->childItems[i + 1]->size.y)) {
+                            /*Highlight this character and update the text cursor position*/
+                            windowTextBox->childItems[i]->AllowActive(true);
 
-                int counter = 0;
-                for (int i = 0; i < windowTextBox->childItems.size(); i += 2) {
-                    if ((*xPos >= windowTextBox->childItems[i + 1]->positions.x && *xPos <= windowTextBox->childItems[i + 1]->positions.x
-                        + windowTextBox->childItems[i + 1]->size.x) && (*yPos >= windowTextBox->childItems[i + 1]->positions.y && *yPos
-                            <= windowTextBox->childItems[i + 1]->positions.y + windowTextBox->childItems[i + 1]->size.y)) {
-                        /*Highlight this character and update the text cursor position*/
-                        windowTextBox->childItems[i]->AllowActive(true);
+                            isTextHighlighted = true;
 
-                        isTextHighlighted = true;
-
-                        /*Check if something is highlighted on a previous row*/
-                        if (highlightBetween) {
-                            for (int j = 2 * prevCharRow * TEXT_EDITOR_LINE_LENGTH + prevCharColumn; j <
-                                2 * windowTextBox->childItems[i + 1]->charRowIdx * TEXT_EDITOR_LINE_LENGTH + windowTextBox->childItems[i + 1]->charColumnIdx + 1; j++) {
-                                if (!windowTextBox->childItems[j]->forceActive) windowTextBox->childItems[j]->AllowActive(true);
+                            /*Check if something is highlighted on a previous row*/
+                            if (highlightBetween) {
+                                for (int j = 2 * prevCharRow * TEXT_EDITOR_LINE_LENGTH + prevCharColumn; j <
+                                    2 * windowTextBox->childItems[i + 1]->charRowIdx * TEXT_EDITOR_LINE_LENGTH + windowTextBox->childItems[i + 1]->charColumnIdx + 1; j++) {
+                                    if (!windowTextBox->childItems[j]->forceActive) windowTextBox->childItems[j]->AllowActive(true);
+                                }
                             }
+                            break;
                         }
-                        break;
-                    }
-                    else if (windowTextBox->childItems[i]->forceActive) {
-                        highlightBetween = true;
-                        if (prevCharColumn == -1 && prevCharRow == -1) {
-                            firstHighlightedCharColumn = windowTextBox->childItems[i + 1]->charColumnIdx;
-                            firstHighlightedCharRow = windowTextBox->childItems[i + 1]->charRowIdx;
+                        else if (windowTextBox->childItems[i]->forceActive) {
+                            highlightBetween = true;
+                            if (prevCharColumn == -1 && prevCharRow == -1) {
+                                firstHighlightedCharColumn = windowTextBox->childItems[i + 1]->charColumnIdx;
+                                firstHighlightedCharRow = windowTextBox->childItems[i + 1]->charRowIdx;
+                            }
+                            prevCharColumn = windowTextBox->childItems[i + 1]->charColumnIdx;
+                            prevCharRow = windowTextBox->childItems[i + 1]->charRowIdx;
+                            isTextHighlighted = true;
                         }
-                        prevCharColumn = windowTextBox->childItems[i + 1]->charColumnIdx;
-                        prevCharRow = windowTextBox->childItems[i + 1]->charRowIdx;
-                        isTextHighlighted = true;
+                        counter += 2;
                     }
-                    counter += 2;
-                }
 
-                /*Loop through to fill in any missing highlights*/
-                if (firstHighlightedCharColumn > -1 && firstHighlightedCharRow > -1 && counter < windowTextBox->childItems.size() - 2) {
-                    for (int k = 2 * firstHighlightedCharRow * TEXT_EDITOR_LINE_LENGTH + firstHighlightedCharColumn;
-                        k < counter; k += 2) {
-                        windowTextBox->childItems[k]->AllowActive(true);
+                    /*Loop through to fill in any missing highlights*/
+                    if (firstHighlightedCharColumn > -1 && firstHighlightedCharRow > -1 && counter < windowTextBox->childItems.size() - 2) {
+                        for (int k = 2 * firstHighlightedCharRow * TEXT_EDITOR_LINE_LENGTH + firstHighlightedCharColumn;
+                            k < counter; k += 2) {
+                            windowTextBox->childItems[k]->AllowActive(true);
+                        }
                     }
-                }
 
-                if (isTextHighlighted) textHighlighted = true;
-                pen::ui::Submit();
+                    if (isTextHighlighted) textHighlighted = true;
+                    pen::ui::Submit();
+                }
                 return true;
             }
         }
@@ -359,8 +368,36 @@ namespace pen {
                     /*Check to see if horizontal scroll bar is needed*/
                     if (windowTextBox->childItems[windowTextBox->childItems.size() - 1]->positions.x > containerWindow->positions.x + containerWindow->size.x) {
                         horizontalScrollBar->AllowActive(true);
-                        pen::ui::Translate(windowTextBox, pen::Vec3((containerWindow->positions.x + containerWindow->size.x - windowTextBox->childItems[windowTextBox->childItems.size() - 1]->size.x)
-                            - (windowTextBox->childItems[windowTextBox->childItems.size() - 1]->positions.x), 0.0f, 0.0f), true);
+                        if (key != pen::in::KEYS::BACKSPACE) {
+                            float textOffset = (containerWindow->positions.x + containerWindow->size.x - windowTextBox->childItems[windowTextBox->childItems.size() - 1]->size.x)
+                                - (windowTextBox->childItems[windowTextBox->childItems.size() - 1]->positions.x);
+                            pen::ui::Translate(windowTextBox, pen::Vec3(textOffset, 0.0f, 0.0f), true);
+                            containerWindow->sliderOffset[1] += (-1.0f * textOffset * (horizontalScrollBar->size.x - horizontalScrollBar->childItems[0]->size.x - horizontalScrollBar->childItems[1]->size.x)
+                                / (TEXT_EDITOR_LINE_LENGTH * windowTextBox->itemScaling * pen::State::Get()->textScaling));
+                            if (containerWindow->sliderOffset[1] > 1.0f) {
+                                containerWindow->sliderOffset[1] /= 1000.0f;
+                                if (containerWindow->sliderOffset[1] > 1.0f) containerWindow->sliderOffset[1] = 1.0f;
+                            }
+                            pen::ui::Translate(horizontalScrollBar->childItems[2], pen::Vec3(containerWindow->sliderOffset[1]
+                                * (horizontalScrollBar->size.x - horizontalScrollBar->childItems[0]->size.x - horizontalScrollBar->childItems[1]->size.x), 0.0f, 0.0f), true);
+                            if (horizontalScrollBar->childItems[2]->positions.x + horizontalScrollBar->childItems[2]->size.x > horizontalScrollBar->childItems[1]->positions.x)
+                                horizontalScrollBar->childItems[2]->positions.x = horizontalScrollBar->childItems[1]->positions.x - horizontalScrollBar->childItems[2]->size.x;
+                        }
+                    }
+
+                    if (key == pen::in::KEYS::BACKSPACE && horizontalScrollBar->forceActive) {
+                        float textOffset = windowTextBox->itemScaling * pen::State::Get()->textScaling;
+                        pen::ui::Translate(windowTextBox, pen::Vec3(textOffset, 0.0f, 0.0f), true);
+                        containerWindow->sliderOffset[1] += (-1.0f / 1000.0f * textOffset * (horizontalScrollBar->size.x - horizontalScrollBar->childItems[0]->size.x - horizontalScrollBar->childItems[1]->size.x)
+                            / (TEXT_EDITOR_LINE_LENGTH * windowTextBox->itemScaling * pen::State::Get()->textScaling));
+                        if (containerWindow->sliderOffset[1] < 0.0f) {
+                            containerWindow->sliderOffset[1] = 0.0f;
+                        }
+                        pen::ui::Translate(horizontalScrollBar->childItems[2], pen::Vec3(-1.0f * containerWindow->sliderOffset[1]
+                            * (horizontalScrollBar->size.x - horizontalScrollBar->childItems[0]->size.x - horizontalScrollBar->childItems[1]->size.x), 0.0f, 0.0f), true);
+                        if (horizontalScrollBar->childItems[2]->positions.x < horizontalScrollBar->childItems[0]->positions.x + horizontalScrollBar->childItems[0]->size.x
+                            || containerWindow->sliderOffset[1] < 0.1f)
+                            horizontalScrollBar->childItems[2]->positions.x = horizontalScrollBar->childItems[0]->positions.x + horizontalScrollBar->childItems[0]->size.x;
                     }
 
                     UpdateTextCursor(windowTextBox->childItems[(cursorIdx > 0 ? cursorIdx * 2 - 1 : 0)]);

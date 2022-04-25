@@ -133,5 +133,6 @@ namespace pen {
 			firstDrag = true;
 		}
 #endif
+		return true;
 	}
 }
