@@ -366,7 +366,8 @@ namespace pen {
                     UpdateTextCursor(windowTextBox->childItems[(cursorIdx > 0 ? cursorIdx * 2 - 1 : 0)]);
 
                     for (int i = 1; i < windowTextBox->childItems.size(); i+=2) {
-                        if (windowTextBox->childItems[i]->positions.x < containerWindow->positions.x) {
+                        if (windowTextBox->childItems[i]->positions.x < containerWindow->positions.x ||
+                            windowTextBox->childItems[i]->positions.x > containerWindow->positions.x + containerWindow->size.x) {
                             windowTextBox->childItems[i]->AllowActive(false);
                         }
                         else {
@@ -381,8 +382,13 @@ namespace pen {
         }
 
         std::string TextEditor::ConvertChar(const int& character) {
-            /*Convert char to ascii bytecode*/
-            if (character == pen::in::KEYS::ENTER) return "\n";
+            /*Convert char to ascii byte code*/
+            if (character == pen::in::KEYS::ENTER) {
+                pen::ui::Translate(windowTextBox, pen::Vec3(containerWindow->positions.x - windowTextBox->positions.x, 0.0f, 0.0f), true);
+                horizontalScrollBar->childItems[2]->positions.x = horizontalScrollBar->childItems[0]->positions.x + horizontalScrollBar->childItems[0]->size.x;
+                containerWindow->sliderOffset[1] = 0.0f;
+                return "\n";
+            }
             if (character == pen::in::KEYS::TAB) return "\t";
             if (character == pen::in::KEYS::SPACE) return " ";
 
