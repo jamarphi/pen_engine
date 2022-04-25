@@ -101,11 +101,10 @@ namespace pen {
             if (childItems.size() > 0) {
                 float paddingLength = 4.0f;
                 /*Integer division by 2 rounding down to whole number for childItems before doubling to get the total size*/
-                float totalPaddingLength = paddingLength * (childItems.size() / 2) * 2;
+                float totalPaddingLength = paddingLength * (childItems.size() / 2) * 2.0f;
                 if (orientation == 0) {
                     /*Div is horizontal*/
-                    float itemWidth = (size.x - totalPaddingLength) / childItems.size();
-                    int centerIdx = childItems.size() / 2 - 1;
+                    float itemWidth = (size.x - totalPaddingLength) / (float)childItems.size();
                     int tallestItemIdx = 0;
                     float maxHeight = 0.0f;
 
@@ -120,14 +119,13 @@ namespace pen {
 
                     for (int j = 0; j < childItems.size(); j++) {
                         pen::ui::Scale(childItems[j], pen::Vec2(itemWidth / childItems[j]->size.x, itemWidth / childItems[j]->size.x), true);
-                        int offsetDis = j * (itemWidth + paddingLength);
+                        float offsetDis = (float)j * (itemWidth + paddingLength);
                         pen::ui::Translate(childItems[j], pen::Vec3((positions.x + offsetDis) - childItems[j]->positions.x, (positions.y + (size.y / 2.0f)) - (childItems[j]->positions.y + (childItems[j]->size.y / 2.0f)), 0.0f),true);
                     }
                 }
                 else {
                     /*Div is vertical*/
                     float itemHeight = (size.y - totalPaddingLength) / childItems.size();
-                    int centerIdx = childItems.size() / 2 - 1;
                     int longestItemIdx = 0;
                     float maxWidth = 0.0f;
 
@@ -142,7 +140,7 @@ namespace pen {
 
                     for (int j = 0; j < childItems.size(); j++) {
                         pen::ui::Scale(childItems[j], pen::Vec2(itemHeight / childItems[j]->size.y, itemHeight / childItems[j]->size.y), true);
-                        int offsetDis = ((positions.y + size.y) - (j * (itemHeight + paddingLength)) - itemHeight) - positions.y;
+                        float offsetDis = ((positions.y + size.y) - ((float)j * (itemHeight + paddingLength)) - itemHeight) - positions.y;
                         pen::ui::Translate(childItems[j], pen::Vec3((positions.x + (size.x / 2.0f)) - (childItems[j]->positions.x + (childItems[j]->size.x / 2.0f)), (positions.y + offsetDis) - childItems[j]->positions.y, 0.0f),true);
                     }
                 }

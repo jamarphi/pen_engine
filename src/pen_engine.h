@@ -75,6 +75,7 @@ under the License.
 #include "ui/context_window.h"
 #include "ui/file_modal.h"
 #include "ui/div.h"
+#include "ui/key_board.h"
 
 #define SHADER_SOURCE ""
 #define TEXTURE_SOURCE "res/textures/"

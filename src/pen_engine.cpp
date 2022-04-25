@@ -524,7 +524,33 @@ namespace pen {
         double* xPos = &x;
         double* yPos = &y;
         Pen::GetMousePos(xPos, yPos);
-        if (pen::State::Get()->mobileOnClickCallback != nullptr) (*pen::State::Get()->mobileOnClickCallback)(*xPos, *yPos);
+        bool eventHandled = false;
+
+        pen::State* inst = pen::State::Get();
+        if (inst->handleGUIClickEvents) {
+            int layerCounter = pen::ui::LM::layers.size() - 1;
+            for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+                if (pen::ui::LM::layers[layerCounter - i]->isFixed) {
+                    /*Only loop through layers that have GUI components*/
+                    int counter = pen::ui::LM::layers[layerCounter - i]->layerItems.size() - 1;
+                    for (int j = 0; j < pen::ui::LM::layers[layerCounter - i]->layerItems.size(); j++) {
+                        if (pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j]->isUI) {
+                            eventHandled = Pen::HandleClick(pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j], xPos, yPos, button, action);
+                            if (eventHandled) break;
+                        }
+                    }
+
+                    if (!eventHandled && pen::Pen::Get()->clickCatchAll != nullptr) {
+                        (*pen::Pen::Get()->clickCatchAll)();
+                        eventHandled = true;
+                    }
+                }
+            }
+        }
+
+        if (!eventHandled) {
+            if (pen::State::Get()->mobileOnClickCallback != nullptr) (*pen::State::Get()->mobileOnClickCallback)(*xPos, *yPos);
+        }
     }
 #endif
 

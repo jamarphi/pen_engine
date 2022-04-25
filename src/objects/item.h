@@ -202,6 +202,10 @@ namespace pen {
             /*----For file modals----*/
             virtual void UpdateFileModalListing(std::string directoryPath, bool recursive = false, bool firstIter = true) {}
             /*----For file modals----*/
+
+            /*----For key boards----*/
+            virtual void KeyBoardReturnKey(pen::ui::Item* item) {}
+            /*----For key boards----*/
             /*----For ui objects----*/
 
             virtual void CombineChildBuffers();

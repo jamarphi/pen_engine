@@ -125,23 +125,22 @@ namespace pen {
             pen::State* inst = pen::State::Get();
 
             ///*For the horizontal scroll bar*/
-            ////float textBoxLength = windowTextBox->size.x;
-            //float textBoxLength = 10 * inst->textScaling; //TESTING
-            //float initialX = windowTextBox->positions.x;
-            //float finalX = 0.0f;
-            //auto t = containerWindow->sliderOffset[1];
-            //if (containerWindow->sliderOffset[1] == 0.0f && windowTextBox->positions.x > containerWindow->positions.x) {
-            //    /*Caps it off at the beginning*/
-            //    finalX = containerWindow->positions.x;
-            //}
-            //else if (containerWindow->sliderOffset[1] == 1.0f && (windowTextBox->positions.x < containerWindow->positions.x
-            //    || windowTextBox->positions.x + windowTextBox->size.x > containerWindow->positions.x + containerWindow->size.x)) {
-            //    /*Caps it off at the end*/
-            //    finalX = containerWindow->positions.x - windowTextBox->size.x;
-            //}
-            //else {
-            //    finalX = windowTextBox->positions.x + (containerWindow->sliderOffset[1] * textBoxLength);
-            //}
+            float textBoxLength = windowTextBox->size.x;
+            float initialX = windowTextBox->positions.x;
+            float finalX = 0.0f;
+            auto t = containerWindow->sliderOffset[1];
+            if (containerWindow->sliderOffset[1] == 0.0f && windowTextBox->positions.x > containerWindow->positions.x) {
+                /*Caps it off at the beginning*/
+                finalX = containerWindow->positions.x;
+            }
+            else if (containerWindow->sliderOffset[1] == 1.0f && (windowTextBox->positions.x < containerWindow->positions.x
+                || windowTextBox->positions.x + windowTextBox->size.x > containerWindow->positions.x + containerWindow->size.x)) {
+                /*Caps it off at the end*/
+                finalX = containerWindow->positions.x - windowTextBox->size.x;
+            }
+            else {
+                finalX = windowTextBox->positions.x + (containerWindow->sliderOffset[1] * textBoxLength);
+            }
 
             /*For the vertical scroll bar*/
             windowTextBox->heightOfScrollParentItems = windowTextBox->size.y;
@@ -369,7 +368,7 @@ namespace pen {
 
         std::string TextEditor::ConvertChar(const int& character) {
             /*Convert char to ascii bytecode*/
-            if (character == pen::in::KEYS::ENTER) return "\n";
+            if (character == pen::in::KEYS::ENTER) return "";
             if (character == pen::in::KEYS::TAB) return "\t";
             if (character == pen::in::KEYS::SPACE) return " ";
 
