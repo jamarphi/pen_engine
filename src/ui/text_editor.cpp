@@ -368,7 +368,7 @@ namespace pen {
 
         std::string TextEditor::ConvertChar(const int& character) {
             /*Convert char to ascii bytecode*/
-            if (character == pen::in::KEYS::ENTER) return "";
+            if (character == pen::in::KEYS::ENTER) return "\n";
             if (character == pen::in::KEYS::TAB) return "\t";
             if (character == pen::in::KEYS::SPACE) return " ";
 
