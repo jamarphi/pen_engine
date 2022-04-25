@@ -722,24 +722,7 @@ If you want to perform manipulation of persisted memory for your android applica
 
 ---------------------------------------------------------------------------
 
-# 1.8.1.2 - Native Key Events For Android
-
-If you want to do native key events for android, first go 
-to pen_engine/ext/platforms/android/pen_engine_android/src/java/com/jamar/penengine/PenSurfaceRenderer.java.
-Once you do that, create a method called nativeOnKeyPress:
-    
-    private static native String nativeOnKeyPress(final int keyCode,boolean isPressed);
-
-Use this function to return a string of the character back to the native library for the callback
-pen::State::mobileOnKeyCallback to act on it.
-
-Another method, which would be easier, would be to do the edit text input completely on the native side
-and save some data about it in SQL.  Then use the SQL value to change the main activity in which
-the graphics application runs when it is reloaded.
-
----------------------------------------------------------------------------
-
-# 1.8.1.3 - Android Logging
+# 1.8.1.2 - Android Logging
 
 If you want to send messages to Java for logging use:
 
@@ -749,7 +732,7 @@ This can be used for Android debugging once your application has been built and 
 
 ---------------------------------------------------------------------------
 
-# 1.8.1.4 - Android Loading
+# 1.8.1.3 - Android Loading
 
 You can load in assets such as level packs by doing:
 
@@ -764,7 +747,7 @@ You can also load in a directory in assets by doing:
 
 ---------------------------------------------------------------------------
 
-# 1.8.1.5 - Android Bluetooth
+# 1.8.1.4 - Android Bluetooth
 
 If using bluetooth the permissions in pen_engine/ext/platforms/android/pen_engine_android/src/AndroidManifest.xml should be uncommented.
 For connecting to other devices via bluetooth, first search for available devices:
@@ -794,7 +777,7 @@ Once done with a connected device, the connection can be closed by doing:
 
 ---------------------------------------------------------------------------
 
-# 1.8.1.6 - Android HTTP
+# 1.8.1.5 - Android HTTP
 
 For sending http get and post requests do:
 
@@ -824,7 +807,7 @@ To close a connection do:
 
 ---------------------------------------------------------------------------
 
-# 1.8.1.6 - Android Sound
+# 1.8.1.7 - Android Sound
 
 In order to play sounds, the files have to be in the res/raw folder.
 To play a sound do:
