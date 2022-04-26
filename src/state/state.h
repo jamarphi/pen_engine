@@ -67,8 +67,8 @@ namespace pen {
 		bool usingBuffer = false;
 		unsigned char* pixelArray = nullptr;
 		bool pixelDrawn = false;
-		int pixelBufferWidth = 1000;
-		int pixelBufferHeight = 500;
+		int pixelBufferWidth = 1280;
+		int pixelBufferHeight = 720;
 		pen::Map <std::string, pen::Sprite> pixelSprites;
 		/*----For pixel-by-pixel drawing----*/
 		

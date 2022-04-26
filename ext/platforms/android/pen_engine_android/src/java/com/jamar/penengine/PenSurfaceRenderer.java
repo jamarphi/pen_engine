@@ -149,12 +149,12 @@ public class PenSurfaceRenderer implements GLSurfaceView.Renderer {
     private Bitmap loadBitmapViaPixelArray(){
         /*Load in the pixel buffer on java side*/
         Bitmap bitmap = null;
-        int[] pixelBuffer = new int[2000000];
+        int[] pixelBuffer = new int[3686400];
         try{
             for(int i = 0; i < pixelBuffer.length; i++){
                 pixelBuffer[i] = 1;
             }
-            bitmap = Bitmap.createBitmap(pixelBuffer, 0, 1000, 1000, 500, Bitmap.Config.valueOf("ARGB_8888"));
+            bitmap = Bitmap.createBitmap(pixelBuffer, 0, 1280, 1280, 720, Bitmap.Config.valueOf("ARGB_8888"));
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -318,10 +318,10 @@ public class PenSurfaceRenderer implements GLSurfaceView.Renderer {
 
     public static void flushPixels(){
         /*Clear the pixel buffer*/
-        int[] pixels = new int[2000000];
+        int[] pixels = new int[3686400];
         for(int i = 0; i < pixels.length; i++){
             pixels[i] = 0;
         }
-        pixelBitmap.setPixels(pixels, 0, 1000, 0, 0, 1000, 500);
+        pixelBitmap.setPixels(pixels, 0, 1280, 0, 0, 1280, 720);
     }
 }

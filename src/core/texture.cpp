@@ -65,7 +65,7 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 	}
 	else if (path.compare("pixel") == 0) {
 		/*Uses a buffer of color values to draw quad-like pixels to the screen*/
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1000, 500, 0, GL_RGBA, GL_UNSIGNED_BYTE, pen::State::Get()->pixelArray);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, pen::State::Get()->pixelArray);
 	}
 	else {
 		/*Uses the buffer data loaded to create a texture*/
@@ -118,7 +118,7 @@ void Texture::UpdatePixels() {
 		pen::State::Get()->pixelDrawn = false;
 		glActiveTexture(GL_TEXTURE0 + 2);
 		glBindTexture(GL_TEXTURE_2D, Texture::Get()->texSlots.Find(2)->second);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 1000, 500, GL_RGBA, GL_UNSIGNED_BYTE, pen::State::Get()->pixelArray);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 1280, 720, GL_RGBA, GL_UNSIGNED_BYTE, pen::State::Get()->pixelArray);
 	}
 #endif
 }

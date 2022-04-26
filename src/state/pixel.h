@@ -80,15 +80,15 @@ namespace pen {
 
 	static void Draw(int x, int y, pen::Vec4 color, bool mask = true) {
 		/*Draw a given pixel on the screen*/
-		if (!(mask && color.w == 0.0f) && (x > 0 && x < 1000 && y > 0 && y < 500)) {
+		if (!(mask && color.w == 0.0f) && (x > 0 && x < 1280 && y > 0 && y < 720)) {
 			pen::State* inst = pen::State::Get();
 			inst->pixelDrawn = true;
 
 #ifndef __PEN_MOBILE__
-			inst->pixelArray[y * 4000 + (4 * x)] = (unsigned char)(255 * color.x);
-			inst->pixelArray[y * 4000 + (4 * x) + 1] = (unsigned char)(255 * color.y);
-			inst->pixelArray[y * 4000 + (4 * x) + 2] = (unsigned char)(255 * color.z);
-			inst->pixelArray[y * 4000 + (4 * x) + 3] = (unsigned char)(255 * color.w);
+			inst->pixelArray[y * 5120 + (4 * x)] = (unsigned char)(255 * color.x);
+			inst->pixelArray[y * 5120 + (4 * x) + 1] = (unsigned char)(255 * color.y);
+			inst->pixelArray[y * 5120 + (4 * x) + 2] = (unsigned char)(255 * color.z);
+			inst->pixelArray[y * 5120 + (4 * x) + 3] = (unsigned char)(255 * color.w);
 #else
 			AndroidDrawPixel(x, y, color.x, color.y, color.z, color.w);
 #endif
@@ -98,7 +98,7 @@ namespace pen {
 	static void Flush() {
 		/*Clear the pixel buffer*/
 #ifndef __PEN_MOBILE__
-		std::memset(pen::State::Get()->pixelArray, 0, 2000000);
+		std::memset(pen::State::Get()->pixelArray, 0, 3686400);
 #else
 		AndroidPixelFlush();
 #endif

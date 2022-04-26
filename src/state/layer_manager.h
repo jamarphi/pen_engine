@@ -195,10 +195,10 @@ namespace pen {
 			500,000 pixels, four values per pixel.
 			*/
 #ifndef __PEN_MOBILE__
-			unsigned char* dataArray = new unsigned char[2000000];
+			unsigned char* dataArray = new unsigned char[3686400];
 
 			/*Sets color for each pixel*/
-			for (int i = 0; i < 2000000; i += 4) {
+			for (int i = 0; i < 3686400; i += 4) {
 				dataArray[i] = 0;
 				dataArray[i + 1] = 0;
 				dataArray[i + 2] = 0;
