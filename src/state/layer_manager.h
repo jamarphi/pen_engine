@@ -191,8 +191,8 @@ namespace pen {
 
 		static void PixelLayerAlloc() {
 			/*
-			Dimensions of pixel by default is 1,000 in width by 500 in height.
-			500,000 pixels, four values per pixel.
+			Dimensions of pixel by default is 1,280 in width by 720 in height.
+			3,686,400 pixels, four values per pixel.
 			*/
 #ifndef __PEN_MOBILE__
 			unsigned char* dataArray = new unsigned char[3686400];
