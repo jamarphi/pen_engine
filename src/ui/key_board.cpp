@@ -80,13 +80,14 @@ namespace pen {
 
         void KeyBoard::InitializeKeys(pen::Vec4 accentColor) {
             /*Initializes the keys for the key board*/
-            float keyHeight = 25.0f;
+            float keyHeight = 0.0925f * size.y;
             pen::ui::Item* key = nullptr;
             pen::ui::Item* topRow = new pen::ui::Div(ID_ANY, pen::Vec3(0.0f, positions.y + size.y - (2.0f * keyHeight), 0.0f), pen::Vec2(size.x, keyHeight),
                 pen::PEN_TRANSPARENT, 0, this);
             key = new pen::ui::Button(ID_ANY, "1", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 2.0f);
+            key->childItems[0]->positions.x += (0.5f * keyHeight);
+            key->childItems[0]->positions.y -= (0.6f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "2", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
@@ -96,115 +97,117 @@ namespace pen {
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "3", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= keyHeight;
+            key->childItems[0]->positions.y -= (1.1f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "4", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= keyHeight;
+            key->childItems[0]->positions.y -= (1.2f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "5", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 4.0f * 3.0f);
+            key->childItems[0]->positions.y -= (0.8f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "6", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 4.0f * 3.0f);
+            key->childItems[0]->positions.y -= (0.675f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "7", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 3.0f * 2.0f);
+            key->childItems[0]->positions.y -= (0.66f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "8", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 3.0f * 2.0f);
+            key->childItems[0]->positions.y -= (0.6f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "9", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 2.0f);
+            key->childItems[0]->positions.x -= (0.2f * keyHeight);
+            key->childItems[0]->positions.y -= (0.6f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "0", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 2.0f);
+            key->childItems[0]->positions.y -= (0.5f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "-", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y += keyHeight;
+            key->childItems[0]->positions.y += (1.7f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "=", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 3.0f);
+            key->childItems[0]->positions.y -= (0.33f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "<", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, topRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 3.0f);
+            key->childItems[0]->positions.y -= (0.33f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             topRow->Push(key);
             pen::ui::Scale(topRow, pen::Vec2(1.0f, (size.y / 5.0f) / topRow->size.y), true);
 
-            pen::ui::Item* secondTopRow = new pen::ui::Div(ID_ANY, pen::Vec3(3.0f * keyHeight / 2.0f, positions.y + size.y - topRow->size.y - keyHeight - 8.0f, 0.0f), pen::Vec2(size.x - (3.0f * keyHeight), keyHeight),
+            pen::ui::Item* secondTopRow = new pen::ui::Div(ID_ANY, pen::Vec3(3.0f * keyHeight / 2.0f, positions.y + size.y - topRow->size.y - keyHeight - (0.0296f * size.y), 0.0f), pen::Vec2(size.x - (3.0f * keyHeight), keyHeight),
                 pen::PEN_TRANSPARENT, 0, this);
             key = new pen::ui::Button(ID_ANY, "q", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondTopRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (2.0f * keyHeight);
+            key->childItems[0]->positions.y -= (2.2f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondTopRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "w", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondTopRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (2.0f * keyHeight);
+            key->childItems[0]->positions.y -= (2.4f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondTopRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "e", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondTopRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y += (keyHeight / 2.0f);
+            key->childItems[0]->positions.y += (0.2f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondTopRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "r", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondTopRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y += (keyHeight * 3.0f / 2.0f);
+            key->childItems[0]->positions.y += (1.2f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondTopRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "t", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondTopRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y += (keyHeight * 3.0f / 2.0f);
+            key->childItems[0]->positions.y += (1.2f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondTopRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "y", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondTopRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 3.0f * 2.0f);
+            key->childItems[0]->positions.y -= (0.66f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondTopRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "u", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondTopRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 3.0f * 2.0f);
+            key->childItems[0]->positions.y -= (0.66f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondTopRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "i", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondTopRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y += (keyHeight / 3.0f * 2.0f);
+            key->childItems[0]->positions.y += (0.726f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondTopRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "o", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondTopRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (keyHeight / 3.0f * 2.0f);
+            key->childItems[0]->positions.y -= (0.66f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondTopRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "p", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondTopRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
+            key->childItems[0]->positions.y -= (0.4f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondTopRow->Push(key);
             pen::ui::Scale(secondTopRow, pen::Vec2(1.0f, (size.y / 5.0f) / secondTopRow->size.y), true);
 
-            pen::ui::Item* middleRow = new pen::ui::Div(ID_ANY, pen::Vec3(3.0f * keyHeight / 2.0f, positions.y + size.y - topRow->size.y - secondTopRow->size.y - keyHeight - 12.0f, 0.0f), pen::Vec2(size.x - (3.0f * keyHeight), keyHeight),
+            pen::ui::Item* middleRow = new pen::ui::Div(ID_ANY, pen::Vec3(3.0f * keyHeight / 2.0f, positions.y + size.y - topRow->size.y - secondTopRow->size.y - keyHeight - (0.0444f * size.y), 0.0f), pen::Vec2(size.x - (3.0f * keyHeight), keyHeight),
                 pen::PEN_TRANSPARENT, 0, this);
             key = new pen::ui::Button(ID_ANY, "Caps", pen::Vec3(0.0f, 0.0f, 0.0f), 4, pen::PEN_TRANSPARENT, accentColor, middleRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
@@ -220,12 +223,12 @@ namespace pen {
             middleRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "a", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, middleRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y += (2.0f * keyHeight);
+            key->childItems[0]->positions.y += (1.8f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             middleRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "s", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, middleRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= keyHeight;
+            key->childItems[0]->positions.y -= (1.2f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             middleRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "d", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, middleRow, &OnKeyBoardKeyPressed);
@@ -266,15 +269,16 @@ namespace pen {
             middleRow->Push(key);
             pen::ui::Scale(middleRow, pen::Vec2(1.0f, (size.y / 5.0f) / middleRow->size.y), true);
 
-            pen::ui::Item* secondBottomRow = new pen::ui::Div(ID_ANY, pen::Vec3(6.0f * keyHeight / 2.0f, positions.y + size.y - topRow->size.y - secondTopRow->size.y - middleRow->size.y - keyHeight - 12.0f, 0.0f), pen::Vec2(size.x - (6.0f * keyHeight), keyHeight),
+            pen::ui::Item* secondBottomRow = new pen::ui::Div(ID_ANY, pen::Vec3(6.0f * keyHeight / 2.0f, positions.y + size.y - topRow->size.y - secondTopRow->size.y - middleRow->size.y - keyHeight - (0.0444f * size.y), 0.0f), pen::Vec2(size.x - (6.0f * keyHeight), keyHeight),
                 pen::PEN_TRANSPARENT, 0, this);
             key = new pen::ui::Button(ID_ANY, "z", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondBottomRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
+            key->childItems[0]->positions.y += (0.2f * keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondBottomRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "x", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondBottomRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (0.2f *keyHeight);
+            key->childItems[0]->positions.y -= (0.5f *keyHeight);
             key->itemScaling /= (keyHeight / key->size.y);
             secondBottomRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "c", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondBottomRow, &OnKeyBoardKeyPressed);
@@ -297,13 +301,13 @@ namespace pen {
             secondBottomRow->Push(key);
             key = new pen::ui::Button(ID_ANY, "m", pen::Vec3(0.0f, 0.0f, 0.0f), 1, pen::PEN_TRANSPARENT, accentColor, secondBottomRow, &OnKeyBoardKeyPressed);
             pen::ui::Scale(key, pen::Vec2(1.0f, keyHeight / key->size.y), true);
-            key->childItems[0]->positions.y -= (0.8f * keyHeight);
+            key->childItems[0]->positions.y -= keyHeight;
             key->itemScaling /= (keyHeight / key->size.y);
             secondBottomRow->Push(key);
             pen::ui::Scale(secondBottomRow, pen::Vec2(1.0f, (size.y / 5.0f) / secondBottomRow->size.y), true);
 
             pen::ui::Item* spaceBar = new pen::ui::Item(ID_ANY, pen::Vec3(size.x / 2.0f - ((size.x / 3.0f) / 2.0f), 
-                positions.y + size.y - topRow->size.y - secondTopRow->size.y - middleRow->size.y - secondBottomRow->size.y - keyHeight - 8.0f, 0.0f),
+                positions.y + size.y - topRow->size.y - secondTopRow->size.y - middleRow->size.y - secondBottomRow->size.y - keyHeight - (0.0296f * size.y), 0.0f),
                 pen::Vec2(size.x / 3.0f, keyHeight), 3, accentColor, this, &OnKeyBoardKeyPressed, true);
             spaceBar->isUI = true;
             spaceBar->isClickable = true;

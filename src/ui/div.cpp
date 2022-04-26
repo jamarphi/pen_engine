@@ -99,7 +99,7 @@ namespace pen {
         void Div::UpdateContents() {
             /*Updates alignment for items inside div*/
             if (childItems.size() > 0) {
-                float paddingLength = 4.0f;
+                float paddingLength = 0.0074f * pen::State::Get()->screenHeight;
                 /*Integer division by 2 rounding down to whole number for childItems before doubling to get the total size*/
                 float totalPaddingLength = paddingLength * (childItems.size() / 2) * 2.0f;
                 if (orientation == 0) {
