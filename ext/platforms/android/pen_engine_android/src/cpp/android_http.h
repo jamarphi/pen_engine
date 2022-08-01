@@ -22,7 +22,7 @@ under the License.
 #pragma once
 #include "../../../../../../src/state/state.h"
 
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 #include <iostream>
 #include <android/asset_manager_jni.h>
 #endif
@@ -34,7 +34,7 @@ extern "C" {
                 namespace http {
                     static pen::Map<std::string,std::string> Get(const char* route, pen::Map<std::string, std::string> parameterMap, pen::Map<std::string, std::string> headerMap) {
                         /*Sends an http get request*/
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
                         JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
                         jclass httpClass = env->FindClass("com/jamar/penengine/PenHttp");
                         if (httpClass != nullptr) {
@@ -105,7 +105,7 @@ extern "C" {
 
                     static pen::Map<std::string, std::string> Post(const char* route, const char* jsonStr, pen::Map<std::string, std::string> headerMap) {
                         /*Sends an http post request*/
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
                         JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
                         jclass httpClass = env->FindClass("com/jamar/penengine/PenHttp");
                         if (httpClass != nullptr) {

@@ -21,7 +21,7 @@ under the License.
 #pragma once
 #include "state.h"
 #include "../objects/containers/map.h"
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 #include "../../ext/platforms/android/pen_engine_android/src/cpp/android_asset.h"
 #endif
 

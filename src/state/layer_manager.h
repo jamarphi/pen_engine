@@ -344,9 +344,9 @@ namespace pen {
 				mtlFile.open(tempPath);
 				if (mtlFile.is_open()) {
 #else
-				pen::Asset androidMtl = pen::Asset::Load(tempPath, nullptr);
+				pen::Asset mobileMtl = pen::Asset::Load(tempPath, nullptr);
 				int lineOffset = 0;
-				if (androidMtl.data != nullptr) {
+				if (mobileMtl.data != nullptr) {
 #endif
 					std::string material;
 					std::string texture;
@@ -355,7 +355,7 @@ namespace pen {
 					while (!mtlFile.eof()) {
 #else
 					unsigned int fileOffset = 0;
-					std::string androidMtlText(androidMtl.data);
+					std::string mobileMtlText(mobileMtl.data);
 					while (true) {
 #endif
 
@@ -363,7 +363,7 @@ namespace pen {
 						char fileLine[150];
 						mtlFile.getline(fileLine, 150);
 #else
-						std::string fileLine = pen::ui::ReadLine(androidMtlText, &fileOffset);
+						std::string fileLine = pen::ui::ReadLine(mobileMtlText, &fileOffset);
 						if (fileLine == "") {
 							break;
 						}
@@ -406,9 +406,9 @@ namespace pen {
 			modelFile.open(tempPath);
 			if (modelFile.is_open()) {
 #else
-			pen::Asset androidObj = pen::Asset::Load(tempPath, nullptr);
+			pen::Asset mobileObj = pen::Asset::Load(tempPath, nullptr);
 			int lineOffset = 0;
-			if(androidObj.data != nullptr) {
+			if(mobileObj.data != nullptr) {
 #endif
 				/*Create the 3D layer and item*/
 				unsigned int faceCounter = 0;
@@ -430,7 +430,7 @@ namespace pen {
 				while (!modelFile.eof()) {
 #else
 				unsigned int fileOffset = 0;
-				std::string androidObjText(androidObj.data);
+				std::string mobileObjText(mobileObj.data);
 				while (true) {
 #endif
 					/*It is assumed that the vertex points in the obj file will be normalized already*/
@@ -439,7 +439,7 @@ namespace pen {
 					char fileLine[150];
 					modelFile.getline(fileLine, 150);
 #else
-					std::string fileLine = pen::ui::ReadLine(androidObjText, &fileOffset);
+					std::string fileLine = pen::ui::ReadLine(mobileObjText, &fileOffset);
 					if (fileLine == "") {
 						break;
 					}

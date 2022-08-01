@@ -521,7 +521,7 @@ If setting your app orientation horizontal, also add this to the MainActivity ta
 The GLSurfaceView orientation can not be changed at run time otherwise it will mess up the resources and crash.
 
 Pen Engine looks for this instantiation in app.h, but you can change the name of that file include in 
-pen_engine/ext/platforms/android/pen_engine_android/src/cpp/function_mapping.cpp.
+pen_engine/ext/platforms/android/pen_engine_android/src/cpp/android_manager.cpp.
 
 There is a difference for how you would do the mobile render callback function for android though, notice instead of
 a while loop for PC, you do an if statement:
@@ -557,9 +557,9 @@ To get started building .apk files, if on Mac or Linux, first go to pen_engine/s
 
     //define __PEN_CMAKE__
 
-Uncomment this line for Windows, Linux, and Mac:
+Uncomment this line:
 
-    //#define __PEN_MOBILE__
+    //#define __PEN_ANDROID__
 
 If you uncomment this line, your application will not run for PC, so only do this once you have tested
 on the PC version and are ready to build it for Android.

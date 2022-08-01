@@ -74,7 +74,9 @@ namespace pen {
 #else
         if (!gladLoadGLLoader((gladloadproc)eglGetProcAddress))
         {
+    #ifdef __PEN_ANDROID__
             pen::android::AppLog("Failed to initialize glad");
+    #endif
         }
 #endif
 

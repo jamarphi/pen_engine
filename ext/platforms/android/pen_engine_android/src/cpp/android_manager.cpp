@@ -20,7 +20,7 @@ under the License.
 *************************************************************************************************/
 #include "../../../../../../src/pen_engine.h"
 
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 #ifdef __PEN_LINUX__
 
 /*

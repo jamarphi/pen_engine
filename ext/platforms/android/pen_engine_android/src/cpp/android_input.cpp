@@ -20,18 +20,22 @@ under the License.
 *************************************************************************************************/
 #include "../../../../../../src/pen_engine.h"
 
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 #include <android/asset_manager_jni.h>
 #define MOBILE_ACCELERATION_CONSTANT 9.80665f
 
 extern "C" {
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesBegin(JNIEnv* env, jclass obj, jint id, jfloat x, jfloat y) {
         /*Click event*/
+        pen::State::Get()->mobileMouseX = (double)x;
+        pen::State::Get()->mobileMouseY = (double)y;
         pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
     }
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesEnd(JNIEnv* env, jclass obj, jint id, jfloat x, jfloat y) {
         /*Release event*/
+        pen::State::Get()->mobileMouseX = (double)x;
+        pen::State::Get()->mobileMouseY = (double)y;
         pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
     }
 

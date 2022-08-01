@@ -22,7 +22,7 @@ under the License.
 #pragma once
 #include "../../../../../../src/state/state.h"
 
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 #include <iostream>
 #include <android/asset_manager_jni.h>
 #endif
@@ -32,7 +32,7 @@ extern "C" {
         namespace android {
             static void AppLog(const char* message) {
                 /*Sends message to Java for logging*/
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
                 JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
                 jclass logClass = env->FindClass("com/jamar/penengine/MainActivity");
                 if (logClass != nullptr) {

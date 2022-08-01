@@ -22,7 +22,7 @@ under the License.
 #pragma once
 #include "../../../../../../src/state/state.h"
 
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 #include <iostream>
 #include <android/asset_manager_jni.h>
 #endif
@@ -34,7 +34,7 @@ extern "C" {
                 namespace bt {
                     static void Connect(const char* deviceName = "") {
                         /*Searches for a device to connect with*/
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
                         JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
                         jclass mainClass = env->FindClass("com/jamar/penengine/MainActivity");
                         if (mainClass != nullptr) {
@@ -50,7 +50,7 @@ extern "C" {
 
                     static char* Read(int* numBytes) {
                         /*Reads from a connected device*/
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
                         JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
                         jclass mainClass = env->FindClass("com/jamar/penengine/MainActivity");
                         if (mainClass != nullptr) {
@@ -80,7 +80,7 @@ extern "C" {
 
                     static void Write(char* buffer, int numBytes) {
                         /*Writes data to a connected device*/
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
                         JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
                         jclass mainClass = env->FindClass("com/jamar/penengine/MainActivity");
                         if (mainClass != nullptr) {
@@ -101,7 +101,7 @@ extern "C" {
 
                     static void Close() {
                         /*Closes the connection to a connected device*/
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
                         JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
                         jclass mainClass = env->FindClass("com/jamar/penengine/MainActivity");
                         if (mainClass != nullptr) {

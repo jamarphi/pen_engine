@@ -162,6 +162,7 @@ namespace pen {
 		fileName = Asset::ParsePath(file);
 		fileRoot = fileName.substr(0, file.find(fileName));
 #else
+	#ifdef __PEN_ANDROID__
 		/*File name gets parsed prior to loading for android since only the name of the file is needed*/
 		if (file[2] == '/' && file[3] == '/') {
 			file = file.substr(4);
@@ -172,6 +173,7 @@ namespace pen {
 		fileName = Asset::ParsePath(file);
 		fileRoot = file.substr(0, file.find(fileName));
 		fileData = AndroidLoadAsset(pen::State::Get()->androidAssetManager, fileName.c_str(), &length);
+	#endif
 #endif
 		Asset asset = Asset();
 		asset.id = Asset::nextId;
@@ -187,7 +189,10 @@ namespace pen {
 #ifdef __PEN_MOBILE__
 	Asset* Asset::LoadMobileDir(std::string dirPath, int* assetCount, bool loadNow) {
 		/*Load in a sub directory in the android assets directory*/
-		std::vector<std::string> pathList = AndroidLoadDir(pen::State::Get()->androidAssetManager, dirPath.c_str());
+		std::vector<std::string> pathList = {};
+#ifdef __PEN_ANDROID__
+		pathList = AndroidLoadDir(pen::State::Get()->androidAssetManager, dirPath.c_str());
+#endif
 
 		Asset* assets = new Asset[pathList.size()];
 		*assetCount = pathList.size();

@@ -18,12 +18,12 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#include <android/asset_manager_jni.h>
 #include <iostream>
 #include "../../../../../../src/state/config.h"
 #include "../../../../../../src/state/state.h"
 
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
+#include <android/asset_manager_jni.h>
 
 extern "C" {
 	namespace pen {

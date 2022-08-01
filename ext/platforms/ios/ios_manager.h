@@ -19,55 +19,33 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 
-/*For using cmake*/
-//#define __PEN_CMAKE__
-
-/*For compiling projects on Linux*/
-//#define __PEN_LINUX__
-
-/*For Android*/
-//#define __PEN_ANDROID__
-
-/*For IOS*/
-//#define __PEN_IOS__
-
-#ifdef __PEN_ANDROID__
-#define __PEN_MOBILE__
-#endif
-
+#include "../../../src/pen_engine.h"
 #ifdef __PEN_IOS__
-#ifndef __PEN_ANDROID__
-#define __PEN_MOBILE__
-#endif
-#endif
+/*
+  This file is for the instantiation of Pen Engine by the user in order to include it's OnCreate function.
+  In the OnCreate function it is expected that pen::Pen::SetMobileCallbacks(); is called.
+*/
+#include "../../../../app.h"
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import <OpenGLES/EAGL.h>
+#import <OpenGLES/EAGLDrawable.h>
+#import <OpenGLES/ES2/gl.h>
+#import <OpenGLES/ES2/glext.h>
+#import <CoreFoundation/CoreFoundation.h>
 
-#ifdef __PEN_CMAKE__
-#ifndef __PEN_LINUX__
-#define __PEN_LINUX__
-#endif
-#endif
-
-#ifndef __PEN_LINUX__
-#ifdef __APPLE__
-#define __PEN_LINUX__
-#endif
-#endif
-
-#ifndef __PEN_LINUX__
-#ifdef __PEN_MOBILE__
-#define __PEN_LINUX__
-#endif
-#endif
-
-#ifndef __PEN_CMAKE__
-#define ROOT_DIR ""
-#endif
-
-#ifdef __PEN_MOBILE__
-#include <GLES2/gl2.h>
-
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-
-#define __PEN_ES__
+@interface PenIOSManager : NSObject {
+    id displayLink;
+    int interval;
+    BOOL isAppActive;
+    CFTimeInterval lastDisplayTime;
+}
+@property(readwrite) int interval;
+-(void)startMainLoop;
+-(void)stopMainLoop;
+-(void)doCaller: (id)sender;
+-(void)setAnimationInterval:(double)interval;
++(id)sharedIosManager;
++(void)destroy;
+@end
 #endif

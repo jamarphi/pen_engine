@@ -22,7 +22,7 @@ under the License.
 #pragma once
 #include "../../../../../../src/state/state.h"
 
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 #include <iostream>
 #include <android/asset_manager_jni.h>
 #endif
@@ -34,7 +34,7 @@ extern "C" {
                 namespace socket {
                     static void Connect(const char* route, int port) {
                         /*Connects to a server hosting a socket*/
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
                         JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
                         jclass socketClass = env->FindClass("com/jamar/penengine/PenSocket");
                         if (socketClass != nullptr) {
@@ -50,7 +50,7 @@ extern "C" {
 
                     static std::string Send(const char* message) {
                         /*Sends a message to the server hosting the socket connection*/
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
                         JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
                         jclass socketClass = env->FindClass("com/jamar/penengine/PenSocket");
                         if (socketClass != nullptr) {
@@ -75,7 +75,7 @@ extern "C" {
 
                     static void Close() {
                         /*Closes the connection to the server hosting the socket connection*/
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
                         JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
                         jclass socketClass = env->FindClass("com/jamar/penengine/PenSocket");
                         if (socketClass != nullptr) {

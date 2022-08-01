@@ -22,7 +22,7 @@ under the License.
 #pragma once
 #include "../../../../../../src/state/state.h"
 
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 #include <iostream>
 #include <android/asset_manager_jni.h>
 #endif
@@ -33,7 +33,7 @@ extern "C" {
             namespace sound {
                 static void Play(std::string file, bool isMusic = false) {
                     /*Connects to a server hosting a socket*/
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
                     if (file != "") {
                         if (file.find(".") != std::string::npos) file = file.substr(0, file.find("."));
                         JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;

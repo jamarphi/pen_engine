@@ -24,7 +24,7 @@ under the License.
 #include "../ops/matrices/mat3x3.h"
 #include "../ops/operations/operations.h"
 
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 #include "../../ext/platforms/android/pen_engine_android/src/cpp/android_pixel.h"
 #endif
 
@@ -90,7 +90,9 @@ namespace pen {
 			inst->pixelArray[y * 5120 + (4 * x) + 2] = (unsigned char)(255 * color.z);
 			inst->pixelArray[y * 5120 + (4 * x) + 3] = (unsigned char)(255 * color.w);
 #else
+	#ifdef __PEN_ANDROID__
 			AndroidDrawPixel(x, y, color.x, color.y, color.z, color.w);
+	#endif
 #endif
 		}
 	}
@@ -100,7 +102,9 @@ namespace pen {
 #ifndef __PEN_MOBILE__
 		std::memset(pen::State::Get()->pixelArray, 0, 3686400);
 #else
+	#ifdef __PEN_ANDROID__
 		AndroidPixelFlush();
+	#endif
 #endif
 	}
 
@@ -624,6 +628,7 @@ namespace pen {
 			unsigned char* localBuffer = stbi_load(tempPath.c_str(), &texWidth, &texHeight, &texBPP, 4);
 			spriteData = localBuffer;
 #else
+	#ifdef __PEN_ANDROID__
 			std::string androidFilePath = path;
 			if (androidFilePath[2] == '/' && androidFilePath[3] == '/') {
 				androidFilePath = androidFilePath.substr(4);
@@ -636,6 +641,7 @@ namespace pen {
 			if(androidFileName.find(".") != std::string::npos) androidFileName = androidFileName.substr(0, androidFileName.find("."));
 			spriteData = AndroidLoadSprite(androidFileName.c_str(), texWidth, texHeight);
 			texBPP = 4;
+	#endif
 #endif
 			pen::State::Get()->pixelSprites.Insert(path, { path, spriteData, texWidth, texHeight });
 		}
