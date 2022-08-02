@@ -18,13 +18,24 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#pragma once
 
-#include "../../../src/state/config.h"
+#include "ios_manager.h"
+
 #ifdef __PEN_IOS__
 
-#include "ios_renderer.h"
-#include "ios_view_delegate.h"
-#include "ios_app_delegate.h"
+int main(int argc, char* argv[])
+{
+    NS::AutoreleasePool* pAutoreleasePool = NS::AutoreleasePool::alloc()->init();
+
+    PenIOSAppDelegate del;
+
+    NS::Application* pSharedApplication = NS::Application::sharedApplication();
+    pSharedApplication->setDelegate(&del);
+    pSharedApplication->run();
+
+    pAutoreleasePool->release();
+
+    return 0;
+}
 
 #endif

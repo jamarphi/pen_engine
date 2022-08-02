@@ -19,12 +19,38 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
+#include "../../../src/pen_engine.h"
 
-#include "../../../src/state/config.h"
 #ifdef __PEN_IOS__
+#include <cassert>
+#define NS_PRIVATE_IMPLEMENTATION
+#define MTL_PRIVATE_IMPLEMENTATION
+#define MTK_PRIVATE_IMPLEMENTATION
+#define CA_PRIVATE_IMPLEMENTATION
+#include <Metal/Metal.hpp>
+#include <AppKit/AppKit.hpp>
+#include <MetalKit/MetalKit.hpp>
+#include <simd/simd.h>
+/*
+  This file is for the instantiation of Pen Engine by the user in order to include it's OnCreate function.
+  In the OnCreate function it is expected that pen::Pen::SetMobileCallbacks(); is called.
+*/
+#include "../../../../app.h"
 
-#include "ios_renderer.h"
-#include "ios_view_delegate.h"
-#include "ios_app_delegate.h"
+class PenIOSRenderer
+{
+public:
+    PenIOSRenderer(MTL::Device* pDevice);
+    ~PenIOSRenderer();
+    void BuildShaders();
+    void BuildBuffers();
+    void Draw(MTK::View* pView);
 
+private:
+    MTL::Device* _pDevice;
+    MTL::CommandQueue* _pCommandQueue;
+    MTL::RenderPipelineState* _pPSO;
+    MTL::Buffer* _pVertexPositionsBuffer;
+    MTL::Buffer* _pVertexColorsBuffer;
+};
 #endif

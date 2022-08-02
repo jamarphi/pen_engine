@@ -19,12 +19,17 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
-
-#include "../../../src/state/config.h"
-#ifdef __PEN_IOS__
-
 #include "ios_renderer.h"
-#include "ios_view_delegate.h"
-#include "ios_app_delegate.h"
 
+#ifdef __PEN_IOS__
+class PenMTKViewDelegate : public MTK::ViewDelegate
+{
+public:
+    PenMTKViewDelegate(MTL::Device* pDevice);
+    virtual ~PenMTKViewDelegate() override;
+    virtual void DrawInMTKView(MTK::View* pView) override;
+
+private:
+    PenIOSRenderer* _pRenderer;
+};
 #endif

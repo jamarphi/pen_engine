@@ -18,13 +18,23 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#pragma once
-
-#include "../../../src/state/config.h"
-#ifdef __PEN_IOS__
-
-#include "ios_renderer.h"
 #include "ios_view_delegate.h"
-#include "ios_app_delegate.h"
 
+#ifdef __PEN_IOS__
+PenMTKViewDelegate::PenMTKViewDelegate(MTL::Device* pDevice)
+    : MTK::ViewDelegate()
+    , _pRenderer(new PenIOSRenderer(pDevice))
+{
+}
+
+PenMTKViewDelegate::~PenMTKViewDelegate()
+{
+    delete _pRenderer;
+}
+
+void PenMTKViewDelegate::DrawInMTKView(MTK::View* pView)
+{
+    /*Draws data in MTK view*/
+    _pRenderer->draw(pView);
+}
 #endif
