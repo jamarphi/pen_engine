@@ -23,7 +23,9 @@ under the License.
 #include<stdio.h>
 #include<stdlib.h>
 #include "state/config.h"
+#ifndef __PEN_IOS__
 #include "../dependencies/glad/glad.h"
+#endif
 #ifndef __PEN_MOBILE__
 #include "../dependencies/glfw/include/glfw3.h"
 #endif
@@ -62,6 +64,9 @@ under the License.
 #include "../ext/ai/agent.h"
 #include "../ext/ai/free_agent.h"
 #include "../ext/misc/tile_map/tile_map.h"
+#ifdef __PEN_IOS__
+#include "../ext/platforms/ios/ios_view_delegate.h"
+#endif
 
 /*UI objects*/
 #include "ui/ui_object.h"
@@ -105,6 +110,9 @@ namespace pen {
         std::chrono::system_clock::time_point timePoint1;
         std::chrono::system_clock::time_point timePoint2;
         float deltaTime;
+#ifdef __PEN_IOS__
+        PenMTKViewDelegate* iosViewDelegate;
+#endif
 
         /*User input*/
         bool (*clickCatchAll)();

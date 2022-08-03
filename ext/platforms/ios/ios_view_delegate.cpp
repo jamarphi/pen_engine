@@ -21,20 +21,14 @@ under the License.
 #include "ios_view_delegate.h"
 
 #ifdef __PEN_IOS__
-PenMTKViewDelegate::PenMTKViewDelegate(MTL::Device* pDevice)
+PenMTKViewDelegate::PenMTKViewDelegate()
     : MTK::ViewDelegate()
-    , _pRenderer(new PenIOSRenderer(pDevice))
 {
-}
-
-PenMTKViewDelegate::~PenMTKViewDelegate()
-{
-    delete _pRenderer;
 }
 
 void PenMTKViewDelegate::DrawInMTKView(MTK::View* pView)
 {
     /*Draws data in MTK view*/
-    _pRenderer->draw(pView);
+    pen::Render::RenderIOSLayers(pView);
 }
 #endif

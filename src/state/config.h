@@ -63,11 +63,24 @@ under the License.
 #define ROOT_DIR ""
 #endif
 
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 #include <GLES2/gl2.h>
-
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
+#endif
 
+#ifdef __PEN_MOBILE__
 #define __PEN_ES__
+#endif
+
+#ifdef __PEN_IOS__
+#include <cassert>
+#define NS_PRIVATE_IMPLEMENTATION
+#define MTL_PRIVATE_IMPLEMENTATION
+#define MTK_PRIVATE_IMPLEMENTATION
+#define CA_PRIVATE_IMPLEMENTATION
+#include <Metal/Metal.hpp>
+#include <AppKit/AppKit.hpp>
+#include <MetalKit/MetalKit.hpp>
+#include <simd/simd.h>
 #endif

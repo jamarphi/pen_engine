@@ -20,7 +20,9 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "../state/config.h"
+#ifndef __PEN_IOS__
 #include "../../dependencies/glad/glad.h"
+#endif
 #ifndef __PEN_MOBILE__
 #include "../../dependencies/glfw/include/glfw3.h"
 #endif

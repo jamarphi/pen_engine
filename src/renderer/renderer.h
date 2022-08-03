@@ -20,18 +20,29 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "../state/config.h"
+#ifndef __PEN_IOS__
 #include "../../dependencies/glad/glad.h"
+#endif
 #include "../core/vertex_array.h"
 #include "../core/index_buffer.h"
 #include "../core/shader.h"
 
 namespace pen {
+#ifndef __PEN_IOS__
 	struct BatchVertexData {
 		float vertex[3];
 		float color[4];
 		float texCoord[2];
 		float texId;
 	};
+#else
+	struct BatchVertexData {
+		simd::float3 vertex[3];
+		simd::float4 color[4];
+		simd::float2 texCoord[2];
+		simd::float texId;
+	};
+#endif
 
 	class Renderer {
 	public:
@@ -40,5 +51,9 @@ namespace pen {
 		static void Clear();
 		static void Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
 			const bool& isInstanced, const unsigned int& instanceCount);
+#ifdef __PEN_IOS__
+		static void Draw(MTL::RenderCommandEncoder* commandEncoder, const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
+			const bool& isInstanced, const unsigned int& instanceCount);
+#endif
 	};
 }

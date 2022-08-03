@@ -48,7 +48,9 @@ namespace pen {
 
         /*__APPLE__ is a glfw macro*/
 #ifdef __APPLE__
+#ifndef __PEN_IOS__
         glfwWindowHint(glfw_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 #endif
 
         glfwwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, appName, NULL, NULL);
@@ -72,17 +74,19 @@ namespace pen {
             std::cout << "Failed to initialize glad" << std::endl;
         }
 #else
+#ifdef __PEN_ANDROID__
         if (!gladLoadGLLoader((gladloadproc)eglGetProcAddress))
         {
-    #ifdef __PEN_ANDROID__
             pen::android::AppLog("Failed to initialize glad");
-    #endif
         }
+#endif
 #endif
 
         /*Enables blending for textures*/
+#ifndef __PEN_IOS__
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#endif
 
         Get()->appWindow = (void*)window;
         stateInst->appWindow = (void*)window;
@@ -95,10 +99,42 @@ namespace pen {
         stateInst->actualScreenHeight = SCR_HEIGHT;
         stateInst->debug = debug;
 
+#ifdef __PEN_IOS__
+        stateInst->iosCommandQueue = stateInst->iosDevice->newCommandQueue();
+
+        CGRect frame = (CGRect){ {(float)SCR_WIDTH, (float)SCR_WIDTH}, {(float)SCR_HEIGHT, (float)SCR_HEIGHT} };
+
+        NS::Window* iosWindow = NS::Window::alloc()->init(
+            frame,
+            NS::WindowStyleMaskClosable | NS::WindowStyleMaskTitled,
+            NS::BackingStoreBuffered,
+            false);
+
+        stateInst->iosDevice = MTL::CreateSystemDefaultDevice();
+
+        stateInst->iosMtkView = MTK::View::alloc()->init(frame, stateInst->iosDevice);
+        stateInst->iosMtkView->setColorPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
+
+        iosViewDelegate = new PenMTKViewDelegate(stateInst->iosDevice);
+        stateInst->iosMtkView->setDelegate(iosViewDelegate);
+
+        iosWindow->setContentView(stateInst->iosMtkView);
+        iosWindow->setTitle(NS::String::string(appName, NS::StringEncoding::UTF8StringEncoding));
+
+        iosWindow->makeKeyAndOrderFront(nullptr);
+
+        NS::Application* pApp = reinterpret_cast<NS::Application*>(stateInst->iosLaunchNotification->object());
+        pApp->activateIgnoringOtherApps(true);
+#endif
+
         /*Get the allowed number of textures*/
+#ifndef __PEN_IOS__
         int textureUnits = 0;
         glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &textureUnits);
         stateInst->textureUnits = textureUnits / 6;
+#else
+        stateInst->textureUnits = 8;
+#endif
 
         /*Initialize shaders*/
         pen::Shader shader(1);
@@ -130,7 +166,9 @@ namespace pen {
         This disables the byte alignment restriction so the text can use 1 bit for grayscale colors instead of the required
         4 bits.
         */
+#ifndef __PEN_IOS__
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+#endif
         pen::State::Get()->LoadCharacters();
 
         /*Initialize the state map of ascii characters for bitmap font rendering*/
@@ -160,6 +198,12 @@ namespace pen {
         /*Terminate the application*/
 #ifndef __PEN_MOBILE__
         glfwTerminate();
+#else
+#ifdef __PEN_IOS__
+        pen::State::Get()->iosDevice->release();
+        pen::State::Get()->iosCommandQueue->release();
+        pen::State::Get()->iosPipelineState->release();
+#endif
 #endif
     }
 
@@ -297,12 +341,14 @@ namespace pen {
 #endif
 
     void Pen::EnableDepthTesting(bool choice) {
+#ifndef __PEN_IOS__
         if (choice) {
             glEnable(GL_DEPTH_TEST);
         }
         else {
             glDisable(GL_DEPTH_TEST);
         }
+#endif
     }
 
     void Pen::HandleCameraInput(bool choice) {
@@ -422,7 +468,9 @@ namespace pen {
 
         inst->actualScreenHeight = height;
         inst->actualScreenWidth = width;
+#ifndef __PEN_IOS__
         glViewport(0, 0, width, height);
+#endif
     }
 
     bool Pen::HandleClick(pen::ui::Item* item, double* xPos, double* yPos, const int& button, const int& action) {

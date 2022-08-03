@@ -29,6 +29,7 @@ VertexArray::~VertexArray() {
 
 void VertexArray::AddBuffer(const VertexBufferSchema& schema) {
 	/*Creates a vertex array object that defines the attributes used with the vertex buffer*/
+#ifndef __PEN_IOS__
 	glGenVertexArrays(1, &rendererId);
 	Bind();
 
@@ -43,20 +44,27 @@ void VertexArray::AddBuffer(const VertexBufferSchema& schema) {
 		glEnableVertexAttribArray(i);
 		offset += element.elementCount * 4;
 	}
+#endif
 }
 
 void VertexArray::Bind() const {
 	/*Binds the vertex array for the layer it is a part of*/
+#ifndef __PEN_IOS__
 	glBindVertexArray(rendererId);
+#endif
 }
 
 void VertexArray::Unbind() const {
 	/*Unbinds the vertex array*/
+#ifndef __PEN_IOS__
 	glBindVertexArray(0);
+#endif
 
 }
 
 void VertexArray::Destroy() {
 	/*Removes the vertex array from memory on the GPU*/
+#ifndef __PEN_IOS__
 	glDeleteVertexArrays(1, &rendererId);
+#endif
 }

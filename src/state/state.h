@@ -21,7 +21,9 @@ under the License.
 #pragma once
 #include <cstring>
 #include "config.h"
+#ifndef __PEN_IOS__
 #include "../../dependencies/glad/glad.h"
+#endif
 #ifndef __PEN_MOBILE__
 #include "../../dependencies/glfw/include/glfw3.h"
 #endif
@@ -94,10 +96,18 @@ namespace pen {
 		/*----Android----*/
 		void* javaEnv = nullptr;
 		std::vector<std::string> mobileTextureNameList;
-#ifdef __PEN_MOBILE__
 		void* androidAssetManager = nullptr;
-#endif
 		/*----Android----*/
+
+		/*----IOS----*/
+#ifdef __PEN_IOS__
+		MTK::View* iosMtkView;
+		MTL::Device* iosDevice;
+		MTL::CommandQueue* iosCommandQueue;
+		MTL::RenderPipelineState* iosPipelineState;
+		NS::Notification* iosLaunchNotification;
+#endif
+		/*----IOS----*/
 		/*----Mobile----*/
 	public:
 		static State* Get() {

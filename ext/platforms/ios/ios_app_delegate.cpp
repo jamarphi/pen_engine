@@ -21,13 +21,6 @@ under the License.
 #include "ios_app_delegate.h"
 
 #ifdef __PEN_IOS__
-PenIOSAppDelegate::~PenIOSAppDelegate()
-{
-    _pMtkView->release();
-    _pWindow->release();
-    _pDevice->release();
-    delete _pViewDelegate;
-}
 
 NS::Menu* PenIOSAppDelegate::CreateMenuBar()
 {
@@ -36,7 +29,7 @@ NS::Menu* PenIOSAppDelegate::CreateMenuBar()
 
     NS::Menu* pMainMenu = NS::Menu::alloc()->init();
     NS::MenuItem* pAppMenuItem = NS::MenuItem::alloc()->init();
-    NS::Menu* pAppMenu = NS::Menu::alloc()->init(NS::String::string("Appname", UTF8StringEncoding));
+    NS::Menu* pAppMenu = NS::Menu::alloc()->init(NS::String::string("App", UTF8StringEncoding));
 
     NS::String* appName = NS::RunningApplication::currentApplication()->localizedName();
     NS::String* quitItemName = NS::String::string("Quit ", UTF8StringEncoding)->stringByAppendingString(appName);
@@ -84,30 +77,10 @@ void PenIOSAppDelegate::ApplicationWillFinishLaunching(NS::Notification* pNotifi
 void PenIOSAppDelegate::ApplicationDidFinishLaunching(NS::Notification* pNotification)
 {
     /*After application is done launching*/
-    CGRect frame = (CGRect){ {100.0, 100.0}, {512.0, 512.0} };
-
-    _pWindow = NS::Window::alloc()->init(
-        frame,
-        NS::WindowStyleMaskClosable | NS::WindowStyleMaskTitled,
-        NS::BackingStoreBuffered,
-        false);
-
-    _pDevice = MTL::CreateSystemDefaultDevice();
-
-    _pMtkView = MTK::View::alloc()->init(frame, _pDevice);
-    _pMtkView->setColorPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
-    _pMtkView->setClearColor(MTL::ClearColor::Make(1.0, 0.0, 0.0, 1.0));
-
-    _pViewDelegate = new PenMTKViewDelegate(_pDevice);
-    _pMtkView->setDelegate(_pViewDelegate);
-
-    _pWindow->setContentView(_pMtkView);
-    _pWindow->setTitle(NS::String::string("01 - Primitive", NS::StringEncoding::UTF8StringEncoding));
-
-    _pWindow->makeKeyAndOrderFront(nullptr);
-
-    NS::Application* pApp = reinterpret_cast<NS::Application*>(pNotification->object());
-    pApp->activateIgnoringOtherApps(true);
+    pen::State::Get()->iosLaunchNotification = pNotification;
+    App* app = new App();
+    app->CreateApplication("App", 110, 540, "");
+    app->OnCreate();
 }
 
 bool PenIOSAppDelegate::ApplicationShouldTerminateAfterLastWindowClosed(NS::Application* pSender)

@@ -21,7 +21,9 @@ under the License.
 #pragma once
 #include <vector>
 #include "../state/config.h"
+#ifndef __PEN_IOS__
 #include "../../dependencies/glad/glad.h"
+#endif
 
 struct VertexBufferSchemaElement {
 	/*This is used to contain metadata about each attribute being used for the vertex buffers*/

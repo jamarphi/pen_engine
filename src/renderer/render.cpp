@@ -25,7 +25,11 @@ namespace pen {
 
     void Render::Background(pen::Vec4 color) {
         /*Sets the background color for the window*/
+#ifndef __PEN_IOS__
         glClearColor(color.x, color.y, color.z, color.w);
+#else
+        pen::State::Get()->iosMtkView->setClearColor(MTL::ClearColor::Make(color.x, color.y, color.z, color.w));
+#endif
     }
 
     void Render::RenderLayer(pen::Layer* layer) {
@@ -66,10 +70,19 @@ namespace pen {
 
         shader.SetUniformMat4x4f("uMVP", mvp);
 
+#ifdef __PEN_IOS__
+        MTL::RenderCommandEncoder* iosCommandEncoder;
+#endif
+
         /*Binds the vertex buffer of a given layer and updates the GPU with the buffer data*/
         layer->vb.Bind();
         if (pen::State::Get()->updateBatch) {
+#ifndef __PEN_IOS__
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(layer->batchVertices), layer->batchVertices);
+#else
+            
+            pen::Render::DrawIOSLayer(iosCommandEncoder, layer->vb);
+#endif
             if (pen::State::Get()->firstUpdateFrame) {
                 pen::State::Get()->firstUpdateFrame = false;
             }
@@ -78,7 +91,11 @@ namespace pen {
             }
         }
 
+#ifndef __PEN_IOS__
         pen::Renderer::Draw(layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
+#else
+        pen::Renderer::Draw(iosCommandEncoder, layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
+#endif
     }
 
     void Render::TextureSet() {
@@ -113,4 +130,33 @@ namespace pen {
             render->instancedShader.SetUniform3f("uInstancedOffsets[" + std::to_string(i) + "]", layer->instancedDataList[i]);
         }
     }
+
+#ifdef __PEN_IOS__
+    void Render::RenderIOSLayers(MTK::View* pView) {
+        /*Render an ios layer*/
+        pen::Render::Get()->iosView = pView;
+        for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+            pen::Render::RenderLayer(pen::ui::LM::layers[i]);
+        }
+    }
+
+    void DrawIOSView(MTL::RenderCommandEncoder* commandEncoder, const VertexBuffer& vb) {
+        /*Use the ios view to render batch data*/
+        NS::AutoreleasePool* pPool = NS::AutoreleasePool::alloc()->init();
+
+        MTL::CommandBuffer* pCmd = pen::State::Get()->iosCommandQueue->commandBuffer();
+        MTL::RenderPassDescriptor* pRpd = pen::Render::Get()->iosView->currentRenderPassDescriptor();
+        commandEncoder = pCmd->renderCommandEncoder(pRpd);
+
+        commandEncoder->setRenderPipelineState(pen::State::Get()->iosPipelineState);
+        commandEncoder->setVertexBuffer(vb.iosBuffer, 0, 0);
+        commandEncoder->drawPrimitives(MTL::PrimitiveType::PrimitiveTypeTriangle, NS::UInteger(0), NS::UInteger(3));
+
+        commandEncoder->endEncoding();
+        pCmd->presentDrawable(pView->currentDrawable());
+        pCmd->commit();
+
+        pPool->release();
+    }
+#endif
 }

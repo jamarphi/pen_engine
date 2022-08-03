@@ -26,9 +26,11 @@ IndexBuffer::IndexBuffer() {
 
 IndexBuffer::IndexBuffer(int* data, unsigned int count) : indexCount(count) {
 	/*Using static draw for the index buffer since it won't change*/
+#ifndef __PEN_IOS__
 	glGenBuffers(1, &rendererId);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rendererId);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count, data, GL_STATIC_DRAW);
+#endif
 
 }
 
@@ -39,17 +41,23 @@ IndexBuffer::~IndexBuffer() {
 
 void IndexBuffer::Bind() const {
 	/*Binds the index buffer specific to the layer it is a part of*/
+#ifndef __PEN_IOS__
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rendererId);
+#endif
 
 }
 
 void IndexBuffer::Unbind() const {
 	/*Unbinds the index buffer*/
+#ifndef __PEN_IOS__
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#endif
 
 }
 
 void IndexBuffer::Destroy() {
 	/*Removes the index buffer from memory on the GPU*/
+#ifndef __PEN_IOS__
 	glDeleteBuffers(1, &rendererId);
+#endif
 }

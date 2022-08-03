@@ -27,12 +27,30 @@ namespace pen {
 
     void Renderer::Clear() {
         /*Clears the buffer before rendering*/
+#ifndef __PEN_IOS__
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif
     }
 
     void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
         const bool& isInstanced, const unsigned int& instanceCount) {
-        /*Draw a batched object to the screen.
+        /*Draw a batched object to the screen
+
+        This function goes through the pipeline and does not need to be called directly by you*/
+#ifndef __PEN_IOS__
+        shader.Bind();
+        va.Bind();
+        vb.Bind();
+        ib.Bind();
+
+        isInstanced ? glDrawElementsInstanced(drawType[shapeType], indexCount, GL_UNSIGNED_INT, 0, instanceCount) : glDrawElements(drawType[shapeType],indexCount, GL_UNSIGNED_INT, 0);
+#endif
+    }
+
+#ifdef __PEN_IOS__
+    void Renderer::Draw(MTL::RenderCommandEncoder* commandEncoder, const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
+        const bool& isInstanced, const unsigned int& instanceCount) {
+        /*Draw a batched object to the screen for ios
 
         This function goes through the pipeline and does not need to be called directly by you*/
         shader.Bind();
@@ -40,6 +58,7 @@ namespace pen {
         vb.Bind();
         ib.Bind();
 
-        isInstanced ? glDrawElementsInstanced(drawType[shapeType], indexCount, GL_UNSIGNED_INT, 0, instanceCount) : glDrawElements(drawType[shapeType],indexCount, GL_UNSIGNED_INT, 0);
+        commandEncoder->drawPrimitives(MTL::PrimitiveType::PrimitiveTypeTriangle, NS::UInteger(0), NS::UInteger(10000));
     }
+#endif
 }

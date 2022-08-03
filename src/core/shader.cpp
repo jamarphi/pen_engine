@@ -45,11 +45,14 @@ namespace pen {
 
 	void Shader::Destroy() {
 		/*Removes the shader program from memory on the GPU*/
+#ifndef __PEN_IOS__
 		glDeleteProgram(rendererId);
+#endif
 	}
 
 	unsigned int Shader::CompileShader(unsigned int type, const std::string& source) {
 		/*Creates a shader and links to program in context*/
+#ifndef __PEN_IOS__
 		unsigned int id = glCreateShader(type);
 		const char* src = source.c_str();
 		glShaderSource(id, 1, &src, nullptr);
@@ -68,20 +71,28 @@ namespace pen {
 			return 0;
 		}
 		return id;
+#else
+		return 0;
+#endif
 	}
 
 	void Shader::Bind() const {
 		/*Binds the shader to be used for drawing*/
+#ifndef __PEN_IOS__
 		glUseProgram(rendererId);
+#endif
 	}
 
 	void Shader::Unbind() const {
 		/*Unbinds the shader*/
+#ifndef __PEN_IOS__
 		glUseProgram(0);
+#endif
 	}
 
 	unsigned int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
 		/*Creates the vertex and fragment shader for rendering*/
+#ifndef __PEN_IOS__
 		unsigned int program = glCreateProgram();
 		unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
 
@@ -95,56 +106,104 @@ namespace pen {
 		glDeleteShader(vs);
 		glDeleteShader(fs);
 		return program;
+#else
+		using NS::StringEncoding::UTF8StringEncoding;
+
+		NS::Error* pError = nullptr;
+		MTL::Library* pLibrary = _pDevice->newLibrary(NS::String::string(shaderProgram, UTF8StringEncoding), nullptr, &pError);
+		if (!pLibrary)
+		{
+			__builtin_printf("%s", pError->localizedDescription()->utf8String());
+			assert(false);
+		}
+
+		MTL::Function* pVertexFn = pLibrary->newFunction(NS::String::string("vertexMain", UTF8StringEncoding));
+		MTL::Function* pFragFn = pLibrary->newFunction(NS::String::string("fragmentMain", UTF8StringEncoding));
+
+		MTL::RenderPipelineDescriptor* pDesc = MTL::RenderPipelineDescriptor::alloc()->init();
+		pDesc->setVertexFunction(pVertexFn);
+		pDesc->setFragmentFunction(pFragFn);
+		pDesc->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
+
+		_pPSO = _pDevice->newRenderPipelineState(pDesc, &pError);
+		if (!_pPSO)
+		{
+			__builtin_printf("%s", pError->localizedDescription()->utf8String());
+			assert(false);
+		}
+
+		pVertexFn->release();
+		pFragFn->release();
+		pDesc->release();
+		pLibrary->release();
+#endif
 	}
 
 	void Shader::SetUniform1i(const std::string& name, int value) {
 		/*Sets an integer uniform in the shader*/
+#ifndef __PEN_IOS__
 		GLint location = GetUniformLocation(name);
 		glUniform1i(location, value);
+#endif
 	}
 
 	void Shader::SetUniform1iv(const std::string& name, const unsigned int count, int* value) {
 		/*Sets an integer array uniform in the shader*/
+#ifndef __PEN_IOS__
 		GLint location = GetUniformLocation(name);
 		glUniform1iv(location, count, value);
+#endif
 	}
 
 	void Shader::SetUniform1f(const std::string& name, float value) {
 		/*Sets a float uniform in the shader*/
+#ifndef __PEN_IOS__
 		GLint location = GetUniformLocation(name);
 		glUniform1f(location, value);
+#endif
 	}
 
 	void Shader::SetUniform2f(const std::string& name, pen::Vec2* value) {
 		/*Sets a vec2 float uniform in the shader*/
+#ifndef __PEN_IOS__
 		GLint location = GetUniformLocation(name);
 		glUniform2f(location, value->x, value->y);
+#endif
 	}
 
 	void Shader::SetUniform3f(const std::string& name, pen::Vec3* value) {
 		/*Sets a vec3 float uniform in the shader*/
+#ifndef __PEN_IOS__
 		GLint location = GetUniformLocation(name);
 		glUniform3f(location, value->x, value->y, value->z);
+#endif
 	}
 
 	void Shader::SetUniform4f(const std::string& name, pen::Vec4* value) {
 		/*Sets a vec4 float uniform in the shader*/
+#ifndef __PEN_IOS__
 		GLint location = GetUniformLocation(name);
 		glUniform4f(location, value->x, value->y, value->z, value->w);
+#endif
 	}
 
 	void Shader::SetUniformMat4x4f(const std::string& name, const pen::Mat4x4& matrix) {
 		/*Sets a mat4x4 uniform in the shader*/
+#ifndef __PEN_IOS__
 		glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix.matrix[0][0]);
+#endif
 	}
 
 	void Shader::SetUniformMat2x4f(const std::string& name, pen::Mat2x4* matrix) {
 		/*Sets a mat2x4 uniform in the shader*/
+#ifndef __PEN_IOS__
 		glUniformMatrix2x4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix->matrix[0][0]);
+#endif
 	}
 
 	GLint Shader::GetUniformLocation(const std::string& name) {
 		/*Looks for the uniform name and caches it if not found previously*/
+#ifndef __PEN_IOS__
 		if (uniformLocationCache.Find(name) != nullptr)
 			return uniformLocationCache.Find(name)->second;
 
@@ -156,5 +215,8 @@ namespace pen {
 		uniformLocationCache.Insert(name, location);
 
 		return location;
+#else
+		return 0;
+#endif
 	}
 }

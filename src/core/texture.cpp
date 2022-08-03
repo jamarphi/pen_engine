@@ -23,6 +23,7 @@ under the License.
 Texture* Texture::instance = nullptr;
 
 void Texture::Initialize(const std::string& path, const unsigned int slot) {
+#ifndef __PEN_IOS__
 	/*Regular textures*/
 	/*Removes the previous texture that occupied this slot*/
 	Destroy(Texture::Get()->texSlots.Find(slot)->second);
@@ -74,11 +75,14 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 
 	if (localBuffer)
 		stbi_image_free(localBuffer);
+#endif
 }
 
 void Texture::Destroy(unsigned int texRendererId) {
 	/*Removes a texture from memory on the GPU*/
+#ifndef __PEN_IOS__
 	glDeleteTextures(1, &texRendererId);
+#endif
 }
 
 void Texture::LoadTexture(const std::string* textureList, const unsigned int& listSize) {
