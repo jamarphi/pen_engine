@@ -34,7 +34,7 @@ void VertexArray::AddBuffer(const VertexBufferSchema& schema) {
 	Bind();
 
 	/*The schema is used to determine the stride of each attribute*/
-	const auto& elements = schema.Items();
+	const std::vector<VertexBufferSchemaElement>& elements = schema.Items();
 	unsigned int offset = 0;
 	
 	for (unsigned int i = 0; i < elements.size(); i++) {
@@ -47,10 +47,23 @@ void VertexArray::AddBuffer(const VertexBufferSchema& schema) {
 #endif
 }
 
+#ifdef __PEN_IOS__
+void VertexArray::AddBuffer(MTL::Buffer* dataBuffer) {
+	/*Creates an argument buffer for ios metal that defines the attributes used with the vertex buffer*/
+	iosArgBuffer = pen::State::Get()->iosDevice->newBuffer(pArgEncoder->encodedLength(), MTL::ResourceStorageModeManaged);
+	pen::State::Get()->iosArgEncoder->setArgumentBuffer(iosArgBuffer, 0);
+	pen::State::Get()->iosArgEncoder->setBuffer(dataBuffer, 0, 0);
+	iosArgBuffer->didModifyRange(NS::Range::Make(0, iosArgBuffer->length()));
+}
+#endif
+
 void VertexArray::Bind() const {
 	/*Binds the vertex array for the layer it is a part of*/
 #ifndef __PEN_IOS__
 	glBindVertexArray(rendererId);
+#else
+	/*Binds the ios argument buffer for this vertex array object*/
+	pen::State::Get()->iosArgEncoder->setArgumentBuffer(iosArgBuffer, 0);
 #endif
 }
 
@@ -66,5 +79,7 @@ void VertexArray::Destroy() {
 	/*Removes the vertex array from memory on the GPU*/
 #ifndef __PEN_IOS__
 	glDeleteVertexArrays(1, &rendererId);
+#else
+	iosArgBuffer->release();
 #endif
 }

@@ -87,7 +87,7 @@ namespace pen {
 		double mobileMouseY = 0.0;
 		void (*mobileOnKeyCallback)(char) = nullptr;
 		void (*mobileOnClickCallback)(double, double) = nullptr;
-		void (*handleMobileRender)() = nullptr;
+		void (*mobileOnRenderCallback)() = nullptr;
 		void (*mobileOnResumeCallback)() = nullptr;
 		void (*mobileOnPauseCallback)() = nullptr;
 		void (*mobileOnTiltCallback)(double, double, double, double) = nullptr;
@@ -106,6 +106,7 @@ namespace pen {
 		MTL::CommandQueue* iosCommandQueue;
 		MTL::RenderPipelineState* iosPipelineState;
 		NS::Notification* iosLaunchNotification;
+		MTL::ArgumentEncoder* iosArgEncoder;
 #endif
 		/*----IOS----*/
 		/*----Mobile----*/

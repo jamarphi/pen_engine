@@ -72,6 +72,8 @@ namespace pen {
 
 #ifdef __PEN_IOS__
         MTL::RenderCommandEncoder* iosCommandEncoder;
+        MTL::CommandBuffer* iosCmdBuffer;
+        NS::AutoreleasePool* iosAutoReleasePool;
 #endif
 
         /*Binds the vertex buffer of a given layer and updates the GPU with the buffer data*/
@@ -80,8 +82,9 @@ namespace pen {
 #ifndef __PEN_IOS__
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(layer->batchVertices), layer->batchVertices);
 #else
-            
-            pen::Render::DrawIOSLayer(iosCommandEncoder, layer->vb);
+            std::memcpy(layer->vb.iosBuffer->contents(), layer->batchVertices, sizeof(layer->batchVertices));
+            layer->vb.iosBuffer->didModifyRange(NS::Range::Make(0, iosBuffer->length()));
+            pen::Render::DrawIOSLayer(iosAutoReleasePool, iosCmdBuffer, iosCommandEncoder, layer->vb);
 #endif
             if (pen::State::Get()->firstUpdateFrame) {
                 pen::State::Get()->firstUpdateFrame = false;
@@ -94,7 +97,7 @@ namespace pen {
 #ifndef __PEN_IOS__
         pen::Renderer::Draw(layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
 #else
-        pen::Renderer::Draw(iosCommandEncoder, layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
+        pen::Renderer::Draw(iosAutoReleasePool, iosCmdBuffer, iosCommandEncoder, layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
 #endif
     }
 
@@ -132,31 +135,15 @@ namespace pen {
     }
 
 #ifdef __PEN_IOS__
-    void Render::RenderIOSLayers(MTK::View* pView) {
-        /*Render an ios layer*/
-        pen::Render::Get()->iosView = pView;
-        for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-            pen::Render::RenderLayer(pen::ui::LM::layers[i]);
-        }
-    }
-
-    void DrawIOSView(MTL::RenderCommandEncoder* commandEncoder, const VertexBuffer& vb) {
-        /*Use the ios view to render batch data*/
+    void DrawIOSView(NS::AutoreleasePool* autoReleasePool, MTL::CommandBuffer* iosCmd, MTL::RenderCommandEncoder* commandEncoder, const VertexBuffer& vb) {
+        /*Use the ios mtk view to render batch data*/
         NS::AutoreleasePool* pPool = NS::AutoreleasePool::alloc()->init();
-
         MTL::CommandBuffer* pCmd = pen::State::Get()->iosCommandQueue->commandBuffer();
-        MTL::RenderPassDescriptor* pRpd = pen::Render::Get()->iosView->currentRenderPassDescriptor();
+        MTL::RenderPassDescriptor* pRpd = pen::State::Get()->iosMtkView->currentRenderPassDescriptor();
         commandEncoder = pCmd->renderCommandEncoder(pRpd);
 
         commandEncoder->setRenderPipelineState(pen::State::Get()->iosPipelineState);
         commandEncoder->setVertexBuffer(vb.iosBuffer, 0, 0);
-        commandEncoder->drawPrimitives(MTL::PrimitiveType::PrimitiveTypeTriangle, NS::UInteger(0), NS::UInteger(3));
-
-        commandEncoder->endEncoding();
-        pCmd->presentDrawable(pView->currentDrawable());
-        pCmd->commit();
-
-        pPool->release();
     }
 #endif
 }

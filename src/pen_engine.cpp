@@ -203,6 +203,7 @@ namespace pen {
         pen::State::Get()->iosDevice->release();
         pen::State::Get()->iosCommandQueue->release();
         pen::State::Get()->iosPipelineState->release();
+        pen::State::Get()->iosArgEncoder->release();
 #endif
 #endif
     }
@@ -602,7 +603,7 @@ namespace pen {
         /*Sets the mobile callback functions for mobile devices*/
 #ifdef __PEN_MOBILE__
         pen::State* inst = pen::State::Get();
-        inst->handleMobileRender = onRenderCallback;
+        inst->mobileOnRenderCallback = onRenderCallback;
         inst->mobileOnClickCallback = onClickCallback;
         inst->mobileOnResumeCallback = onResumeCallback;
         inst->mobileOnPauseCallback = onPauseCallback;

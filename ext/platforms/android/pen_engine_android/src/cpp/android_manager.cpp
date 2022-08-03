@@ -109,8 +109,8 @@ extern "C" {
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeRender(JNIEnv* env, jclass obj) {
         /*Happens each frame*/
-        if (pen::State::Get()->handleMobileRender != nullptr) {
-            (*pen::State::Get()->handleMobileRender)();
+        if (pen::State::Get()->mobileOnRenderCallback != nullptr) {
+            (*pen::State::Get()->mobileOnRenderCallback)();
         }
     }
 

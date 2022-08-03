@@ -20,7 +20,7 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "../../../src/state/config.h"
-#include "../../../src/renderer/render.h"
+#include "../../../src/state/state.h"
 
 #ifdef __PEN_IOS__
 

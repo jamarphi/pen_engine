@@ -46,9 +46,6 @@ namespace pen {
 		pen::Camera camera;
 		unsigned int textScaling;
 		int indexCount = 0;
-#ifdef __PEN_IOS__
-		MTK::View* iosView;
-#endif
 
 		static Render* Get() {
 			if (!instance)
@@ -59,9 +56,6 @@ namespace pen {
 	public:
 		static void Background(pen::Vec4 color);
 		static void RenderLayer(pen::Layer *layer);
-#ifdef __PEN_IOS__
-		static void RenderIOSLayers(MTK::View* pView);
-#endif
 
 	private:
 		static void TextureSet();

@@ -31,6 +31,7 @@ under the License.
 #include "../ops/matrices/mat4x4.h"
 #include "../ops/matrices/mat2x4.h"
 #include "../objects/containers/map.h"
+#include "../state/state.h"
 
 namespace pen {
 	class Shader {
@@ -167,7 +168,7 @@ namespace pen {
 				#include <metal_stdlib>
 				using namespace metal;
 
-				struct VertexData
+				struct v2f
 				{
 					float4 position [[position]];
 					half4 color;
@@ -175,14 +176,20 @@ namespace pen {
 					float texIndex;
 				};
 
-				VertexData vertex vertexMain( uint vertexId [[vertex_id]],
-									   device const float3* positions [[buffer(0)]],
-									   device const float3* colors [[buffer(1)]],
-									   device const float2* texCoords [[buffer(2)]],
-									   device const float* texIndices [[buffer(3)]]
+				struct VertexData
+				{
+					device float4* positions [[id(0)]];
+					device float4* colors [[id(1)]];
+					device float2* texCoords [[id(2)]];
+					device float* texIndices [[id(3)]];
+				};
+
+				v2f vertex vertexMain(
+									   device const VertexData* vertexData [[buffer(0)]],
+										uint vertexId [[vertex_id]]
 										)
 				{
-					VertexData out;
+					v2f out;
 					out.position = float4( positions[ vertexId ], 1.0 );
 					out.color = colors[ vertexId ];
 					out.texCoord = texCoords[ vertexId ];
@@ -200,7 +207,7 @@ namespace pen {
 				#include <metal_stdlib>
 				using namespace metal;
 
-				struct VertexData
+				struct v2f
 				{
 					float4 position [[position]];
 					half4 color;
@@ -208,16 +215,22 @@ namespace pen {
 					float texIndex;
 				};
 
-				uniform uInstancedOffsets[400];
+				struct VertexData
+				{
+					device float4* positions [[id(0)]];
+					device float4* colors [[id(1)]];
+					device float2* texCoords [[id(2)]];
+					device float* texIndices [[id(3)]];
+				};
 
-				VertexData vertex vertexMain( uint vertexId [[vertex_id]],
-									   device const float3* positions [[buffer(0)]],
-									   device const float3* colors [[buffer(1)]],
-									   device const float2* texCoords [[buffer(2)]],
-									   device const float* texIndices [[buffer(3)]]
+				uniform float4 uInstancedOffsets[400];
+
+				v2f vertex vertexMain(
+									   device const VertexData* vertexData [[buffer(0)]],
+										uint vertexId [[vertex_id]]
 										)
 				{
-					VertexData out;
+					v2f out;
 					float3 offset = vec3(uInstancedOffsets[gl_InstanceID].x, uInstancedOffsets[gl_InstanceID].y, uInstancedOffsets[gl_InstanceID].z);
 					out.position = float4( positions[ vertexId ].x + offset.x, positions[ vertexId ].y + offset.y, positions[ vertexId ].z + offset.z, 1.0 );
 					out.color = colors[ vertexId ];

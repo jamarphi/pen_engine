@@ -57,10 +57,13 @@ namespace pen {
         /*1 vertex for texture id*/
         layout.Push(1);
 
-        //va.Bind();
         vb.Bind();
         /*Adds the attribute layout to the vertex array object*/
+#ifndef __PEN_IOS__
         va.AddBuffer(layout);
+#else
+        va.AddBuffer(vb.iosBuffer);
+#endif
 
         InitializeIndices();
 

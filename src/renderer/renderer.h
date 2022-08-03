@@ -52,7 +52,8 @@ namespace pen {
 		static void Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
 			const bool& isInstanced, const unsigned int& instanceCount);
 #ifdef __PEN_IOS__
-		static void Draw(MTL::RenderCommandEncoder* commandEncoder, const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
+		static void Draw(NS::AutoreleasePool* autoReleasePool, MTL::CommandBuffer* iosCmd, MTL::RenderCommandEncoder* commandEncoder, const VertexArray& va, const IndexBuffer& ib, int& indexCount,
+			const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
 			const bool& isInstanced, const unsigned int& instanceCount);
 #endif
 	};

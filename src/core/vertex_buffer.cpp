@@ -61,7 +61,6 @@ void VertexBuffer::Bind() const {
 #ifndef __PEN_IOS__
 	glBindBuffer(GL_ARRAY_BUFFER, rendererId);
 #endif
-
 }
 
 void VertexBuffer::Unbind() const {

@@ -79,6 +79,7 @@ void PenIOSAppDelegate::ApplicationDidFinishLaunching(NS::Notification* pNotific
     /*After application is done launching*/
     pen::State::Get()->iosLaunchNotification = pNotification;
     App* app = new App();
+    pen::State::Get()->mobileActive = true;
     app->CreateApplication("App", 110, 540, "");
     app->OnCreate();
 }

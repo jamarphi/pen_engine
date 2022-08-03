@@ -120,6 +120,9 @@ namespace pen {
 		MTL::Function* pVertexFn = pLibrary->newFunction(NS::String::string("vertexMain", UTF8StringEncoding));
 		MTL::Function* pFragFn = pLibrary->newFunction(NS::String::string("fragmentMain", UTF8StringEncoding));
 
+		MTL::ArgumentEncoder* pArgEncoder = pVertexFn->newArgumentEncoder(0);
+		pen::State::Get()->iosArgEncoder = pArgEncoder;
+
 		MTL::RenderPipelineDescriptor* pDesc = MTL::RenderPipelineDescriptor::alloc()->init();
 		pDesc->setVertexFunction(pVertexFn);
 		pDesc->setFragmentFunction(pFragFn);

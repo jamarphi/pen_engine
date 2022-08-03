@@ -48,7 +48,8 @@ namespace pen {
     }
 
 #ifdef __PEN_IOS__
-    void Renderer::Draw(MTL::RenderCommandEncoder* commandEncoder, const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
+    void Renderer::Draw(NS::AutoreleasePool* autoReleasePool, MTL::CommandBuffer* iosCmd, MTL::RenderCommandEncoder* commandEncoder, const VertexArray& va, const IndexBuffer& ib, int& indexCount,
+        const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
         const bool& isInstanced, const unsigned int& instanceCount) {
         /*Draw a batched object to the screen for ios
 
@@ -58,7 +59,27 @@ namespace pen {
         vb.Bind();
         ib.Bind();
 
+        unsigned int type = 0;
+
+        switch (shapeType) {
+        case 0:
+            type = MTL::PrimitiveType::PrimitiveTypePoint;
+            break;
+        case 1:
+            type = MTL::PrimitiveType::PrimitiveTypeLine;
+            break;
+        case 2:
+            type = MTL::PrimitiveType::PrimitiveTypeTriangle;
+            break;
+        default:
+            break;
+        }
+
         commandEncoder->drawPrimitives(MTL::PrimitiveType::PrimitiveTypeTriangle, NS::UInteger(0), NS::UInteger(10000));
+        commandEncoder->endEncoding();
+        iosCmd->presentDrawable(pen::State::Get()->iosMtkView->currentDrawable());
+        iosCmd->commit();
+        autoReleasePool->release();
     }
 #endif
 }

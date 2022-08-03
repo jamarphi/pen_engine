@@ -20,6 +20,7 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "../state/config.h"
+#include "../state/state.h"
 #ifndef __PEN_IOS__
 #include "../../dependencies/glad/glad.h"
 #endif
@@ -34,10 +35,18 @@ private:
 	unsigned int rendererId;
 
 public:
+#ifdef __PEN_IOS__
+	MTL::Buffer* iosArgBuffer;
+#endif
+
+public:
 	VertexArray();
 	~VertexArray();
 
 	void AddBuffer(const VertexBufferSchema& schema);
+#ifdef __PEN_IOS__
+	void AddBuffer(MTL::Buffer* argBuffer);
+#endif
 	void Bind() const;
 	void Unbind() const;
 	void Destroy();
