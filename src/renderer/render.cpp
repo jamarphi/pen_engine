@@ -67,7 +67,6 @@ namespace pen {
 
         /*This model view projection matrix is used for transformations of a given layer*/
         pen::Mat4x4 mvp = (layer->model * (layer->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (layer->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
-
         shader.SetUniformMat4x4f("uMVP", mvp);
 
 #ifdef __PEN_IOS__
@@ -83,8 +82,11 @@ namespace pen {
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(layer->batchVertices), layer->batchVertices);
 #else
             std::memcpy(layer->vb.iosBuffer->contents(), layer->batchVertices, sizeof(layer->batchVertices));
-            layer->vb.iosBuffer->didModifyRange(NS::Range::Make(0, iosBuffer->length()));
+            layer->vb.iosBuffer->didModifyRange(NS::Range::Make(0, layer->vb.iosBuffer->length()));
+            std::memcpy(pen::State::Get()->iosMVPBuffer->contents(), mvp.matrix, MVP_MATRIX_SIZE);
+            pen::State::Get()->iosMVPBuffer->didModifyRange(NS::Range::Make(0, pen::State::Get()->iosMVPBuffer->length()));
             pen::Render::DrawIOSLayer(iosAutoReleasePool, iosCmdBuffer, iosCommandEncoder, layer->vb);
+
 #endif
             if (pen::State::Get()->firstUpdateFrame) {
                 pen::State::Get()->firstUpdateFrame = false;
@@ -137,13 +139,19 @@ namespace pen {
 #ifdef __PEN_IOS__
     void DrawIOSView(NS::AutoreleasePool* autoReleasePool, MTL::CommandBuffer* iosCmd, MTL::RenderCommandEncoder* commandEncoder, const VertexBuffer& vb) {
         /*Use the ios mtk view to render batch data*/
+        pen::State* inst = pen::State::Get();
         NS::AutoreleasePool* pPool = NS::AutoreleasePool::alloc()->init();
-        MTL::CommandBuffer* pCmd = pen::State::Get()->iosCommandQueue->commandBuffer();
-        MTL::RenderPassDescriptor* pRpd = pen::State::Get()->iosMtkView->currentRenderPassDescriptor();
+        MTL::CommandBuffer* pCmd = inst->iosCommandQueue->commandBuffer();
+        MTL::RenderPassDescriptor* pRpd = inst->iosMtkView->currentRenderPassDescriptor();
         commandEncoder = pCmd->renderCommandEncoder(pRpd);
 
-        commandEncoder->setRenderPipelineState(pen::State::Get()->iosPipelineState);
+        commandEncoder->setRenderPipelineState(inst->iosPipelineState);
+        commandEncoder->setDepthStencilState(inst->iosDepthStencilState);
         commandEncoder->setVertexBuffer(vb.iosBuffer, 0, 0);
+        commandEncoder->setVertexBuffer(inst->iosMVPBuffer, 0, 1);
+        commandEncoder->setFragmentTextures(Texture::Get()->iosTextures, 0);
+        commandEncoder->setCullMode(MTL::CullModeBack);
+        commandEncoder->setFrontFacingWinding(MTL::Winding::WindingCounterClockwise);
     }
 #endif
 }

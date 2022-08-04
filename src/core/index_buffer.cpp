@@ -34,6 +34,16 @@ IndexBuffer::IndexBuffer(int* data, unsigned int count) : indexCount(count) {
 
 }
 
+#ifdef __PEN_IOS__
+IndexBuffer::IndexBuffer(int* data, unsigned int count, MTL::Device* iosGPU) {
+	/*For IOS Metal buffers*/
+	iosDevice = iosGPU->retain();
+	iosBuffer = iosDevice->newBuffer(size, MTL::ResourceStorageModeManaged);
+	std::memcpy(iosBuffer->contents(), data, size);
+	iosBuffer->didModifyRange(NS::Range::Make(0, iosBuffer->length()));
+}
+#endif
+
 IndexBuffer::~IndexBuffer() {
 	
 

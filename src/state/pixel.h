@@ -36,7 +36,7 @@ namespace pen {
 
 	static unsigned char* PixelBuffer() {
 		/*Returns a pointer to the pixel buffer*/
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_ANDROID__
 		return pen::State::Get()->pixelArray;
 #else
 		return nullptr;

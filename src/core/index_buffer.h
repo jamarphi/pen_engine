@@ -30,9 +30,17 @@ private:
 	
 public:
 	unsigned int indexCount;
+#ifdef __PEN_IOS__
+	MTL::Buffer* iosIndexBuffer;
+	MTL::Device* iosDevice;
+#endif
 
+public:
 	IndexBuffer();
 	IndexBuffer(int* data, unsigned int count);
+#ifdef __PEN_IOS__
+	IndexBuffer(int* data, unsigned int count, MTL::Device* iosGPU);
+#endif
 	~IndexBuffer();
 
 	void Bind() const;

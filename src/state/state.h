@@ -107,6 +107,9 @@ namespace pen {
 		MTL::RenderPipelineState* iosPipelineState;
 		NS::Notification* iosLaunchNotification;
 		MTL::ArgumentEncoder* iosArgEncoder;
+		MTL::DepthStencilState* iosDepthStencilState;
+		MTL::Texture* iosPixelBuffer;
+		MTL::Buffer* iosMVPBuffer;
 #endif
 		/*----IOS----*/
 		/*----Mobile----*/

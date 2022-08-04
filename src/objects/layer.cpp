@@ -41,8 +41,13 @@ namespace pen {
         /*Must be called after items are added to layer*/
         CombineBuffers();
 
+#ifndef __PEN_IOS__
         VertexBuffer tempVb(sizeof(BatchVertexData) * MAX_OBJECTS);
         vb = tempVb;
+#else
+        VertexBuffer tempVb((void*)&batchVertices, sizeof(BatchVertexData) * MAX_OBJECTS, pen::State::Get()->iosDevice);
+        vb = tempVb;
+#endif
 
         VertexBufferSchema layout;
         /*3 vertices for batch position*/
@@ -68,8 +73,14 @@ namespace pen {
         InitializeIndices();
 
         /*Creates the index buffer to determine how vertices will be connected*/
+#ifndef __PEN_IOS__
         IndexBuffer tempIb(batchIndices, RENDERER_INDICES_SIZE);
         ib = tempIb;
+#else
+        IndexBuffer tempIb(&batchIndices, RENDERER_INDICES_SIZE, vb.iosBuffer);
+        ib = tempIb;
+#endif
+        
 
         if (shapeType == pen::ui::Shape::COMPLEX) indexCount = layerItems[0]->complexIndexCount;
     }

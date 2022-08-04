@@ -77,6 +77,11 @@ void PenIOSAppDelegate::ApplicationWillFinishLaunching(NS::Notification* pNotifi
 void PenIOSAppDelegate::ApplicationDidFinishLaunching(NS::Notification* pNotification)
 {
     /*After application is done launching*/
+    MTL::DepthStencilDescriptor* pDsDesc = MTL::DepthStencilDescriptor::alloc()->init();
+    pDsDesc->setDepthCompareFunction(MTL::CompareFunction::CompareFunctionLess);
+    pDsDesc->setDepthWriteEnabled(true);
+    pen::State::Get()->iosDepthStencilState = _pDevice->newDepthStencilState(pDsDesc);
+    pDsDesc->release();
     pen::State::Get()->iosLaunchNotification = pNotification;
     App* app = new App();
     pen::State::Get()->mobileActive = true;

@@ -23,7 +23,6 @@ under the License.
 Texture* Texture::instance = nullptr;
 
 void Texture::Initialize(const std::string& path, const unsigned int slot) {
-#ifndef __PEN_IOS__
 	/*Regular textures*/
 	/*Removes the previous texture that occupied this slot*/
 	Destroy(Texture::Get()->texSlots.Find(slot)->second);
@@ -45,11 +44,14 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 	unsigned char* localBuffer = (path.compare("default") != 0) ? stbi_load(tempPath.c_str(), &texWidth, &texHeight, &texBPP, 4) : nullptr;
 	GLuint texRendererId = 0;
 
+#ifndef __PEN_IOS__
 	glGenTextures(1, (GLuint*)&texRendererId);
+#endif
 
 	/*Assigns the new texture id to the slot*/
 	Texture::Get()->texSlots.Insert(slot, texRendererId);
 
+#ifndef __PEN_IOS__
 	/*Bind the texture to a specific slot*/
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, texRendererId);
@@ -59,23 +61,32 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#endif
 
 	if (path.compare("default") == 0) {
 		/*Uses the color white to load a blank texture that can be turned into any color*/
+#ifndef __PEN_IOS__
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
+#else
+		Texture::InitializeIOSTexture(path, 0, slot);
+#endif
 	}
 	else if (path.compare("pixel") == 0) {
 		/*Uses a buffer of color values to draw quad-like pixels to the screen*/
+#ifndef __PEN_IOS__
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, pen::State::Get()->pixelArray);
+#else
+		Texture::InitializeIOSTexture(path, 1, slot);
+#endif
 	}
 	else {
 		/*Uses the buffer data loaded to create a texture*/
+#ifndef __PEN_IOS__
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
-	}
-
-	if (localBuffer)
-		stbi_image_free(localBuffer);
+#else
+		Texture::InitializeIOSTexture(path, 2, slot);
 #endif
+	}
 }
 
 void Texture::Destroy(unsigned int texRendererId) {
@@ -117,12 +128,68 @@ void Texture::LoadTexture(const std::string* textureList, const unsigned int& li
 
 void Texture::UpdatePixels() {
 	/*Sends new pixel buffer texture to GPU*/
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_ANDROID__
 	if (pen::State::Get()->pixelDrawn) {
 		pen::State::Get()->pixelDrawn = false;
+#ifndef __PEN_IOS__
 		glActiveTexture(GL_TEXTURE0 + 2);
 		glBindTexture(GL_TEXTURE_2D, Texture::Get()->texSlots.Find(2)->second);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 1280, 720, GL_RGBA, GL_UNSIGNED_BYTE, pen::State::Get()->pixelArray);
+#else
+		pen::State::Get()->iosPixelBuffer->replaceRegion(MTL::Region(0, 0, 0, 1280, 720, 1), 0, pen::State::Get()->pixelArray, 5120);
+#endif
 	}
 #endif
 }
+
+#ifdef __PEN_IOS__
+void Texture::InitializeIOSTexture(const std::string& path, const unsigned int& type, const unsigned int& texSlot) {
+	/*Initialize textures for Metal*/
+	uint32_t texWidth = 0;
+	uint32_t texHeight = 0;
+	int texSize = 0;
+	unsigned char* textureData = nullptr;
+
+	switch (type) {
+	case 0:
+		/*The solid color default*/
+		texWidth = 128;
+		texHeight = 128;
+		texSize = texWidth * texHeight * 4;
+
+		textureData = new unsigned char[texSize];
+		for (int i = 0; i < texSize; i++) {
+			textureData[i] = 0xFF;
+		}
+		break;
+	case 1:
+		/*The pixel buffer*/
+		texWidth = 1280;
+		texHeight = 720;
+		texSize = texWidth * texHeight * 4;
+		textureData = pen::State::Get()->pixelArray;
+		break;
+	case 2:
+		/*Textures loaded from memory*/
+		break;
+	default:
+		break;
+	}
+
+	MTL::TextureDescriptor* textureDesc = MTL::TextureDescriptor::alloc()->init();
+	textureDesc->setWidth(texWidth);
+	textureDesc->setHeight(texHeight);
+	textureDesc->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
+	textureDesc->setTextureType(MTL::TextureType2D);
+	textureDesc->setStorageMode(MTL::StorageModeManaged);
+	textureDesc->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
+
+	MTL::Texture* texture = pen::State::Get()->iosDevice->newTexture(textureDesc);
+	if(type == 1) pen::State::Get()->iosPixelBuffer = texture;
+
+	texture->replaceRegion(MTL::Region(0, 0, 0, texWidth, texHeight, 1), 0, textureData, texWidth * 4);
+	if(texSlot < 8) Texture::Get()->iosTexture[texSlot] = texture;
+
+	textureDesc->release();
+}
+#endif

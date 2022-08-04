@@ -39,6 +39,9 @@ class Texture {
 public:
 	pen::Map<unsigned int, GLuint> texSlots;
 	pen::Map<char, Character> characters;
+#ifdef __PEN_iOS__
+	MTL::Texture* iosTextures[8];
+#endif
 
 	static Texture* Get() {
 		if (!instance)
@@ -50,4 +53,9 @@ public:
 	static void Destroy(unsigned int texRendererId);
 	static void LoadTexture(const std::string* textureList, const unsigned int& listSize);
 	static void UpdatePixels();
+
+private:
+#ifdef __PEN_IOS__
+	static void InitializeIOSTexture(const std::string& path, const unsigned int& type, const unsigned int& texSlot);
+#endif
 };

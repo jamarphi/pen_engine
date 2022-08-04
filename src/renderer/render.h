@@ -31,6 +31,8 @@ under the License.
 #include "../ops/operations/operations.h"
 #include "camera.h"
 
+#define MVP_MATRIX_SIZE sizeof(float) * 16
+
 namespace pen {
 	class Render {
 		static Render* instance;

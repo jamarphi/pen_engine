@@ -125,6 +125,9 @@ namespace pen {
 
         NS::Application* pApp = reinterpret_cast<NS::Application*>(stateInst->iosLaunchNotification->object());
         pApp->activateIgnoringOtherApps(true);
+
+        /*Initialize uniforms*/
+        stateInst->iosMVPBuffer = stateInst->iosDevice->newBuffer(sizeof(float) * 16, MTL::ResourceStorageModeManaged);
 #endif
 
         /*Get the allowed number of textures*/
@@ -204,6 +207,7 @@ namespace pen {
         pen::State::Get()->iosCommandQueue->release();
         pen::State::Get()->iosPipelineState->release();
         pen::State::Get()->iosArgEncoder->release();
+        pen::State::Get()->iosDepthStencilState->release();
 #endif
 #endif
     }

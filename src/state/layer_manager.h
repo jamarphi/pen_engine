@@ -194,7 +194,7 @@ namespace pen {
 			Dimensions of pixel by default is 1,280 in width by 720 in height.
 			3,686,400 pixels, four values per pixel.
 			*/
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_ANDROID__
 			unsigned char* dataArray = new unsigned char[3686400];
 
 			/*Sets color for each pixel*/

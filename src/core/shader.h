@@ -172,34 +172,46 @@ namespace pen {
 				{
 					float4 position [[position]];
 					half4 color;
-					float2 texCoord [[texCoord]];
+					float2 texCoord;
 					float texIndex;
 				};
 
 				struct VertexData
 				{
-					device float4* positions [[id(0)]];
-					device float4* colors [[id(1)]];
-					device float2* texCoords [[id(2)]];
-					device float* texIndices [[id(3)]];
+					float3 positions;
+					float4 colors;
+					float2 texCoords;
+					float texIndices;
+				};
+
+				struct UniformData
+				{
+					float4x4 uMVP;
 				};
 
 				v2f vertex vertexMain(
 									   device const VertexData* vertexData [[buffer(0)]],
+									   device const UniformData* uniformData [[buffer(1)]],
 										uint vertexId [[vertex_id]]
 										)
 				{
 					v2f out;
-					out.position = float4( positions[ vertexId ], 1.0 );
-					out.color = colors[ vertexId ];
-					out.texCoord = texCoords[ vertexId ];
-					out.texIndex = texIndices[ vertexId ];
+					const device VertexData& vd = vertexData[ vertexId ];
+					float4 pos = float4( vd.positions, 1.0 ) * uniformData[vertex_id].uMVP;
+					out.position = pos;
+					out.color = vd.colors;
+					out.texCoord = vd.texCoords.xy;
+					out.texIndex = vd.texIndices;
 					return out;
 				}
 
-				half4 fragment fragmentMain( VertexData in [[stage_in]] )
+				half4 fragment fragmentMain( v2f in [[stage_in]], texture2d_array< half, access::sample > tex [[texture(0)]] )
 				{
-					return in.color;
+					constexpr sampler s( address::repeat, filter::linear );
+					half4 texel = tex.sample( s, in.texCoord ).rgba;
+
+					half4 outColor = in.color * texel;
+					return outColor;
 				}
 			)";
 
@@ -211,37 +223,52 @@ namespace pen {
 				{
 					float4 position [[position]];
 					half4 color;
-					float2 texCoord [[texCoord]];
+					float2 texCoord;
 					float texIndex;
 				};
 
 				struct VertexData
 				{
-					device float4* positions [[id(0)]];
-					device float4* colors [[id(1)]];
-					device float2* texCoords [[id(2)]];
-					device float* texIndices [[id(3)]];
+					float3 positions;
+					float4 colors;
+					float2 texCoords;
+					float texIndices;
 				};
 
-				uniform float4 uInstancedOffsets[400];
+				struct UniformData
+				{
+					float4x4 uMVP;
+				};
+
+				struct InstanceData
+				{
+					float4 uInstancedOffsets;
+				};
 
 				v2f vertex vertexMain(
 									   device const VertexData* vertexData [[buffer(0)]],
-										uint vertexId [[vertex_id]]
+										uint vertexId [[vertex_id]],
+										uint instanceId [[instance_id]]
 										)
 				{
 					v2f out;
-					float3 offset = vec3(uInstancedOffsets[gl_InstanceID].x, uInstancedOffsets[gl_InstanceID].y, uInstancedOffsets[gl_InstanceID].z);
-					out.position = float4( positions[ vertexId ].x + offset.x, positions[ vertexId ].y + offset.y, positions[ vertexId ].z + offset.z, 1.0 );
-					out.color = colors[ vertexId ];
-					out.texCoord = texCoords[ vertexId ];
-					out.texIndex = texIndices[ vertexId ];
+					const device VertexData& vd = vertexData[ vertexId ];
+					float4 pos = float4( vd.positions, 1.0 ) * uniformData[vertex_id].uMVP;
+					float3 offset = vec3(uInstancedOffsets[instance_id].x, uInstancedOffsets[instance_id].y, uInstancedOffsets[instance_id].z);
+					out.position = float4( pos.x + offset.x, pos.y + offset.y, pos.z + offset.z, 1.0 );
+					out.color = vd.colors;
+					out.texCoord = vd.texCoords.xy;
+					out.texIndex = vd.texIndices;
 					return out;
 				}
 
-				half4 fragment fragmentMain( VertexData in [[stage_in]] )
+				half4 fragment fragmentMain( v2f in [[stage_in]], texture2d_array< half, access::sample > tex [[texture(0)]] )
 				{
-					return in.color;
+					constexpr sampler s( address::repeat, filter::linear );
+					half4 texel = tex.sample( s, in.texCoord ).rgba;
+
+					half4 outColor = in.color * texel;
+					return outColor;
 				}
 			)";
 #endif /*__PEN_IOS__*/

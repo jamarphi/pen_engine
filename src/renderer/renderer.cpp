@@ -69,13 +69,17 @@ namespace pen {
             type = MTL::PrimitiveType::PrimitiveTypeLine;
             break;
         case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
             type = MTL::PrimitiveType::PrimitiveTypeTriangle;
             break;
         default:
             break;
         }
 
-        commandEncoder->drawPrimitives(MTL::PrimitiveType::PrimitiveTypeTriangle, NS::UInteger(0), NS::UInteger(10000));
+        commandEncoder->drawIndexedPrimitives(type, indexCount, MTL::IndexType::IndexTypeUInt16, ib.iosIndexBuffer, 0, instanceCount);
         commandEncoder->endEncoding();
         iosCmd->presentDrawable(pen::State::Get()->iosMtkView->currentDrawable());
         iosCmd->commit();
