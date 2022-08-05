@@ -13,7 +13,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 
 if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
 #For PC builds
+if(NOT APPLE)
 find_package(OpenGL REQUIRED)
+endif()
 endif()
 
 message(STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
@@ -46,14 +48,14 @@ endif()
 if(APPLE)
 #glfw gets added via the local lib
 set(NON_LINUX ON)
-add_library(glfw STATIC IMPORTED)
+#add_library(glfw STATIC IMPORTED)
 
 #This is for setting the glfw static lib
-set_property(TARGET glfw PROPERTY IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/dependencies/glfw/lib-mac/libglfw3.a")
-set_property(TARGET glfw PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/dependencies/glfw")
+#set_property(TARGET glfw PROPERTY IMPORTED_LOCATION #"${CMAKE_SOURCE_DIR}/dependencies/glfw/lib-mac/libglfw3.a")
+#set_property(TARGET glfw PROPERTY INTERFACE_INCLUDE_DIRECTORIES #"${CMAKE_SOURCE_DIR}/dependencies/glfw")
 
 #Sets the linker language
-set_target_properties(glfw PROPERTIES LINKER_LANGUAGE CXX)
+#set_target_properties(glfw PROPERTIES LINKER_LANGUAGE CXX)
 endif()
 
 if(NOT NON_LINUX)
@@ -69,6 +71,7 @@ file(GLOB_RECURSE PROJECT_LIB_SOURCES "${CMAKE_SOURCE_DIR}/src/*.h" "${CMAKE_SOU
     "${CMAKE_SOURCE_DIR}/dependencies/*.h" "${CMAKE_SOURCE_DIR}/dependencies/*.cpp"
     "${CMAKE_SOURCE_DIR}/ext/ai/*.h" "${CMAKE_SOURCE_DIR}/ext/ai/*.cpp"
     "${CMAKE_SOURCE_DIR}/ext/misc/*.h" "${CMAKE_SOURCE_DIR}/ext/misc/*.cpp"
+    "${CMAKE_SOURCE_DIR}/ext/platforms/ios/*.h" "${CMAKE_SOURCE_DIR}/ext/platforms/ios/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/*.c")
 
 #Creates the .so library for Android
@@ -77,10 +80,18 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/ext/platforms/android)
 endif()
 
 #Creates an executable
+if(NOT APPLE)
 add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "../app.cpp")
+else()
+add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "ext/platforms/ios/ios_manager.cpp")
+endif()
 
 #Sets the C++ version now that the project is created
+if(APPLE)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+else()
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
+endif()
 
 #The library directories for linkage
 if(WIN32)
@@ -90,10 +101,18 @@ endif()
 if(APPLE)
     if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
     #For Mac builds
-    find_library(COCOA_LIB cocoa)
-    find_library(IOKIT_LIB IOKit)
-    find_library(CORE_VIDEO_LIB CoreVideo)
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${COCOA_LIB} ${IOKIT_LIB} ${CORE_VIDEO_LIB} glfw ${OPENGL_LIBRARIES})
+    #find_library(COCOA_LIB cocoa)
+    #find_library(IOKIT_LIB IOKit)
+    #find_library(CORE_VIDEO_LIB CoreVideo)
+    #target_link_libraries(${PROJECT_NAME} PUBLIC ${COCOA_LIB} ${IOKIT_LIB} ${CORE_VIDEO_LIB} #glfw ${OPENGL_LIBRARIES})
+    
+    #Search for Metal libraries
+    find_library(FOUNDATION Foundation REQUIRED)
+    find_library(QUARTZ QuartzCore REQUIRED)
+    find_library(METAL Metal REQUIRED)
+    target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SRC_DIR}/ext/platforms/ios/metal)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${FOUNDATION} ${QUARTZ} ${METAL})
+    
     elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
     target_link_libraries(${PROJECT_NAME} GLESv2 EGL)
     endif()

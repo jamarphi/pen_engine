@@ -29,7 +29,13 @@ under the License.
 //#define __PEN_ANDROID__
 
 /*For IOS*/
-//#define __PEN_IOS__
+#define __PEN_IOS__
+
+#ifdef __APPLE__
+#ifndef __PEN_IOS__
+#define __PEN_IOS__
+#endif
+#endif
 
 #ifdef __PEN_ANDROID__
 #define __PEN_MOBILE__
@@ -75,12 +81,24 @@ under the License.
 
 #ifdef __PEN_IOS__
 #include <cassert>
+#ifndef NS_PRIVATE_IMPLEMENTATION
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
 #define MTK_PRIVATE_IMPLEMENTATION
 #define CA_PRIVATE_IMPLEMENTATION
+#endif
+#ifdef TARGET_IPHONE_SIMULATOR
+#import <UIKit/UIKit.h>
+#elifdef TARGET_OS_IPHONE
+#import <UIKit/UIKit.hpp>
+#elifdef TARGET_OS_IOS
+#import <UIKit/UIKit.hpp>
+#else
+//#import <AppKit/AppKit.hpp>
+#endif
 #include <Metal/Metal.hpp>
-#include <AppKit/AppKit.hpp>
+#include <Foundation/Foundation.h>
+#include <QuartzCore/QuartzCore.h>
 #include <MetalKit/MetalKit.hpp>
 #include <simd/simd.h>
 #endif
