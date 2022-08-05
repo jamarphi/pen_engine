@@ -23,6 +23,9 @@ under the License.
 #include "../state/state.h"
 #ifndef __PEN_IOS__
 #include "../../dependencies/glad/glad.h"
+#else
+#include "../../ext/platforms/ios/ios_vertex_buffer.h"
+#include "../../ext/platforms/ios/ios_argument_buffer.h"
 #endif
 #include "vertex_buffer.h"
 #include "vertex_buffer_schema.h"
@@ -36,16 +39,16 @@ private:
 
 public:
 #ifdef __PEN_IOS__
-	MTL::Buffer* iosArgBuffer;
+	IOSArgumentBuffer* iosArgumentBuffer;
 #endif
 
 public:
 	VertexArray();
 	~VertexArray();
-
+#ifndef __PEN_IOS__
 	void AddBuffer(const VertexBufferSchema& schema);
-#ifdef __PEN_IOS__
-	void AddBuffer(MTL::Buffer* argBuffer);
+	#else __PEN_IOS__
+	void AddBuffer(IOSVertexBuffer* dataBuffer);
 #endif
 	void Bind() const;
 	void Unbind() const;

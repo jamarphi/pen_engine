@@ -33,11 +33,18 @@ under the License.
 #include "../objects/containers/map.h"
 #include "../state/state.h"
 
+#ifdef __PEN_IOS__
+#include "../../ext/platforms/ios/ios_shader.h"
+#endif
+
 namespace pen {
 	class Shader {
 	public:
 		unsigned int rendererId;
 		pen::Map<std::string, GLint> uniformLocationCache;
+#ifdef __PEN_IOS__
+		IOSShader* iosShader;
+#endif
 
 #ifndef __PEN_ES__
 		const char* shaderProgram = "#version 400 core\n"
@@ -176,39 +183,39 @@ namespace pen {
 					float texIndex;
 				};
 
-				struct VertexData
+				struct BatchVertexData
 				{
-					float3 positions;
-					float4 colors;
-					float2 texCoords;
-					float texIndices;
+					float3 vertex;
+					float4 color;
+					float2 texCoord;
+					float texId;
 				};
 
-				struct UniformData
+				struct IOSUniformData
 				{
 					float4x4 uMVP;
 				};
 
 				v2f vertex vertexMain(
-									   device const VertexData* vertexData [[buffer(0)]],
-									   device const UniformData* uniformData [[buffer(1)]],
+									   device const BatchVertexData* vertexData [[buffer(0)]],
+									   device const IOSUniformData* uniformData [[buffer(1)]],
 										uint vertexId [[vertex_id]]
 										)
 				{
 					v2f out;
-					const device VertexData& vd = vertexData[ vertexId ];
-					float4 pos = float4( vd.positions, 1.0 ) * uniformData[vertex_id].uMVP;
+					const device BatchVertexData& vd = vertexData[ vertexId ];
+					float4 pos = float4( vd.vertex, 1.0 ) * uniformData[vertex_id].uMVP;
 					out.position = pos;
-					out.color = vd.colors;
-					out.texCoord = vd.texCoords.xy;
-					out.texIndex = vd.texIndices;
+					out.color = vd.color;
+					out.texCoord = vd.texCoord.xy;
+					out.texIndex = vd.texId;
 					return out;
 				}
 
 				half4 fragment fragmentMain( v2f in [[stage_in]], texture2d_array< half, access::sample > tex [[texture(0)]] )
 				{
 					constexpr sampler s( address::repeat, filter::linear );
-					half4 texel = tex.sample( s, in.texCoord ).rgba;
+					half4 texel = tex[in.texIndex].sample( s, in.texCoord ).rgba;
 
 					half4 outColor = in.color * texel;
 					return outColor;
@@ -227,45 +234,47 @@ namespace pen {
 					float texIndex;
 				};
 
-				struct VertexData
+				struct BatchVertexData
 				{
-					float3 positions;
-					float4 colors;
-					float2 texCoords;
-					float texIndices;
+					float3 vertex;
+					float4 color;
+					float2 texCoord;
+					float texId;
 				};
 
-				struct UniformData
+				struct IOSUniformData
 				{
 					float4x4 uMVP;
 				};
 
-				struct InstanceData
+				struct IOSInstanceData
 				{
-					float4 uInstancedOffsets;
+					float3 uInstancedOffsets;
 				};
 
 				v2f vertex vertexMain(
-									   device const VertexData* vertexData [[buffer(0)]],
+									   device const BatchVertexData* vertexData [[buffer(0)]],
+									   device const IOSUniformData* uniformData [[buffer(1)]],
+									   device const IOSInstanceData* instanceData [[buffer(1)]],
 										uint vertexId [[vertex_id]],
 										uint instanceId [[instance_id]]
 										)
 				{
 					v2f out;
-					const device VertexData& vd = vertexData[ vertexId ];
-					float4 pos = float4( vd.positions, 1.0 ) * uniformData[vertex_id].uMVP;
-					float3 offset = vec3(uInstancedOffsets[instance_id].x, uInstancedOffsets[instance_id].y, uInstancedOffsets[instance_id].z);
+					const device BatchVertexData& vd = vertexData[ vertexId ];
+					float4 pos = float4( vd.vertex, 1.0 ) * uniformData[vertex_id].uMVP;
+					float3 offset = vec3(instanceData[instance_id].uInstancedOffsets[instance_id].x, instanceData[instance_id].uInstancedOffsets[instance_id].y, instanceData[instance_id].uInstancedOffsets[instance_id].z);
 					out.position = float4( pos.x + offset.x, pos.y + offset.y, pos.z + offset.z, 1.0 );
-					out.color = vd.colors;
-					out.texCoord = vd.texCoords.xy;
-					out.texIndex = vd.texIndices;
+					out.color = vd.color;
+					out.texCoord = vd.texCoord.xy;
+					out.texIndex = vd.texId;
 					return out;
 				}
 
 				half4 fragment fragmentMain( v2f in [[stage_in]], texture2d_array< half, access::sample > tex [[texture(0)]] )
 				{
 					constexpr sampler s( address::repeat, filter::linear );
-					half4 texel = tex.sample( s, in.texCoord ).rgba;
+					half4 texel = tex[in.texIndex].sample( s, in.texCoord ).rgba;
 
 					half4 outColor = in.color * texel;
 					return outColor;

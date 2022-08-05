@@ -19,25 +19,17 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
+
 #include "../../../src/state/config.h"
+#include "ios_state.h"
 
 #ifdef __PEN_IOS__
-#include "ios_config.h"
-#include "../../../src/state/state.h"
-#include "ios_vertex_buffer.h"
-#include "../../../src/ops/matrices/mat4x4.h"
-
-#define MVP_MATRIX_SIZE sizeof(float) * 16
-
-class PenMTKViewDelegate : public MTK::ViewDelegate
-{
+class IOSIndexBuffer {
 public:
-    PenMTKViewDelegate();
-    virtual void DrawInMTKView(MTK::View* pView) override;
-    static void UpdateUniforms(pen::Mat4x4 mvp);
-    static void SubmitBatch(IOSVertexBuffer* iosVertexBuffer, void* data, int size, pen::Mat4x4 mvp);
-    static void DrawIOSView(IOSVertexBuffer* iosVertexBuffer);
-    static void Render(unsigned int shapeType, int indexCount, IOSIndexBuffer* iosIndexBuffer, unsigned int instanceCount);
-    static void Background();
+	MTL::Buffer* iosIndexBuffer;
+
+public:
+	void IOSIndexBuffer(int* data, unsigned int count);
+	void Destroy();
 };
 #endif

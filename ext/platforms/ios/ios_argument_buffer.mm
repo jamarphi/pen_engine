@@ -18,26 +18,23 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#pragma once
-#include "../../../src/state/config.h"
+#include "ios_argument_buffer.h"
 
 #ifdef __PEN_IOS__
-#include "ios_config.h"
-#include "../../../src/state/state.h"
-#include "ios_vertex_buffer.h"
-#include "../../../src/ops/matrices/mat4x4.h"
+void IOSArgumentBuffer::IOSArgumentBuffer(IOSVertexBuffer* dataBuffer){
+	iosArgumentBuffer = IOSState::Get()->iosDevice->newBuffer(IOSState::Get()->iosArgEncoder->encodedLength(), MTL::ResourceStorageModeManaged);
+	IOSState::Get()->iosArgEncoder->setArgumentBuffer(iosArgumentBuffer, 0);
+	IOSState::Get()->iosArgEncoder->setBuffer(dataBuffer, 0, 0);
+	iosArgumentBuffer->didModifyRange(NS::Range::Make(0, iosArgumentBuffer->length()));
+}
 
-#define MVP_MATRIX_SIZE sizeof(float) * 16
+void IOSArgumentBuffer::Bind(){
+	/*Binds the ios argument buffer*/
+	IOSState::Get()->iosArgEncoder->setArgumentBuffer(iosArgumentBuffer, 0);
+}
 
-class PenMTKViewDelegate : public MTK::ViewDelegate
-{
-public:
-    PenMTKViewDelegate();
-    virtual void DrawInMTKView(MTK::View* pView) override;
-    static void UpdateUniforms(pen::Mat4x4 mvp);
-    static void SubmitBatch(IOSVertexBuffer* iosVertexBuffer, void* data, int size, pen::Mat4x4 mvp);
-    static void DrawIOSView(IOSVertexBuffer* iosVertexBuffer);
-    static void Render(unsigned int shapeType, int indexCount, IOSIndexBuffer* iosIndexBuffer, unsigned int instanceCount);
-    static void Background();
-};
+void IOSArgumentBuffer::Destroy(){
+	/*Removes the buffer from the GPU*/
+	iosArgumentBuffer->release();
+}
 #endif

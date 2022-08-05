@@ -22,6 +22,8 @@ under the License.
 #include "../state/config.h"
 #ifndef __PEN_IOS__
 #include "../../dependencies/glad/glad.h"
+#else
+#include "../../ext/platforms/ios/ios_vertex_buffer.h"
 #endif
 #include <iostream>
 
@@ -30,15 +32,15 @@ private:
 	unsigned int rendererId;
 public:
 #ifdef __PEN_IOS__
-	MTL::Buffer* iosBuffer;
-	MTL::Device* iosDevice;
+	IOSVertexBuffer* iosVertexBuffer;
 #endif
 public:
 	VertexBuffer();
 	/*Regular buffer constructor*/
+#ifndef __PEN_IOS
 	VertexBuffer(const void* data, unsigned int size);
-#ifdef __PEN_IOS__
-	VertexBuffer(const void* data, unsigned int size, MTL::Device* iosGPU);
+#else
+	VertexBuffer(const void* data, unsigned int size);
 #endif
 	/*For text rendering*/
 	VertexBuffer(unsigned int size);

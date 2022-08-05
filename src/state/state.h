@@ -98,20 +98,6 @@ namespace pen {
 		std::vector<std::string> mobileTextureNameList;
 		void* androidAssetManager = nullptr;
 		/*----Android----*/
-
-		/*----IOS----*/
-#ifdef __PEN_IOS__
-		MTK::View* iosMtkView;
-		MTL::Device* iosDevice;
-		MTL::CommandQueue* iosCommandQueue;
-		MTL::RenderPipelineState* iosPipelineState;
-		NS::Notification* iosLaunchNotification;
-		MTL::ArgumentEncoder* iosArgEncoder;
-		MTL::DepthStencilState* iosDepthStencilState;
-		MTL::Texture* iosPixelBuffer;
-		MTL::Buffer* iosMVPBuffer;
-#endif
-		/*----IOS----*/
 		/*----Mobile----*/
 	public:
 		static State* Get() {

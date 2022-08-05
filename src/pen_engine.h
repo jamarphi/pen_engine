@@ -66,6 +66,7 @@ under the License.
 #include "../ext/misc/tile_map/tile_map.h"
 #ifdef __PEN_IOS__
 #include "../ext/platforms/ios/ios_view_delegate.h"
+#include "../ext/platforms/ios/ios_config.h"
 #endif
 
 /*UI objects*/

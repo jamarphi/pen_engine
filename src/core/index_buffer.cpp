@@ -30,19 +30,11 @@ IndexBuffer::IndexBuffer(int* data, unsigned int count) : indexCount(count) {
 	glGenBuffers(1, &rendererId);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rendererId);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count, data, GL_STATIC_DRAW);
-#endif
-
-}
-
-#ifdef __PEN_IOS__
-IndexBuffer::IndexBuffer(int* data, unsigned int count, MTL::Device* iosGPU) {
+#else
 	/*For IOS Metal buffers*/
-	iosDevice = iosGPU->retain();
-	iosBuffer = iosDevice->newBuffer(size, MTL::ResourceStorageModeManaged);
-	std::memcpy(iosBuffer->contents(), data, size);
-	iosBuffer->didModifyRange(NS::Range::Make(0, iosBuffer->length()));
-}
+	iosIndexBuffer = new IOSIndexBuffer(data, count);
 #endif
+}
 
 IndexBuffer::~IndexBuffer() {
 	
@@ -69,5 +61,7 @@ void IndexBuffer::Destroy() {
 	/*Removes the index buffer from memory on the GPU*/
 #ifndef __PEN_IOS__
 	glDeleteBuffers(1, &rendererId);
+#else
+	iosIndexBuffer->Destroy();
 #endif
 }

@@ -31,7 +31,9 @@ under the License.
 #include "../ops/operations/operations.h"
 #include "camera.h"
 
-#define MVP_MATRIX_SIZE sizeof(float) * 16
+#ifdef __PEN_IOS__
+#include "../../ext/platforms/ios/ios_view_delegate.h"
+#endif
 
 namespace pen {
 	class Render {
@@ -62,8 +64,5 @@ namespace pen {
 	private:
 		static void TextureSet();
 		static void UpdatedInstancedUniforms(pen::Layer* layer);
-#ifdef __PEN_IOS__
-		static void DrawIOSView();
-#endif
 	};
 }

@@ -22,6 +22,8 @@ under the License.
 #include "../state/config.h"
 #ifndef __PEN_IOS__
 #include "../../dependencies/glad/glad.h"
+#else
+#include "../../ext/platforms/ios/ios_index_buffer.h"
 #endif
 
 class IndexBuffer {
@@ -31,21 +33,15 @@ private:
 public:
 	unsigned int indexCount;
 #ifdef __PEN_IOS__
-	MTL::Buffer* iosIndexBuffer;
-	MTL::Device* iosDevice;
+	IOSIndexBuffer* iosIndexBuffer;
 #endif
 
 public:
 	IndexBuffer();
 	IndexBuffer(int* data, unsigned int count);
-#ifdef __PEN_IOS__
-	IndexBuffer(int* data, unsigned int count, MTL::Device* iosGPU);
-#endif
 	~IndexBuffer();
 
 	void Bind() const;
 	void Unbind() const;
 	void Destroy();
-
-	inline unsigned int GetCount() const { return indexCount; }
 };

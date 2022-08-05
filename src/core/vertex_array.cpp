@@ -27,9 +27,9 @@ VertexArray::~VertexArray() {
 	
 }
 
+#ifndef __PEN_IOS__
 void VertexArray::AddBuffer(const VertexBufferSchema& schema) {
 	/*Creates a vertex array object that defines the attributes used with the vertex buffer*/
-#ifndef __PEN_IOS__
 	glGenVertexArrays(1, &rendererId);
 	Bind();
 
@@ -44,16 +44,13 @@ void VertexArray::AddBuffer(const VertexBufferSchema& schema) {
 		glEnableVertexAttribArray(i);
 		offset += element.elementCount * 4;
 	}
-#endif
 }
+#endif
 
 #ifdef __PEN_IOS__
-void VertexArray::AddBuffer(MTL::Buffer* dataBuffer) {
+void VertexArray::AddBuffer(IOSVertexBuffer* dataBuffer) {
 	/*Creates an argument buffer for ios metal that defines the attributes used with the vertex buffer*/
-	iosArgBuffer = pen::State::Get()->iosDevice->newBuffer(pArgEncoder->encodedLength(), MTL::ResourceStorageModeManaged);
-	pen::State::Get()->iosArgEncoder->setArgumentBuffer(iosArgBuffer, 0);
-	pen::State::Get()->iosArgEncoder->setBuffer(dataBuffer, 0, 0);
-	iosArgBuffer->didModifyRange(NS::Range::Make(0, iosArgBuffer->length()));
+	iosArgumentBuffer = new IOSArgumentBuffer(dataBuffer);
 }
 #endif
 
@@ -63,7 +60,7 @@ void VertexArray::Bind() const {
 	glBindVertexArray(rendererId);
 #else
 	/*Binds the ios argument buffer for this vertex array object*/
-	pen::State::Get()->iosArgEncoder->setArgumentBuffer(iosArgBuffer, 0);
+	iosArgumentBuffer->Bind();
 #endif
 }
 
@@ -72,7 +69,6 @@ void VertexArray::Unbind() const {
 #ifndef __PEN_IOS__
 	glBindVertexArray(0);
 #endif
-
 }
 
 void VertexArray::Destroy() {
@@ -80,6 +76,6 @@ void VertexArray::Destroy() {
 #ifndef __PEN_IOS__
 	glDeleteVertexArrays(1, &rendererId);
 #else
-	iosArgBuffer->release();
+	iosArgumentBuffer->Destroy();
 #endif
 }

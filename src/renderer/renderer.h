@@ -27,6 +27,10 @@ under the License.
 #include "../core/index_buffer.h"
 #include "../core/shader.h"
 
+#ifdef __PEN_IOS__
+#include "../../ext/platforms/ios/ios_view_delegate.h"
+#endif
+
 namespace pen {
 #ifndef __PEN_IOS__
 	struct BatchVertexData {
@@ -34,13 +38,6 @@ namespace pen {
 		float color[4];
 		float texCoord[2];
 		float texId;
-	};
-#else
-	struct BatchVertexData {
-		simd::float3 vertex[3];
-		simd::float4 color[4];
-		simd::float2 texCoord[2];
-		simd::float texId;
 	};
 #endif
 
@@ -51,10 +48,5 @@ namespace pen {
 		static void Clear();
 		static void Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
 			const bool& isInstanced, const unsigned int& instanceCount);
-#ifdef __PEN_IOS__
-		static void Draw(NS::AutoreleasePool* autoReleasePool, MTL::CommandBuffer* iosCmd, MTL::RenderCommandEncoder* commandEncoder, const VertexArray& va, const IndexBuffer& ib, int& indexCount,
-			const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
-			const bool& isInstanced, const unsigned int& instanceCount);
-#endif
 	};
 }

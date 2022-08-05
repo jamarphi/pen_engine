@@ -100,34 +100,7 @@ namespace pen {
         stateInst->debug = debug;
 
 #ifdef __PEN_IOS__
-        stateInst->iosCommandQueue = stateInst->iosDevice->newCommandQueue();
-
-        CGRect frame = (CGRect){ {(float)SCR_WIDTH, (float)SCR_WIDTH}, {(float)SCR_HEIGHT, (float)SCR_HEIGHT} };
-
-        NS::Window* iosWindow = NS::Window::alloc()->init(
-            frame,
-            NS::WindowStyleMaskClosable | NS::WindowStyleMaskTitled,
-            NS::BackingStoreBuffered,
-            false);
-
-        stateInst->iosDevice = MTL::CreateSystemDefaultDevice();
-
-        stateInst->iosMtkView = MTK::View::alloc()->init(frame, stateInst->iosDevice);
-        stateInst->iosMtkView->setColorPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
-
-        iosViewDelegate = new PenMTKViewDelegate(stateInst->iosDevice);
-        stateInst->iosMtkView->setDelegate(iosViewDelegate);
-
-        iosWindow->setContentView(stateInst->iosMtkView);
-        iosWindow->setTitle(NS::String::string(appName, NS::StringEncoding::UTF8StringEncoding));
-
-        iosWindow->makeKeyAndOrderFront(nullptr);
-
-        NS::Application* pApp = reinterpret_cast<NS::Application*>(stateInst->iosLaunchNotification->object());
-        pApp->activateIgnoringOtherApps(true);
-
-        /*Initialize uniforms*/
-        stateInst->iosMVPBuffer = stateInst->iosDevice->newBuffer(sizeof(float) * 16, MTL::ResourceStorageModeManaged);
+        IOSConfig::Init(SCR_WIDTH, SCR_HEIGHT, appName);
 #endif
 
         /*Get the allowed number of textures*/

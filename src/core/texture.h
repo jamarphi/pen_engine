@@ -32,6 +32,10 @@ under the License.
 #include <abs_asset_dir_config.h>
 #endif
 
+#ifdef __PEN_IOS__
+#include "../../ext/platforms/ios/ios_texture.h"
+#endif
+
 #define GENERAL_TEXTURE_SOURCE "/pen_engine/res/textures/"
 
 class Texture {
@@ -39,9 +43,6 @@ class Texture {
 public:
 	pen::Map<unsigned int, GLuint> texSlots;
 	pen::Map<char, Character> characters;
-#ifdef __PEN_iOS__
-	MTL::Texture* iosTextures[8];
-#endif
 
 	static Texture* Get() {
 		if (!instance)

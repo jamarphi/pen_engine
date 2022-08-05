@@ -28,7 +28,7 @@ namespace pen {
 #ifndef __PEN_IOS__
         glClearColor(color.x, color.y, color.z, color.w);
 #else
-        pen::State::Get()->iosMtkView->setClearColor(MTL::ClearColor::Make(color.x, color.y, color.z, color.w));
+        PenMTKViewDelegate::Background(color.x, color.y, color.z, color.w);
 #endif
     }
 
@@ -69,23 +69,13 @@ namespace pen {
         pen::Mat4x4 mvp = (layer->model * (layer->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (layer->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
         shader.SetUniformMat4x4f("uMVP", mvp);
 
-#ifdef __PEN_IOS__
-        MTL::RenderCommandEncoder* iosCommandEncoder;
-        MTL::CommandBuffer* iosCmdBuffer;
-        NS::AutoreleasePool* iosAutoReleasePool;
-#endif
-
         /*Binds the vertex buffer of a given layer and updates the GPU with the buffer data*/
         layer->vb.Bind();
         if (pen::State::Get()->updateBatch) {
 #ifndef __PEN_IOS__
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(layer->batchVertices), layer->batchVertices);
 #else
-            std::memcpy(layer->vb.iosBuffer->contents(), layer->batchVertices, sizeof(layer->batchVertices));
-            layer->vb.iosBuffer->didModifyRange(NS::Range::Make(0, layer->vb.iosBuffer->length()));
-            std::memcpy(pen::State::Get()->iosMVPBuffer->contents(), mvp.matrix, MVP_MATRIX_SIZE);
-            pen::State::Get()->iosMVPBuffer->didModifyRange(NS::Range::Make(0, pen::State::Get()->iosMVPBuffer->length()));
-            pen::Render::DrawIOSLayer(iosAutoReleasePool, iosCmdBuffer, iosCommandEncoder, layer->vb);
+            PenMTKViewDelegate::SubmitBatch(layer->vb.iosVertexBuffer, layer->batchVertices, sizeof(layer->batchVertices), mvp);
 
 #endif
             if (pen::State::Get()->firstUpdateFrame) {
@@ -96,11 +86,7 @@ namespace pen {
             }
         }
 
-#ifndef __PEN_IOS__
         pen::Renderer::Draw(layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
-#else
-        pen::Renderer::Draw(iosAutoReleasePool, iosCmdBuffer, iosCommandEncoder, layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
-#endif
     }
 
     void Render::TextureSet() {
@@ -131,27 +117,18 @@ namespace pen {
         /*Update the uniforms for the instanced shader*/
         pen::Render* render = pen::Render::Get();
         int vecCount = layer->instancedDataList.size() > 400 ? 400 : layer->instancedDataList.size();
+#ifndef __PEN_IOS__
         for (int i = 0; i < vecCount; i++) {
             render->instancedShader.SetUniform3f("uInstancedOffsets[" + std::to_string(i) + "]", layer->instancedDataList[i]);
         }
-    }
-
-#ifdef __PEN_IOS__
-    void DrawIOSView(NS::AutoreleasePool* autoReleasePool, MTL::CommandBuffer* iosCmd, MTL::RenderCommandEncoder* commandEncoder, const VertexBuffer& vb) {
-        /*Use the ios mtk view to render batch data*/
-        pen::State* inst = pen::State::Get();
-        NS::AutoreleasePool* pPool = NS::AutoreleasePool::alloc()->init();
-        MTL::CommandBuffer* pCmd = inst->iosCommandQueue->commandBuffer();
-        MTL::RenderPassDescriptor* pRpd = inst->iosMtkView->currentRenderPassDescriptor();
-        commandEncoder = pCmd->renderCommandEncoder(pRpd);
-
-        commandEncoder->setRenderPipelineState(inst->iosPipelineState);
-        commandEncoder->setDepthStencilState(inst->iosDepthStencilState);
-        commandEncoder->setVertexBuffer(vb.iosBuffer, 0, 0);
-        commandEncoder->setVertexBuffer(inst->iosMVPBuffer, 0, 1);
-        commandEncoder->setFragmentTextures(Texture::Get()->iosTextures, 0);
-        commandEncoder->setCullMode(MTL::CullModeBack);
-        commandEncoder->setFrontFacingWinding(MTL::Winding::WindingCounterClockwise);
-    }
+#else
+        IOSInstanceData* instanceData = new IOSInstanceData[vecCount];
+        for (int i = 0; i < vecCount; i++) {
+            instanceData[i].uInstancedOffsets.x = layer->instancedDataList[i]->x;
+            instanceData[i].uInstancedOffsets.y = layer->instancedDataList[i]->y;
+            instanceData[i].uInstancedOffsets.z = layer->instancedDataList[i]->z;
+        }
+        render->instancedShader->iosShader->UpdateInstanceUniform(instanceData);
 #endif
+    }
 }

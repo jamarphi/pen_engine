@@ -136,7 +136,7 @@ void Texture::UpdatePixels() {
 		glBindTexture(GL_TEXTURE_2D, Texture::Get()->texSlots.Find(2)->second);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 1280, 720, GL_RGBA, GL_UNSIGNED_BYTE, pen::State::Get()->pixelArray);
 #else
-		pen::State::Get()->iosPixelBuffer->replaceRegion(MTL::Region(0, 0, 0, 1280, 720, 1), 0, pen::State::Get()->pixelArray, 5120);
+		IOSTexture::UpdatePixels();
 #endif
 	}
 #endif
@@ -166,7 +166,6 @@ void Texture::InitializeIOSTexture(const std::string& path, const unsigned int& 
 		/*The pixel buffer*/
 		texWidth = 1280;
 		texHeight = 720;
-		texSize = texWidth * texHeight * 4;
 		textureData = pen::State::Get()->pixelArray;
 		break;
 	case 2:
@@ -176,20 +175,6 @@ void Texture::InitializeIOSTexture(const std::string& path, const unsigned int& 
 		break;
 	}
 
-	MTL::TextureDescriptor* textureDesc = MTL::TextureDescriptor::alloc()->init();
-	textureDesc->setWidth(texWidth);
-	textureDesc->setHeight(texHeight);
-	textureDesc->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
-	textureDesc->setTextureType(MTL::TextureType2D);
-	textureDesc->setStorageMode(MTL::StorageModeManaged);
-	textureDesc->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
-
-	MTL::Texture* texture = pen::State::Get()->iosDevice->newTexture(textureDesc);
-	if(type == 1) pen::State::Get()->iosPixelBuffer = texture;
-
-	texture->replaceRegion(MTL::Region(0, 0, 0, texWidth, texHeight, 1), 0, textureData, texWidth * 4);
-	if(texSlot < 8) Texture::Get()->iosTexture[texSlot] = texture;
-
-	textureDesc->release();
+	IOSTexture::Initialize(texWidth, texHeight, type, texSlot, textureData);
 }
 #endif

@@ -37,53 +37,14 @@ namespace pen {
         /*Draw a batched object to the screen
 
         This function goes through the pipeline and does not need to be called directly by you*/
+        shader.Bind();
+        va.Bind();
+        vb.Bind();
+        ib.Bind();
 #ifndef __PEN_IOS__
-        shader.Bind();
-        va.Bind();
-        vb.Bind();
-        ib.Bind();
-
         isInstanced ? glDrawElementsInstanced(drawType[shapeType], indexCount, GL_UNSIGNED_INT, 0, instanceCount) : glDrawElements(drawType[shapeType],indexCount, GL_UNSIGNED_INT, 0);
+#else
+        PenMTKViewDelegate::Render(shapeType, indexCount, ib.iosIndexBuffer, instanceCount);
 #endif
     }
-
-#ifdef __PEN_IOS__
-    void Renderer::Draw(NS::AutoreleasePool* autoReleasePool, MTL::CommandBuffer* iosCmd, MTL::RenderCommandEncoder* commandEncoder, const VertexArray& va, const IndexBuffer& ib, int& indexCount,
-        const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
-        const bool& isInstanced, const unsigned int& instanceCount) {
-        /*Draw a batched object to the screen for ios
-
-        This function goes through the pipeline and does not need to be called directly by you*/
-        shader.Bind();
-        va.Bind();
-        vb.Bind();
-        ib.Bind();
-
-        unsigned int type = 0;
-
-        switch (shapeType) {
-        case 0:
-            type = MTL::PrimitiveType::PrimitiveTypePoint;
-            break;
-        case 1:
-            type = MTL::PrimitiveType::PrimitiveTypeLine;
-            break;
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-            type = MTL::PrimitiveType::PrimitiveTypeTriangle;
-            break;
-        default:
-            break;
-        }
-
-        commandEncoder->drawIndexedPrimitives(type, indexCount, MTL::IndexType::IndexTypeUInt16, ib.iosIndexBuffer, 0, instanceCount);
-        commandEncoder->endEncoding();
-        iosCmd->presentDrawable(pen::State::Get()->iosMtkView->currentDrawable());
-        iosCmd->commit();
-        autoReleasePool->release();
-    }
-#endif
 }

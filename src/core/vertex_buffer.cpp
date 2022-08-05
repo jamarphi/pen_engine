@@ -24,22 +24,19 @@ VertexBuffer::VertexBuffer() {
 	/*This constructor is used for declaring a VertexBuffer variable as a member variable of another class*/
 }
 
+#ifndef __PEN_IOS__
 VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
 	/*For static rendering*/
-#ifndef __PEN_IOS__
 	glGenBuffers(1, &rendererId);
 	glBindBuffer(GL_ARRAY_BUFFER, rendererId);
 	glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-#endif
 }
+#endif
 
 #ifdef __PEN_IOS__
-VertexBuffer::VertexBuffer(const void* data, unsigned int size, MTL::Device* iosGPU) {
+VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
 	/*For IOS Metal buffers*/
-	iosDevice = iosGPU->retain();
-	iosBuffer = iosDevice->newBuffer(size, MTL::ResourceStorageModeManaged);
-	std::memcpy(iosBuffer->contents(), data, size);
-	iosBuffer->didModifyRange(NS::Range::Make(0, iosBuffer->length()));
+	iosVertexBuffer = new IosVertexBuffer(data, size);
 }
 #endif
 
@@ -75,6 +72,6 @@ void VertexBuffer::Destroy() {
 #ifndef __PEN_IOS__
 	glDeleteBuffers(1, &rendererId);
 #else
-	iosBuffer->release();
+	iosVertexBuffer->Destroy();
 #endif
 }

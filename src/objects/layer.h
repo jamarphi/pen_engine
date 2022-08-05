@@ -48,7 +48,11 @@ namespace pen {
 		VertexArray va;
 		VertexBuffer vb;
 		IndexBuffer ib;
+#ifndef __PEN_IOS__
 		float batchVertices[MAX_OBJECTS * BATCH_VERTEX_ELEMENTS];
+#else
+		BatchVertexData batchVertices[MAX_OBJECTS];
+#endif
 		std::vector<pen::ui::Item*> layerItems;
 		pen::Vec3 translation;
 		unsigned int shapeType;

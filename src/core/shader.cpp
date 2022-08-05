@@ -29,13 +29,25 @@ namespace pen {
 		/*This constructor gets called when a shader will actually be created*/
 		switch (init) {
 		case 1:
+#ifndef __PEN_IOS__
 			rendererId = CreateShader(shaderProgram, fragmentProgram);
+#else
+			rendererId = CreateShader(shaderProgram, "");
+#endif
 			break;
 		case 2:
+#ifndef __PEN_IOS__
 			rendererId = CreateShader(instancedShaderProgram, instancedFragmentProgram);
+#else
+			rendererId = CreateShader(instancedShaderProgram, "");
+#endif
 			break;
 		default:
+#ifndef __PEN_IOS__
 			rendererId = CreateShader(shaderProgram, fragmentProgram);
+#else
+			rendererId = CreateShader(shaderProgram, "");
+#endif
 			break;
 		}
 	}
@@ -107,38 +119,7 @@ namespace pen {
 		glDeleteShader(fs);
 		return program;
 #else
-		using NS::StringEncoding::UTF8StringEncoding;
-
-		NS::Error* pError = nullptr;
-		MTL::Library* pLibrary = _pDevice->newLibrary(NS::String::string(shaderProgram, UTF8StringEncoding), nullptr, &pError);
-		if (!pLibrary)
-		{
-			__builtin_printf("%s", pError->localizedDescription()->utf8String());
-			assert(false);
-		}
-
-		MTL::Function* pVertexFn = pLibrary->newFunction(NS::String::string("vertexMain", UTF8StringEncoding));
-		MTL::Function* pFragFn = pLibrary->newFunction(NS::String::string("fragmentMain", UTF8StringEncoding));
-
-		MTL::ArgumentEncoder* pArgEncoder = pVertexFn->newArgumentEncoder(0);
-		pen::State::Get()->iosArgEncoder = pArgEncoder;
-
-		MTL::RenderPipelineDescriptor* pDesc = MTL::RenderPipelineDescriptor::alloc()->init();
-		pDesc->setVertexFunction(pVertexFn);
-		pDesc->setFragmentFunction(pFragFn);
-		pDesc->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
-
-		_pPSO = _pDevice->newRenderPipelineState(pDesc, &pError);
-		if (!_pPSO)
-		{
-			__builtin_printf("%s", pError->localizedDescription()->utf8String());
-			assert(false);
-		}
-
-		pVertexFn->release();
-		pFragFn->release();
-		pDesc->release();
-		pLibrary->release();
+		iosShader = new IOSShader(vertexShader.c_str());
 #endif
 	}
 
