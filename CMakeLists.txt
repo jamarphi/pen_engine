@@ -81,9 +81,9 @@ endif()
 
 #Creates an executable
 if(NOT APPLE)
-add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "../app.cpp")
+add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "${CMAKE_SOURCE_DIR}/../app.cpp")
 else()
-add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "ext/platforms/ios/ios_manager.cpp")
+add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "${CMAKE_SOURCE_DIR}/ext/platforms/ios/ios_manager.mm")
 endif()
 
 #Sets the C++ version now that the project is created
