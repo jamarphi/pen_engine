@@ -67,7 +67,12 @@ namespace pen {
 
         /*This model view projection matrix is used for transformations of a given layer*/
         pen::Mat4x4 mvp = (layer->model * (layer->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (layer->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
+
+#ifndef __PEN_IOS__
         shader.SetUniformMat4x4f("uMVP", mvp);
+#else
+        PenMTKViewDelegate::UpdateUniforms(mvp);
+#endif
 
         /*Binds the vertex buffer of a given layer and updates the GPU with the buffer data*/
         layer->vb.Bind();

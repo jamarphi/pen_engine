@@ -58,7 +58,6 @@ void PenMTKViewDelegate::SubmitBatch(IOSVertexBuffer* iosVertexBuffer, BatchVert
     std::memcpy(iosVertexBuffer->iosVertexBuffer->contents(), data, size);
     iosVertexBuffer->iosVertexBuffer->didModifyRange(NS::Range::Make(0, iosVertexBuffer->iosVertexBuffer->length()));
 
-    PenMTKViewDelegate::UpdateUniforms(mvp);
     PenMTKViewDelegate::DrawIOSView(iosVertexBuffer);
 }
 
