@@ -20,8 +20,8 @@ under the License.
 *************************************************************************************************/
 #pragma once
 
-#include "../../../src/state/config.h"
-#include "ios_state.h"
+#import "../../../src/state/config.h"
+#import "ios_state.h"
 
 #ifdef __PEN_IOS__
 class IOSConfig {

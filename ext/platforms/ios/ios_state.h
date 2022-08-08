@@ -20,10 +20,10 @@ under the License.
 *************************************************************************************************/
 #pragma once
 
-#include "../../../src/state/config.h"
+#import "../../../src/state/config.h"
 
 #ifdef __PEN_IOS__
-#include <cassert>
+#import <cassert>
 #ifndef NS_PRIVATE_IMPLEMENTATION
 #define NS_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
@@ -36,14 +36,16 @@ under the License.
 #import <UIKit/UIKit.hpp>
 #elifdef TARGET_OS_IOS
 #import <UIKit/UIKit.hpp>
-#else
-//#import <AppKit/AppKit.hpp>
+#elifdef TARGET_IOS
+#import <UIKit/UIKit.hpp>
+#elifdef TARGET_OS_MAC
+#import <AppKit/AppKit.hpp>
 #endif
-#include <Metal/Metal.hpp>
-#include <Foundation/Foundation.h>
-#include <QuartzCore/QuartzCore.h>
-#include <MetalKit/MetalKit.hpp>
-#include <simd/simd.h>
+#import <Metal/Metal.hpp>
+#import <Foundation/Foundation.h>
+#import <QuartzCore/QuartzCore.h>
+#import <MetalKit/MetalKit.hpp>
+#import <simd/simd.h>
 
 struct BatchVertexData {
 	simd::float3 vertex;

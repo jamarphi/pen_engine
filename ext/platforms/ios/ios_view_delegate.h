@@ -19,13 +19,13 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
-#include "../../../src/state/config.h"
+#import "../../../src/state/config.h"
 
 #ifdef __PEN_IOS__
-#include "ios_config.h"
-#include "../../../src/state/state.h"
-#include "ios_vertex_buffer.h"
-#include "../../../src/ops/matrices/mat4x4.h"
+#import "ios_config.h"
+#import "ios_vertex_buffer.h"
+#import "../../../src/state/state.h"
+#import "../../../src/ops/matrices/mat4x4.h"
 
 #define MVP_MATRIX_SIZE sizeof(float) * 16
 

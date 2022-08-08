@@ -29,7 +29,7 @@ PenMTKViewDelegate::PenMTKViewDelegate()
 void PenMTKViewDelegate::DrawInMTKView(MTK::View* pView)
 {
     /*Draws data in MTK view*/
-    pen::State::Get()->iosMtkView = pView;
+    IOSState::Get()->iosMtkView = pView;
     (*pen::State::Get()->mobileOnRenderCallback)();
 }
 

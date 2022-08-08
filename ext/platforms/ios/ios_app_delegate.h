@@ -19,14 +19,14 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
-#include "ios_view_delegate.h"
+#import "ios_view_delegate.h"
 
 #ifdef __PEN_IOS__
 /*
   This file is for the instantiation of Pen Engine by the user in order to include it's OnCreate function.
   In the OnCreate function it is expected that pen::Pen::SetMobileCallbacks(); is called.
 */
-#include "../../../../app.h"
+#import "../../../../app.h"
 
 class PenIOSAppDelegate : public NS::ApplicationDelegate
 {
