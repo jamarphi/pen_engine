@@ -18,6 +18,10 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
+
+/*Pen mobile check is here to avoid build errors*/
+#include "../src/state/config.h"
+#ifndef __PEN_MOBILE__
 #include "pen_engine/src/pen_engine.h"
 
 const unsigned int SCR_WIDTH = 960;
@@ -75,7 +79,7 @@ public:
         This part of the algorithm below uses the native pixel buffer which is null when building for mobile, it was used to check the color,
         buffers are typically uni-directional for writing to only, but in this example I used the buffer to read the color to make things quick.
         */
-#ifndef __PEN_MOBILE__
+
         /*Fill in each wave*/
         auto pixels = pen::PixelBuffer();
         for (int i = waterBodyHeight; i < waveTop; i++) {
@@ -117,7 +121,6 @@ public:
 
         /*Wraps back around to 0.0f if the wave offset is greater than 2 pi*/
         if (waveOffset >= 2 * 3.14159f) waveOffset = 0.0f;
-#endif
     }
 
     void OnRender() override {
@@ -147,3 +150,4 @@ public:
 //
 //    return 0;
 //}
+#endif

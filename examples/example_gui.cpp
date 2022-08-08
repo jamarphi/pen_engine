@@ -18,6 +18,10 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
+
+/*Pen mobile check is here to avoid build errors*/
+#include "../src/state/config.h"
+#ifndef __PEN_MOBILE__
 #include "pen_engine/src/pen_engine.h"
 
 const unsigned int SCR_WIDTH = 960;
@@ -124,3 +128,4 @@ public:
 //
 //    return 0;
 //}
+#endif
