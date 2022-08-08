@@ -63,5 +63,6 @@ void IOSShader::UpdateInstanceUniform(IOSInstanceData* data){
 	MTL::Buffer* instanceBuffer = IOSState::Get()->iosDevice->newBuffer(size, MTL::ResourceStorageModeManaged);
 	std::memcpy(instanceBuffer->contents(), data, size);
 	instanceBuffer->didModifyRange(NS::Range::Make(0, instanceBuffer->length()));
+	IOSState::Get()->iosInstanceBuffer = instanceBuffer;
 }
 #endif

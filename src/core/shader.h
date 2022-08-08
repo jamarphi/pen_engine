@@ -255,7 +255,7 @@ namespace pen {
 				v2f vertex vertexMain(
 									   device const BatchVertexData* vertexData [[buffer(0)]],
 									   device const IOSUniformData* uniformData [[buffer(1)]],
-									   device const IOSInstanceData* instanceData [[buffer(1)]],
+									   device const IOSInstanceData* instanceData [[buffer(2)]],
 										uint vertexId [[vertex_id]],
 										uint instanceId [[instance_id]]
 										)

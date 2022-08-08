@@ -72,10 +72,13 @@ public:
 	MTL::DepthStencilState* iosDepthStencilState;
 	MTL::Texture* iosPixelBuffer;
 	MTL::Buffer* iosUniformBuffer;
+	MTL::Buffer* iosInstanceBuffer;
 	MTL::Texture* iosTextures[8];
 	MTL::RenderCommandEncoder* iosCommandEncoder;
 	MTL::CommandBuffer* iosCommandBuffer;
 	NS::AutoreleasePool* iosAutoReleasePool;
+	NS::AutoreleasePool* iosAutoReleasePool;
+	dispatch_semaphore_t dispatchSemaphore;
 
 public:
 	static IOSState* Get() {

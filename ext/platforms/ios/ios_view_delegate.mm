@@ -70,11 +70,13 @@ void PenMTKViewDelegate::DrawIOSView(IOSVertexBuffer* iosVertexBuffer) {
     inst->iosCommandEncoder = pCmd->renderCommandEncoder(pRpd);
     inst->iosCommandBuffer = pCmd;
     inst->iosAutoReleasePool = pPool;
+    dispatch_semaphore_wait(inst->dispatchSemaphore, DISPATCH_TIME_FOREVER);
 
     inst->iosCommandEncoder->setRenderPipelineState(inst->iosPipelineState);
     inst->iosCommandEncoder->setDepthStencilState(inst->iosDepthStencilState);
     inst->iosCommandEncoder->setVertexBuffer(iosVertexBuffer->iosVertexBuffer, 0, 0);
-    inst->iosCommandEncoder->setVertexBuffer(inst->iosMVPBuffer, 0, 1);
+    inst->iosCommandEncoder->setVertexBuffer(inst->iosUnitformBuffer, 0, 1);
+    if(inst->iosInstanceBuffer != nullptr) inst->iosCommandEncoder->setVertexBuffer(inst->iosInstanceBuffer, 0, 2);
     inst->iosCommandEncoder->setFragmentTextures(inst->iosTextures, 0);
     inst->iosCommandEncoder->setCullMode(MTL::CullModeBack);
     inst->iosCommandEncoder->setFrontFacingWinding(MTL::Winding::WindingCounterClockwise);

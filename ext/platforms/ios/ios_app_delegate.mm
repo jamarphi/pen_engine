@@ -80,9 +80,13 @@ void PenIOSAppDelegate::ApplicationDidFinishLaunching(NS::Notification* pNotific
     MTL::DepthStencilDescriptor* pDsDesc = MTL::DepthStencilDescriptor::alloc()->init();
     pDsDesc->setDepthCompareFunction(MTL::CompareFunction::CompareFunctionLess);
     pDsDesc->setDepthWriteEnabled(true);
-    pen::State::Get()->iosDepthStencilState = _pDevice->newDepthStencilState(pDsDesc);
+    IOSState::Get()->iosDepthStencilState = _pDevice->newDepthStencilState(pDsDesc);
     pDsDesc->release();
-    pen::State::Get()->iosLaunchNotification = pNotification;
+    IOSState::Get()->iosLaunchNotification = pNotification;
+
+    /*Currently at max three different buffer types sent to metal shaders*/
+    IOSState::Get()->dispatch_semaphore_t = dispatch_semaphore_create(3);
+
     App* app = new App();
     pen::State::Get()->mobileActive = true;
     app->CreateApplication("App", 110, 540, "");
