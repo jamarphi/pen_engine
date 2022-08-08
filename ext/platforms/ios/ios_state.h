@@ -36,8 +36,6 @@ under the License.
 #import <UIKit/UIKit.hpp>
 #elifdef TARGET_OS_IOS
 #import <UIKit/UIKit.hpp>
-#elifdef TARGET_IOS
-#import <UIKit/UIKit.hpp>
 #elifdef TARGET_OS_MAC
 #import <AppKit/AppKit.hpp>
 #endif
