@@ -22,7 +22,6 @@ under the License.
 
 #include "../../../src/state/config.h"
 #ifdef __PEN_IOS__
-#import <Foundation/Foundation.h>
 #include "ios_view_delegate.h"
 #include "ios_app_delegate.h"
 

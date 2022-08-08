@@ -22,7 +22,10 @@ under the License.
 
 #include "../../../src/state/config.h"
 
+struct IOSInstanceData;
+
 #ifdef __PEN_IOS__
+#ifdef __OBJC__
 #import <cassert>
 #ifndef NS_PRIVATE_IMPLEMENTATION
 #define NS_PRIVATE_IMPLEMENTATION
@@ -40,7 +43,8 @@ under the License.
 #import <AppKit/AppKit.hpp>
 #endif
 #import <Metal/Metal.hpp>
-//#import <Foundation/Foundation.h>
+#import <Foundation/Foundation.h>
+#import <CoreFoundation/CoreFoundation.h>
 #import <QuartzCore/QuartzCore.h>
 #import <MetalKit/MetalKit.hpp>
 #import <simd/simd.h>
@@ -77,7 +81,7 @@ public:
 	MTL::Texture* iosTextures[8];
 	MTL::RenderCommandEncoder* iosCommandEncoder;
 	MTL::CommandBuffer* iosCommandBuffer;
-	//NS::AutoreleasePool* iosAutoReleasePool;
+	NS::AutoreleasePool* iosAutoReleasePool;
 	dispatch_semaphore_t dispatchSemaphore;
 
 public:
@@ -87,4 +91,5 @@ public:
 		return instance;
 	}
 };
+#endif
 #endif

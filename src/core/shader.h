@@ -40,10 +40,11 @@ under the License.
 namespace pen {
 	class Shader {
 	public:
-		unsigned int rendererId;
-		pen::Map<std::string, GLint> uniformLocationCache;
+		unsigned int rendererId;		
 #ifdef __PEN_IOS__
 		IOSShader* iosShader;
+#else
+        pen::Map<std::string, GLint> uniformLocationCache;
 #endif
 
 #ifndef __PEN_ES__

@@ -24,12 +24,14 @@ under the License.
 #include "ios_state.h"
 
 #ifdef __PEN_IOS__
+#import <Metal/Metal.h>
+
 class IOSIndexBuffer {
 public:
 	MTL::Buffer* iosIndexBuffer;
 
 public:
-	void IOSIndexBuffer(int* data, unsigned int count);
+    IOSIndexBuffer(int* data, unsigned int count);
 	void Destroy();
 };
 #endif

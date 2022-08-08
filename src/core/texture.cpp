@@ -25,7 +25,9 @@ Texture* Texture::instance = nullptr;
 void Texture::Initialize(const std::string& path, const unsigned int slot) {
 	/*Regular textures*/
 	/*Removes the previous texture that occupied this slot*/
+#ifndef __PEN_IOS__
 	Destroy(Texture::Get()->texSlots.Find(slot)->second);
+#endif
 
 	/*Loads in the file used for this texture, if it is a default object, then the color white will be used instead*/
 	stbi_set_flip_vertically_on_load(1);
@@ -42,16 +44,14 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 	int texWidth = 0, texHeight = 0, texBPP = 0;
 	uint32_t color = 0xffffffff;
 	unsigned char* localBuffer = (path.compare("default") != 0) ? stbi_load(tempPath.c_str(), &texWidth, &texHeight, &texBPP, 4) : nullptr;
-	GLuint texRendererId = 0;
 
 #ifndef __PEN_IOS__
-	glGenTextures(1, (GLuint*)&texRendererId);
-#endif
-
-	/*Assigns the new texture id to the slot*/
-	Texture::Get()->texSlots.Insert(slot, texRendererId);
-
-#ifndef __PEN_IOS__
+    GLuint texRendererId = 0;
+        glGenTextures(1, (GLuint*)&texRendererId);
+        
+        /*Assigns the new texture id to the slot*/
+        Texture::Get()->texSlots.Insert(slot, texRendererId);
+    
 	/*Bind the texture to a specific slot*/
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, texRendererId);

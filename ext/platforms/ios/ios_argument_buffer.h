@@ -24,12 +24,14 @@ under the License.
 #include "ios_state.h"
 
 #ifdef __PEN_IOS__
+#import <Metal/Metal.h>
+
 class IOSArgumentBuffer {
 public:
 	MTL::Buffer* iosArgumentBuffer;
 
 public:
-	void IOSArgumentBuffer(IOSVertexBuffer* dataBuffer);
+    IOSArgumentBuffer(IOSVertexBuffer* dataBuffer);
 	void Bind();
 	void Destroy();
 };

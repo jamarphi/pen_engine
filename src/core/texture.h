@@ -41,7 +41,9 @@ under the License.
 class Texture {
 	static Texture* instance;
 public:
+#ifndef __PEN_IOS__
 	pen::Map<unsigned int, GLuint> texSlots;
+#endif
 	pen::Map<char, Character> characters;
 
 	static Texture* Get() {

@@ -47,7 +47,7 @@ public:
 	~VertexArray();
 #ifndef __PEN_IOS__
 	void AddBuffer(const VertexBufferSchema& schema);
-	#else __PEN_IOS__
+#else
 	void AddBuffer(IOSVertexBuffer* dataBuffer);
 #endif
 	void Bind() const;

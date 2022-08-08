@@ -22,7 +22,6 @@ under the License.
 #include "ios_view_delegate.h"
 
 #ifdef __PEN_IOS__
-#import <Foundation/Foundation.h>
 /*
   This file is for the instantiation of Pen Engine by the user in order to include it's OnCreate function.
   In the OnCreate function it is expected that pen::Pen::SetMobileCallbacks(); is called.
