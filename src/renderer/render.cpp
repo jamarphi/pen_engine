@@ -80,7 +80,7 @@ namespace pen {
 #ifndef __PEN_IOS__
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(layer->batchVertices), layer->batchVertices);
 #else
-            PenMTKViewDelegate::SubmitBatch(layer->vb.iosVertexBuffer, layer->batchVertices, sizeof(layer->batchVertices), mvp);
+            PenMTKViewDelegate::SubmitBatch(layer->va.iosArgumentBuffer, layer->vb.iosVertexBuffer, layer->batchVertices, sizeof(layer->batchVertices), mvp);
 
 #endif
             if (pen::State::Get()->firstUpdateFrame) {

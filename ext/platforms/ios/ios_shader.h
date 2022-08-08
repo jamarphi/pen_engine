@@ -20,11 +20,11 @@ under the License.
 *************************************************************************************************/
 #pragma once
 
-#import "../../../src/state/config.h"
+#include "../../../src/state/config.h"
 
 #ifdef __PEN_IOS__
-#import "ios_state.h"
-#import "../../../src/ops/matrices/mat4x4.h"
+#include "ios_state.h"
+#include "../../../src/ops/matrices/mat4x4.h"
 
 class IOSShader {
 public:

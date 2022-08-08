@@ -53,28 +53,33 @@ void PenMTKViewDelegate::UpdateUniforms(pen::Mat4x4 mvp){
 	iosUniformBuffer->didModifyRange(NS::Range::Make(0, iosUniformBuffer->length()));
 }
 
-void PenMTKViewDelegate::SubmitBatch(IOSVertexBuffer* iosVertexBuffer, BatchVertexData* data, int size, pen::Mat4x4 mvp){
+void PenMTKViewDelegate::SubmitBatch(IOSArgumentBuffer* iosArgumentBuffer, IOSVertexBuffer* iosVertexBuffer, BatchVertexData* data, int size, pen::Mat4x4 mvp){
     /*Submits the vertex data to the GPU*/
     std::memcpy(iosVertexBuffer->iosVertexBuffer->contents(), data, size);
     iosVertexBuffer->iosVertexBuffer->didModifyRange(NS::Range::Make(0, iosVertexBuffer->iosVertexBuffer->length()));
 
-    PenMTKViewDelegate::DrawIOSView(iosVertexBuffer);
+    PenMTKViewDelegate::DrawIOSView(iosArgumentBuffer, iosVertexBuffer);
 }
 
-void PenMTKViewDelegate::DrawIOSView(IOSVertexBuffer* iosVertexBuffer) {
+void PenMTKViewDelegate::DrawIOSView(IOSArgumentBuffer* iosArgumentBuffer, IOSVertexBuffer* iosVertexBuffer) {
     /*Use the ios mtk view to render batch data*/
     IOSState* inst = pen::State::Get();
+    dispatch_semaphore_wait(inst->dispatchSemaphore, DISPATCH_TIME_FOREVER);
     NS::AutoreleasePool* pPool = NS::AutoreleasePool::alloc()->init();
     MTL::CommandBuffer* pCmd = inst->iosCommandQueue->commandBuffer();
     MTL::RenderPassDescriptor* pRpd = inst->iosMtkView->currentRenderPassDescriptor();
     inst->iosCommandEncoder = pCmd->renderCommandEncoder(pRpd);
     inst->iosCommandBuffer = pCmd;
     inst->iosAutoReleasePool = pPool;
-    dispatch_semaphore_wait(inst->dispatchSemaphore, DISPATCH_TIME_FOREVER);
+
+     pCmd->addCompletedHandler( ^void( MTL::CommandBuffer* dispatchCallback ){
+        dispatch_semaphore_signal( inst->dispatchSemaphore );
+     });
 
     inst->iosCommandEncoder->setRenderPipelineState(inst->iosPipelineState);
     inst->iosCommandEncoder->setDepthStencilState(inst->iosDepthStencilState);
-    inst->iosCommandEncoder->setVertexBuffer(iosVertexBuffer->iosVertexBuffer, 0, 0);
+    inst->iosCommandEncoder->setVertexBuffer(iosArgumentBuffer->iosArgument, 0, 0);
+    inst->iosCommandEncoder->useResource(iosVertexBuffer->iosVertexBuffer, MTL::ResourceUsageRead);
     inst->iosCommandEncoder->setVertexBuffer(inst->iosUnitformBuffer, 0, 1);
     if(inst->iosInstanceBuffer != nullptr) inst->iosCommandEncoder->setVertexBuffer(inst->iosInstanceBuffer, 0, 2);
     inst->iosCommandEncoder->setFragmentTextures(inst->iosTextures, 0);

@@ -19,7 +19,7 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
-#import "ios_view_delegate.h"
+#include "ios_view_delegate.h"
 
 #ifdef __PEN_IOS__
 /*

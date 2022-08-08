@@ -20,7 +20,7 @@ under the License.
 *************************************************************************************************/
 #pragma once
 
-#import "../../../src/state/config.h"
+#include "../../../src/state/config.h"
 #ifdef __PEN_IOS__
 
 #include "ios_view_delegate.h"

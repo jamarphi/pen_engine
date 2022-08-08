@@ -20,7 +20,7 @@ under the License.
 *************************************************************************************************/
 #pragma once
 
-#import "../../../src/state/config.h"
+#include "../../../src/state/config.h"
 
 #ifdef __PEN_IOS__
 #import <cassert>
@@ -29,7 +29,7 @@ under the License.
 #define MTL_PRIVATE_IMPLEMENTATION
 #define MTK_PRIVATE_IMPLEMENTATION
 #define CA_PRIVATE_IMPLEMENTATION
-#endif
+
 #ifdef TARGET_IPHONE_SIMULATOR
 #import <UIKit/UIKit.h>
 #elifdef TARGET_OS_IPHONE
@@ -44,6 +44,7 @@ under the License.
 #import <QuartzCore/QuartzCore.h>
 #import <MetalKit/MetalKit.hpp>
 #import <simd/simd.h>
+#endif
 
 struct BatchVertexData {
 	simd::float3 vertex;
