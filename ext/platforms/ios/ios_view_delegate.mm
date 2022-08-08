@@ -70,7 +70,7 @@ void PenMTKViewDelegate::DrawIOSView(IOSArgumentBuffer* iosArgumentBuffer, IOSVe
     MTL::RenderPassDescriptor* pRpd = inst->iosMtkView->currentRenderPassDescriptor();
     inst->iosCommandEncoder = pCmd->renderCommandEncoder(pRpd);
     inst->iosCommandBuffer = pCmd;
-    inst->iosAutoReleasePool = pPool;
+    //inst->iosAutoReleasePool = pPool;
 
      pCmd->addCompletedHandler( ^void( MTL::CommandBuffer* dispatchCallback ){
         dispatch_semaphore_signal( inst->dispatchSemaphore );
@@ -114,7 +114,7 @@ void PenMTKViewDelegate::Render(unsigned int shapeType, int indexCount, IOSIndex
     inst->iosCommandEncoder->endEncoding();
     inst->iosCommandBuffer->presentDrawable(inst->iosMtkView->currentDrawable());
     inst->iosCommandBuffer->commit();
-    inst->iosAutoReleasePool->release();
+    //inst->iosAutoReleasePool->release();
 }
 
 void PenMTKViewDelegate::Background(float r, float g, float b, float a){

@@ -22,6 +22,7 @@ under the License.
 #include "../../../src/state/config.h"
 
 #ifdef __PEN_IOS__
+#import <Foundation/Foundation.h>
 #include "ios_config.h"
 #include "ios_vertex_buffer.h"
 #include "../../../src/state/state.h"

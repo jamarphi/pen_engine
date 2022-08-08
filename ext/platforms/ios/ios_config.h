@@ -24,6 +24,8 @@ under the License.
 #include "ios_state.h"
 
 #ifdef __PEN_IOS__
+#import <Foundation/Foundation.h>
+
 class IOSConfig {
 public:
 	static void Init();

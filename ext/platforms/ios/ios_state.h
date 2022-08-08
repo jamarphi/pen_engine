@@ -40,7 +40,7 @@ under the License.
 #import <AppKit/AppKit.hpp>
 #endif
 #import <Metal/Metal.hpp>
-#import <Foundation/Foundation.h>
+//#import <Foundation/Foundation.h>
 #import <QuartzCore/QuartzCore.h>
 #import <MetalKit/MetalKit.hpp>
 #import <simd/simd.h>
@@ -77,8 +77,7 @@ public:
 	MTL::Texture* iosTextures[8];
 	MTL::RenderCommandEncoder* iosCommandEncoder;
 	MTL::CommandBuffer* iosCommandBuffer;
-	NS::AutoreleasePool* iosAutoReleasePool;
-	NS::AutoreleasePool* iosAutoReleasePool;
+	//NS::AutoreleasePool* iosAutoReleasePool;
 	dispatch_semaphore_t dispatchSemaphore;
 
 public:

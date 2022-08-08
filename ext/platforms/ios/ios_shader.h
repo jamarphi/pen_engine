@@ -23,6 +23,7 @@ under the License.
 #include "../../../src/state/config.h"
 
 #ifdef __PEN_IOS__
+#import <Foundation/Foundation.h>
 #include "ios_state.h"
 #include "../../../src/ops/matrices/mat4x4.h"
 
