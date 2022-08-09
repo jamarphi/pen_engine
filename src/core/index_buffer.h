@@ -22,9 +22,8 @@ under the License.
 #include "../state/config.h"
 #ifndef __PEN_IOS__
 #include "../../dependencies/glad/glad.h"
-#else
-#include "../../ext/platforms/ios/ios_index_buffer.h"
 #endif
+#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
 
 class IndexBuffer {
 private:
@@ -32,16 +31,20 @@ private:
 	
 public:
 	unsigned int indexCount;
-#ifdef __PEN_IOS__
-	IOSIndexBuffer* iosIndexBuffer;
-#endif
 
 public:
 	IndexBuffer();
 	IndexBuffer(int* data, unsigned int count);
 	~IndexBuffer();
+    
+#ifndef __PEN_IOS__
+    IndexBuffer(int* data, unsigned int count);
+    void Destroy();
+#else
+    IndexBuffer(unsigned int layerId, int* data, unsigned int count);
+    void Destroy(unsigned int layerId);
+#endif
 
 	void Bind() const;
 	void Unbind() const;
-	void Destroy();
 };

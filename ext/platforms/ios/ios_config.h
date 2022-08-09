@@ -21,11 +21,12 @@ under the License.
 #pragma once
 
 #include "../../../src/state/config.h"
-#include "ios_state.h"
 
 #ifdef __PEN_IOS__
-class IOSConfig {
-public:
-	static void Init();
-};
+#import "ios_state.h"
+#import "ios_cpp_objective_c_mapping.h"
+
+@interface IOSConfig : NSObject
+	+ (void) Init;
+@end
 #endif

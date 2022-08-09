@@ -21,20 +21,50 @@ under the License.
 #include "ios_argument_buffer.h"
 
 #ifdef __PEN_IOS__
-void IOSArgumentBuffer::IOSArgumentBuffer(IOSVertexBuffer* dataBuffer){
-	iosArgumentBuffer = IOSState::Get()->iosDevice->newBuffer(IOSState::Get()->iosArgEncoder->encodedLength(), MTL::ResourceStorageModeManaged);
-	IOSState::Get()->iosArgEncoder->setArgumentBuffer(iosArgumentBuffer, 0);
-	IOSState::Get()->iosArgEncoder->setBuffer(dataBuffer, 0, 0);
+static MTL::Buffer* iosArgumentBuffers[30];
+
+@implementation IOSArgumentBuffer
+
+void IOS_CPPObjectCMapping::IOSArgumentBufferInit(unsigned int layerId){
+    /*Creates an ios argument buffer for formatting vertex data*/
+    MTL::Buffer** vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
+    [IOSArgumentBuffer IOSArgumentBufferInit:layerId :vertexBuffers[layerId]];
+}
+
++ (void) IOSArgumentBufferInit: (unsigned int) layerId :(MTL::Buffer*) dataBuffer{
+    /*Creates an ios argument buffer for formatting vertex data*/
+    IOSState* inst = [IOSState Get];
+	MTL::Buffer* iosArgumentBuffer = inst.iosDevice->newBuffer(inst.iosArgEncoder->encodedLength(), MTL::ResourceStorageModeManaged);
+	inst.iosArgEncoder->setArgumentBuffer(iosArgumentBuffer, 0);
+	inst.iosArgEncoder->setBuffer(dataBuffer, 0, 0);
 	iosArgumentBuffer->didModifyRange(NS::Range::Make(0, iosArgumentBuffer->length()));
+    iosArgumentBuffers[layerId] = iosArgumentBuffer;
 }
 
-void IOSArgumentBuffer::Bind(){
+void IOS_CPPObjectCMapping::IOSArgumentBufferBind(unsigned int layerId){
+    /*Binds the ios argument buffer*/
+    [IOSArgumentBuffer IOSArgumentBufferBind:layerId];
+}
+
++ (void) IOSArgumentBufferBind: (unsigned int) layerId{
 	/*Binds the ios argument buffer*/
-	IOSState::Get()->iosArgEncoder->setArgumentBuffer(iosArgumentBuffer, 0);
+    IOSState* inst = [IOSState Get];
+	inst.iosArgEncoder->setArgumentBuffer(iosArgumentBuffers[layerId], 0);
 }
 
-void IOSArgumentBuffer::Destroy(){
-	/*Removes the buffer from the GPU*/
-	iosArgumentBuffer->release();
+void IOS_CPPObjectCMapping::IOSArgumentBufferDestroy(unsigned int layerId){
+    /*Removes the buffer from the GPU*/
+    [IOSArgumentBuffer IOSArgumentBufferDestroy:layerId];
 }
+
++ (void) IOSArgumentBufferDestroy: (unsigned int) layerId{
+	/*Removes the buffer from the GPU*/
+	iosArgumentBuffers[layerId]->release();
+}
+
++(MTL::Buffer**) IOSArgumentBuffersGet{
+    /*Returns the argument buffer list*/
+    return iosArgumentBuffers;
+}
+@end
 #endif

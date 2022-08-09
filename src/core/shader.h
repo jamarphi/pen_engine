@@ -32,18 +32,13 @@ under the License.
 #include "../ops/matrices/mat2x4.h"
 #include "../objects/containers/map.h"
 #include "../state/state.h"
-
-#ifdef __PEN_IOS__
-#include "../../ext/platforms/ios/ios_shader.h"
-#endif
+#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
 
 namespace pen {
 	class Shader {
 	public:
 		unsigned int rendererId;		
-#ifdef __PEN_IOS__
-		IOSShader* iosShader;
-#else
+#ifndef __PEN_IOS__
         pen::Map<std::string, GLint> uniformLocationCache;
 #endif
 
@@ -216,7 +211,7 @@ namespace pen {
 				half4 fragment fragmentMain( v2f in [[stage_in]], texture2d_array< half, access::sample > tex [[texture(0)]] )
 				{
 					constexpr sampler s( address::repeat, filter::linear );
-					half4 texel = tex[in.texIndex].sample( s, in.texCoord ).rgba;
+					half4 texel = tex[in.texIndex.x].sample( s, in.texCoord ).rgba;
 
 					half4 outColor = in.color * texel;
 					return outColor;
@@ -275,7 +270,7 @@ namespace pen {
 				half4 fragment fragmentMain( v2f in [[stage_in]], texture2d_array< half, access::sample > tex [[texture(0)]] )
 				{
 					constexpr sampler s( address::repeat, filter::linear );
-					half4 texel = tex[in.texIndex].sample( s, in.texCoord ).rgba;
+					half4 texel = tex[in.texIndex.x].sample( s, in.texCoord ).rgba;
 
 					half4 outColor = in.color * texel;
 					return outColor;
@@ -301,7 +296,9 @@ namespace pen {
 		void SetUniformMat4x4f(const std::string& name, const pen::Mat4x4& matrix);
 		void SetUniformMat2x4f(const std::string& name, pen::Mat2x4* matrix);
 		unsigned int CompileShader(unsigned int type, const std::string& source);
+#ifndef __PEN_IOS__
 		GLint GetUniformLocation(const std::string& name);
+#endif
 		unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
 	};
 }

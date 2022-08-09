@@ -32,6 +32,7 @@ namespace pen {
 #endif
     }
 
+#ifndef __PEN_IOS__
     void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
         const bool& isInstanced, const unsigned int& instanceCount) {
         /*Draw a batched object to the screen
@@ -41,10 +42,21 @@ namespace pen {
         va.Bind();
         vb.Bind();
         ib.Bind();
-#ifndef __PEN_IOS__
+        
         isInstanced ? glDrawElementsInstanced(drawType[shapeType], indexCount, GL_UNSIGNED_INT, 0, instanceCount) : glDrawElements(drawType[shapeType],indexCount, GL_UNSIGNED_INT, 0);
-#else
-        PenMTKViewDelegate::Render(shapeType, indexCount, ib.iosIndexBuffer, instanceCount);
-#endif
     }
+#else
+    void Renderer::Draw(const uint16_t layerId, const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
+        const bool& isInstanced, const unsigned int& instanceCount) {
+        /*Draw a batched object to the screen
+
+        This function goes through the pipeline and does not need to be called directly by you*/
+        shader.Bind();
+        va.Bind();
+        vb.Bind();
+        ib.Bind();
+        
+        IOS_CPPObjectCMapping::Render(shapeType, indexCount, layerId, instanceCount);
+    }
+#endif
 }

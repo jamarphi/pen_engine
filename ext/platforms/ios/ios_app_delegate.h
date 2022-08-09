@@ -28,13 +28,12 @@ under the License.
 */
 #import "../../../../app.h"
 
-class PenIOSAppDelegate : public NS::ApplicationDelegate
-{
-public:
-    NS::Menu* CreateMenuBar();
+@interface PenIOSAppDelegate : NS::ApplicationDelegate
 
-    virtual void ApplicationWillFinishLaunching(NS::Notification* pNotification) override;
-    virtual void ApplicationDidFinishLaunching(NS::Notification* pNotification) override;
-    virtual bool ApplicationShouldTerminateAfterLastWindowClosed(NS::Application* pSender) override;
-};
+    /*These methods are inherited from NS::ApplicationDelegate*/
+    - (NS::Menu*) createMenuBar;
+    - (void) applicationWillFinishLaunching: (NS::Notification*) pNotification;
+    - (void) applicationDidFinishLaunching: (NS::Notification*) pNotification;
+    - (bool) applicationShouldTerminateAfterLastWindowClosed: (NS::Application*) pSender;
+@end
 #endif

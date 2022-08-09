@@ -21,18 +21,20 @@ under the License.
 #pragma once
 
 #include "../../../src/state/config.h"
-#include "ios_state.h"
 
 #ifdef __PEN_IOS__
-
+#import "ios_state.h"
+#import "ios_cpp_objective_c_mapping.h"
 #import <Metal/Metal.h>
 
-class IOSVertexBuffer {
-public:
-	MTL::Buffer* iosVertexBuffer;
+@class IOSVertexBuffer;
 
-public:
-    IOSVertexBuffer(const void* data, unsigned int size);
-	void Destroy();
-};
+@interface IOSVertexBuffer : NSObject
+
+    + (void) IOSVertexBufferInit:(unsigned int) layerId
+                     :(BatchVertexData*) data
+                     :(unsigned int) size;
+	+ (void) IOSVertexBufferDestroy;
++ (MTL::Buffer**) IOSVertexBuffersGet;
+@end
 #endif

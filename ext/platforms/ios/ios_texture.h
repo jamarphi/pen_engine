@@ -21,13 +21,19 @@ under the License.
 #pragma once
 
 #include "../../../src/state/config.h"
-#include "../../../src/state/state.h"
-#include "ios_state.h"
 
 #ifdef __PEN_IOS__
-class IOSTexture {
-public:
-	static void Initialize(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData);
-	static void UpdatePixels();
-};
+#import "../../../src/state/state.h"
+#import "ios_state.h"
+#import "ios_cpp_objective_c_mapping.h"
+
+@interface IOSTexture : NSObject
+
+    + (void) InitializeTexture: (unsigned int) texWidth
+                         (unsigned int) texHeight
+                         (unsigned int) type
+                         (unsigned int) texSlot
+                         (unsigned char*) textureData;
+	+ (void) UpdatePixels;
+@end
 #endif

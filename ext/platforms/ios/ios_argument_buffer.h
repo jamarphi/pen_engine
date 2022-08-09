@@ -21,18 +21,18 @@ under the License.
 #pragma once
 
 #include "../../../src/state/config.h"
-#include "ios_state.h"
 
 #ifdef __PEN_IOS__
-#import <Metal/Metal.h>
+#import "ios_state.h"
+#import "ios_cpp_objective_c_mapping.h"
+#import "ios_vertex_buffer.h"
 
-class IOSArgumentBuffer {
-public:
-	MTL::Buffer* iosArgumentBuffer;
+@interface IOSArgumentBuffer : NSObject
 
-public:
-    IOSArgumentBuffer(IOSVertexBuffer* dataBuffer);
-	void Bind();
-	void Destroy();
++ (void) IOSArgumentBufferInit: (unsigned int) layerId :(MTL::Buffer*) dataBuffer;
+	+ (void) IOSArgumentBufferBind: (unsigned int) layerId;
+	+ (void) IOSArgumentBufferDestroy: (unsigned int) layerId;
++ (MTL::Buffer**) IOSArgumentBuffersGet;
 };
+@end
 #endif

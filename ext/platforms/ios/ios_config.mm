@@ -20,10 +20,16 @@ under the License.
 *************************************************************************************************/
 
 #ifdef __PEN_IOS__
-void IOSConfig::Init(unsigned int width, unsigned int height, const char* appName){
+@implementation IOSConfig
+void IOS_CPPObjectCMapping::Init(unsigned int width, unsigned int height, const char* appName){
+    /*Handles app creation for ios*/
+    [IOSConfig Init:width :height: appName];
+}
+
++ (void) Init:(unsigned int) width :(unsigned int) height :(const char*) appName{
 	/*Handles app creation for ios*/
-    IOSState* inst = IOSState::Get();
-	inst->iosCommandQueue = (void*)inst->iosDevice->newCommandQueue();
+    IOSState* inst = [IOSState Get];
+	inst.iosCommandQueue = inst.iosDevice->newCommandQueue();
 
     CGRect frame = (CGRect){ {(float)width, (float)width}, {(float)height, (float)height} };
 
@@ -33,23 +39,24 @@ void IOSConfig::Init(unsigned int width, unsigned int height, const char* appNam
         NS::BackingStoreBuffered,
         false);
 
-    inst->iosDevice = MTL::CreateSystemDefaultDevice();
+    inst.iosDevice = MTL::CreateSystemDefaultDevice();
 
-    inst->iosMtkView = MTK::View::alloc()->init(frame, inst->iosDevice);
-    inst->iosMtkView->setColorPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
+    inst.iosMtkView = MTK::View::alloc()->init(frame, inst.iosDevice);
+    inst.iosMtkView->setColorPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
 
-    iosViewDelegate = new PenMTKViewDelegate(inst->iosDevice);
-    inst->iosMtkView->setDelegate(iosViewDelegate);
+    iosViewDelegate = new PenMTKViewDelegate(inst.iosDevice);
+    inst.iosMtkView->setDelegate(iosViewDelegate);
 
-    iosWindow->setContentView(inst->iosMtkView);
+    iosWindow->setContentView(inst.iosMtkView);
     iosWindow->setTitle(NS::String::string(appName, NS::StringEncoding::UTF8StringEncoding));
 
     iosWindow->makeKeyAndOrderFront(nullptr);
 
-    NS::Application* pApp = reinterpret_cast<NS::Application*>(inst->iosLaunchNotification->object());
+    NS::Application* pApp = reinterpret_cast<NS::Application*>(inst.iosLaunchNotification->object());
     pApp->activateIgnoringOtherApps(true);
 
     /*Initialize uniforms*/
-    inst->iosMVPBuffer = inst->iosDevice->newBuffer(sizeof(float) * 16, MTL::ResourceStorageModeManaged);
+    inst.iosMVPBuffer = inst.iosDevice->newBuffer(sizeof(float) * 16, MTL::ResourceStorageModeManaged);
 }
+@end
 #endif

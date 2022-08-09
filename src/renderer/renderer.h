@@ -26,10 +26,7 @@ under the License.
 #include "../core/vertex_array.h"
 #include "../core/index_buffer.h"
 #include "../core/shader.h"
-
-#ifdef __PEN_IOS__
-#include "../../ext/platforms/ios/ios_view_delegate.h"
-#endif
+#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
 
 namespace pen {
 #ifndef __PEN_IOS__
@@ -46,7 +43,12 @@ namespace pen {
 		static int drawType[7];
 	public:
 		static void Clear();
+#ifndef __PEN_IOS__
 		static void Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
 			const bool& isInstanced, const unsigned int& instanceCount);
+#else
+        static void Draw(const uint16_t layerId, const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
+            const bool& isInstanced, const unsigned int& instanceCount);
+#endif
 	};
 }

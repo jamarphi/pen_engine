@@ -22,14 +22,38 @@ under the License.
 #include "ios_vertex_buffer.h"
 
 #ifdef __PEN_IOS__
-void IOSVertexBuffer::IOSVertexBuffer(const BatchVertexData* data, unsigned int size){
-	iosVertexBuffer = IOSState::Get()->iosDevice->newBuffer(size, MTL::ResourceStorageModeManaged);
-	std::memcpy(iosVertexBuffer->contents(), data, size);
-	iosVertexBuffer->didModifyRange(NS::Range::Make(0, iosVertexBuffer->length()));
+static MTL::Buffer* iosVertexBuffers[30];
+
+@implementation IOSVertexBuffer
+void IOS_CPPObjectCMapping::IOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size){
+    /*Creates a vertex buffer for a specific layer*/
+    [IOSVertexBuffer IOSVertexBufferInit :layerId :data :size];
 }
 
-void IOSVertexBuffer::Destroy(){
-	/*Removes the buffer from the GPU*/
-	iosVertexBuffer->release();
++ (void) IOSVertexBufferInit: (unsigned int) layerId
+   :(BatchVertexData*) data
+   :(unsigned int) size{
+    /*Creates a vertex buffer for a specific layer*/
+    IOSState* inst = [IOSState Get];
+	MTL::Buffer* iosVertexBuffer = inst.iosDevice->newBuffer(size, MTL::ResourceStorageModeManaged);
+	std::memcpy(iosVertexBuffer->contents(), data, size);
+	iosVertexBuffer->didModifyRange(NS::Range::Make(0, iosVertexBuffer->length()));
+    iosVertexBuffers[layerId] = iosVertexBuffer;
 }
+
+void IOS_CPPObjectCMapping::IOSVertexBufferDestroy(unsigned int layerId){
+    /*Removes the buffer from the GPU*/
+    [IOSVertexBuffer IOSVertexBufferDestroy:layerId];
+}
+
++ (void) IOSVertexBufferDestroy: (unsigned int) layerId{
+	/*Removes the buffer from the GPU*/
+    iosVertexBuffers[layerId]->release();
+}
+
++ (MTL::Buffer**) IOSVertexBuffersGet{
+    /*Returns the vertex buffer list*/
+    return iosVertexBuffers;
+}
+@end
 #endif

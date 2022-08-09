@@ -22,25 +22,22 @@ under the License.
 #include "../state/config.h"
 #ifndef __PEN_IOS__
 #include "../../dependencies/glad/glad.h"
-#else
-#include "../../ext/platforms/ios/ios_vertex_buffer.h"
 #endif
+#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
 #include <iostream>
 
 class VertexBuffer {
 private:
 	unsigned int rendererId;
 public:
-#ifdef __PEN_IOS__
-	IOSVertexBuffer* iosVertexBuffer;
-#endif
-public:
 	VertexBuffer();
 	/*Regular buffer constructor*/
 #ifndef __PEN_IOS
 	VertexBuffer(const void* data, unsigned int size);
+    void Destroy();
 #else
-	VertexBuffer(const void* data, unsigned int size);
+	VertexBuffer(unsigned int layerId, BatchVertexData* data, unsigned int size);
+    void Destroy(unsigned int layerId);
 #endif
 	/*For text rendering*/
 	VertexBuffer(unsigned int size);
@@ -48,5 +45,4 @@ public:
 
 	void Bind() const;
 	void Unbind() const;
-	void Destroy();
 };

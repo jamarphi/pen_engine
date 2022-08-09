@@ -100,7 +100,7 @@ namespace pen {
         stateInst->debug = debug;
 
 #ifdef __PEN_IOS__
-        IOSConfig::Init(SCR_WIDTH, SCR_HEIGHT, appName);
+        IOS_CPPObjectCMapping::Init(SCR_WIDTH, SCR_HEIGHT, appName);
 #endif
 
         /*Get the allowed number of textures*/
@@ -176,11 +176,7 @@ namespace pen {
         glfwTerminate();
 #else
 #ifdef __PEN_IOS__
-        pen::State::Get()->iosDevice->release();
-        pen::State::Get()->iosCommandQueue->release();
-        pen::State::Get()->iosPipelineState->release();
-        pen::State::Get()->iosArgEncoder->release();
-        pen::State::Get()->iosDepthStencilState->release();
+        IOS_CPPObjectCMapping::Destroy();
 #endif
 #endif
     }

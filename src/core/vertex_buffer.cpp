@@ -34,9 +34,9 @@ VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
 #endif
 
 #ifdef __PEN_IOS__
-VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
+VertexBuffer::VertexBuffer(unsigned int layerId, BatchVertexData* data, unsigned int size) {
 	/*For IOS Metal buffers*/
-	iosVertexBuffer = new IosVertexBuffer(data, size);
+    IOS_CPPObjectCMapping::IOSVertexBufferInit(layerId, data, size);
 }
 #endif
 
@@ -67,11 +67,14 @@ void VertexBuffer::Unbind() const {
 #endif
 }
 
+#ifndef __PEN_IOS__
 void VertexBuffer::Destroy() {
 	/*Removes the vertex buffer from memory on the GPU*/
-#ifndef __PEN_IOS__
 	glDeleteBuffers(1, &rendererId);
-#else
-	iosVertexBuffer->Destroy();
-#endif
 }
+#else
+void VertexBuffer::Destroy(unsigned int layerId) {
+    /*Removes the vertex buffer from memory on the GPU*/
+    IOS_CPPObjectCMapping::IOSVertexBufferDestroy(layerId);
+}
+#endif

@@ -43,11 +43,10 @@ namespace pen {
 
 #ifndef __PEN_IOS__
         VertexBuffer tempVb(sizeof(BatchVertexData) * MAX_OBJECTS);
-        vb = tempVb;
 #else
-        VertexBuffer tempVb((void*)&batchVertices, sizeof(BatchVertexData) * MAX_OBJECTS);
-        vb = tempVb;
+        VertexBuffer tempVb(id, &batchVertices, sizeof(BatchVertexData) * MAX_OBJECTS);
 #endif
+        vb = tempVb;
 
         VertexBufferSchema layout;
         /*3 vertices for batch position*/
@@ -67,13 +66,17 @@ namespace pen {
 #ifndef __PEN_IOS__
         va.AddBuffer(layout);
 #else
-        va.AddBuffer(vb.iosVertexBuffer);
+        va.AddBuffer(id);
 #endif
 
         InitializeIndices();
 
         /*Creates the index buffer to determine how vertices will be connected*/
+#ifndef __PEN_IOS__
         IndexBuffer tempIb(batchIndices, RENDERER_INDICES_SIZE);
+#else
+        IndexBuffer tempIb(id, batchIndices, RENDERER_INDICES_SIZE);
+#endif
         ib = tempIb;
         
 

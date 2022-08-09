@@ -21,17 +21,17 @@ under the License.
 #pragma once
 
 #include "../../../src/state/config.h"
-#include "ios_state.h"
 
 #ifdef __PEN_IOS__
-#import <Metal/Metal.h>
+#import "ios_state.h"
+#import "ios_cpp_objective_c_mapping.h"
 
-class IOSIndexBuffer {
-public:
-	MTL::Buffer* iosIndexBuffer;
+@interface IOSIndexBuffer : NSObject
 
-public:
-    IOSIndexBuffer(int* data, unsigned int count);
-	void Destroy();
-};
++ (void) IOSIndexBufferInit :(unsigned int) layerId
+                (int*) data
+                (unsigned int) count;
+	+ (void) IOSIndexBufferDestroy: (unsigned int) layerId;
++ (MTL::Buffer**) IOSIndexBuffersGet;
+@end
 #endif

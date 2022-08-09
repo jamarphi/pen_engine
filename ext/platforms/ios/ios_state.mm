@@ -18,5 +18,30 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
+#import "ios_state.h"
 
-IOSState* IOSState::instance = nullptr;
+#ifdef __PEN_IOS__
+static IOSState* instance;
+
+@implementation IOSState
+
++ (IOSState*) Get{
+    if (!instance)
+        instance = [[IOSState alloc] init];
+    return instance;
+}
+
+void IOS_CPPObjectCMapping::Destroy(){
+    [IOSState Destroy];
+}
+
++ (void) Destroy{
+    IOSState* inst = [IOSState Get];
+    inst.iosDevice->release();
+    inst.iosCommandQueue->release();
+    inst.iosPipelineState->release();
+    inst.iosArgEncoder->release();
+    inst.iosDepthStencilState->release();
+}
+@end
+#endif

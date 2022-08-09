@@ -23,13 +23,11 @@ under the License.
 #include "../state/state.h"
 #ifndef __PEN_IOS__
 #include "../../dependencies/glad/glad.h"
-#else
-#include "../../ext/platforms/ios/ios_vertex_buffer.h"
-#include "../../ext/platforms/ios/ios_argument_buffer.h"
 #endif
 #include "vertex_buffer.h"
 #include "vertex_buffer_schema.h"
 #include <iostream>
+#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
 
 class VertexBufferLayout;
 
@@ -38,19 +36,16 @@ private:
 	unsigned int rendererId;
 
 public:
-#ifdef __PEN_IOS__
-	IOSArgumentBuffer* iosArgumentBuffer;
-#endif
-
-public:
 	VertexArray();
 	~VertexArray();
 #ifndef __PEN_IOS__
 	void AddBuffer(const VertexBufferSchema& schema);
+    void Bind() const;
+    void Destroy();
 #else
-	void AddBuffer(IOSVertexBuffer* dataBuffer);
+	void AddBuffer(const unsigned int layerId);
+    void Bind(const unsigned int layerId) const;
+    void Destroy(const unsigned int layerId);
 #endif
-	void Bind() const;
 	void Unbind() const;
-	void Destroy();
 };

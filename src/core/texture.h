@@ -27,13 +27,10 @@ under the License.
 #include "character.h"
 #include "../objects/containers/map.h"
 #include "../state/config.h"
+#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
 
 #ifdef __PEN_CMAKE__
 #include <abs_asset_dir_config.h>
-#endif
-
-#ifdef __PEN_IOS__
-#include "../../ext/platforms/ios/ios_texture.h"
 #endif
 
 #define GENERAL_TEXTURE_SOURCE "/pen_engine/res/textures/"

@@ -22,7 +22,8 @@ under the License.
 
 #ifdef __PEN_IOS__
 
-NS::Menu* PenIOSAppDelegate::CreateMenuBar()
+@implementation PenIOSAppDelegate
+- (NS::Menu*) createMenuBar
 {
     /*Creates menu bar for application*/
     using NS::StringEncoding::UTF8StringEncoding;
@@ -65,7 +66,7 @@ NS::Menu* PenIOSAppDelegate::CreateMenuBar()
     return pMainMenu->autorelease();
 }
 
-void PenIOSAppDelegate::ApplicationWillFinishLaunching(NS::Notification* pNotification)
+- (void) applicationWillFinishLaunching: (NS::Notification*) pNotification
 {
     /*Before application is done launching*/
     NS::Menu* pMenu = createMenuBar();
@@ -74,18 +75,19 @@ void PenIOSAppDelegate::ApplicationWillFinishLaunching(NS::Notification* pNotifi
     pApp->setActivationPolicy(NS::ActivationPolicy::ActivationPolicyRegular);
 }
 
-void PenIOSAppDelegate::ApplicationDidFinishLaunching(NS::Notification* pNotification)
+- (void) applicationDidFinishLaunching: (NS::Notification*) pNotification
 {
     /*After application is done launching*/
+    IOSState* inst = [IOSState Get];
     MTL::DepthStencilDescriptor* pDsDesc = MTL::DepthStencilDescriptor::alloc()->init();
     pDsDesc->setDepthCompareFunction(MTL::CompareFunction::CompareFunctionLess);
     pDsDesc->setDepthWriteEnabled(true);
-    IOSState::Get()->iosDepthStencilState = _pDevice->newDepthStencilState(pDsDesc);
+    inst->iosDepthStencilState = _pDevice->newDepthStencilState(pDsDesc);
     pDsDesc->release();
-    IOSState::Get()->iosLaunchNotification = pNotification;
+    inst->iosLaunchNotification = pNotification;
 
     /*Currently at max three different buffer types sent to metal shaders*/
-    IOSState::Get()->dispatch_semaphore_t = dispatch_semaphore_create(3);
+    inst->dispatch_semaphore_t = dispatch_semaphore_create(3);
 
     App* app = new App();
     pen::State::Get()->mobileActive = true;
@@ -93,9 +95,10 @@ void PenIOSAppDelegate::ApplicationDidFinishLaunching(NS::Notification* pNotific
     app->OnCreate();
 }
 
-bool PenIOSAppDelegate::ApplicationShouldTerminateAfterLastWindowClosed(NS::Application* pSender)
+-( BOOL) applicationShouldTerminateAfterLastWindowClosed: (NS::Application*) pSender
 {
     /*Closes application after last window is closed*/
     return true;
 }
+@end
 #endif

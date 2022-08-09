@@ -119,7 +119,8 @@ namespace pen {
 		glDeleteShader(fs);
 		return program;
 #else
-		iosShader = new IOSShader(vertexShader.c_str());
+        /*In Metal the vertex and fragment shader source is combined*/
+        IOS_CPPObjectCMapping::IOSShaderInit(vertexShader.c_str());
 #endif
 	}
 
@@ -185,9 +186,9 @@ namespace pen {
 #endif
 	}
 
+#ifndef __PEN_IOS__
 	GLint Shader::GetUniformLocation(const std::string& name) {
 		/*Looks for the uniform name and caches it if not found previously*/
-#ifndef __PEN_IOS__
 		if (uniformLocationCache.Find(name) != nullptr)
 			return uniformLocationCache.Find(name)->second;
 
@@ -199,8 +200,6 @@ namespace pen {
 		uniformLocationCache.Insert(name, location);
 
 		return location;
-#else
-		return 0;
-#endif
 	}
+#endif
 }

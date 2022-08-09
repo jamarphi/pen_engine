@@ -22,26 +22,38 @@ under the License.
 #include "../../../src/state/config.h"
 
 #ifdef __PEN_IOS__
-#ifdef __OBJC__
+#import "ios_state.h"
+#import "ios_cpp_objective_c_mapping.h"
 #import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
 #import <MetalKit/MetalKit.hpp>
-#include "ios_config.h"
-#include "ios_vertex_buffer.h"
-#include "../../../src/state/state.h"
-#include "../../../src/ops/matrices/mat4x4.h"
+#import "ios_config.h"
+#import "ios_vertex_buffer.h"
+#import "ios_argument_buffer.h"
+#import "ios_index_buffer.h"
+#import "../../../src/state/state.h"
+#import "../../../src/ops/matrices/mat4x4.h"
 
 #define MVP_MATRIX_SIZE sizeof(float) * 16
 
-class PenMTKViewDelegate : public MTK::ViewDelegate
-{
-public:
-    PenMTKViewDelegate();
-    virtual void DrawInMTKView(MTK::View* pView) override;
-    static void UpdateUniforms(pen::Mat4x4 mvp);
-    static void SubmitBatch(IOSVertexBuffer* iosVertexBuffer, void* data, int size, pen::Mat4x4 mvp);
-    static void DrawIOSView(IOSVertexBuffer* iosVertexBuffer);
-    static void Render(unsigned int shapeType, int indexCount, IOSIndexBuffer* iosIndexBuffer, unsigned int instanceCount);
-    static void Background();
-};
-#endif
+@interface PenMTKViewDelegate : MTK::ViewDelegate
+
+    /*Virtual method inherited from MTK::ViewDelegate*/
+    - (void) drawInMTKView: (MTK::View*) pView;
+
+    + (void) UpdateUniforms: (pen::Mat4x4) mvp;
+    + (void) SubmitBatch: (MTL::Buffer*) iosArgumentBuffer
+                         (MTL::Buffer*) iosVertexBuffer
+                         (void*) data
+                         (int) size
+                        (pen::Mat4x4) mvp;
+    + (void) DrawIOSView: (MTL::Buffer*) iosArgumentBuffer
+                        (MTL::Buffer*) iosVertexBuffer;
+    + (void) Render: (unsigned int) shapeType
+                     (int) indexCount
+                     (MTL::Buffer*) iosIndexBuffer
+                     (unsigned int) instanceCount);
+    + (void) Background;
+
+@end
 #endif

@@ -22,10 +22,7 @@ under the License.
 
 #include "../../../src/state/config.h"
 
-struct IOSInstanceData;
-
 #ifdef __PEN_IOS__
-#ifdef __OBJC__
 #import <cassert>
 #ifndef NS_PRIVATE_IMPLEMENTATION
 #define NS_PRIVATE_IMPLEMENTATION
@@ -48,48 +45,29 @@ struct IOSInstanceData;
 #import <QuartzCore/QuartzCore.h>
 #import <MetalKit/MetalKit.hpp>
 #import <simd/simd.h>
+#import "ios_cpp_objective_c_mapping.h"
 #endif
 
-struct BatchVertexData {
-	simd::float3 vertex;
-	simd::float4 color;
-	simd::float2 texCoord;
-	simd::float texId;
-};
+@class IOSState;
 
-struct IOSUniformData {
-	simd::float4x4 uMVP;
-}
+@interface IOSState : NSObject
+	@property MTK::View* iosMtkView;
+    @property MTL::Device* iosDevice;
+    @property MTL::CommandQueue* iosCommandQueue;
+    @property MTL::RenderPipelineState* iosPipelineState;
+    @property NS::Notification* iosLaunchNotification;
+    @property MTL::ArgumentEncoder* iosArgEncoder;
+    @property MTL::DepthStencilState* iosDepthStencilState;
+    @property MTL::Texture* iosPixelBuffer;
+    @property MTL::Buffer* iosUniformBuffer;
+    @property MTL::Buffer* iosInstanceBuffer;
+    @property MTL::Texture* iosTextures[8];
+    @property MTL::RenderCommandEncoder* iosCommandEncoder;
+    @property MTL::CommandBuffer* iosCommandBuffer;
+    @property NS::AutoreleasePool* iosAutoReleasePool;
+    @property dispatch_semaphore_t dispatchSemaphore;
 
-struct IOSInstanceData {
-	simd::float3 uInstancedOffsets;
-};
-
-class IOSState {
-	static IOSState* instance;
-public:
-	MTK::View* iosMtkView;
-	MTL::Device* iosDevice;
-	MTL::CommandQueue* iosCommandQueue;
-	MTL::RenderPipelineState* iosPipelineState;
-	NS::Notification* iosLaunchNotification;
-	MTL::ArgumentEncoder* iosArgEncoder;
-	MTL::DepthStencilState* iosDepthStencilState;
-	MTL::Texture* iosPixelBuffer;
-	MTL::Buffer* iosUniformBuffer;
-	MTL::Buffer* iosInstanceBuffer;
-	MTL::Texture* iosTextures[8];
-	MTL::RenderCommandEncoder* iosCommandEncoder;
-	MTL::CommandBuffer* iosCommandBuffer;
-	NS::AutoreleasePool* iosAutoReleasePool;
-	dispatch_semaphore_t dispatchSemaphore;
-
-public:
-	static IOSState* Get() {
-		if (!instance)
-			instance = new IOSState();
-		return instance;
-	}
-};
-#endif
++ (IOSState*) Get;
++ (void) Destroy;
+@end
 #endif

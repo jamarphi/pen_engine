@@ -48,21 +48,23 @@ void VertexArray::AddBuffer(const VertexBufferSchema& schema) {
 #endif
 
 #ifdef __PEN_IOS__
-void VertexArray::AddBuffer(IOSVertexBuffer* dataBuffer) {
+void VertexArray::AddBuffer(const unsigned int layerId) {
 	/*Creates an argument buffer for ios metal that defines the attributes used with the vertex buffer*/
-	iosArgumentBuffer = new IOSArgumentBuffer(dataBuffer);
+    IOS_CPPObjectCMapping::IOSArgumentBufferInit(layerId);
 }
 #endif
 
+#ifndef __PEN_IOS__
 void VertexArray::Bind() const {
 	/*Binds the vertex array for the layer it is a part of*/
-#ifndef __PEN_IOS__
 	glBindVertexArray(rendererId);
-#else
-	/*Binds the ios argument buffer for this vertex array object*/
-	iosArgumentBuffer->Bind();
-#endif
 }
+#else
+void VertexArray::Bind(const unsigned int layerId) const {
+    /*Binds the ios argument buffer for this vertex array object*/
+    IOS_CPPObjectCMapping::IOSArgumentBufferBind(layerId);
+}
+#endif
 
 void VertexArray::Unbind() const {
 	/*Unbinds the vertex array*/
@@ -71,11 +73,14 @@ void VertexArray::Unbind() const {
 #endif
 }
 
+#ifndef __PEN_IOS__
 void VertexArray::Destroy() {
 	/*Removes the vertex array from memory on the GPU*/
-#ifndef __PEN_IOS__
 	glDeleteVertexArrays(1, &rendererId);
-#else
-	iosArgumentBuffer->Destroy();
-#endif
 }
+#else
+void VertexArray::Destroy(const unsigned int layerId) {
+    /*Removes the vertex array from memory on the GPU*/
+    IOS_CPPObjectCMapping::IOSArgumentBufferDestroy(layerId);
+}
+#endif

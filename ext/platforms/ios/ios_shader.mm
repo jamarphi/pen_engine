@@ -21,12 +21,20 @@ under the License.
 #include "ios_shader.h"
 
 #ifdef __PEN_IOS__
-IOSShader::IOSShader(const char* shaderProgram) {
+
+@implementation IOSShader
+void IOS_CPPObjectCMapping::IOSShaderInit(const char* shaderProgram){
+    /*Creates a Metal shader*/
+    [IOSShader IOSShaderInit:shaderProgram];
+}
+
++ (void) IOSShaderInit: (const char*) shaderProgram {
 	/*Creates a Metal shader*/
+    IOSState* inst = [IOSState Get];
 	using NS::StringEncoding::UTF8StringEncoding;
 
 	NS::Error* pError = nullptr;
-	MTL::Library* pLibrary = _pDevice->newLibrary(NS::String::string(shaderProgram, UTF8StringEncoding), nullptr, &pError);
+	MTL::Library* pLibrary = inst.iosDevice->newLibrary(NS::String::string(shaderProgram, UTF8StringEncoding), nullptr, &pError);
 	if (!pLibrary)
 	{
 		__builtin_printf("%s", pError->localizedDescription()->utf8String());
@@ -37,15 +45,15 @@ IOSShader::IOSShader(const char* shaderProgram) {
 	MTL::Function* pFragFn = pLibrary->newFunction(NS::String::string("fragmentMain", UTF8StringEncoding));
 
 	MTL::ArgumentEncoder* pArgEncoder = pVertexFn->newArgumentEncoder(0);
-	IOSState::Get()->iosArgEncoder = pArgEncoder;
+	inst.iosArgEncoder = pArgEncoder;
 
 	MTL::RenderPipelineDescriptor* pDesc = MTL::RenderPipelineDescriptor::alloc()->init();
 	pDesc->setVertexFunction(pVertexFn);
 	pDesc->setFragmentFunction(pFragFn);
 	pDesc->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
 
-	IOSState::Get()->iosPipelineState = IOSState::Get()->iosDevice->newRenderPipelineState(pDesc, &pError);
-	if (!IOSState::Get()->iosPipelineState)
+	inst.iosPipelineState = inst.iosDevice->newRenderPipelineState(pDesc, &pError);
+	if (!inst.iosPipelineState)
 	{
 		__builtin_printf("%s", pError->localizedDescription()->utf8String());
 		assert(false);
@@ -57,12 +65,19 @@ IOSShader::IOSShader(const char* shaderProgram) {
 	pLibrary->release();
 }
 
-void IOSShader::UpdateInstanceUniform(IOSInstanceData* data){
+void IOS_CPPObjectCMapping::IOSUpdateInstanceUniform(IOSInstanceData* data){
+    /*Updates the instanced offsets*/
+    [IOSShader IOSUpdateInstanceUniform:data];
+}
+
++ (void) IOSUpdateInstanceUniform: (IOSInstanceData*) data{
 	/*Updates the instanced offsets*/
-	int size = sizeof(InstanceData) * 400;
-	MTL::Buffer* instanceBuffer = IOSState::Get()->iosDevice->newBuffer(size, MTL::ResourceStorageModeManaged);
+    IOSState* inst = [IOSState Get];
+	int size = sizeof(IOSInstanceData) * 400;
+	MTL::Buffer* instanceBuffer = inst.iosDevice->newBuffer(size, MTL::ResourceStorageModeManaged);
 	std::memcpy(instanceBuffer->contents(), data, size);
 	instanceBuffer->didModifyRange(NS::Range::Make(0, instanceBuffer->length()));
-	IOSState::Get()->iosInstanceBuffer = instanceBuffer;
+	inst.iosInstanceBuffer = instanceBuffer;
 }
+@end
 #endif
