@@ -23,27 +23,27 @@ under the License.
 #include "../../../src/state/config.h"
 
 #ifdef __PEN_IOS__
-#import <cassert>
-//#ifndef NS_PRIVATE_IMPLEMENTATION
-//#define NS_PRIVATE_IMPLEMENTATION
-//#define MTL_PRIVATE_IMPLEMENTATION
+//#import <cassert>
+#ifndef MTL_PRIVATE_IMPLEMENTATION
+#define NS_PRIVATE_IMPLEMENTATION
+#define MTL_PRIVATE_IMPLEMENTATION
 //#define MTK_PRIVATE_IMPLEMENTATION
-//#define CA_PRIVATE_IMPLEMENTATION
-//#endif
+#define CA_PRIVATE_IMPLEMENTATION
+#endif
 
 #ifdef TARGET_IPHONE_SIMULATOR
-#import <UIKit/UIKit.h>
+//#import <UIKit/UIKit.h>
 #elifdef TARGET_OS_IPHONE
-#import <UIKit/UIKit.hpp>
+//#import <UIKit/UIKit.hpp>
 #elifdef TARGET_OS_IOS
-#import <UIKit/UIKit.hpp>
+//#import <UIKit/UIKit.hpp>
 #elifdef TARGET_OS_MAC
-#import <AppKit/AppKit.hpp>
+//#import <AppKit/AppKit.hpp>
 #endif
+#import <Foundation/Foundation.hpp>
 #import <Metal/Metal.hpp>
-#import <Foundation/Foundation.h>
 //#import <CoreFoundation/CoreFoundation.h>
-#import <QuartzCore/QuartzCore.h>
+#import <QuartzCore/QuartzCore.hpp>
 #import <MetalKit/MetalKit.h>
 #import <simd/simd.h>
 #import "ios_cpp_objective_c_mapping.h"

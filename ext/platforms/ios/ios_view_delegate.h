@@ -24,7 +24,6 @@ under the License.
 #ifdef __PEN_IOS__
 #import "ios_state.h"
 #import "ios_cpp_objective_c_mapping.h"
-//#import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import "ios_config.h"
@@ -43,16 +42,16 @@ under the License.
 
     + (void) UpdateUniforms: (pen::Mat4x4) mvp;
     + (void) SubmitBatch: (MTL::Buffer*) iosArgumentBuffer
-                         (MTL::Buffer*) iosVertexBuffer
-                         (void*) data
-                         (int) size
-                        (pen::Mat4x4) mvp;
+                         :(MTL::Buffer*) iosVertexBuffer
+                         :(void*) data
+                         :(int) size
+                        :(pen::Mat4x4) mvp;
     + (void) DrawIOSView: (MTL::Buffer*) iosArgumentBuffer
                         (MTL::Buffer*) iosVertexBuffer;
     + (void) Render: (unsigned int) shapeType
-                     (int) indexCount
-                     (MTL::Buffer*) iosIndexBuffer
-                     (unsigned int) instanceCount);
+                     :(int) indexCount
+                     :(MTL::Buffer*) iosIndexBuffer
+                     :(unsigned int) instanceCount);
     + (void) Background;
 
 @end
