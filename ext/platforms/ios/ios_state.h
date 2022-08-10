@@ -24,11 +24,12 @@ under the License.
 
 #ifdef __PEN_IOS__
 #import <cassert>
-#ifndef NS_PRIVATE_IMPLEMENTATION
-#define NS_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION
-#define MTK_PRIVATE_IMPLEMENTATION
-#define CA_PRIVATE_IMPLEMENTATION
+//#ifndef NS_PRIVATE_IMPLEMENTATION
+//#define NS_PRIVATE_IMPLEMENTATION
+//#define MTL_PRIVATE_IMPLEMENTATION
+//#define MTK_PRIVATE_IMPLEMENTATION
+//#define CA_PRIVATE_IMPLEMENTATION
+//#endif
 
 #ifdef TARGET_IPHONE_SIMULATOR
 #import <UIKit/UIKit.h>
@@ -41,16 +42,16 @@ under the License.
 #endif
 #import <Metal/Metal.hpp>
 #import <Foundation/Foundation.h>
-#import <CoreFoundation/CoreFoundation.h>
+//#import <CoreFoundation/CoreFoundation.h>
 #import <QuartzCore/QuartzCore.h>
-#import <MetalKit/MetalKit.hpp>
+#import <MetalKit/MetalKit.h>
 #import <simd/simd.h>
 #import "ios_cpp_objective_c_mapping.h"
-#endif
 
 @class IOSState;
 
 @interface IOSState : NSObject
+
 	@property MTK::View* iosMtkView;
     @property MTL::Device* iosDevice;
     @property MTL::CommandQueue* iosCommandQueue;
@@ -61,7 +62,6 @@ under the License.
     @property MTL::Texture* iosPixelBuffer;
     @property MTL::Buffer* iosUniformBuffer;
     @property MTL::Buffer* iosInstanceBuffer;
-    @property MTL::Texture* iosTextures[8];
     @property MTL::RenderCommandEncoder* iosCommandEncoder;
     @property MTL::CommandBuffer* iosCommandBuffer;
     @property NS::AutoreleasePool* iosAutoReleasePool;

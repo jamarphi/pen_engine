@@ -108,9 +108,6 @@ namespace pen {
         std::chrono::system_clock::time_point timePoint1;
         std::chrono::system_clock::time_point timePoint2;
         float deltaTime;
-#ifdef __PEN_IOS__
-        PenMTKViewDelegate* iosViewDelegate;
-#endif
 
         /*User input*/
         bool (*clickCatchAll)();
@@ -229,9 +226,7 @@ namespace pen {
         static void HandleGUIKeyEvents(bool choice);
 #endif
 
-#ifndef __PEN_MOBILE__
         static bool HandleClick(pen::ui::Item* item, double* xPos, double* yPos, const int& button, const int& action);
-#endif
 
         static void EnableDepthTesting(bool choice);
 

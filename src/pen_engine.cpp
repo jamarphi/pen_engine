@@ -442,10 +442,9 @@ namespace pen {
 
         inst->actualScreenHeight = height;
         inst->actualScreenWidth = width;
-#ifndef __PEN_IOS__
         glViewport(0, 0, width, height);
-#endif
     }
+#endif
 
     bool Pen::HandleClick(pen::ui::Item* item, double* xPos, double* yPos, const int& button, const int& action) {
         bool eventHandled = false;
@@ -466,6 +465,7 @@ namespace pen {
         }
     }
 
+#ifndef __PEN_MOBILE__
     void click_callback(glfwwindow* window, int button, int action, int mods)
     {
         pen::State* inst = pen::State::Get();

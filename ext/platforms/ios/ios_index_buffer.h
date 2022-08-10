@@ -29,8 +29,8 @@ under the License.
 @interface IOSIndexBuffer : NSObject
 
 + (void) IOSIndexBufferInit :(unsigned int) layerId
-                (int*) data
-                (unsigned int) count;
+                :(int*) data
+                :(unsigned int) count;
 	+ (void) IOSIndexBufferDestroy: (unsigned int) layerId;
 + (MTL::Buffer**) IOSIndexBuffersGet;
 @end

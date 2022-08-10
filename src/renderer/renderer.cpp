@@ -23,7 +23,9 @@ under the License.
 
 namespace pen {
     /*Draw types based on which primitive shape is being used for a given layer*/
+#ifndef __PEN_IOS__
     int Renderer::drawType[7] = { GL_POINTS,GL_LINES,GL_TRIANGLES,GL_TRIANGLES,GL_TRIANGLES, GL_TRIANGLES, GL_TRIANGLES };
+#endif
 
     void Renderer::Clear() {
         /*Clears the buffer before rendering*/
@@ -52,7 +54,7 @@ namespace pen {
 
         This function goes through the pipeline and does not need to be called directly by you*/
         shader.Bind();
-        va.Bind();
+        va.Bind(layerId);
         vb.Bind();
         ib.Bind();
         

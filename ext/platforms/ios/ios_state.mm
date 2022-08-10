@@ -22,6 +22,7 @@ under the License.
 
 #ifdef __PEN_IOS__
 static IOSState* instance;
+static MTL::Texture* iosTextures[8];
 
 @implementation IOSState
 
@@ -32,10 +33,12 @@ static IOSState* instance;
 }
 
 void IOS_CPPObjectCMapping::Destroy(){
+    /*Destroys Metal data in memory*/
     [IOSState Destroy];
 }
 
 + (void) Destroy{
+    /*Destroys Metal data in memory*/
     IOSState* inst = [IOSState Get];
     inst.iosDevice->release();
     inst.iosCommandQueue->release();

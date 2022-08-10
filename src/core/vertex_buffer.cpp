@@ -31,9 +31,7 @@ VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
 	glBindBuffer(GL_ARRAY_BUFFER, rendererId);
 	glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 }
-#endif
-
-#ifdef __PEN_IOS__
+#else
 VertexBuffer::VertexBuffer(unsigned int layerId, BatchVertexData* data, unsigned int size) {
 	/*For IOS Metal buffers*/
     IOS_CPPObjectCMapping::IOSVertexBufferInit(layerId, data, size);

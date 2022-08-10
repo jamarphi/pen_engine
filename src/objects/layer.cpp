@@ -44,7 +44,7 @@ namespace pen {
 #ifndef __PEN_IOS__
         VertexBuffer tempVb(sizeof(BatchVertexData) * MAX_OBJECTS);
 #else
-        VertexBuffer tempVb(id, &batchVertices, sizeof(BatchVertexData) * MAX_OBJECTS);
+        VertexBuffer tempVb(id, &batchVertices[0], sizeof(BatchVertexData) * MAX_OBJECTS);
 #endif
         vb = tempVb;
 
@@ -120,9 +120,9 @@ namespace pen {
 
     void Layer::Destroy() {
         /*Removes the vertex array, vertex buffer, and index buffer objects from memory on the GPU*/
-        va.Destroy();
-        vb.Destroy();
-        ib.Destroy();
+        va.Destroy(id);
+        vb.Destroy(id);
+        ib.Destroy(id);
     }
 
     void Layer::CombineBuffers() {
@@ -188,7 +188,7 @@ namespace pen {
                         batchVertices[(bufferOffset / BATCH_VERTEX_ELEMENTS) + j].color.w = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 6];
                         batchVertices[(bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texCoord.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 7];
                         batchVertices[(bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texCoord.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 8];
-                        batchVertices[(bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texIndex = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 9];
+                        batchVertices[(bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texId = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 9];
                     }
 #endif
                 }
@@ -208,7 +208,7 @@ namespace pen {
                         batchVertices[(bufferOffset / BATCH_VERTEX_ELEMENTS) + j].color.w = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 6];
                         batchVertices[(bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texCoord.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 7];
                         batchVertices[(bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texCoord.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 8];
-                        batchVertices[(bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texIndex = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 9];
+                        batchVertices[(bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texId = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 9];
                     }
 #endif
                 }

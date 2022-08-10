@@ -24,9 +24,9 @@ under the License.
 #ifdef __PEN_IOS__
 #import "ios_state.h"
 #import "ios_cpp_objective_c_mapping.h"
-#import <Foundation/Foundation.h>
+//#import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
-#import <MetalKit/MetalKit.hpp>
+#import <MetalKit/MetalKit.h>
 #import "ios_config.h"
 #import "ios_vertex_buffer.h"
 #import "ios_argument_buffer.h"

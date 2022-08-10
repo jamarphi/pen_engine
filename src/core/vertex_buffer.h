@@ -32,7 +32,7 @@ private:
 public:
 	VertexBuffer();
 	/*Regular buffer constructor*/
-#ifndef __PEN_IOS
+#ifndef __PEN_IOS__
 	VertexBuffer(const void* data, unsigned int size);
     void Destroy();
 #else
