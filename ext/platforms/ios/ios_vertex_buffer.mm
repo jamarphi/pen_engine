@@ -22,10 +22,10 @@ under the License.
 #include "ios_vertex_buffer.h"
 
 #ifdef __PEN_IOS__
-static MTL::Buffer* iosVertexBuffers[30];
+static NSMutableDictionary* iosVertexBuffers;
 
 @implementation IOSVertexBuffer
-void IOS_CPPObjectCMapping::IOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size){
+void MapIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size){
     /*Creates a vertex buffer for a specific layer*/
     [IOSVertexBuffer IOSVertexBufferInit :layerId :data :size];
 }
@@ -35,23 +35,31 @@ void IOS_CPPObjectCMapping::IOSVertexBufferInit(unsigned int layerId, BatchVerte
    :(unsigned int) size{
     /*Creates a vertex buffer for a specific layer*/
     IOSState* inst = [IOSState Get];
-	MTL::Buffer* iosVertexBuffer = inst.iosDevice->newBuffer(size, MTL::ResourceStorageModeManaged);
-	std::memcpy(iosVertexBuffer->contents(), data, size);
-	iosVertexBuffer->didModifyRange(NS::Range::Make(0, iosVertexBuffer->length()));
-    iosVertexBuffers[layerId] = iosVertexBuffer;
+#ifndef TARGET_OS_IOS
+    id<MTLBuffer> iosVertexBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeManaged];
+#else
+    id<MTLBuffer> iosVertexBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
+#endif
+    memcpy([iosVertexBuffer contents], data, size);
+#ifndef TARGET_OS_IOS
+    [IOSVertexBuffer didModifyRange: NSRangeMake(0, [iosVertexBuffer length])];
+#endif
+    [iosVertexBuffers setObject:iosVertexBuffer forKey:[NSString stringWithFormat:@"%d", layerId]];
 }
 
-void IOS_CPPObjectCMapping::IOSVertexBufferDestroy(unsigned int layerId){
+void MapIOSVertexBufferDestroy(unsigned int layerId){
     /*Removes the buffer from the GPU*/
     [IOSVertexBuffer IOSVertexBufferDestroy:layerId];
 }
 
 + (void) IOSVertexBufferDestroy: (unsigned int) layerId{
 	/*Removes the buffer from the GPU*/
-    iosVertexBuffers[layerId]->release();
+    if([iosVertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] != nil){
+        [iosVertexBuffers removeObjectForKey:[NSString stringWithFormat:@"%d", layerId]];
+    }
 }
 
-+ (MTL::Buffer**) IOSVertexBuffersGet{
++ (NSMutableDictionary*) IOSVertexBuffersGet{
     /*Returns the vertex buffer list*/
     return iosVertexBuffers;
 }

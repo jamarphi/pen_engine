@@ -31,7 +31,7 @@ under the License.
     (*pen::State::Get()->mobileOnRenderCallback)();
 }
 
-void IOS_CPPObjectCMapping::UpdateUniforms(pen::Mat4x4 mvp){
+void MapIOSUpdateUniforms(pen::Mat4x4 mvp){
     /*Updates the uniform data*/
     [PenMTKViewDelegate UpdateUniforms:mvp];
 }
@@ -50,102 +50,114 @@ void IOS_CPPObjectCMapping::UpdateUniforms(pen::Mat4x4 mvp){
 
 	int size = sizeof(IOSUniformData);
 
-    if(inst.iosUniformBuffer == nullptr){
-        inst.iosUniformBuffer = inst.iosDevice->newBuffer(size, MTL::ResourceStorageModeManaged);
+    if(inst.iosUniformBuffer == nil){
+#ifndef TARGET_OS_IOS
+        inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeManaged];
+#else
+        inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
+#endif
     }
     
-	std::memcpy(inst.iosUniformBuffer->contents(), data, size);
-    inst.iosUniformBuffer->didModifyRange(NS::Range::Make(0, inst.iosUniformBuffer->length()));
+    std::memcpy([inst.iosUniformBuffer contents], data, size);
+#ifndef TARGET_OS_IOS
+    [inst.iosUniformBuffer didModifyRange: NSMakeRange(0, [inst.iosUniformBuffer length])];
+#endif
 }
 
-void IOS_CPPObjectCMapping::SubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp){
+void MapIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp){
     /*Submits the vertex data to the GPU*/
-    MTL::Buffer** argumentBuffers = [IOSArgumentBuffer IOSArgumentBuffersGet];
-    MTL::Buffer** vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
-    [PenMTKViewDelegate SubmitBatch:argumentBuffers[layerId]
-                                   :vertexBuffers[layerId]
+    NSMutableDictionary* argumentBuffers = [IOSArgumentBuffer IOSArgumentBuffersGet];
+    NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
+    [PenMTKViewDelegate SubmitBatch:[argumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
+                                   :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
                                    :data :size :mvp];
 }
 
-+ (void) SubmitBatch: (MTL::Buffer*) iosArgumentBuffer
-    :(MTL::Buffer*) iosVertexBuffer
++ (void) SubmitBatch: (id<MTLBuffer>) iosArgumentBuffer
+    :(id<MTLBuffer>) iosVertexBuffer
     :(BatchVertexData*) data
     :(int) size
     :(pen::Mat4x4) mvp{
     /*Submits the vertex data to the GPU*/
-    std::memcpy(iosVertexBuffer->contents(), data, size);
-    iosVertexBuffer->didModifyRange(NS::Range::Make(0, iosVertexBuffer->length()));
-
+    std::memcpy([iosVertexBuffer contents], data, size);
+#ifndef TARGET_OS_IOS
+    [iosVertexBuffer didModifyRange: NSMakeRange(0, [iosVertexBuffer length])];
+#endif
     [PenMTKViewDelegate DrawIOSView:iosArgumentBuffer :iosVertexBuffer];
 }
 
-+ (void) DrawIOSView: (MTL::Buffer*) iosArgumentBuffer
-                      :(MTL::Buffer*) iosVertexBuffer {
++ (void) DrawIOSView: (id<MTLBuffer>) iosArgumentBuffer
+                      :(id<MTLBuffer>) iosVertexBuffer {
     /*Use the ios mtk view to render batch data*/
     IOSState* inst = [IOSState Get];
     dispatch_semaphore_wait(inst.dispatchSemaphore, DISPATCH_TIME_FOREVER);
-    NS::AutoreleasePool* pPool = NS::AutoreleasePool::alloc()->init();
-    MTL::CommandBuffer* pCmd = inst.iosCommandQueue->commandBuffer();
-    MTL::RenderPassDescriptor* pRpd = inst.iosMtkView->currentRenderPassDescriptor();
-    inst.iosCommandEncoder = pCmd->renderCommandEncoder(pRpd);
+    id<MTLCommandBuffer> pCmd = [inst.iosCommandQueue commandBuffer];
+    MTLRenderPassDescriptor* pRpd = [inst.iosMtkView currentRenderPassDescriptor];
+    inst.iosCommandEncoder = [pCmd renderCommandEncoderWithDescriptor:pRpd];
     inst.iosCommandBuffer = pCmd;
-    //inst->iosAutoReleasePool = pPool;
-
-     pCmd->addCompletedHandler( ^void( MTL::CommandBuffer* dispatchCallback ){
+    
+    [pCmd addCompletedHandler:^(id<MTLCommandBuffer> dispatchCallback) {
         dispatch_semaphore_signal( inst.dispatchSemaphore );
-     });
+    }];
 
-    inst.iosCommandEncoder->setRenderPipelineState(inst.iosPipelineState);
-    inst.iosCommandEncoder->setDepthStencilState(inst.iosDepthStencilState);
-    inst.iosCommandEncoder->setVertexBuffer(iosArgumentBuffer, 0, 0);
-    inst.iosCommandEncoder->useResource(iosVertexBuffer, MTL::ResourceUsageRead);
-    inst.iosCommandEncoder->setVertexBuffer(inst.iosUniformBuffer, 0, 1);
-    if(inst.iosInstanceBuffer != nullptr) inst.iosCommandEncoder->setVertexBuffer(inst.iosInstanceBuffer, 0, 2);
-    inst.iosCommandEncoder->setFragmentTextures(inst.iosTextures, NS::Range::Make(0, 8));
-    inst.iosCommandEncoder->setCullMode(MTL::CullModeBack);
-    inst.iosCommandEncoder->setFrontFacingWinding(MTL::Winding::WindingCounterClockwise);
+    [inst.iosCommandEncoder setRenderPipelineState:inst.iosPipelineState];
+    [inst.iosCommandEncoder setDepthStencilState:inst.iosDepthStencilState];
+    [inst.iosCommandEncoder setVertexBuffer:iosArgumentBuffer offset:0 atIndex:0];
+    [inst.iosCommandEncoder useResource:iosVertexBuffer usage:MTLResourceUsageRead];
+    [inst.iosCommandEncoder setVertexBuffer:inst.iosUniformBuffer offset:0 atIndex:1];
+    [inst.iosCommandEncoder setVertexBuffer:inst.iosInstanceBuffer offset:0 atIndex:2];
+    NSMutableArray * textures = [IOSState GetTextures];
+    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:0] atIndex:0];
+    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:1] atIndex:1];
+    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:2] atIndex:2];
+    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:3] atIndex:3];
+    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:4] atIndex:4];
+    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:5] atIndex:5];
+    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:6] atIndex:6];
+    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:7] atIndex:7];
+    [inst.iosCommandEncoder setCullMode:MTLCullModeBack];
+    [inst.iosCommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
 }
 
-void IOS_CPPObjectCMapping::Render(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount){
+void MapIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount){
     /*Render the ios mtk view*/
-    MTL::Buffer** indexBuffers = [IOSIndexBuffer IOSIndexBuffersGet];
-    [PenMTKViewDelegate Render:shapeType :indexCount :indexBuffers[layerId] :instanceCount];
+    NSMutableDictionary* indexBuffers = [IOSIndexBuffer IOSIndexBuffersGet];
+    [PenMTKViewDelegate Render:shapeType :indexCount :[indexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] :instanceCount];
 }
 
 + (void) Render: (unsigned int) shapeType
                  :(int) indexCount
-                 :(MTL::Buffer*) iosIndexBuffer
+                 :(id<MTLBuffer>) iosIndexBuffer
                  :(unsigned int) instanceCount{
     /*Render the ios mtk view*/
-    unsigned int type = 0;
+    MTLPrimitiveType type;
     IOSState* inst = [IOSState Get];
 
     switch (shapeType) {
     case 0:
-        type = MTL::PrimitiveType::PrimitiveTypePoint;
+        type = MTLPrimitiveTypePoint;
         break;
     case 1:
-        type = MTL::PrimitiveType::PrimitiveTypeLine;
+        type = MTLPrimitiveTypeLine;
         break;
     case 2:
     case 3:
     case 4:
     case 5:
     case 6:
-        type = MTL::PrimitiveType::PrimitiveTypeTriangle;
+        type = MTLPrimitiveTypeTriangle;
         break;
     default:
         break;
     }
 
-    inst.iosCommandEncoder->drawIndexedPrimitives(type, indexCount, MTL::IndexType::IndexTypeUInt16, iosIndexBuffer, 0, instanceCount);
-    inst.iosCommandEncoder->endEncoding();
-    inst.iosCommandBuffer->presentDrawable(inst.iosMtkView->currentDrawable());
-    inst.iosCommandBuffer->commit();
-    inst.iosAutoReleasePool->release();
+    [inst.iosCommandEncoder drawIndexedPrimitives:type indexCount:indexCount indexType:MTLIndexTypeUInt16 indexBuffer:iosIndexBuffer indexBufferOffset:0 instanceCount:instanceCount];
+    [inst.iosCommandEncoder endEncoding];
+    [inst.iosCommandBuffer presentDrawable:[inst.iosMtkView currentDrawable]];
+    [inst.iosCommandBuffer commit];
 }
 
-void IOS_CPPObjectCMapping::Background(float r, float g, float b, float a){
+void MapIOSBackground(float r, float g, float b, float a){
     /*Updates the background of the mtk window*/
     [PenMTKViewDelegate Background:r :g :b :a];
 }
@@ -156,7 +168,7 @@ void IOS_CPPObjectCMapping::Background(float r, float g, float b, float a){
 :(float) a{
     /*Updates the background of the mtk window*/
     IOSState* inst = [IOSState Get];
-    inst.iosMtkView->setClearColor(MTL::ClearColor::Make(r, g, b, a));
+    [inst.iosMtkView setClearColor:MTLClearColorMake(r, g, b, a)];
 }
 @end
 #endif

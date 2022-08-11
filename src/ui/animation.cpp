@@ -92,6 +92,7 @@ namespace pen {
 					return false;
 				}
 			}
+            return false;
 		}
 
 		void Animation::Animate(pen::ui::AnimationItem item) {

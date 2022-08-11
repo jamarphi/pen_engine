@@ -21,6 +21,7 @@ under the License.
 #pragma once
 
 #include "../../../src/state/config.h"
+#include "ios_cpp_objective_c_mapping.h"
 
 #ifdef __PEN_IOS__
 
@@ -28,6 +29,6 @@ under the License.
 #import "ios_cpp_objective_c_mapping.h"
 
 @interface IOSConfig : NSObject
-	+ (void) Init;
+	+ (void) ConfigInit;
 @end
 #endif

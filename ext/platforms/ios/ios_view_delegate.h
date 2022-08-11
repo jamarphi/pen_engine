@@ -35,24 +35,31 @@ under the License.
 
 #define MVP_MATRIX_SIZE sizeof(float) * 16
 
-@interface PenMTKViewDelegate : MTK::ViewDelegate
+#ifndef TARGET_OS_IOS
+@interface PenMTKViewDelegate : AppViewController
+#else
+@interface PenMTKViewDelegate : UIViewController
+#endif
 
     /*Virtual method inherited from MTK::ViewDelegate*/
-    - (void) drawInMTKView: (MTK::View*) pView;
+    - (void) drawInMTKView: (MTKView*) pView;
 
     + (void) UpdateUniforms: (pen::Mat4x4) mvp;
-    + (void) SubmitBatch: (MTL::Buffer*) iosArgumentBuffer
-                         :(MTL::Buffer*) iosVertexBuffer
-                         :(void*) data
+    + (void) SubmitBatch: (id<MTLBuffer>) iosArgumentBuffer
+                         :(id<MTLBuffer>) iosVertexBuffer
+                         :(BatchVertexData*) data
                          :(int) size
                         :(pen::Mat4x4) mvp;
-    + (void) DrawIOSView: (MTL::Buffer*) iosArgumentBuffer
-                        (MTL::Buffer*) iosVertexBuffer;
+    + (void) DrawIOSView: (id<MTLBuffer>) iosArgumentBuffer
+                        :(id<MTLBuffer>) iosVertexBuffer;
     + (void) Render: (unsigned int) shapeType
                      :(int) indexCount
-                     :(MTL::Buffer*) iosIndexBuffer
-                     :(unsigned int) instanceCount);
-    + (void) Background;
+                     :(id<MTLBuffer>) iosIndexBuffer
+                     :(unsigned int) instanceCount;
+    + (void) Background: (float) r
+                     : (float) g
+                     : (float) b
+                     : (float) a;
 
 @end
 #endif

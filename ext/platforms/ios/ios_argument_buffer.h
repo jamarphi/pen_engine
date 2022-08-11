@@ -29,10 +29,9 @@ under the License.
 
 @interface IOSArgumentBuffer : NSObject
 
-+ (void) IOSArgumentBufferInit: (unsigned int) layerId :(MTL::Buffer*) dataBuffer;
++ (void) IOSArgumentBufferInit: (unsigned int) layerId :(id<MTLBuffer>) dataBuffer;
 	+ (void) IOSArgumentBufferBind: (unsigned int) layerId;
 	+ (void) IOSArgumentBufferDestroy: (unsigned int) layerId;
-+ (MTL::Buffer**) IOSArgumentBuffersGet;
-};
++ (NSMutableDictionary*) IOSArgumentBuffersGet;
 @end
 #endif

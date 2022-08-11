@@ -58,7 +58,8 @@ namespace pen {
         vb.Bind();
         ib.Bind();
         
-        IOS_CPPObjectCMapping::Render(shapeType, indexCount, layerId, instanceCount);
+        //IOS_CPPObjectCMapping::Render(shapeType, indexCount, layerId, instanceCount);
+        MapIOSRender(shapeType, indexCount, layerId, instanceCount);
     }
 #endif
 }

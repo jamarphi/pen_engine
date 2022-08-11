@@ -23,7 +23,7 @@ under the License.
 #ifdef __PEN_IOS__
 
 @implementation IOSShader
-void IOS_CPPObjectCMapping::IOSShaderInit(const char* shaderProgram){
+void MapIOSShaderInit(const char* shaderProgram){
     /*Creates a Metal shader*/
     [IOSShader IOSShaderInit:shaderProgram];
 }
@@ -31,41 +31,36 @@ void IOS_CPPObjectCMapping::IOSShaderInit(const char* shaderProgram){
 + (void) IOSShaderInit: (const char*) shaderProgram {
 	/*Creates a Metal shader*/
     IOSState* inst = [IOSState Get];
-	using NS::StringEncoding::UTF8StringEncoding;
+	//using NS::StringEncoding::UTF8StringEncoding;
 
-	NS::Error* pError = nullptr;
-	MTL::Library* pLibrary = inst.iosDevice->newLibrary(NS::String::string(shaderProgram, UTF8StringEncoding), nullptr, &pError);
+	NSError* pError = nullptr;
+    id<MTLLibrary> pLibrary = [inst.iosDevice newLibraryWithSource:[NSString stringWithUTF8String:shaderProgram] options:nil error: &pError];
 	if (!pLibrary)
 	{
-		__builtin_printf("%s", pError->localizedDescription()->utf8String());
+		__builtin_printf("%s", [pError localizedDescription]);
 		assert(false);
 	}
 
-	MTL::Function* pVertexFn = pLibrary->newFunction(NS::String::string("vertexMain", UTF8StringEncoding));
-	MTL::Function* pFragFn = pLibrary->newFunction(NS::String::string("fragmentMain", UTF8StringEncoding));
+    id<MTLFunction> pVertexFn = [pLibrary newFunctionWithName:@"vertexMain"];
+    id<MTLFunction> pFragFn = [pLibrary newFunctionWithName:@"fragmentMain"];
 
-	MTL::ArgumentEncoder* pArgEncoder = pVertexFn->newArgumentEncoder(0);
+    id<MTLArgumentEncoder> pArgEncoder = [pVertexFn newArgumentEncoderWithBufferIndex:0];
 	inst.iosArgEncoder = pArgEncoder;
 
-	MTL::RenderPipelineDescriptor* pDesc = MTL::RenderPipelineDescriptor::alloc()->init();
-	pDesc->setVertexFunction(pVertexFn);
-	pDesc->setFragmentFunction(pFragFn);
-	pDesc->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
+    MTLRenderPipelineDescriptor* pDesc = [[MTLRenderPipelineDescriptor alloc] init];
+    [pDesc setVertexFunction:pVertexFn];
+    [pDesc setFragmentFunction:pFragFn];
+    [[[pDesc colorAttachments] objectAtIndexedSubscript:0] setPixelFormat:MTLPixelFormatBGRA8Unorm_sRGB];
 
-	inst.iosPipelineState = inst.iosDevice->newRenderPipelineState(pDesc, &pError);
+    inst.iosPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:pDesc error:&pError];
 	if (!inst.iosPipelineState)
 	{
-		__builtin_printf("%s", pError->localizedDescription()->utf8String());
+        __builtin_printf("%s", [pError localizedDescription]);
 		assert(false);
 	}
-
-	pVertexFn->release();
-	pFragFn->release();
-	pDesc->release();
-	pLibrary->release();
 }
 
-void IOS_CPPObjectCMapping::IOSUpdateInstanceUniform(IOSInstanceData* data){
+void MapIOSUpdateInstanceUniform(IOSInstanceData* data){
     /*Updates the instanced offsets*/
     [IOSShader IOSUpdateInstanceUniform:data];
 }
@@ -74,9 +69,15 @@ void IOS_CPPObjectCMapping::IOSUpdateInstanceUniform(IOSInstanceData* data){
 	/*Updates the instanced offsets*/
     IOSState* inst = [IOSState Get];
 	int size = sizeof(IOSInstanceData) * 400;
-	MTL::Buffer* instanceBuffer = inst.iosDevice->newBuffer(size, MTL::ResourceStorageModeManaged);
-	std::memcpy(instanceBuffer->contents(), data, size);
-	instanceBuffer->didModifyRange(NS::Range::Make(0, instanceBuffer->length()));
+#ifndef TARGET_OS_IOS
+    id<MTLBuffer> instanceBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeManaged];
+#else
+    id<MTLBuffer> instanceBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
+#endif
+    memcpy([instanceBuffer contents], data, size);
+#ifndef TARGET_OS_IOS
+    [instanceBuffer didModifyRange: NSRangeMake(0, [instanceBuffer length])];
+#endif
 	inst.iosInstanceBuffer = instanceBuffer;
 }
 @end

@@ -22,7 +22,7 @@ under the License.
 
 #ifdef __PEN_IOS__
 static IOSState* instance;
-static MTL::Texture* iosTextures[8];
+static NSMutableArray* iosTextures;
 
 @implementation IOSState
 
@@ -32,19 +32,8 @@ static MTL::Texture* iosTextures[8];
     return instance;
 }
 
-void IOS_CPPObjectCMapping::Destroy(){
-    /*Destroys Metal data in memory*/
-    [IOSState Destroy];
-}
-
-+ (void) Destroy{
-    /*Destroys Metal data in memory*/
-    IOSState* inst = [IOSState Get];
-    inst.iosDevice->release();
-    inst.iosCommandQueue->release();
-    inst.iosPipelineState->release();
-    inst.iosArgEncoder->release();
-    inst.iosDepthStencilState->release();
++(NSMutableArray*) GetTextures{
+    return iosTextures;
 }
 @end
 #endif

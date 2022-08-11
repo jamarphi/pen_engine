@@ -34,7 +34,7 @@ IndexBuffer::IndexBuffer(int* data, unsigned int count) : indexCount(count) {
 #else
 IndexBuffer::IndexBuffer(unsigned int layerId, int* data, unsigned int count) : indexCount(count) {
     /*For IOS Metal index buffers*/
-    IOS_CPPObjectCMapping::IOSIndexBufferInit(layerId, data, count);
+    MapIOSIndexBufferInit(layerId, data, count);
 }
 #endif
 
@@ -67,6 +67,6 @@ void IndexBuffer::Destroy() {
 #else
 void IndexBuffer::Destroy(unsigned int layerId) {
     /*Removes the index buffer from memory on the GPU*/
-    IOS_CPPObjectCMapping::IOSIndexBufferDestroy(layerId);
+    MapIOSIndexBufferDestroy(layerId);
 }
 #endif

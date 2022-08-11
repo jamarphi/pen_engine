@@ -34,7 +34,7 @@ under the License.
     + (void) IOSVertexBufferInit:(unsigned int) layerId
                      :(BatchVertexData*) data
                      :(unsigned int) size;
-	+ (void) IOSVertexBufferDestroy;
-+ (MTL::Buffer**) IOSVertexBuffersGet;
+	+ (void) IOSVertexBufferDestroy: (unsigned int) layerId;
++ (NSMutableDictionary*) IOSVertexBuffersGet;
 @end
 #endif

@@ -21,10 +21,10 @@ under the License.
 #include "ios_index_buffer.h"
 
 #ifdef __PEN_IOS__
-static MTL::Buffer* iosIndexBuffers[30];
+static NSMutableDictionary* iosIndexBuffers;
 
 @implementation IOSIndexBuffer
-void IOS_CPPObjectCMapping::IOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count){
+void MapIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count){
     /*Creates an ios index buffer*/
     [IOSIndexBuffer IOSIndexBufferInit:layerId :data :count];
 }
@@ -32,23 +32,31 @@ void IOS_CPPObjectCMapping::IOSIndexBufferInit(unsigned int layerId, int* data, 
 + (void) IOSIndexBufferInit: (unsigned int) layerId :(int*) data :(unsigned int) count{
     /*Creates an ios index buffer*/
     IOSState* inst = [IOSState Get];
-	MTL::Buffer* iosIndexBuffer = inst.iosDevice->newBuffer(count, MTL::ResourceStorageModeManaged);
-	std::memcpy(iosIndexBuffer->contents(), data, sizeof(int) * count);
-	iosIndexBuffer->didModifyRange(NS::Range::Make(0, iosIndexBuffer->length()));
-    iosIndexBuffers[layerId] = iosIndexBuffer;
+#ifndef TARGET_OS_IOS
+    id<MTLBuffer> iosIndexBuffer = [inst.iosDevice newBufferWithLength:count options:MTLResourceStorageModeManaged];
+#else
+    id<MTLBuffer> iosIndexBuffer = [inst.iosDevice newBufferWithLength:count options:MTLResourceStorageModeShared];
+#endif
+    memcpy([iosIndexBuffer contents], data, sizeof(int) * count);
+#ifndef TARGET_OS_IOS
+    [iosIndexBuffer didModifyRange: NSRangeMake(0, [iosIndexBuffer length])];
+#endif
+    [iosIndexBuffers setObject:iosIndexBuffer forKey:[NSString stringWithFormat:@"%d", layerId]];
 }
 
-void IOS_CPPObjectCMapping::IOSIndexBufferDestroy(unsigned int layerId){
+void MapIOSIndexBufferDestroy(unsigned int layerId){
     /*Removes buffer from GPU*/
     [IOSIndexBuffer IOSIndexBufferDestroy:layerId];
 }
 
 + (void) IOSIndexBufferDestroy: (unsigned int) layerId{
 	/*Removes buffer from GPU*/
-	iosIndexBuffers[layerId]->release();
+    if([iosIndexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] != nil){
+        [iosIndexBuffers removeObjectForKey:[NSString stringWithFormat:@"%d", layerId]];
+    }
 }
 
-+(MTL::Buffer**) IOSIndexBuffersGet{
++ (NSMutableDictionary*) IOSIndexBuffersGet{
     /*Returns the index buffer list*/
     return iosIndexBuffers;
 }

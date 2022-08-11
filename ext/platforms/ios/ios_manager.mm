@@ -24,21 +24,15 @@ under the License.
 #ifdef __PEN_IOS__
 
 #if TARGET_OS_SIMULATOR && (!defined(__IPHONE_13_0) ||  !defined(__TVOS_13_0))
-#error No simulator support for Metal API for this SDK version.  Must build for a device
+#error No simulator support for Metal API for this SDK version.
 #endif
 
 int main(int argc, char* argv[])
 {
-    NS::AutoreleasePool* pAutoreleasePool = NS::AutoreleasePool::alloc()->init();
-
-    PenIOSAppDelegate del;
-
-    NS::Application* pSharedApplication = NS::Application::sharedApplication();
-    pSharedApplication->setDelegate(&del);
-    pSharedApplication->run();
-
-    pAutoreleasePool->release();
-
-    return 0;
+#ifndef TARGET_OS_IOS
+    return NSApplicationMain(argc, argv);
+#else
+    return UIApplicationMain(argc, argv, nil, NSStringFromClass([PenIOSAppDelegate class]));
+#endif
 }
 #endif

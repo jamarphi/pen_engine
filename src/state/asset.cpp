@@ -72,6 +72,7 @@ namespace pen {
 		for (int i = 0; i < pen::Asset::assetMap.Size(); i++) {
 			if (pen::Asset::assetMap.items[i].second.name == name) return pen::Asset::assetMap.items[i].second.id;
 		}
+        return -1;
 	}
 
 	std::string Asset::Split(const std::string& line, const char& character, const unsigned int& section) {

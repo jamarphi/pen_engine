@@ -21,27 +21,33 @@ under the License.
 #include "ios_argument_buffer.h"
 
 #ifdef __PEN_IOS__
-static MTL::Buffer* iosArgumentBuffers[30];
+static NSMutableDictionary* iosArgumentBuffers;
 
 @implementation IOSArgumentBuffer
 
-void IOS_CPPObjectCMapping::IOSArgumentBufferInit(unsigned int layerId){
+void MapIOSArgumentBufferInit(unsigned int layerId){
     /*Creates an ios argument buffer for formatting vertex data*/
-    MTL::Buffer** vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
-    [IOSArgumentBuffer IOSArgumentBufferInit:layerId :vertexBuffers[layerId]];
+    NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
+    [IOSArgumentBuffer IOSArgumentBufferInit:layerId :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]];
 }
 
-+ (void) IOSArgumentBufferInit: (unsigned int) layerId :(MTL::Buffer*) dataBuffer{
++ (void) IOSArgumentBufferInit: (unsigned int) layerId :(id<MTLBuffer>) dataBuffer{
     /*Creates an ios argument buffer for formatting vertex data*/
     IOSState* inst = [IOSState Get];
-	MTL::Buffer* iosArgumentBuffer = inst.iosDevice->newBuffer(inst.iosArgEncoder->encodedLength(), MTL::ResourceStorageModeManaged);
-	inst.iosArgEncoder->setArgumentBuffer(iosArgumentBuffer, 0);
-	inst.iosArgEncoder->setBuffer(dataBuffer, 0, 0);
-	iosArgumentBuffer->didModifyRange(NS::Range::Make(0, iosArgumentBuffer->length()));
-    iosArgumentBuffers[layerId] = iosArgumentBuffer;
+#ifndef TARGET_OS_IOS
+    id<MTLBuffer> iosArgumentBuffer = [inst.iosDevice newBufferWithLength:[inst.iosArgEncoder encodedLength] options:MTLResourceStorageModeManaged];
+#else
+    id<MTLBuffer> iosArgumentBuffer = [inst.iosDevice newBufferWithLength:[inst.iosArgEncoder encodedLength] options:MTLResourceStorageModeShared];
+#endif
+    [inst.iosArgEncoder setArgumentBuffer:iosArgumentBuffer offset:0];
+    [inst.iosArgEncoder setBuffer:dataBuffer offset:0 atIndex:0];
+#ifndef TARGET_OS_IOS
+    [IOSArgumentBuffer didModifyRange: NSRangeMake(0, [iosArgumentBuffer length])];
+#endif
+    [iosArgumentBuffers setObject:iosArgumentBuffer forKey:[NSString stringWithFormat:@"%d", layerId]];
 }
 
-void IOS_CPPObjectCMapping::IOSArgumentBufferBind(unsigned int layerId){
+void MapIOSArgumentBufferBind(unsigned int layerId){
     /*Binds the ios argument buffer*/
     [IOSArgumentBuffer IOSArgumentBufferBind:layerId];
 }
@@ -49,20 +55,22 @@ void IOS_CPPObjectCMapping::IOSArgumentBufferBind(unsigned int layerId){
 + (void) IOSArgumentBufferBind: (unsigned int) layerId{
 	/*Binds the ios argument buffer*/
     IOSState* inst = [IOSState Get];
-	inst.iosArgEncoder->setArgumentBuffer(iosArgumentBuffers[layerId], 0);
+    [inst.iosArgEncoder setArgumentBuffer:[iosArgumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] offset:0];
 }
 
-void IOS_CPPObjectCMapping::IOSArgumentBufferDestroy(unsigned int layerId){
+void MapIOSArgumentBufferDestroy(unsigned int layerId){
     /*Removes the buffer from the GPU*/
     [IOSArgumentBuffer IOSArgumentBufferDestroy:layerId];
 }
 
 + (void) IOSArgumentBufferDestroy: (unsigned int) layerId{
 	/*Removes the buffer from the GPU*/
-	iosArgumentBuffers[layerId]->release();
+    if([iosArgumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] != nil){
+        [iosArgumentBuffers removeObjectForKey:[NSString stringWithFormat:@"%d", layerId]];
+    }
 }
 
-+(MTL::Buffer**) IOSArgumentBuffersGet{
++(NSMutableDictionary*) IOSArgumentBuffersGet{
     /*Returns the argument buffer list*/
     return iosArgumentBuffers;
 }

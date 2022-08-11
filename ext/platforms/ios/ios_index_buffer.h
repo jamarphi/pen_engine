@@ -32,6 +32,6 @@ under the License.
                 :(int*) data
                 :(unsigned int) count;
 	+ (void) IOSIndexBufferDestroy: (unsigned int) layerId;
-+ (MTL::Buffer**) IOSIndexBuffersGet;
++ (NSMutableDictionary*) IOSIndexBuffersGet;
 @end
 #endif

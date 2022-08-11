@@ -51,6 +51,7 @@ namespace pen {
 				return false;
 			}
 		}
+        return false;
 	}
 
 	void Anim::Animate(AnimItem item) {

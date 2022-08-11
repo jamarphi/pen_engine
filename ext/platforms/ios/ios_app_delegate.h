@@ -27,13 +27,18 @@ under the License.
   In the OnCreate function it is expected that pen::Pen::SetMobileCallbacks(); is called.
 */
 #import "../../../../app.h"
+#import "ios_vertex_buffer.h"
+#import "ios_argument_buffer.h"
+#import "ios_index_buffer.h"
+#import "ios_shader.h"
 
-@interface PenIOSAppDelegate : NS::ApplicationDelegate
+@interface PenIOSAppDelegate : NSObject
 
-    /*These methods are inherited from NS::ApplicationDelegate*/
-    - (NS::Menu*) createMenuBar;
-    - (void) applicationWillFinishLaunching: (NS::Notification*) pNotification;
-    - (void) applicationDidFinishLaunching: (NS::Notification*) pNotification;
-    - (bool) applicationShouldTerminateAfterLastWindowClosed: (NS::Application*) pSender;
+    /*These methods are inherited from NSObject*/
+    - (void) applicationWillFinishLaunching: (NSNotification*) pNotification;
+    - (void) applicationDidFinishLaunching: (NSNotification*) pNotification;
+#ifndef TARGET_OS_IOS
+    - (bool) applicationShouldTerminateAfterLastWindowClosed: (NSApplication*) pSender;
+#endif
 @end
 #endif

@@ -23,71 +23,38 @@ under the License.
 #ifdef __PEN_IOS__
 
 @implementation PenIOSAppDelegate
-- (NS::Menu*) createMenuBar
-{
-    /*Creates menu bar for application*/
-    using NS::StringEncoding::UTF8StringEncoding;
 
-    NS::Menu* pMainMenu = NS::Menu::alloc()->init();
-    NS::MenuItem* pAppMenuItem = NS::MenuItem::alloc()->init();
-    NS::Menu* pAppMenu = NS::Menu::alloc()->init(NS::String::string("App", UTF8StringEncoding));
-
-    NS::String* appName = NS::RunningApplication::currentApplication()->localizedName();
-    NS::String* quitItemName = NS::String::string("Quit ", UTF8StringEncoding)->stringByAppendingString(appName);
-    SEL quitCb = NS::MenuItem::registerActionCallback("appQuit", [](void*, SEL, const NS::Object* pSender) {
-        auto pApp = NS::Application::sharedApplication();
-        pApp->terminate(pSender);
-        });
-
-    NS::MenuItem* pAppQuitItem = pAppMenu->addItem(quitItemName, quitCb, NS::String::string("q", UTF8StringEncoding));
-    pAppQuitItem->setKeyEquivalentModifierMask(NS::EventModifierFlagCommand);
-    pAppMenuItem->setSubmenu(pAppMenu);
-
-    NS::MenuItem* pWindowMenuItem = NS::MenuItem::alloc()->init();
-    NS::Menu* pWindowMenu = NS::Menu::alloc()->init(NS::String::string("Window", UTF8StringEncoding));
-
-    SEL closeWindowCb = NS::MenuItem::registerActionCallback("windowClose", [](void*, SEL, const NS::Object*) {
-        auto pApp = NS::Application::sharedApplication();
-        pApp->windows()->object< NS::Window >(0)->close();
-        });
-    NS::MenuItem* pCloseWindowItem = pWindowMenu->addItem(NS::String::string("Close Window", UTF8StringEncoding), closeWindowCb, NS::String::string("w", UTF8StringEncoding));
-    pCloseWindowItem->setKeyEquivalentModifierMask(NS::EventModifierFlagCommand);
-
-    pWindowMenuItem->setSubmenu(pWindowMenu);
-
-    pMainMenu->addItem(pAppMenuItem);
-    pMainMenu->addItem(pWindowMenuItem);
-
-    pAppMenuItem->release();
-    pWindowMenuItem->release();
-    pAppMenu->release();
-    pWindowMenu->release();
-
-    return pMainMenu->autorelease();
-}
-
-- (void) applicationWillFinishLaunching: (NS::Notification*) pNotification
+- (void) applicationWillFinishLaunching: (NSNotification*) pNotification
 {
     /*Before application is done launching*/
-    NS::Menu* pMenu = createMenuBar();
-    NS::Application* pApp = reinterpret_cast<NS::Application*>(pNotification->object());
-    pApp->setMainMenu(pMenu);
-    pApp->setActivationPolicy(NS::ActivationPolicy::ActivationPolicyRegular);
+#ifndef TARGET_OS_IOS
+    NSApplication* pApp = reinterpret_cast<NSApplication*>([pNotification object]);
+    pApp->setActivationPolicy(NSActivationPolicy::ActivationPolicyRegular);
+#endif
 }
 
-- (void) applicationDidFinishLaunching: (NS::Notification*) pNotification
+- (void) applicationDidFinishLaunching: (NSNotification*) pNotification
 {
     /*After application is done launching*/
     IOSState* inst = [IOSState Get];
-    MTL::DepthStencilDescriptor* pDsDesc = MTL::DepthStencilDescriptor::alloc()->init();
-    pDsDesc->setDepthCompareFunction(MTL::CompareFunction::CompareFunctionLess);
-    pDsDesc->setDepthWriteEnabled(true);
-    inst->iosDepthStencilState = _pDevice->newDepthStencilState(pDsDesc);
-    pDsDesc->release();
-    inst->iosLaunchNotification = pNotification;
+    MTLDepthStencilDescriptor* pDsDesc = [[MTLDepthStencilDescriptor alloc] init];
+    [pDsDesc setDepthCompareFunction:MTLCompareFunctionLess];
+    [pDsDesc setDepthWriteEnabled:true];
+    inst.iosDepthStencilState = [inst.iosDevice newDepthStencilStateWithDescriptor:pDsDesc];
+    inst.iosLaunchNotification = pNotification;
 
     /*Currently at max three different buffer types sent to metal shaders*/
-    inst->dispatch_semaphore_t = dispatch_semaphore_create(3);
+    inst.dispatchSemaphore = dispatch_semaphore_create(3);
+    
+    /*Initialize static arrays*/
+    NSMutableArray* textures = [IOSState GetTextures];
+    NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
+    NSMutableDictionary* argumentBuffers = [IOSArgumentBuffer IOSArgumentBuffersGet];
+    NSMutableDictionary* indexBuffers = [IOSIndexBuffer IOSIndexBuffersGet];
+    textures = [[NSMutableArray alloc] init];
+    vertexBuffers = [NSMutableDictionary dictionary];
+    argumentBuffers = [NSMutableDictionary dictionary];
+    indexBuffers = [NSMutableDictionary dictionary];
 
     App* app = new App();
     pen::State::Get()->mobileActive = true;
@@ -95,10 +62,12 @@ under the License.
     app->OnCreate();
 }
 
--( BOOL) applicationShouldTerminateAfterLastWindowClosed: (NS::Application*) pSender
+#ifndef TARGET_OS_IOS
+-( BOOL) applicationShouldTerminateAfterLastWindowClosed: (NSApplication*) pSender
 {
     /*Closes application after last window is closed*/
     return true;
 }
+#endif
 @end
 #endif

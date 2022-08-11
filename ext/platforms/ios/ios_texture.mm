@@ -22,7 +22,7 @@ under the License.
 
 #ifdef __PEN_IOS__
 @implementation IOSTexture
-void IOS_CPPObjectCMapping::InitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData){
+void MapIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData){
     /*Initializes a Metal ios texture*/
     [IOSTexture InitializeTexture:texWidth :texHeight :type :texSlot :textureData];
 }
@@ -30,27 +30,25 @@ void IOS_CPPObjectCMapping::InitializeTexture(unsigned int texWidth, unsigned in
 + (void) InitializeTexture: (unsigned int) texWidth :(unsigned int) texHeight :(unsigned int) type :(unsigned int) texSlot :(unsigned char*) textureData{
 	/*Initializes a Metal ios texture*/
     IOSState* inst = [IOSState Get];
-	MTL::TextureDescriptor* textureDesc = MTL::TextureDescriptor::alloc()->init();
-	textureDesc->setWidth(texWidth);
-	textureDesc->setHeight(texHeight);
-	textureDesc->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
-	textureDesc->setTextureType(MTL::TextureType2D);
-	textureDesc->setStorageMode(MTL::StorageModeManaged);
-	textureDesc->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
+    
+    MTLTextureDescriptor* textureDesc = [[MTLTextureDescriptor alloc] init];
+    [textureDesc setWidth:texWidth];
+    [textureDesc setHeight:texHeight];
+    [textureDesc setPixelFormat:MTLPixelFormatRGBA8Unorm];
+    [textureDesc setTextureType:MTLTextureType2D];
+    [textureDesc setStorageMode:MTLStorageModeShared];
+    [textureDesc setUsage:MTLResourceUsageSample | MTLResourceUsageRead];
 
-    MTL::Texture* texture = inst.iosDevice->newTexture(textureDesc);
+    id<MTLTexture> texture = [inst.iosDevice newTextureWithDescriptor:textureDesc];
+    [texture replaceRegion:MTLRegionMake2D(0, 0, texWidth, texHeight) mipmapLevel:0 withBytes:textureData bytesPerRow:texWidth * 4];
     if(type == 1) inst.iosPixelBuffer = texture;
-
-	texture->replaceRegion(MTL::Region(0, 0, 0, texWidth, texHeight, 1), 0, textureData, texWidth * 4);
     if(texSlot < 8) {
-        MTL::Texture** textures = inst.iosTextures;
-        textures[texSlot] = texture;
+        NSMutableArray* textures = [IOSState GetTextures];
+        [textures replaceObjectAtIndex:texSlot withObject:texture];
     }
-
-	textureDesc->release();
 }
 
-void IOS_CPPObjectCMapping::UpdatePixels(){
+void MapIOSUpdatePixels(){
     /*Updates the ios pixel buffer*/
     [IOSTexture UpdatePixels];
 }
@@ -58,7 +56,7 @@ void IOS_CPPObjectCMapping::UpdatePixels(){
 + (void) UpdatePixels{
 	/*Updates the ios pixel buffer*/
     IOSState* inst = [IOSState Get];
-	inst.iosPixelBuffer->replaceRegion(MTL::Region(0, 0, 0, 1280, 720, 1), 0, pen::State::Get()->pixelArray, 5120);
+    [inst.iosPixelBuffer replaceRegion:MTLRegionMake2D(0, 0, 1280, 720) mipmapLevel:0 withBytes:pen::State::Get()->pixelArray bytesPerRow:5120];
 }
 @end
 #endif

@@ -30,10 +30,10 @@ under the License.
 @interface IOSTexture : NSObject
 
     + (void) InitializeTexture: (unsigned int) texWidth
-                         (unsigned int) texHeight
-                         (unsigned int) type
-                         (unsigned int) texSlot
-                         (unsigned char*) textureData;
+                         :(unsigned int) texHeight
+                         :(unsigned int) type
+                         :(unsigned int) texSlot
+                         :(unsigned char*) textureData;
 	+ (void) UpdatePixels;
 @end
 #endif

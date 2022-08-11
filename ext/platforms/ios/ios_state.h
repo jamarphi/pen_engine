@@ -23,27 +23,20 @@ under the License.
 #include "../../../src/state/config.h"
 
 #ifdef __PEN_IOS__
-//#import <cassert>
-#ifndef MTL_PRIVATE_IMPLEMENTATION
-#define NS_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION
-//#define MTK_PRIVATE_IMPLEMENTATION
-#define CA_PRIVATE_IMPLEMENTATION
-#endif
-
+#import <TargetConditionals.h>
 #ifdef TARGET_IPHONE_SIMULATOR
-//#import <UIKit/UIKit.h>
+#import <UIKit/UIKit.h>
 #elifdef TARGET_OS_IPHONE
-//#import <UIKit/UIKit.hpp>
+#import <UIKit/UIKit.hpp>
 #elifdef TARGET_OS_IOS
-//#import <UIKit/UIKit.hpp>
+#import <UIKit/UIKit.hpp>
 #elifdef TARGET_OS_MAC
-//#import <AppKit/AppKit.hpp>
+#import <AppKit/AppKit.hpp>
 #endif
-#import <Foundation/Foundation.hpp>
-#import <Metal/Metal.hpp>
-//#import <CoreFoundation/CoreFoundation.h>
-#import <QuartzCore/QuartzCore.hpp>
+#import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
+#import <QuartzCore/CAMetalLayer.h>
+#import <QuartzCore/QuartzCore.h>
 #import <MetalKit/MetalKit.h>
 #import <simd/simd.h>
 #import "ios_cpp_objective_c_mapping.h"
@@ -52,22 +45,21 @@ under the License.
 
 @interface IOSState : NSObject
 
-	@property MTK::View* iosMtkView;
-    @property MTL::Device* iosDevice;
-    @property MTL::CommandQueue* iosCommandQueue;
-    @property MTL::RenderPipelineState* iosPipelineState;
-    @property NS::Notification* iosLaunchNotification;
-    @property MTL::ArgumentEncoder* iosArgEncoder;
-    @property MTL::DepthStencilState* iosDepthStencilState;
-    @property MTL::Texture* iosPixelBuffer;
-    @property MTL::Buffer* iosUniformBuffer;
-    @property MTL::Buffer* iosInstanceBuffer;
-    @property MTL::RenderCommandEncoder* iosCommandEncoder;
-    @property MTL::CommandBuffer* iosCommandBuffer;
-    @property NS::AutoreleasePool* iosAutoReleasePool;
+	@property MTKView* iosMtkView;
+    @property id<MTLDevice> iosDevice;
+    @property id<MTLCommandQueue> iosCommandQueue;
+    @property id<MTLRenderPipelineState> iosPipelineState;
+    @property NSNotification* iosLaunchNotification;
+    @property id<MTLArgumentEncoder> iosArgEncoder;
+    @property id<MTLDepthStencilState> iosDepthStencilState;
+    @property id<MTLTexture> iosPixelBuffer;
+    @property id<MTLBuffer> iosUniformBuffer;
+    @property id<MTLBuffer> iosInstanceBuffer;
+    @property id<MTLRenderCommandEncoder> iosCommandEncoder;
+    @property id<MTLCommandBuffer> iosCommandBuffer;
     @property dispatch_semaphore_t dispatchSemaphore;
 
 + (IOSState*) Get;
-+ (void) Destroy;
++ (NSMutableArray*) GetTextures;
 @end
 #endif

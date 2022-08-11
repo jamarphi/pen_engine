@@ -50,7 +50,7 @@ void VertexArray::AddBuffer(const VertexBufferSchema& schema) {
 #ifdef __PEN_IOS__
 void VertexArray::AddBuffer(const unsigned int layerId) {
 	/*Creates an argument buffer for ios metal that defines the attributes used with the vertex buffer*/
-    IOS_CPPObjectCMapping::IOSArgumentBufferInit(layerId);
+    MapIOSArgumentBufferInit(layerId);
 }
 #endif
 
@@ -62,7 +62,7 @@ void VertexArray::Bind() const {
 #else
 void VertexArray::Bind(const unsigned int layerId) const {
     /*Binds the ios argument buffer for this vertex array object*/
-    IOS_CPPObjectCMapping::IOSArgumentBufferBind(layerId);
+    MapIOSArgumentBufferBind(layerId);
 }
 #endif
 
@@ -81,6 +81,6 @@ void VertexArray::Destroy() {
 #else
 void VertexArray::Destroy(const unsigned int layerId) {
     /*Removes the vertex array from memory on the GPU*/
-    IOS_CPPObjectCMapping::IOSArgumentBufferDestroy(layerId);
+    MapIOSArgumentBufferDestroy(layerId);
 }
 #endif

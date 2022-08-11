@@ -100,7 +100,8 @@ namespace pen {
         stateInst->debug = debug;
 
 #ifdef __PEN_IOS__
-        IOS_CPPObjectCMapping::Init(SCR_WIDTH, SCR_HEIGHT, appName);
+        //IOS_CPPObjectCMapping::ConfigInit(SCR_WIDTH, SCR_HEIGHT, appName);
+        MapIOSConfigInit(SCR_WIDTH, SCR_HEIGHT, appName);
 #endif
 
         /*Get the allowed number of textures*/
@@ -174,10 +175,6 @@ namespace pen {
         /*Terminate the application*/
 #ifndef __PEN_MOBILE__
         glfwTerminate();
-#else
-#ifdef __PEN_IOS__
-        IOS_CPPObjectCMapping::Destroy();
-#endif
 #endif
     }
 

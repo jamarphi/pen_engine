@@ -28,7 +28,8 @@ namespace pen {
 #ifndef __PEN_IOS__
         glClearColor(color.x, color.y, color.z, color.w);
 #else
-        IOS_CPPObjectCMapping::Background(color.x, color.y, color.z, color.w);
+        //IOS_CPPObjectCMapping::Background(color.x, color.y, color.z, color.w);
+        MapIOSBackground(color.x, color.y, color.z, color.w);
 #endif
     }
 
@@ -71,7 +72,8 @@ namespace pen {
 #ifndef __PEN_IOS__
         shader.SetUniformMat4x4f("uMVP", mvp);
 #else
-        IOS_CPPObjectCMapping::UpdateUniforms(mvp);
+        //IOS_CPPObjectCMapping::UpdateUniforms(mvp);
+        MapIOSUpdateUniforms(mvp);
 #endif
 
         /*Binds the vertex buffer of a given layer and updates the GPU with the buffer data*/
@@ -80,7 +82,8 @@ namespace pen {
 #ifndef __PEN_IOS__
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(layer->batchVertices), layer->batchVertices);
 #else
-            IOS_CPPObjectCMapping::SubmitBatch(layer->id, layer->batchVertices, sizeof(layer->batchVertices), mvp);
+            //IOS_CPPObjectCMapping::SubmitBatch(layer->id, layer->batchVertices, sizeof(layer->batchVertices), mvp);
+            MapIOSSubmitBatch(layer->id, layer->batchVertices, sizeof(layer->batchVertices), mvp);
 
 #endif
             if (pen::State::Get()->firstUpdateFrame) {
@@ -137,7 +140,8 @@ namespace pen {
             instanceData[i].uInstancedOffsets.y = layer->instancedDataList[i]->y;
             instanceData[i].uInstancedOffsets.z = layer->instancedDataList[i]->z;
         }
-        IOS_CPPObjectCMapping::IOSUpdateInstanceUniform(instanceData);
+        //IOS_CPPObjectCMapping::IOSUpdateInstanceUniform(instanceData);
+        MapIOSUpdateInstanceUniform(instanceData);
 #endif
     }
 }
