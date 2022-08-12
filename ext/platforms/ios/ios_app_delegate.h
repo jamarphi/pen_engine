@@ -19,7 +19,7 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
-#include "ios_view_delegate.h"
+#include "../../../src/state/config.h"
 
 #ifdef __PEN_IOS__
 /*
@@ -27,6 +27,7 @@ under the License.
   In the OnCreate function it is expected that pen::Pen::SetMobileCallbacks(); is called.
 */
 #import "../../../../app.h"
+#import "ios_view_delegate.h"
 #import "ios_vertex_buffer.h"
 #import "ios_argument_buffer.h"
 #import "ios_index_buffer.h"

@@ -26,7 +26,6 @@ under the License.
 #import "ios_cpp_objective_c_mapping.h"
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
-#import "ios_config.h"
 #import "ios_vertex_buffer.h"
 #import "ios_argument_buffer.h"
 #import "ios_index_buffer.h"
@@ -35,14 +34,10 @@ under the License.
 
 #define MVP_MATRIX_SIZE sizeof(float) * 16
 
-#ifndef TARGET_OS_IOS
-@interface PenMTKViewDelegate : AppViewController
-#else
-@interface PenMTKViewDelegate : UIViewController
-#endif
+@interface PenMTKViewDelegate : MTKView
 
-    /*Virtual method inherited from MTK::ViewDelegate*/
-    - (void) drawInMTKView: (MTKView*) pView;
+    /*Virtual method inherited from MTKView*/
+    - (void) drawRect:(CGRect)rect;
 
     + (void) UpdateUniforms: (pen::Mat4x4) mvp;
     + (void) SubmitBatch: (id<MTLBuffer>) iosArgumentBuffer

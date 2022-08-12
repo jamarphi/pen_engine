@@ -25,11 +25,6 @@ under the License.
 static NSMutableDictionary* iosVertexBuffers;
 
 @implementation IOSVertexBuffer
-void MapIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size){
-    /*Creates a vertex buffer for a specific layer*/
-    [IOSVertexBuffer IOSVertexBufferInit :layerId :data :size];
-}
-
 + (void) IOSVertexBufferInit: (unsigned int) layerId
    :(BatchVertexData*) data
    :(unsigned int) size{
@@ -47,11 +42,6 @@ void MapIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigne
     [iosVertexBuffers setObject:iosVertexBuffer forKey:[NSString stringWithFormat:@"%d", layerId]];
 }
 
-void MapIOSVertexBufferDestroy(unsigned int layerId){
-    /*Removes the buffer from the GPU*/
-    [IOSVertexBuffer IOSVertexBufferDestroy:layerId];
-}
-
 + (void) IOSVertexBufferDestroy: (unsigned int) layerId{
 	/*Removes the buffer from the GPU*/
     if([iosVertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] != nil){
@@ -64,4 +54,14 @@ void MapIOSVertexBufferDestroy(unsigned int layerId){
     return iosVertexBuffers;
 }
 @end
+
+void MapIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size){
+    /*Creates a vertex buffer for a specific layer*/
+    [IOSVertexBuffer IOSVertexBufferInit :layerId :data :size];
+}
+
+void MapIOSVertexBufferDestroy(unsigned int layerId){
+    /*Removes the buffer from the GPU*/
+    [IOSVertexBuffer IOSVertexBufferDestroy:layerId];
+}
 #endif

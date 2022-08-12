@@ -136,7 +136,6 @@ void Texture::UpdatePixels() {
 		glBindTexture(GL_TEXTURE_2D, Texture::Get()->texSlots.Find(2)->second);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 1280, 720, GL_RGBA, GL_UNSIGNED_BYTE, pen::State::Get()->pixelArray);
 #else
-        //IOS_CPPObjectCMapping::IOSUpdatePixels();
         MapIOSUpdatePixels();
 #endif
 	}
@@ -176,7 +175,6 @@ void Texture::InitializeIOSTexture(const std::string& path, const unsigned int& 
 		break;
 	}
 
-    //IOS_CPPObjectCMapping::InitializeTexture(texWidth, texHeight, type, texSlot, textureData);
     MapIOSInitializeTexture(texWidth, texHeight, type, texSlot, textureData);
 }
 #endif

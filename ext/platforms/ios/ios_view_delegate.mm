@@ -23,17 +23,13 @@ under the License.
 #ifdef __PEN_IOS__
 @implementation PenMTKViewDelegate
 
-- (void) drawInMTKView: (MTKView*) pView
+- (void) drawRect:(CGRect)rect
 {
     /*Draws data in MTK view*/
+    [super drawRect:rect];
     IOSState* inst = [IOSState Get];
-    inst.iosMtkView = pView;
+    inst.iosMtkView = self;
     (*pen::State::Get()->mobileOnRenderCallback)();
-}
-
-void MapIOSUpdateUniforms(pen::Mat4x4 mvp){
-    /*Updates the uniform data*/
-    [PenMTKViewDelegate UpdateUniforms:mvp];
 }
 
 + (void) UpdateUniforms: (pen::Mat4x4) mvp{
@@ -62,15 +58,6 @@ void MapIOSUpdateUniforms(pen::Mat4x4 mvp){
 #ifndef TARGET_OS_IOS
     [inst.iosUniformBuffer didModifyRange: NSMakeRange(0, [inst.iosUniformBuffer length])];
 #endif
-}
-
-void MapIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp){
-    /*Submits the vertex data to the GPU*/
-    NSMutableDictionary* argumentBuffers = [IOSArgumentBuffer IOSArgumentBuffersGet];
-    NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
-    [PenMTKViewDelegate SubmitBatch:[argumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
-                                   :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
-                                   :data :size :mvp];
 }
 
 + (void) SubmitBatch: (id<MTLBuffer>) iosArgumentBuffer
@@ -119,12 +106,6 @@ void MapIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pe
     [inst.iosCommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
 }
 
-void MapIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount){
-    /*Render the ios mtk view*/
-    NSMutableDictionary* indexBuffers = [IOSIndexBuffer IOSIndexBuffersGet];
-    [PenMTKViewDelegate Render:shapeType :indexCount :[indexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] :instanceCount];
-}
-
 + (void) Render: (unsigned int) shapeType
                  :(int) indexCount
                  :(id<MTLBuffer>) iosIndexBuffer
@@ -148,6 +129,7 @@ void MapIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, 
         type = MTLPrimitiveTypeTriangle;
         break;
     default:
+            type = MTLPrimitiveTypeTriangle;
         break;
     }
 
@@ -155,11 +137,6 @@ void MapIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, 
     [inst.iosCommandEncoder endEncoding];
     [inst.iosCommandBuffer presentDrawable:[inst.iosMtkView currentDrawable]];
     [inst.iosCommandBuffer commit];
-}
-
-void MapIOSBackground(float r, float g, float b, float a){
-    /*Updates the background of the mtk window*/
-    [PenMTKViewDelegate Background:r :g :b :a];
 }
 
 + (void) Background: (float) r
@@ -171,4 +148,29 @@ void MapIOSBackground(float r, float g, float b, float a){
     [inst.iosMtkView setClearColor:MTLClearColorMake(r, g, b, a)];
 }
 @end
+
+void MapIOSUpdateUniforms(pen::Mat4x4 mvp){
+    /*Updates the uniform data*/
+    [PenMTKViewDelegate UpdateUniforms:mvp];
+}
+
+void MapIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp){
+    /*Submits the vertex data to the GPU*/
+    NSMutableDictionary* argumentBuffers = [IOSArgumentBuffer IOSArgumentBuffersGet];
+    NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
+    [PenMTKViewDelegate SubmitBatch:[argumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
+                                   :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
+                                   :data :size :mvp];
+}
+
+void MapIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount){
+    /*Render the ios mtk view*/
+    NSMutableDictionary* indexBuffers = [IOSIndexBuffer IOSIndexBuffersGet];
+    [PenMTKViewDelegate Render:shapeType :indexCount :[indexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] :instanceCount];
+}
+
+void MapIOSBackground(float r, float g, float b, float a){
+    /*Updates the background of the mtk window*/
+    [PenMTKViewDelegate Background:r :g :b :a];
+}
 #endif

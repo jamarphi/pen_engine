@@ -25,12 +25,6 @@ static NSMutableDictionary* iosArgumentBuffers;
 
 @implementation IOSArgumentBuffer
 
-void MapIOSArgumentBufferInit(unsigned int layerId){
-    /*Creates an ios argument buffer for formatting vertex data*/
-    NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
-    [IOSArgumentBuffer IOSArgumentBufferInit:layerId :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]];
-}
-
 + (void) IOSArgumentBufferInit: (unsigned int) layerId :(id<MTLBuffer>) dataBuffer{
     /*Creates an ios argument buffer for formatting vertex data*/
     IOSState* inst = [IOSState Get];
@@ -47,20 +41,10 @@ void MapIOSArgumentBufferInit(unsigned int layerId){
     [iosArgumentBuffers setObject:iosArgumentBuffer forKey:[NSString stringWithFormat:@"%d", layerId]];
 }
 
-void MapIOSArgumentBufferBind(unsigned int layerId){
-    /*Binds the ios argument buffer*/
-    [IOSArgumentBuffer IOSArgumentBufferBind:layerId];
-}
-
 + (void) IOSArgumentBufferBind: (unsigned int) layerId{
 	/*Binds the ios argument buffer*/
     IOSState* inst = [IOSState Get];
     [inst.iosArgEncoder setArgumentBuffer:[iosArgumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] offset:0];
-}
-
-void MapIOSArgumentBufferDestroy(unsigned int layerId){
-    /*Removes the buffer from the GPU*/
-    [IOSArgumentBuffer IOSArgumentBufferDestroy:layerId];
 }
 
 + (void) IOSArgumentBufferDestroy: (unsigned int) layerId{
@@ -75,4 +59,20 @@ void MapIOSArgumentBufferDestroy(unsigned int layerId){
     return iosArgumentBuffers;
 }
 @end
+
+void MapIOSArgumentBufferInit(unsigned int layerId){
+    /*Creates an ios argument buffer for formatting vertex data*/
+    NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
+    [IOSArgumentBuffer IOSArgumentBufferInit:layerId :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]];
+}
+
+void MapIOSArgumentBufferBind(unsigned int layerId){
+    /*Binds the ios argument buffer*/
+    [IOSArgumentBuffer IOSArgumentBufferBind:layerId];
+}
+
+void MapIOSArgumentBufferDestroy(unsigned int layerId){
+    /*Removes the buffer from the GPU*/
+    [IOSArgumentBuffer IOSArgumentBufferDestroy:layerId];
+}
 #endif

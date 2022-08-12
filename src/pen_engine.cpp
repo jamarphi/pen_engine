@@ -99,11 +99,6 @@ namespace pen {
         stateInst->actualScreenHeight = SCR_HEIGHT;
         stateInst->debug = debug;
 
-#ifdef __PEN_IOS__
-        //IOS_CPPObjectCMapping::ConfigInit(SCR_WIDTH, SCR_HEIGHT, appName);
-        MapIOSConfigInit(SCR_WIDTH, SCR_HEIGHT, appName);
-#endif
-
         /*Get the allowed number of textures*/
 #ifndef __PEN_IOS__
         int textureUnits = 0;

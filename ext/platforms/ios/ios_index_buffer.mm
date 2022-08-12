@@ -24,11 +24,6 @@ under the License.
 static NSMutableDictionary* iosIndexBuffers;
 
 @implementation IOSIndexBuffer
-void MapIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count){
-    /*Creates an ios index buffer*/
-    [IOSIndexBuffer IOSIndexBufferInit:layerId :data :count];
-}
-
 + (void) IOSIndexBufferInit: (unsigned int) layerId :(int*) data :(unsigned int) count{
     /*Creates an ios index buffer*/
     IOSState* inst = [IOSState Get];
@@ -44,11 +39,6 @@ void MapIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count){
     [iosIndexBuffers setObject:iosIndexBuffer forKey:[NSString stringWithFormat:@"%d", layerId]];
 }
 
-void MapIOSIndexBufferDestroy(unsigned int layerId){
-    /*Removes buffer from GPU*/
-    [IOSIndexBuffer IOSIndexBufferDestroy:layerId];
-}
-
 + (void) IOSIndexBufferDestroy: (unsigned int) layerId{
 	/*Removes buffer from GPU*/
     if([iosIndexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] != nil){
@@ -61,4 +51,14 @@ void MapIOSIndexBufferDestroy(unsigned int layerId){
     return iosIndexBuffers;
 }
 @end
+
+void MapIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count){
+    /*Creates an ios index buffer*/
+    [IOSIndexBuffer IOSIndexBufferInit:layerId :data :count];
+}
+
+void MapIOSIndexBufferDestroy(unsigned int layerId){
+    /*Removes buffer from GPU*/
+    [IOSIndexBuffer IOSIndexBufferDestroy:layerId];
+}
 #endif

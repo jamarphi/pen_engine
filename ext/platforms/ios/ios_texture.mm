@@ -22,11 +22,6 @@ under the License.
 
 #ifdef __PEN_IOS__
 @implementation IOSTexture
-void MapIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData){
-    /*Initializes a Metal ios texture*/
-    [IOSTexture InitializeTexture:texWidth :texHeight :type :texSlot :textureData];
-}
-
 + (void) InitializeTexture: (unsigned int) texWidth :(unsigned int) texHeight :(unsigned int) type :(unsigned int) texSlot :(unsigned char*) textureData{
 	/*Initializes a Metal ios texture*/
     IOSState* inst = [IOSState Get];
@@ -48,15 +43,20 @@ void MapIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsi
     }
 }
 
-void MapIOSUpdatePixels(){
-    /*Updates the ios pixel buffer*/
-    [IOSTexture UpdatePixels];
-}
-
 + (void) UpdatePixels{
 	/*Updates the ios pixel buffer*/
     IOSState* inst = [IOSState Get];
     [inst.iosPixelBuffer replaceRegion:MTLRegionMake2D(0, 0, 1280, 720) mipmapLevel:0 withBytes:pen::State::Get()->pixelArray bytesPerRow:5120];
 }
 @end
+
+void MapIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData){
+    /*Initializes a Metal ios texture*/
+    [IOSTexture InitializeTexture:texWidth :texHeight :type :texSlot :textureData];
+}
+
+void MapIOSUpdatePixels(){
+    /*Updates the ios pixel buffer*/
+    [IOSTexture UpdatePixels];
+}
 #endif

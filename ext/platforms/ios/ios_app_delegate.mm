@@ -58,7 +58,37 @@ under the License.
 
     App* app = new App();
     pen::State::Get()->mobileActive = true;
-    app->CreateApplication("App", 110, 540, "");
+    app->CreateApplication("App", 110, 540, "");    
+    
+    inst.iosCommandQueue = [inst.iosDevice newCommandQueue];
+    CGRect frame = CGRectMake(0, 0, 110, 540);
+#ifndef TARGET_OS_IOS
+    NSWindow* iosWindow = [[NSWindow alloc] init: frame :NSWindowStyleMaskClosable | NSWindowStyleMaskTitled :NSBackingStoreBuffered :false];
+#endif
+
+    inst.iosDevice = MTLCreateSystemDefaultDevice();
+
+    inst.iosMtkView = [[PenMTKViewDelegate alloc] initWithFrame: frame device:inst.iosDevice];
+    [inst.iosMtkView setColorPixelFormat: MTLPixelFormatBGRA8Unorm_sRGB];
+
+#ifndef TARGET_OS_IOS
+    [iosWindow setContentView: inst.iosMtkView];
+    [iosWindow setTitle: [NSString stringWithUTF8String:appName]];
+    [iosWindow makeKeyAndOrderFront:nil];
+#endif
+
+#ifndef TARGET_OS_IOS
+    NSApplication* pApp = reinterpret_cast<NSApplication*>([inst.iosLaunchNotification object]);
+    [pApp activateIgnoringOtherApps:true];
+#endif
+
+    /*Initialize uniforms*/
+#ifndef TARGET_OS_IOS
+    inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:sizeof(float) * 16 options:MTLResourceStorageModeManaged];
+#else
+    inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:sizeof(float) * 16 options:MTLResourceStorageModeShared];
+#endif
+    
     app->OnCreate();
 }
 

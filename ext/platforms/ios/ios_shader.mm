@@ -23,11 +23,6 @@ under the License.
 #ifdef __PEN_IOS__
 
 @implementation IOSShader
-void MapIOSShaderInit(const char* shaderProgram){
-    /*Creates a Metal shader*/
-    [IOSShader IOSShaderInit:shaderProgram];
-}
-
 + (void) IOSShaderInit: (const char*) shaderProgram {
 	/*Creates a Metal shader*/
     IOSState* inst = [IOSState Get];
@@ -38,7 +33,6 @@ void MapIOSShaderInit(const char* shaderProgram){
 	if (!pLibrary)
 	{
 		__builtin_printf("%s", [pError localizedDescription]);
-		assert(false);
 	}
 
     id<MTLFunction> pVertexFn = [pLibrary newFunctionWithName:@"vertexMain"];
@@ -56,13 +50,7 @@ void MapIOSShaderInit(const char* shaderProgram){
 	if (!inst.iosPipelineState)
 	{
         __builtin_printf("%s", [pError localizedDescription]);
-		assert(false);
 	}
-}
-
-void MapIOSUpdateInstanceUniform(IOSInstanceData* data){
-    /*Updates the instanced offsets*/
-    [IOSShader IOSUpdateInstanceUniform:data];
 }
 
 + (void) IOSUpdateInstanceUniform: (IOSInstanceData*) data{
@@ -81,4 +69,14 @@ void MapIOSUpdateInstanceUniform(IOSInstanceData* data){
 	inst.iosInstanceBuffer = instanceBuffer;
 }
 @end
+
+void MapIOSShaderInit(const char* shaderProgram){
+    /*Creates a Metal shader*/
+    [IOSShader IOSShaderInit:shaderProgram];
+}
+
+void MapIOSUpdateInstanceUniform(IOSInstanceData* data){
+    /*Updates the instanced offsets*/
+    [IOSShader IOSUpdateInstanceUniform:data];
+}
 #endif
