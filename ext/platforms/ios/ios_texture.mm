@@ -22,7 +22,7 @@ under the License.
 
 #ifdef __PEN_IOS__
 @implementation IOSTexture
-+ (void) InitializeTexture: (unsigned int) texWidth :(unsigned int) texHeight :(unsigned int) type :(unsigned int) texSlot :(unsigned char*) textureData{
++ (void) IOSInitializeTexture: (unsigned int) texWidth :(unsigned int) texHeight :(unsigned int) type :(unsigned int) texSlot :(unsigned char*) textureData{
 	/*Initializes a Metal ios texture*/
     IOSState* inst = [IOSState Get];
     
@@ -43,7 +43,29 @@ under the License.
     }
 }
 
-+ (void) UpdatePixels{
++ (void) IOSLoadTexture:(const char *)path :(unsigned int) texSlot{
+    /*Loads in a texture*/
+    IOSState* inst = [IOSState Get];
+    MTKTextureLoader *loader = [[MTKTextureLoader alloc] initWithDevice: inst.iosDevice];
+        
+#ifndef TARGET_OS_IOS
+    id<MTLTexture> texture = [loader newTextureWithName:[NSString stringWithUTF8String:path] scaleFactor:[inst.iosWindow backingScaleFactor] bundle:[NSBundle mainBundle] options:nil error:nil];
+#else
+    id<MTLTexture> texture = [loader newTextureWithName:[NSString stringWithUTF8String:path] scaleFactor:[inst.iosMtkView contentScaleFactor] bundle:[NSBundle mainBundle] options:nil error:nil];
+#endif
+        
+    if(!texture)
+    {
+        NSLog(@"Failed to create the texture from %@", [NSString stringWithUTF8String:path]);
+    }
+    
+    if(texSlot < 8) {
+        NSMutableArray* textures = [IOSState GetTextures];
+        [textures replaceObjectAtIndex:texSlot withObject:texture];
+    }
+}
+
++ (void) IOSUpdatePixels{
 	/*Updates the ios pixel buffer*/
     IOSState* inst = [IOSState Get];
     [inst.iosPixelBuffer replaceRegion:MTLRegionMake2D(0, 0, 1280, 720) mipmapLevel:0 withBytes:pen::State::Get()->pixelArray bytesPerRow:5120];
@@ -52,11 +74,16 @@ under the License.
 
 void MapIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData){
     /*Initializes a Metal ios texture*/
-    [IOSTexture InitializeTexture:texWidth :texHeight :type :texSlot :textureData];
+    [IOSTexture IOSInitializeTexture:texWidth :texHeight :type :texSlot :textureData];
+}
+
+void MapIOSLoadTexture(const char* path, unsigned int texSlot){
+    /*Loads a Metal ios texture*/
+    [IOSTexture IOSLoadTexture:path :texSlot];
 }
 
 void MapIOSUpdatePixels(){
     /*Updates the ios pixel buffer*/
-    [IOSTexture UpdatePixels];
+    [IOSTexture IOSUpdatePixels];
 }
 #endif

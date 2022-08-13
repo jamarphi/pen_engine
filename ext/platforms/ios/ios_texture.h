@@ -25,15 +25,16 @@ under the License.
 #ifdef __PEN_IOS__
 #import "../../../src/state/state.h"
 #import "ios_state.h"
-#import "ios_cpp_objective_c_mapping.h"
 
 @interface IOSTexture : NSObject
 
-    + (void) InitializeTexture: (unsigned int) texWidth
+    + (void) IOSInitializeTexture: (unsigned int) texWidth
                          :(unsigned int) texHeight
                          :(unsigned int) type
                          :(unsigned int) texSlot
                          :(unsigned char*) textureData;
-	+ (void) UpdatePixels;
+    + (void) IOSLoadTexture: (const char*) path
+                       : (unsigned int) texSlot;
+	+ (void) IOSUpdatePixels;
 @end
 #endif

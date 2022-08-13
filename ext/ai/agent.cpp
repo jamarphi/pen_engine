@@ -214,19 +214,31 @@ namespace pen {
 			return action;
 		}
 
+#ifndef __PEN_MOBILE__
 		void Agent::Save(const std::string& path) {
+            /*
+             On mobile the text file will be returned as a string for the user to save it
+             to a server or their own custom database since android's asset directory is read only
+             and ios should be the same to keep things consistent
+             */
+#else
+        std::string Agent::Save(const std::string& path) {
+#endif
 			/*Save an agent model*/
 			std::string tempPath = (path.find(".arlpen") != std::string::npos ? path : path + ".arlpen");
-			std::ofstream modelFile;
 			std::string input = "";
+            bool header = true;
+            bool writing = true;
+            int counter = 0;
+#ifndef __PEN_MOBILE__
+            std::ofstream modelFile;
 			modelFile.open(tempPath);
 			if (modelFile.is_open()) {
-				bool writing = true;
-				int counter = 0;
-				bool header = true;
-
+#endif
 				while (writing) {
+#ifndef __PEN_MOBILE__
 					input = "";
+#endif
 					/*Write a state*/
 					if (header) {
 						/*Write the header information before states*/
@@ -234,7 +246,9 @@ namespace pen {
 							+ "\nplanning steps:" + std::to_string(planningSteps) + "\ninitial state id:" + std::to_string(initialState->id)
 							+ "\nnum episodes:" + std::to_string(numEpisodes)
 							+ "\nid/policies num/[states]/state params num/{policies}/reward/state value/optimal policy\n");
+#ifndef __PEN_MOBILE__
 						modelFile << input;
+#endif
 						header = false;
 					}
 					else {
@@ -245,23 +259,32 @@ namespace pen {
 							+ std::to_string(s->stateValue) + "/" + (std::to_string(s->optimalPolicy->id) + "^" + std::to_string(s->optimalPolicy->policy->id)
 								+ "^" + std::to_string(s->optimalPolicy->value) + "^" + s->optimalPolicy->actionName));
 
-						modelFile << (input + "\n----\n");
+                        input += ("\n----\n");
+#ifndef __PEN_MOBILE__
+                        modelFile << input;
+#endif
 
 						counter++;
 						if (counter == numStates) {
 							writing = false;
-							modelFile << "\n----\n";
+                            input += ("\n----\n");
+    #ifndef __PEN_MOBILE__
+                            modelFile << input;
+    #endif
 						}
 					}
 				}
+#ifndef __PEN_MOBILE__
 				modelFile.close();
 			}
+#else
+            return input;
+#endif
 		}
 
 		void Agent::Load(const std::string& path, pen::ai::Action** userActions, long userNumActions) {
 			/*Load an agent model*/
 			std::string tempPath = (path.find(".arlpen") != std::string::npos ? path : path + ".arlpen");
-			std::ifstream modelFile;
 			std::string input = "";
 			std::string stateArr = "";
 			std::string policiesArr = "";
@@ -273,16 +296,32 @@ namespace pen {
 			bool header = true;
 			int counter = 0;
 			std::vector<pen::ai::AIState*> stateVector;
-			modelFile.open(tempPath);
-			if (modelFile.is_open()) {
-				while (!modelFile.eof()) {
+#ifndef __PEN_MOBILE__
+                std::ifstream modelFile;
+                modelFile.open(tempPath);
+                if (modelFile.is_open()) {
+                    while (!modelFile.eof()) {
+#else
+                pen::Asset mobileAgentFile = pen::Asset::Load(tempPath, nullptr);
+                unsigned int fileOffset = 0;
+                        std::string mobileAgentFileStr(mobileAgentFile.data);
+                if (mobileAgentFile.data != nullptr) {
+                    while (true) {
+#endif
 					input = "";
 
 					/*Load the states*/
 					if (header) {
 						if (counter < 6) {
 							/*Grab the header meta data for the agent*/
-							std::getline(modelFile, input);
+#ifndef __PEN_MOBILE__
+                            std::getline(modelFile, input);
+#else
+                            input = pen::ui::ReadLine(mobileAgentFileStr, &fileOffset);
+                            if (input == "") {
+                                break;
+                            }
+#endif
 							if (counter == 0) epsilon = std::stof(pen::ai::Agent::Split(input, ':', 1));
 							if (counter == 1) discountValue = std::stof(pen::ai::Agent::Split(input, ':', 1));
 							if (counter == 2) stepSize = std::stof(pen::ai::Agent::Split(input, ':', 1));
@@ -296,7 +335,14 @@ namespace pen {
 						}
 					}
 					else {
-						std::getline(modelFile, input);
+#ifndef __PEN_MOBILE__
+                            std::getline(modelFile, input);
+#else
+                            input = pen::ui::ReadLine(mobileAgentFileStr, &fileOffset);
+                            if (input == "") {
+                                break;
+                            }
+#endif
 
 						if (input == "----" || input == "====") continue;
 
@@ -327,7 +373,9 @@ namespace pen {
 					}
 
 				}
+#ifndef __PEN_MOBILE__
 				modelFile.close();
+#endif
 
 				/*Set the states in the agent*/
 				states = new pen::ai::AIState*[stateVector.size()];

@@ -27,6 +27,8 @@ under the License.
 #include "../../src/ops/operations/operations.h"
 #include "weight.h"
 #include "replay_buffer.h"
+#include "../../src/state/config.h"
+#include "../../src/state/layer_manager.h"
 
 namespace pen {
 	namespace ai {
@@ -55,7 +57,11 @@ namespace pen {
 			virtual void Init(pen::ai::AIState** userStates, long userStateNum, pen::ai::AIState* initialState, int numPlanningSteps, float userEpsilon = 0.1f, float userStepSize = 0.1f);
 			pen::ai::AIState* FindState(Agent* agent, char stateId);
 			virtual void Step(bool terminal);
+#ifndef __PEN_MOBILE__
 			virtual void Save(const std::string& path);
+#else
+            virtual std::string Save(const std::string& path);
+#endif
 			virtual void Load(const std::string& path, pen::ai::Action** userActions, long userNumActions);			
 		private:
 			int Rand(int range);

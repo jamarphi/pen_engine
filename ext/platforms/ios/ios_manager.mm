@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 #ifndef TARGET_OS_IOS
     return NSApplicationMain(argc, argv);
 #else
-    return UIApplicationMain(argc, argv, nil, NSStringFromClass([PenIOSAppDelegate class]));
+    return UIApplicationMain(argc, argv, nil, @"PenIOSAppDelegate");
 #endif
 }
 #endif

@@ -23,6 +23,7 @@ under the License.
 #include "layer_manager.h"
 #include "../ops/matrices/mat3x3.h"
 #include "../ops/operations/operations.h"
+#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
 
 #ifdef __PEN_ANDROID__
 #include "../../ext/platforms/android/pen_engine_android/src/cpp/android_pixel.h"
@@ -628,20 +629,26 @@ namespace pen {
 			unsigned char* localBuffer = stbi_load(tempPath.c_str(), &texWidth, &texHeight, &texBPP, 4);
 			spriteData = localBuffer;
 #else
+            std::string mobileFilePath = path;
+            if (mobileFilePath[2] == '/' && mobileFilePath[3] == '/') {
+                mobileFilePath = mobileFilePath.substr(4);
+            }
+            else if (mobileFilePath[0] == '/') {
+                mobileFilePath = mobileFilePath.substr(1);
+            }
+            std::string mobileFileName = Asset::ParsePath(mobileFilePath);
 	#ifdef __PEN_ANDROID__
-			std::string androidFilePath = path;
-			if (androidFilePath[2] == '/' && androidFilePath[3] == '/') {
-				androidFilePath = androidFilePath.substr(4);
-			}
-			else if (androidFilePath[0] == '/') {
-				androidFilePath = androidFilePath.substr(1);
-			}
-			std::string androidFileName = Asset::ParsePath(androidFilePath);
 			/*When loading from res/drawable mimetypes have to be removed*/
-			if(androidFileName.find(".") != std::string::npos) androidFileName = androidFileName.substr(0, androidFileName.find("."));
-			spriteData = AndroidLoadSprite(androidFileName.c_str(), texWidth, texHeight);
-			texBPP = 4;
+			mobileFileName = mobileFileName.substr(0, mobileFileName.find("."));
+			spriteData = AndroidLoadSprite(mobileFileName.c_str(), texWidth, texHeight);
+    #else
+            /*
+             MapIOSLoadAsset is called directly so a pen::Asset is not created since the pixel
+             buffer uses sprites loaded in memory rather than on the GPU as textures
+             */
+            spriteData = (unsigned char*) MapIOSLoadAsset(mobileFileName.substr(0, mobileFileName.find(".")).c_str(), mobileFileName.substr(mobileFileName.find(".") + 1).c_str());
 	#endif
+            texBPP = 4;
 #endif
 			pen::State::Get()->pixelSprites.Insert(path, { path, spriteData, texWidth, texHeight });
 		}

@@ -76,6 +76,11 @@ extern "C" {
 
     /*----ios_texture----*/
     void MapIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData);
+    void MapIOSLoadTexture(const char* path, unsigned int texSlot);
     void MapIOSUpdatePixels();
     /*----ios_texture----*/
+
+    /*----ios_util----*/
+    const char* MapIOSLoadAsset(const char* path, const char* mimeType);
+    /*----ios_util----*/
 };

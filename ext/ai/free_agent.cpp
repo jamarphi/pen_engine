@@ -352,20 +352,33 @@ namespace pen {
 			return -1;
 		}
 
+#ifndef __PEN_MOBILE__
 		void FreeAgent::Save(const std::string& path) {
+            /*
+             On mobile the text file will be returned as a string for the user to save it
+             to a server or their own custom database since android's asset directory is read only
+             and ios should be the same to keep things consistent
+             */
+#else
+        std::string FreeAgent::Save(const std::string& path) {
+#endif
 			/*Save a free agent model*/
 			std::string tempPath = (path.find(".farlpen") != std::string::npos ? path : path + ".farlpen");
-			std::ofstream modelFile;
 			std::string input = "";
+            bool writing = true;
+
+            /*Each weight has data for a specific layer*/
+            bool header = true;
+#ifndef __PEN_MOBILE__
+            std::ofstream modelFile;
 			modelFile.open(tempPath);
 			if (modelFile.is_open()) {
-				bool writing = true;
-
-				/*Each weight has data for a specific layer*/
-				bool header = true;
+#endif
 
 				while (writing) {
-					input = "";
+#ifndef __PEN_MOBILE__
+                    input = "";
+#endif
 					/*Write a weight*/
 					if (header) {
 						/*Write the header information before weights*/
@@ -373,10 +386,12 @@ namespace pen {
 							+ "\nnum actions:" + std::to_string(numActions)
 							+ "\nnum episodes:" + std::to_string(numEpisodes) + "\nnum layers:" + std::to_string(numLayers) + "\nnum state params:" + std::to_string(numStateParams)
 							+ "\n[m hat weights]^[m hat biases]^[v hat weights]^[v hat biases]");
-						modelFile << input;
+#ifndef __PEN_MOBILE__
+                        modelFile << input;
+#endif
 
 						for (int i = 0; i < numLayers - 1; i++) {
-							input = "[";
+							input += ("[");
 							if (i < numLayers - 2) {
 								input += (FormatMatrix(&mHat[i], ',') + " ]^[" + FormatMatrix(&vHat[i], ',') + "]^");
 							}
@@ -384,49 +399,77 @@ namespace pen {
 								input += (FormatMatrix(&mHat[i], ',') + " ]^[" + FormatMatrix(&vHat[i], ',') + "]");
 							}
 						}
-						modelFile << input;
-						input = "\n====\nnum prev layer nodes/num current layer nodes/[weights]/[weight gradients]/[bias]/[bias gradients]/length\n";
-						modelFile << input;
+						input += ("\n====\nnum prev layer nodes/num current layer nodes/[weights]/[weight gradients]/[bias]/[bias gradients]/length\n");
+#ifndef __PEN_MOBILE__
+                        modelFile << input;
+#endif
 						header = false;
 					}
 					else {
 						for (int i = 0; i < numLayers; i++) {
+#ifndef __PEN_MOBILE__
 							input = "";
+#endif
 							input += (std::to_string(weights[i].numPrevLayerNodes) + "/" + std::to_string(weights[i].numCurrLayerNodes)
 								+ "/[" + FormatMatrix(weights[i].weights, ',') + "]/["
 								+ FormatMatrix(weights[i].weightGrads, ',') + "]/[" + FormatMatrix(weights[i].bias, ',') + "]/[" + FormatMatrix(weights[i].biasGrads, ',') + "]");
 
-							modelFile << (input + "\n----\n");
+                            input += ("\n----\n");
+    #ifndef __PEN_MOBILE__
+                            modelFile << input;
+    #endif
 						}
 
 						writing = false;
-						modelFile << "\n----\n";
+                        input += ("\n----\n");
+#ifndef __PEN_MOBILE__
+                        modelFile << input;
+#endif
 					}
 				}
+#ifndef __PEN_MOBILE__
 				modelFile.close();
 			}
+#else
+            return input;
+#endif
 		}
 
 		void FreeAgent::Load(const std::string& path, pen::ai::Action** userActions, long userNumActions) {
 			/*Load a free agent model*/
 			std::string tempPath = (path.find(".farlpen") != std::string::npos ? path : path + ".farlpen");
-			std::ifstream modelFile;
 			std::string input = "";
 			pen::ai::Weight* weight = nullptr;
 			std::string matrixStr = "";
 			bool header = true;
 			int counter = 0;
 			std::vector<pen::ai::Weight*> weightVector;
-			modelFile.open(tempPath);
-			if (modelFile.is_open()) {
-				while (!modelFile.eof()) {
+#ifndef __PEN_MOBILE__
+                std::ifstream modelFile;
+                modelFile.open(tempPath);
+                if (modelFile.is_open()) {
+                    while (!modelFile.eof()) {
+#else
+                pen::Asset mobileFreeAgentFile = pen::Asset::Load(tempPath, nullptr);
+                unsigned int fileOffset = 0;
+                        std::string mobileFreeAgentFileStr(mobileFreeAgentFile.data);
+                if (mobileFreeAgentFile.data != nullptr) {
+                    while (true) {
+#endif
 					input = "";
 
 					/*Load the weights*/
 					if (header) {
 						if (counter < 7) {
 							/*Grab the header meta data for the agent*/
+#ifndef __PEN_MOBILE__
 							std::getline(modelFile, input);
+#else
+                            input = pen::ui::ReadLine(mobileFreeAgentFileStr, &fileOffset);
+                            if(input == "") {
+                                break;
+                            }
+#endif
 							if (counter == 0) epsilon = std::stof(pen::ai::Agent::Split(input, ':', 1));
 							if (counter == 1) discountValue = std::stof(pen::ai::Agent::Split(input, ':', 1));
 							if (counter == 2) stepSize = std::stof(pen::ai::Agent::Split(input, ':', 1));
@@ -437,7 +480,14 @@ namespace pen {
 							counter++;
 						}
 						else {
-							std::getline(modelFile, input);
+#ifndef __PEN_MOBILE__
+                            std::getline(modelFile, input);
+#else
+                            input = pen::ui::ReadLine(mobileFreeAgentFileStr, &fileOffset);
+                            if(input == "") {
+                                break;
+                            }
+#endif
 							mHat = new pen::Mat[numLayers - 1];
 							vHat = new pen::Mat[numLayers - 1];
 
@@ -454,7 +504,14 @@ namespace pen {
 						}
 					}
 					else {
-						std::getline(modelFile, input);
+#ifndef __PEN_MOBILE__
+                            std::getline(modelFile, input);
+#else
+                            input = pen::ui::ReadLine(mobileFreeAgentFileStr, &fileOffset);
+                        if(input == "") {
+                            break;
+                        }
+#endif
 
 						if (input == "----" || input == "====") continue;
 
@@ -476,9 +533,10 @@ namespace pen {
 
 						weightVector.push_back(weight);
 					}
-
 				}
+#ifndef __PEN_MOBILE__
 				modelFile.close();
+#endif
 
 				/*Set the weights in the agent*/
 				int weightCount = weightVector.size();

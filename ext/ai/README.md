@@ -20,6 +20,10 @@ For loading you have to have the Action** array already defined with actions pas
 You can save agents current learning by doing:
 
 	agent->Save(const std::string& path);
+ 
+If on mobile though you will have to save these files yourself, a textfile string is returned with the data:
+
+    std::string textFileData = agent->Save(const std::string& path);
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 

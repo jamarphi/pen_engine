@@ -47,10 +47,10 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 
 #ifndef __PEN_IOS__
     GLuint texRendererId = 0;
-        glGenTextures(1, (GLuint*)&texRendererId);
+    glGenTextures(1, (GLuint*)&texRendererId);
         
-        /*Assigns the new texture id to the slot*/
-        Texture::Get()->texSlots.Insert(slot, texRendererId);
+    /*Assigns the new texture id to the slot*/
+    Texture::Get()->texSlots.Insert(slot, texRendererId);
     
 	/*Bind the texture to a specific slot*/
 	glActiveTexture(GL_TEXTURE0 + slot);
@@ -84,7 +84,15 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 #ifndef __PEN_IOS__
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
 #else
-		Texture::InitializeIOSTexture(path, 2, slot);
+        tempPath = path;
+        if (tempPath[2] == '/' && tempPath[3] == '/') {
+            tempPath = tempPath.substr(4);
+        }
+        else if (tempPath[0] == '/') {
+            tempPath = tempPath.substr(1);
+        }
+        tempPath = pen::Asset::ParsePath(tempPath);
+		Texture::InitializeIOSTexture(tempPath, 2, slot);
 #endif
 	}
 }
@@ -161,20 +169,21 @@ void Texture::InitializeIOSTexture(const std::string& path, const unsigned int& 
 		for (int i = 0; i < texSize; i++) {
 			textureData[i] = 0xFF;
 		}
+        MapIOSInitializeTexture(texWidth, texHeight, type, texSlot, textureData);
 		break;
 	case 1:
 		/*The pixel buffer*/
 		texWidth = 1280;
 		texHeight = 720;
 		textureData = pen::State::Get()->pixelArray;
+        MapIOSInitializeTexture(texWidth, texHeight, type, texSlot, textureData);
 		break;
 	case 2:
 		/*Textures loaded from memory*/
+        MapIOSLoadTexture(path.c_str(), texSlot);
 		break;
 	default:
 		break;
 	}
-
-    MapIOSInitializeTexture(texWidth, texHeight, type, texSlot, textureData);
 }
 #endif

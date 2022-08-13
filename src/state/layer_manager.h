@@ -345,7 +345,6 @@ namespace pen {
 				if (mtlFile.is_open()) {
 #else
 				pen::Asset mobileMtl = pen::Asset::Load(tempPath, nullptr);
-				int lineOffset = 0;
 				if (mobileMtl.data != nullptr) {
 #endif
 					std::string material;

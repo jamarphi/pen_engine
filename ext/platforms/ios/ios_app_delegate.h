@@ -38,6 +38,8 @@ under the License.
     /*These methods are inherited from NSObject*/
     - (void) applicationWillFinishLaunching: (NSNotification*) pNotification;
     - (void) applicationDidFinishLaunching: (NSNotification*) pNotification;
+    - (void) applicationDidBecomeActive: (NSNotification*) pNotification;
+    - (void) applicationWillResignActive: (NSNotification*) pNotification;
 #ifndef TARGET_OS_IOS
     - (bool) applicationShouldTerminateAfterLastWindowClosed: (NSApplication*) pSender;
 #endif

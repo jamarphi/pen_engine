@@ -25,14 +25,7 @@ under the License.
 #ifdef __PEN_IOS__
 #import "ios_state.h"
 
-@class IOSVertexBuffer;
+@interface IOSBluetooth : NSObject
 
-@interface IOSVertexBuffer : NSObject
-
-    + (void) IOSVertexBufferInit:(unsigned int) layerId
-                     :(BatchVertexData*) data
-                     :(unsigned int) size;
-	+ (void) IOSVertexBufferDestroy: (unsigned int) layerId;
-+ (NSMutableDictionary*) IOSVertexBuffersGet;
 @end
 #endif

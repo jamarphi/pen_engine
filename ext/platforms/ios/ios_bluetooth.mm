@@ -18,21 +18,10 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#pragma once
 
-#include "../../../src/state/config.h"
+#include "ios_bluetooth.h"
 
 #ifdef __PEN_IOS__
-#import "ios_state.h"
-
-@class IOSVertexBuffer;
-
-@interface IOSVertexBuffer : NSObject
-
-    + (void) IOSVertexBufferInit:(unsigned int) layerId
-                     :(BatchVertexData*) data
-                     :(unsigned int) size;
-	+ (void) IOSVertexBufferDestroy: (unsigned int) layerId;
-+ (NSMutableDictionary*) IOSVertexBuffersGet;
+@implementation IOSBluetooth
 @end
 #endif

@@ -23,6 +23,8 @@ under the License.
 #include "replay_buffer.h"
 #include "../../src/ops/matrices/mat.h"
 #include "../../src/objects/containers/map.h"
+#include "../../src/state/config.h"
+#include "../../src/state/layer_manager.h"
 
 namespace pen {
 	namespace ai {
@@ -50,7 +52,11 @@ namespace pen {
 			void Init(pen::Mat* userInitialState);
 			void Init(pen::ai::Action** userActions, pen::ai::Weight* userWeights, pen::Mat* userInitialState, int userNumLayers, long userNumActions, int userNumEpisodes, float userEpsilon = 0.0001f, float userStepSize = 0.1f);
 			void Step(pen::Mat state, float reward);
+#ifndef __PEN_MOBILE__
 			void Save(const std::string& path);
+#else
+            std::string Save(const std::string& path);
+#endif
 			void Load(const std::string& path, pen::ai::Action** userActions, long userNumActions);
 			Weight* GetWeights();
 			int GetLayers();

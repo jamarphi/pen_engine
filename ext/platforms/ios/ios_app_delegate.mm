@@ -72,6 +72,7 @@ under the License.
     [inst.iosMtkView setColorPixelFormat: MTLPixelFormatBGRA8Unorm_sRGB];
 
 #ifndef TARGET_OS_IOS
+    inst.iosWindow = iosWindow;
     [iosWindow setContentView: inst.iosMtkView];
     [iosWindow setTitle: [NSString stringWithUTF8String:appName]];
     [iosWindow makeKeyAndOrderFront:nil];
@@ -90,6 +91,16 @@ under the License.
 #endif
     
     app->OnCreate();
+}
+
+- (void) applicationDidBecomeActive: (NSNotification*) pNotification{
+    /*Application has resumed*/
+    (*pen::State::Get()->mobileOnResumeCallback)();
+}
+
+- (void) applicationWillResignActive: (NSNotification*) pNotification{
+    /*Application has paused*/
+    (*pen::State::Get()->mobileOnPauseCallback)();
 }
 
 #ifndef TARGET_OS_IOS

@@ -163,17 +163,19 @@ namespace pen {
 		fileName = Asset::ParsePath(file);
 		fileRoot = fileName.substr(0, file.find(fileName));
 #else
+        /*File name gets parsed prior to loading for mobile since only the name of the file is needed*/
+        if (file[2] == '/' && file[3] == '/') {
+            file = file.substr(4);
+        }
+        else if (file[0] == '/') {
+            file = file.substr(1);
+        }
+        fileName = Asset::ParsePath(file);
+        fileRoot = file.substr(0, file.find(fileName));
 	#ifdef __PEN_ANDROID__
-		/*File name gets parsed prior to loading for android since only the name of the file is needed*/
-		if (file[2] == '/' && file[3] == '/') {
-			file = file.substr(4);
-		}
-		else if (file[0] == '/') {
-			file = file.substr(1);
-		}
-		fileName = Asset::ParsePath(file);
-		fileRoot = file.substr(0, file.find(fileName));
 		fileData = AndroidLoadAsset(pen::State::Get()->androidAssetManager, fileName.c_str(), &length);
+    #else
+        fileData = (char*)MapIOSLoadAsset(fileName.substr(0, fileName.find(".")).c_str(), fileName.substr(fileName.find(".") + 1).c_str());
 	#endif
 #endif
 		Asset asset = Asset();
@@ -187,14 +189,11 @@ namespace pen {
 		return asset;
 	}
 
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 	Asset* Asset::LoadMobileDir(std::string dirPath, int* assetCount, bool loadNow) {
 		/*Load in a sub directory in the android assets directory*/
 		std::vector<std::string> pathList = {};
-#ifdef __PEN_ANDROID__
 		pathList = AndroidLoadDir(pen::State::Get()->androidAssetManager, dirPath.c_str());
-#endif
-
 		Asset* assets = new Asset[pathList.size()];
 		*assetCount = pathList.size();
 		for (int i = 0; i < pathList.size(); i++) {

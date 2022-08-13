@@ -21,6 +21,7 @@ under the License.
 #pragma once
 #include "state.h"
 #include "../objects/containers/map.h"
+#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
 #ifdef __PEN_ANDROID__
 #include "../../ext/platforms/android/pen_engine_android/src/cpp/android_asset.h"
 #endif
@@ -47,7 +48,7 @@ namespace pen {
 		static std::string FindById(const unsigned int& queryId);
 		static unsigned int GetId(const std::string& name);
 		static Asset Load(std::string file, char* (*onLoad)(const char* path, long* fileLength) = nullptr);
-#ifdef __PEN_MOBILE__
+#ifdef __PEN_ANDROID__
 		static Asset* LoadMobileDir(std::string dirPath, int* assetCount, bool loadNow = true);
 #endif
 		static std::string ParsePath(std::string fileName);

@@ -58,6 +58,9 @@ under the License.
     @property id<MTLRenderCommandEncoder> iosCommandEncoder;
     @property id<MTLCommandBuffer> iosCommandBuffer;
     @property dispatch_semaphore_t dispatchSemaphore;
+#ifndef TARGET_OS_IOS
+    @property NSWindow* iosWindow;
+#endif
 
 + (IOSState*) Get;
 + (NSMutableArray*) GetTextures;
