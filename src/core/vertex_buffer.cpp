@@ -24,7 +24,7 @@ VertexBuffer::VertexBuffer() {
 	/*This constructor is used for declaring a VertexBuffer variable as a member variable of another class*/
 }
 
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
 	/*For static rendering*/
 	glGenBuffers(1, &rendererId);
@@ -34,13 +34,13 @@ VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
 #else
 VertexBuffer::VertexBuffer(unsigned int layerId, BatchVertexData* data, unsigned int size) {
 	/*For IOS Metal buffers*/
-    MapIOSVertexBufferInit(layerId, data, size);
+    MapMacIOSVertexBufferInit(layerId, data, size);
 }
 #endif
 
 VertexBuffer::VertexBuffer(unsigned int size) {
 	/*For dynamic rendering*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 	glGenBuffers(1, &rendererId);
 	glBindBuffer(GL_ARRAY_BUFFER, rendererId);
 	glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
@@ -53,19 +53,19 @@ VertexBuffer::~VertexBuffer() {
 
 void VertexBuffer::Bind() const {
 	/*Binds the vertex buffer for the layer that it is a part of*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 	glBindBuffer(GL_ARRAY_BUFFER, rendererId);
 #endif
 }
 
 void VertexBuffer::Unbind() const {
 	/*Unbinds the vertex buffer*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 #endif
 }
 
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 void VertexBuffer::Destroy() {
 	/*Removes the vertex buffer from memory on the GPU*/
 	glDeleteBuffers(1, &rendererId);
@@ -73,6 +73,6 @@ void VertexBuffer::Destroy() {
 #else
 void VertexBuffer::Destroy(unsigned int layerId) {
     /*Removes the vertex buffer from memory on the GPU*/
-    MapIOSVertexBufferDestroy(layerId);
+    MapMacIOSVertexBufferDestroy(layerId);
 }
 #endif

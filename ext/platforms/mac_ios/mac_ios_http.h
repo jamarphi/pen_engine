@@ -18,21 +18,14 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
+#pragma once
 
-#include "ios_manager.h"
+#include "../../../src/state/config.h"
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
+#import "mac_ios_state.h"
 
-#if TARGET_OS_SIMULATOR && (!defined(__IPHONE_13_0) ||  !defined(__TVOS_13_0))
-#error No simulator support for Metal API for this SDK version.
-#endif
+@interface IOSHttp : NSObject
 
-int main(int argc, char* argv[])
-{
-#ifndef TARGET_OS_IOS
-    return NSApplicationMain(argc, argv);
-#else
-    return UIApplicationMain(argc, argv, nil, @"PenIOSAppDelegate");
-#endif
-}
+@end
 #endif

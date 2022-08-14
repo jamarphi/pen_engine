@@ -23,18 +23,18 @@ under the License.
 
 namespace pen {
     /*Draw types based on which primitive shape is being used for a given layer*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
     int Renderer::drawType[7] = { GL_POINTS,GL_LINES,GL_TRIANGLES,GL_TRIANGLES,GL_TRIANGLES, GL_TRIANGLES, GL_TRIANGLES };
 #endif
 
     void Renderer::Clear() {
         /*Clears the buffer before rendering*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif
     }
 
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
     void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
         const bool& isInstanced, const unsigned int& instanceCount) {
         /*Draw a batched object to the screen
@@ -58,7 +58,7 @@ namespace pen {
         vb.Bind();
         ib.Bind();
         
-        MapIOSRender(shapeType, indexCount, layerId, instanceCount);
+        MapMacIOSRender(shapeType, indexCount, layerId, instanceCount);
     }
 #endif
 }

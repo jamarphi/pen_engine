@@ -22,13 +22,10 @@ under the License.
 
 #include "../../../src/state/config.h"
 
-#ifdef __PEN_IOS__
-#import "ios_state.h"
-#import "../../../src/ops/matrices/mat4x4.h"
+#ifdef __PEN_MAC_IOS__
+#import "mac_ios_state.h"
 
-@interface IOSShader : NSObject
+@interface IOSBluetooth : NSObject
 
-+ (void) IOSShaderInit: (const char*) shaderProgram;
-	+ (void) IOSUpdateInstanceUniform: (IOSInstanceData*) data;
 @end
 #endif

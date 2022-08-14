@@ -18,9 +18,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#include "ios_shader.h"
+#include "mac_ios_shader.h"
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 
 @implementation IOSShader
 + (void) IOSShaderInit: (const char*) shaderProgram {
@@ -70,12 +70,12 @@ under the License.
 }
 @end
 
-void MapIOSShaderInit(const char* shaderProgram){
+void MapMacIOSShaderInit(const char* shaderProgram){
     /*Creates a Metal shader*/
     [IOSShader IOSShaderInit:shaderProgram];
 }
 
-void MapIOSUpdateInstanceUniform(IOSInstanceData* data){
+void MapMacIOSUpdateInstanceUniform(IOSInstanceData* data){
     /*Updates the instanced offsets*/
     [IOSShader IOSUpdateInstanceUniform:data];
 }

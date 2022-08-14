@@ -27,7 +27,7 @@ under the License.
 #include "character.h"
 #include "../objects/containers/map.h"
 #include "../state/config.h"
-#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
+#include "../../ext/platforms/mac_ios/mac_ios_cpp_objective_c_mapping.h"
 
 #ifdef __PEN_CMAKE__
 #include <abs_asset_dir_config.h>
@@ -38,7 +38,7 @@ under the License.
 class Texture {
 	static Texture* instance;
 public:
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 	pen::Map<unsigned int, GLuint> texSlots;
 #endif
 	pen::Map<char, Character> characters;
@@ -55,7 +55,7 @@ public:
 	static void UpdatePixels();
 
 private:
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 	static void InitializeIOSTexture(const std::string& path, const unsigned int& type, const unsigned int& texSlot);
 #endif
 };

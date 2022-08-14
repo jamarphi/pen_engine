@@ -48,7 +48,7 @@ namespace pen {
 		VertexArray va;
 		VertexBuffer vb;
 		IndexBuffer ib;
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 		float batchVertices[MAX_OBJECTS * BATCH_VERTEX_ELEMENTS];
 #else
 		BatchVertexData batchVertices[MAX_OBJECTS];

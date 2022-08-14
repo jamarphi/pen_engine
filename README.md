@@ -423,6 +423,8 @@ You can use left arrow to pan the camera left, right arrow to pan right, up arro
 
 The W key is used to pan the camera forward and the S key is used to pan the camera backwards.
 
+Click can be used to rotate the camera around on Windows and Linux, the space bar is used for Mac.
+
 3D items can be transformed with:
 
     - pen::_3d::Scale(pen::Item3D* item, float sx, float sy, float sz);

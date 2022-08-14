@@ -20,16 +20,16 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "../state/config.h"
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 #include "../../dependencies/glad/glad.h"
 #endif
 #include "../core/vertex_array.h"
 #include "../core/index_buffer.h"
 #include "../core/shader.h"
-#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
+#include "../../ext/platforms/mac_ios/mac_ios_cpp_objective_c_mapping.h"
 
 namespace pen {
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 	struct BatchVertexData {
 		float vertex[3];
 		float color[4];
@@ -43,7 +43,7 @@ namespace pen {
 		static int drawType[7];
 	public:
 		static void Clear();
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 		static void Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
 			const bool& isInstanced, const unsigned int& instanceCount);
 #else

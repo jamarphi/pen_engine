@@ -29,6 +29,27 @@ under the License.
 #include "replay_buffer.h"
 #include "../../src/state/config.h"
 #include "../../src/state/layer_manager.h"
+#ifdef __PEN_MAC_IOS__
+#include <TargetConditionals.h>
+#endif
+
+/*__PEN_AI_AGENT_MOBILE__ is for IOS and Android*/
+/*
+ On mobile the text file will be returned as a string for the user to save it
+ to a server or their own custom database since android's asset directory is read only
+ and ios should be the same to keep things consistent
+ */
+#ifdef __APPLE__
+#ifdef TARGET_OS_IOS
+#define __PEN_AI_AGENT_MOBILE__
+#endif
+#endif
+
+#ifdef __PEN_ANDROID__
+#ifndef __PEN_AI_AGENT_MOBILE__
+#define __PEN_AI_AGENT_MOBILE__
+#endif
+#endif
 
 namespace pen {
 	namespace ai {

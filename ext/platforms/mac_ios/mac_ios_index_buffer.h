@@ -22,17 +22,15 @@ under the License.
 
 #include "../../../src/state/config.h"
 
-#ifdef __PEN_IOS__
-#import "ios_state.h"
+#ifdef __PEN_MAC_IOS__
+#import "mac_ios_state.h"
 
-@class IOSVertexBuffer;
+@interface IOSIndexBuffer : NSObject
 
-@interface IOSVertexBuffer : NSObject
-
-    + (void) IOSVertexBufferInit:(unsigned int) layerId
-                     :(BatchVertexData*) data
-                     :(unsigned int) size;
-	+ (void) IOSVertexBufferDestroy: (unsigned int) layerId;
-+ (NSMutableDictionary*) IOSVertexBuffersGet;
++ (void) IOSIndexBufferInit :(unsigned int) layerId
+                :(int*) data
+                :(unsigned int) count;
+	+ (void) IOSIndexBufferDestroy: (unsigned int) layerId;
++ (NSMutableDictionary*) IOSIndexBuffersGet;
 @end
 #endif

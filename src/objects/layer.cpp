@@ -41,7 +41,7 @@ namespace pen {
         /*Must be called after items are added to layer*/
         CombineBuffers();
 
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         VertexBuffer tempVb(sizeof(BatchVertexData) * MAX_OBJECTS);
 #else
         VertexBuffer tempVb(id, &batchVertices[0], sizeof(BatchVertexData) * MAX_OBJECTS);
@@ -63,7 +63,7 @@ namespace pen {
 
         vb.Bind();
         /*Adds the attribute layout to the vertex array object*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         va.AddBuffer(layout);
 #else
         va.AddBuffer(id);
@@ -72,7 +72,7 @@ namespace pen {
         InitializeIndices();
 
         /*Creates the index buffer to determine how vertices will be connected*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         IndexBuffer tempIb(batchIndices, RENDERER_INDICES_SIZE);
 #else
         IndexBuffer tempIb(id, batchIndices, RENDERER_INDICES_SIZE);
@@ -129,7 +129,7 @@ namespace pen {
         /*Combines the buffers of all the items associated with the layer*/
 
         /*Resets the vertices array before combining buffers*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         std::memset(batchVertices, 0, MAX_OBJECTS * BATCH_VERTEX_ELEMENTS);
 #endif
 
@@ -172,7 +172,7 @@ namespace pen {
             /*Some objects can have more than the just their own buffer data since they can have child items*/
             while (subItemCount < layerItems[i]->bufferPositions.size()) {
                 if (layerItems[i]->bufferPositions.size() - subItemCount < itemSize) {
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
                     for (int j = 0; j < layerItems[i]->bufferPositions.size() - subItemCount; j++) {
                         batchVertices[bufferOffset + j] = layerItems[i]->bufferPositions[subItemCount + j];
                     }
@@ -193,7 +193,7 @@ namespace pen {
 #endif
                 }
                 else {
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
                     for (int j = 0; j < itemSize; j++) {
                         batchVertices[bufferOffset + j] = layerItems[i]->bufferPositions[subItemCount + j];
                     }

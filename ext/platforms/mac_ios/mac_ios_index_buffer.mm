@@ -18,9 +18,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#include "ios_index_buffer.h"
+#include "mac_ios_index_buffer.h"
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 static NSMutableDictionary* iosIndexBuffers;
 
 @implementation IOSIndexBuffer
@@ -52,12 +52,12 @@ static NSMutableDictionary* iosIndexBuffers;
 }
 @end
 
-void MapIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count){
+void MapMacIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count){
     /*Creates an ios index buffer*/
     [IOSIndexBuffer IOSIndexBufferInit:layerId :data :count];
 }
 
-void MapIOSIndexBufferDestroy(unsigned int layerId){
+void MapMacIOSIndexBufferDestroy(unsigned int layerId){
     /*Removes buffer from GPU*/
     [IOSIndexBuffer IOSIndexBufferDestroy:layerId];
 }

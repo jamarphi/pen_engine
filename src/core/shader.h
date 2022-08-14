@@ -22,7 +22,7 @@ under the License.
 #include <cstring>
 #include <iostream>
 #include "../state/config.h"
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 #include "../../dependencies/glad/glad.h"
 #endif
 #include "../ops/vectors/vec2.h"
@@ -32,13 +32,13 @@ under the License.
 #include "../ops/matrices/mat2x4.h"
 #include "../objects/containers/map.h"
 #include "../state/state.h"
-#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
+#include "../../ext/platforms/mac_ios/mac_ios_cpp_objective_c_mapping.h"
 
 namespace pen {
 	class Shader {
 	public:
 		unsigned int rendererId;		
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         pen::Map<std::string, GLint> uniformLocationCache;
 #endif
 
@@ -107,7 +107,7 @@ namespace pen {
 			"FragColor = (texture(uTextures[index], texCoord) * color);\n"
 			"}\n\0";
 #else
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 		const char* shaderProgram =
 			"attribute vec3 position;\n"
 			"attribute vec4 inColor;\n"
@@ -276,7 +276,7 @@ namespace pen {
 					return outColor;
 				}
 			)";
-#endif /*__PEN_IOS__*/
+#endif /*__PEN_MAC_IOS__*/
 #endif /*__PEN_ES__*/
 
 
@@ -296,7 +296,7 @@ namespace pen {
 		void SetUniformMat4x4f(const std::string& name, const pen::Mat4x4& matrix);
 		void SetUniformMat2x4f(const std::string& name, pen::Mat2x4* matrix);
 		unsigned int CompileShader(unsigned int type, const std::string& source);
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 		GLint GetUniformLocation(const std::string& name);
 #endif
 		unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);

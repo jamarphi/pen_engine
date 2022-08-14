@@ -21,7 +21,7 @@ under the License.
 #pragma once
 #include "state.h"
 #include "../objects/containers/map.h"
-#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
+#include "../../ext/platforms/mac_ios/mac_ios_cpp_objective_c_mapping.h"
 #ifdef __PEN_ANDROID__
 #include "../../ext/platforms/android/pen_engine_android/src/cpp/android_asset.h"
 #endif

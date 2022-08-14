@@ -21,22 +21,38 @@ under the License.
 #pragma once
 #include "../../../src/state/config.h"
 
-#ifdef __PEN_IOS__
-#import "ios_state.h"
+#ifdef __PEN_MAC_IOS__
+#import "mac_ios_state.h"
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
-#import "ios_vertex_buffer.h"
-#import "ios_argument_buffer.h"
-#import "ios_index_buffer.h"
-#import "../../../src/state/state.h"
-#import "../../../src/ops/matrices/mat4x4.h"
+#import "mac_ios_vertex_buffer.h"
+#import "mac_ios_argument_buffer.h"
+#import "mac_ios_index_buffer.h"
+/*
+  This file is for the instantiation of Pen Engine by the user in order to include it's OnCreate function.
+  In the OnCreate function it is expected that pen::Pen::SetMobileCallbacks(); is called.
+*/
+#import "../../../../app.h"
 
 #define MVP_MATRIX_SIZE sizeof(float) * 16
 
 @interface PenMTKViewDelegate : MTKView
 
-    /*Virtual method inherited from MTKView*/
+    /*Virtual methods inherited from MTKView*/
     - (void) drawRect:(CGRect)rect;
+#ifndef TARGET_OS_IOS
+    - (BOOL)acceptsFirstResponder;
+    - (void)mouseDown:(NSEvent *)event;
+    - (void)mouseDragged:(NSEvent *)event;
+    - (void)mouseUp:(NSEvent *)event;
+    - (void)keyDown:(NSEvent *)event;
+    - (void)keyUp:(NSEvent *)event;
+    - (NSSize)windowWillResize:(NSWindow *)sender
+                    toSize:(NSSize)frameSize;
+#else
+    - (void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
+    - (void) touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
+#endif
 
     + (void) UpdateUniforms: (pen::Mat4x4) mvp;
     + (void) SubmitBatch: (id<MTLBuffer>) iosArgumentBuffer

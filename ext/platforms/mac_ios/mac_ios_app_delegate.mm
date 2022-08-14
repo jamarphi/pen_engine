@@ -18,9 +18,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#include "ios_app_delegate.h"
+#include "mac_ios_app_delegate.h"
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 
 @implementation PenIOSAppDelegate
 

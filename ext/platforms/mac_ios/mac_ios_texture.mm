@@ -18,9 +18,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#include "ios_texture.h"
+#include "mac_ios_texture.h"
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 @implementation IOSTexture
 + (void) IOSInitializeTexture: (unsigned int) texWidth :(unsigned int) texHeight :(unsigned int) type :(unsigned int) texSlot :(unsigned char*) textureData{
 	/*Initializes a Metal ios texture*/
@@ -72,17 +72,17 @@ under the License.
 }
 @end
 
-void MapIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData){
+void MapMacIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData){
     /*Initializes a Metal ios texture*/
     [IOSTexture IOSInitializeTexture:texWidth :texHeight :type :texSlot :textureData];
 }
 
-void MapIOSLoadTexture(const char* path, unsigned int texSlot){
+void MapMacIOSLoadTexture(const char* path, unsigned int texSlot){
     /*Loads a Metal ios texture*/
     [IOSTexture IOSLoadTexture:path :texSlot];
 }
 
-void MapIOSUpdatePixels(){
+void MapMacIOSUpdatePixels(){
     /*Updates the ios pixel buffer*/
     [IOSTexture IOSUpdatePixels];
 }

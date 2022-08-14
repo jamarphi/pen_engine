@@ -22,10 +22,19 @@ under the License.
 
 #include "../../../src/state/config.h"
 
-#ifdef __PEN_IOS__
-#import "ios_state.h"
+#ifdef __PEN_MAC_IOS__
+#import "../../../src/state/state.h"
+#import "mac_ios_state.h"
 
-@interface IOSDatabase : NSObject
+@interface IOSTexture : NSObject
 
+    + (void) IOSInitializeTexture: (unsigned int) texWidth
+                         :(unsigned int) texHeight
+                         :(unsigned int) type
+                         :(unsigned int) texSlot
+                         :(unsigned char*) textureData;
+    + (void) IOSLoadTexture: (const char*) path
+                       : (unsigned int) texSlot;
+	+ (void) IOSUpdatePixels;
 @end
 #endif

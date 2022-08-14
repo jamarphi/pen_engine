@@ -28,12 +28,12 @@ under the License.
 /*For Android*/
 //#define __PEN_ANDROID__
 
-/*For IOS*/
-//#define __PEN_IOS__
+/*For Mac and IOS*/
+//#define __PEN_MAC_IOS__
 
 #ifdef __APPLE__
-#ifndef __PEN_IOS__
-#define __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
+#define __PEN_MAC_IOS__
 #endif
 #endif
 
@@ -41,7 +41,7 @@ under the License.
 #define __PEN_MOBILE__
 #endif
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 #ifndef __PEN_ANDROID__
 #define __PEN_MOBILE__
 #endif

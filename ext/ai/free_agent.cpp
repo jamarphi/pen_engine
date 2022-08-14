@@ -369,14 +369,14 @@ namespace pen {
 
             /*Each weight has data for a specific layer*/
             bool header = true;
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_FREE_AGENT_MOBILE__
             std::ofstream modelFile;
 			modelFile.open(tempPath);
 			if (modelFile.is_open()) {
 #endif
 
 				while (writing) {
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_FREE_AGENT_MOBILE__
                     input = "";
 #endif
 					/*Write a weight*/
@@ -386,7 +386,7 @@ namespace pen {
 							+ "\nnum actions:" + std::to_string(numActions)
 							+ "\nnum episodes:" + std::to_string(numEpisodes) + "\nnum layers:" + std::to_string(numLayers) + "\nnum state params:" + std::to_string(numStateParams)
 							+ "\n[m hat weights]^[m hat biases]^[v hat weights]^[v hat biases]");
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_FREE_AGENT_MOBILE__
                         modelFile << input;
 #endif
 
@@ -400,14 +400,14 @@ namespace pen {
 							}
 						}
 						input += ("\n====\nnum prev layer nodes/num current layer nodes/[weights]/[weight gradients]/[bias]/[bias gradients]/length\n");
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_FREE_AGENT_MOBILE__
                         modelFile << input;
 #endif
 						header = false;
 					}
 					else {
 						for (int i = 0; i < numLayers; i++) {
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_FREE_AGENT_MOBILE__
 							input = "";
 #endif
 							input += (std::to_string(weights[i].numPrevLayerNodes) + "/" + std::to_string(weights[i].numCurrLayerNodes)
@@ -415,19 +415,19 @@ namespace pen {
 								+ FormatMatrix(weights[i].weightGrads, ',') + "]/[" + FormatMatrix(weights[i].bias, ',') + "]/[" + FormatMatrix(weights[i].biasGrads, ',') + "]");
 
                             input += ("\n----\n");
-    #ifndef __PEN_MOBILE__
+    #ifndef __PEN_AI_FREE_AGENT_MOBILE__
                             modelFile << input;
     #endif
 						}
 
 						writing = false;
                         input += ("\n----\n");
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_FREE_AGENT_MOBILE__
                         modelFile << input;
 #endif
 					}
 				}
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_FREE_AGENT_MOBILE__
 				modelFile.close();
 			}
 #else

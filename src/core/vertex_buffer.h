@@ -20,10 +20,10 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "../state/config.h"
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 #include "../../dependencies/glad/glad.h"
 #endif
-#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
+#include "../../ext/platforms/mac_ios/mac_ios_cpp_objective_c_mapping.h"
 #include <iostream>
 
 class VertexBuffer {
@@ -32,7 +32,7 @@ private:
 public:
 	VertexBuffer();
 	/*Regular buffer constructor*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 	VertexBuffer(const void* data, unsigned int size);
     void Destroy();
 #else

@@ -18,10 +18,11 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
+#pragma once
 
-#include "ios_database.h"
+#include "../../../src/state/config.h"
+#ifdef __PEN_MAC_IOS__
+#import "mac_ios_view_delegate.h"
+#import "mac_ios_app_delegate.h"
 
-#ifdef __PEN_IOS__
-@implementation IOSDatabase
-@end
 #endif

@@ -19,9 +19,9 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 
-#include "ios_vertex_buffer.h"
+#include "mac_ios_vertex_buffer.h"
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 static NSMutableDictionary* iosVertexBuffers;
 
 @implementation IOSVertexBuffer
@@ -55,12 +55,12 @@ static NSMutableDictionary* iosVertexBuffers;
 }
 @end
 
-void MapIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size){
+void MapMacIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size){
     /*Creates a vertex buffer for a specific layer*/
     [IOSVertexBuffer IOSVertexBufferInit :layerId :data :size];
 }
 
-void MapIOSVertexBufferDestroy(unsigned int layerId){
+void MapMacIOSVertexBufferDestroy(unsigned int layerId){
     /*Removes the buffer from the GPU*/
     [IOSVertexBuffer IOSVertexBufferDestroy:layerId];
 }

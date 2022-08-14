@@ -25,10 +25,10 @@ namespace pen {
 
     void Render::Background(pen::Vec4 color) {
         /*Sets the background color for the window*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         glClearColor(color.x, color.y, color.z, color.w);
 #else
-        MapIOSBackground(color.x, color.y, color.z, color.w);
+        MapMacIOSBackground(color.x, color.y, color.z, color.w);
 #endif
     }
 
@@ -68,19 +68,19 @@ namespace pen {
         /*This model view projection matrix is used for transformations of a given layer*/
         pen::Mat4x4 mvp = (layer->model * (layer->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (layer->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
 
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         shader.SetUniformMat4x4f("uMVP", mvp);
 #else
-        MapIOSUpdateUniforms(mvp);
+        MapMacIOSUpdateUniforms(mvp);
 #endif
 
         /*Binds the vertex buffer of a given layer and updates the GPU with the buffer data*/
         layer->vb.Bind();
         if (pen::State::Get()->updateBatch) {
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(layer->batchVertices), layer->batchVertices);
 #else
-            MapIOSSubmitBatch(layer->id, layer->batchVertices, sizeof(layer->batchVertices), mvp);
+            MapMacIOSSubmitBatch(layer->id, layer->batchVertices, sizeof(layer->batchVertices), mvp);
 
 #endif
             if (pen::State::Get()->firstUpdateFrame) {
@@ -91,7 +91,7 @@ namespace pen {
             }
         }
 
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         pen::Renderer::Draw(layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
 #else
         pen::Renderer::Draw(layer->id, layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
@@ -126,7 +126,7 @@ namespace pen {
         /*Update the uniforms for the instanced shader*/
         pen::Render* render = pen::Render::Get();
         int vecCount = layer->instancedDataList.size() > 400 ? 400 : layer->instancedDataList.size();
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         for (int i = 0; i < vecCount; i++) {
             render->instancedShader.SetUniform3f("uInstancedOffsets[" + std::to_string(i) + "]", layer->instancedDataList[i]);
         }
@@ -137,7 +137,7 @@ namespace pen {
             instanceData[i].uInstancedOffsets.y = layer->instancedDataList[i]->y;
             instanceData[i].uInstancedOffsets.z = layer->instancedDataList[i]->z;
         }
-        MapIOSUpdateInstanceUniform(instanceData);
+        MapMacIOSUpdateInstanceUniform(instanceData);
 #endif
     }
 }

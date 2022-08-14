@@ -25,7 +25,7 @@ Texture* Texture::instance = nullptr;
 void Texture::Initialize(const std::string& path, const unsigned int slot) {
 	/*Regular textures*/
 	/*Removes the previous texture that occupied this slot*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 	Destroy(Texture::Get()->texSlots.Find(slot)->second);
 #endif
 
@@ -45,7 +45,7 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 	uint32_t color = 0xffffffff;
 	unsigned char* localBuffer = (path.compare("default") != 0) ? stbi_load(tempPath.c_str(), &texWidth, &texHeight, &texBPP, 4) : nullptr;
 
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
     GLuint texRendererId = 0;
     glGenTextures(1, (GLuint*)&texRendererId);
         
@@ -65,7 +65,7 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 
 	if (path.compare("default") == 0) {
 		/*Uses the color white to load a blank texture that can be turned into any color*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
 #else
 		Texture::InitializeIOSTexture(path, 0, slot);
@@ -73,7 +73,7 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 	}
 	else if (path.compare("pixel") == 0) {
 		/*Uses a buffer of color values to draw quad-like pixels to the screen*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, pen::State::Get()->pixelArray);
 #else
 		Texture::InitializeIOSTexture(path, 1, slot);
@@ -81,7 +81,7 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 	}
 	else {
 		/*Uses the buffer data loaded to create a texture*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
 #else
         tempPath = path;
@@ -99,7 +99,7 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 
 void Texture::Destroy(unsigned int texRendererId) {
 	/*Removes a texture from memory on the GPU*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 	glDeleteTextures(1, &texRendererId);
 #endif
 }
@@ -139,18 +139,18 @@ void Texture::UpdatePixels() {
 #ifndef __PEN_ANDROID__
 	if (pen::State::Get()->pixelDrawn) {
 		pen::State::Get()->pixelDrawn = false;
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 		glActiveTexture(GL_TEXTURE0 + 2);
 		glBindTexture(GL_TEXTURE_2D, Texture::Get()->texSlots.Find(2)->second);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 1280, 720, GL_RGBA, GL_UNSIGNED_BYTE, pen::State::Get()->pixelArray);
 #else
-        MapIOSUpdatePixels();
+        MapMacIOSUpdatePixels();
 #endif
 	}
 #endif
 }
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 void Texture::InitializeIOSTexture(const std::string& path, const unsigned int& type, const unsigned int& texSlot) {
 	/*Initialize textures for Metal*/
 	uint32_t texWidth = 0;
@@ -169,18 +169,18 @@ void Texture::InitializeIOSTexture(const std::string& path, const unsigned int& 
 		for (int i = 0; i < texSize; i++) {
 			textureData[i] = 0xFF;
 		}
-        MapIOSInitializeTexture(texWidth, texHeight, type, texSlot, textureData);
+        MapMacIOSInitializeTexture(texWidth, texHeight, type, texSlot, textureData);
 		break;
 	case 1:
 		/*The pixel buffer*/
 		texWidth = 1280;
 		texHeight = 720;
 		textureData = pen::State::Get()->pixelArray;
-        MapIOSInitializeTexture(texWidth, texHeight, type, texSlot, textureData);
+        MapMacIOSInitializeTexture(texWidth, texHeight, type, texSlot, textureData);
 		break;
 	case 2:
 		/*Textures loaded from memory*/
-        MapIOSLoadTexture(path.c_str(), texSlot);
+        MapMacIOSLoadTexture(path.c_str(), texSlot);
 		break;
 	default:
 		break;

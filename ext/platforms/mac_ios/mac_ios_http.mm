@@ -18,19 +18,10 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#pragma once
 
-#include "../../../src/state/config.h"
+#include "mac_ios_http.h"
 
-#ifdef __PEN_IOS__
-#import "ios_state.h"
-#import "ios_vertex_buffer.h"
-
-@interface IOSArgumentBuffer : NSObject
-
-+ (void) IOSArgumentBufferInit: (unsigned int) layerId :(id<MTLBuffer>) dataBuffer;
-	+ (void) IOSArgumentBufferBind: (unsigned int) layerId;
-	+ (void) IOSArgumentBufferDestroy: (unsigned int) layerId;
-+ (NSMutableDictionary*) IOSArgumentBuffersGet;
+#ifdef __PEN_MAC_IOS__
+@implementation IOSHttp
 @end
 #endif

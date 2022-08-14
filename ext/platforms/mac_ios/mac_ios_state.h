@@ -22,7 +22,7 @@ under the License.
 
 #include "../../../src/state/config.h"
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 #import <TargetConditionals.h>
 #ifdef TARGET_IPHONE_SIMULATOR
 #import <UIKit/UIKit.h>
@@ -39,7 +39,7 @@ under the License.
 #import <QuartzCore/QuartzCore.h>
 #import <MetalKit/MetalKit.h>
 #import <simd/simd.h>
-#import "ios_cpp_objective_c_mapping.h"
+#import "mac_ios_cpp_objective_c_mapping.h"
 
 @class IOSState;
 

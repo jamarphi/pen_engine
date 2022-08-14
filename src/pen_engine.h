@@ -23,7 +23,7 @@ under the License.
 #include<stdio.h>
 #include<stdlib.h>
 #include "state/config.h"
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 #include "../dependencies/glad/glad.h"
 #endif
 #ifndef __PEN_MOBILE__
@@ -61,6 +61,9 @@ under the License.
 #include "../ext/platforms/android/pen_engine_android/src/cpp/android_bluetooth.h"
 #include "../ext/platforms/android/pen_engine_android/src/cpp/android_http.h"
 #include "../ext/platforms/android/pen_engine_android/src/cpp/android_socket.h"
+#ifdef __PEN_MAC_IOS__
+#include <TargetConditionals.h>
+#endif
 #include "../ext/ai/agent.h"
 #include "../ext/ai/free_agent.h"
 #include "../ext/misc/tile_map/tile_map.h"
@@ -213,16 +216,18 @@ namespace pen {
         static int KeyState(int key);
 #endif
 
-#ifndef __PEN_MOBILE__
         static void HandleGUIClickEvents(bool choice, bool (*userClickCatchAll)());
-#endif
 
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_ANDROID__
+#ifndef TARGET_OS_IOS
         static void HandleGUIDragEvents(bool choice);
 #endif
+#endif
 
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_ANDROID__
+#ifndef TARGET_OS_IOS
         static void HandleGUIKeyEvents(bool choice);
+#endif
 #endif
 
         static bool HandleClick(pen::ui::Item* item, double* xPos, double* yPos, const int& button, const int& action);

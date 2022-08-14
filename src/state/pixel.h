@@ -23,7 +23,7 @@ under the License.
 #include "layer_manager.h"
 #include "../ops/matrices/mat3x3.h"
 #include "../ops/operations/operations.h"
-#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
+#include "../../ext/platforms/mac_ios/mac_ios_cpp_objective_c_mapping.h"
 
 #ifdef __PEN_ANDROID__
 #include "../../ext/platforms/android/pen_engine_android/src/cpp/android_pixel.h"
@@ -643,10 +643,10 @@ namespace pen {
 			spriteData = AndroidLoadSprite(mobileFileName.c_str(), texWidth, texHeight);
     #else
             /*
-             MapIOSLoadAsset is called directly so a pen::Asset is not created since the pixel
+             MapMacIOSLoadAsset is called directly so a pen::Asset is not created since the pixel
              buffer uses sprites loaded in memory rather than on the GPU as textures
              */
-            spriteData = (unsigned char*) MapIOSLoadAsset(mobileFileName.substr(0, mobileFileName.find(".")).c_str(), mobileFileName.substr(mobileFileName.find(".") + 1).c_str());
+            spriteData = (unsigned char*) MapMacIOSLoadAsset(mobileFileName.substr(0, mobileFileName.find(".")).c_str(), mobileFileName.substr(mobileFileName.find(".") + 1).c_str());
 	#endif
             texBPP = 4;
 #endif

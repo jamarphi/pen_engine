@@ -18,24 +18,14 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
+#pragma once
 
-#include "ios_util.h"
+#include "../../../src/state/config.h"
 
-#ifdef __PEN_IOS__
-@implementation IOSUtil
-+ (const char*) IOSLoadAsset:(const char*) path :(const char*) mimeType {
-    /*Loads in an asset*/
-    const char* file;
-    NSBundle* main = [NSBundle mainBundle];
-    NSString* resourcePath = [main pathForResource:[NSString stringWithUTF8String:path] ofType:[NSString stringWithUTF8String:mimeType]];
-    NSString* data = [NSString stringWithContentsOfFile:resourcePath encoding:NSUTF8StringEncoding error:nil];
-    file = [data UTF8String];
-    return file;
-}
+#ifdef __PEN_MAC_IOS__
+#import "mac_ios_state.h"
+
+@interface IOSUtil : NSObject
++ (const char*) IOSLoadAsset:(const char*) path :(const char*) mimeType;
 @end
-
-const char* MapIOSLoadAsset(const char* path, const char* mimeType){
-    /*Loads in an asset*/
-    return [IOSUtil IOSLoadAsset:path :mimeType];
-}
 #endif

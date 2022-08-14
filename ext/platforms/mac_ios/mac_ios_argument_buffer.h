@@ -22,10 +22,15 @@ under the License.
 
 #include "../../../src/state/config.h"
 
-#ifdef __PEN_IOS__
-#import "ios_state.h"
+#ifdef __PEN_MAC_IOS__
+#import "mac_ios_state.h"
+#import "mac_ios_vertex_buffer.h"
 
-@interface IOSUtil : NSObject
-+ (const char*) IOSLoadAsset:(const char*) path :(const char*) mimeType;
+@interface IOSArgumentBuffer : NSObject
+
++ (void) IOSArgumentBufferInit: (unsigned int) layerId :(id<MTLBuffer>) dataBuffer;
+	+ (void) IOSArgumentBufferBind: (unsigned int) layerId;
+	+ (void) IOSArgumentBufferDestroy: (unsigned int) layerId;
++ (NSMutableDictionary*) IOSArgumentBuffersGet;
 @end
 #endif

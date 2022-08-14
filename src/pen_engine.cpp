@@ -48,7 +48,7 @@ namespace pen {
 
         /*__APPLE__ is a glfw macro*/
 #ifdef __APPLE__
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         glfwWindowHint(glfw_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 #endif
@@ -83,7 +83,7 @@ namespace pen {
 #endif
 
         /*Enables blending for textures*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #endif
@@ -100,7 +100,7 @@ namespace pen {
         stateInst->debug = debug;
 
         /*Get the allowed number of textures*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         int textureUnits = 0;
         glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &textureUnits);
         stateInst->textureUnits = textureUnits / 6;
@@ -138,7 +138,7 @@ namespace pen {
         This disables the byte alignment restriction so the text can use 1 bit for grayscale colors instead of the required
         4 bits.
         */
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 #endif
         pen::State::Get()->LoadCharacters();
@@ -307,7 +307,7 @@ namespace pen {
 #endif
 
     void Pen::EnableDepthTesting(bool choice) {
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         if (choice) {
             glEnable(GL_DEPTH_TEST);
         }
@@ -535,22 +535,31 @@ namespace pen {
         bool eventHandled = false;
 
         pen::State* inst = pen::State::Get();
-        if (inst->handleGUIClickEvents) {
-            int layerCounter = pen::ui::LM::layers.size() - 1;
-            for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-                if (pen::ui::LM::layers[layerCounter - i]->isFixed) {
-                    /*Only loop through layers that have GUI components*/
-                    int counter = pen::ui::LM::layers[layerCounter - i]->layerItems.size() - 1;
-                    for (int j = 0; j < pen::ui::LM::layers[layerCounter - i]->layerItems.size(); j++) {
-                        if (pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j]->isUI) {
-                            eventHandled = Pen::HandleClick(pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j], xPos, yPos, button, action);
-                            if (eventHandled) break;
+        if (inst->handleGUIClickEvents || inst->handleCameraInput) {
+            bool cameraHandled = false;
+#ifndef __PEN_ANDROID__
+#ifndef TARGET_OS_IOS
+            /*Handles camera input for Mac*/
+            cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::SPACE, action);
+#endif
+#endif
+            if (!cameraHandled){
+                int layerCounter = pen::ui::LM::layers.size() - 1;
+                for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+                    if (pen::ui::LM::layers[layerCounter - i]->isFixed) {
+                        /*Only loop through layers that have GUI components*/
+                        int counter = pen::ui::LM::layers[layerCounter - i]->layerItems.size() - 1;
+                        for (int j = 0; j < pen::ui::LM::layers[layerCounter - i]->layerItems.size(); j++) {
+                            if (pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j]->isUI) {
+                                eventHandled = Pen::HandleClick(pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j], xPos, yPos, button, action);
+                                if (eventHandled) break;
+                            }
                         }
-                    }
 
-                    if (!eventHandled && pen::Pen::Get()->clickCatchAll != nullptr) {
-                        (*pen::Pen::Get()->clickCatchAll)();
-                        eventHandled = true;
+                        if (!eventHandled && pen::Pen::Get()->clickCatchAll != nullptr) {
+                            (*pen::Pen::Get()->clickCatchAll)();
+                            eventHandled = true;
+                        }
                     }
                 }
             }

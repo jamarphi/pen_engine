@@ -19,13 +19,24 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
-
 #include "../../../src/state/config.h"
 
-#ifdef __PEN_IOS__
-#import "ios_state.h"
+#ifdef __PEN_MAC_IOS__
+#import "mac_ios_view_delegate.h"
+#import "mac_ios_vertex_buffer.h"
+#import "mac_ios_argument_buffer.h"
+#import "mac_ios_index_buffer.h"
+#import "mac_ios_shader.h"
 
-@interface IOSHttp : NSObject
+@interface PenIOSAppDelegate : NSObject
 
+    /*These methods are inherited from NSObject*/
+    - (void) applicationWillFinishLaunching: (NSNotification*) pNotification;
+    - (void) applicationDidFinishLaunching: (NSNotification*) pNotification;
+    - (void) applicationDidBecomeActive: (NSNotification*) pNotification;
+    - (void) applicationWillResignActive: (NSNotification*) pNotification;
+#ifndef TARGET_OS_IOS
+    - (bool) applicationShouldTerminateAfterLastWindowClosed: (NSApplication*) pSender;
+#endif
 @end
 #endif

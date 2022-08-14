@@ -18,11 +18,10 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#pragma once
 
-#include "../../../src/state/config.h"
-#ifdef __PEN_IOS__
-#import "ios_view_delegate.h"
-#import "ios_app_delegate.h"
+#include "mac_ios_bluetooth.h"
 
+#ifdef __PEN_MAC_IOS__
+@implementation IOSBluetooth
+@end
 #endif

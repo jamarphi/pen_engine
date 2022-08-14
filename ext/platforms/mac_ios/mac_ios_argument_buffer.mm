@@ -18,9 +18,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#include "ios_argument_buffer.h"
+#include "mac_ios_argument_buffer.h"
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 static NSMutableDictionary* iosArgumentBuffers;
 
 @implementation IOSArgumentBuffer
@@ -60,18 +60,18 @@ static NSMutableDictionary* iosArgumentBuffers;
 }
 @end
 
-void MapIOSArgumentBufferInit(unsigned int layerId){
+void MapMacIOSArgumentBufferInit(unsigned int layerId){
     /*Creates an ios argument buffer for formatting vertex data*/
     NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
     [IOSArgumentBuffer IOSArgumentBufferInit:layerId :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]];
 }
 
-void MapIOSArgumentBufferBind(unsigned int layerId){
+void MapMacIOSArgumentBufferBind(unsigned int layerId){
     /*Binds the ios argument buffer*/
     [IOSArgumentBuffer IOSArgumentBufferBind:layerId];
 }
 
-void MapIOSArgumentBufferDestroy(unsigned int layerId){
+void MapMacIOSArgumentBufferDestroy(unsigned int layerId){
     /*Removes the buffer from the GPU*/
     [IOSArgumentBuffer IOSArgumentBufferDestroy:layerId];
 }

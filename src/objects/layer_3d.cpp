@@ -57,7 +57,7 @@ namespace pen {
 
     void Layer3D::CombineBuffers() {
         /*Resets the vertices array before combining buffers*/
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
         std::memset(batchVertices, 0, MAX_OBJECTS * BATCH_VERTEX_ELEMENTS);
 #endif
 
@@ -82,7 +82,7 @@ namespace pen {
                 }
 
                 if (layerItems[i]->bufferPositions.size() - subItemCount < itemSize) {
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
                     for (int j = 0; j < layerItems[i]->bufferPositions.size() - subItemCount; j++) {
                         batchVertices[bufferOffset + j] = layerItems[i]->bufferPositions[subItemCount + j];
                     }
@@ -103,7 +103,7 @@ namespace pen {
 #endif
                 }
                 else {
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
                     for (int j = 0; j < itemSize; j++) {
                         batchVertices[bufferOffset + j] = layerItems[i]->bufferPositions[subItemCount + j];
                     }

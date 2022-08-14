@@ -18,10 +18,17 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
+#pragma once
 
-#include "ios_bluetooth.h"
+#include "../../../src/state/config.h"
 
-#ifdef __PEN_IOS__
-@implementation IOSBluetooth
+#ifdef __PEN_MAC_IOS__
+#import "mac_ios_state.h"
+#import "../../../src/ops/matrices/mat4x4.h"
+
+@interface IOSShader : NSObject
+
++ (void) IOSShaderInit: (const char*) shaderProgram;
+	+ (void) IOSUpdateInstanceUniform: (IOSInstanceData*) data;
 @end
 #endif

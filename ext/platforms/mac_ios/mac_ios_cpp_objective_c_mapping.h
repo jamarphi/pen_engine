@@ -22,14 +22,14 @@ under the License.
 
 #include "../../../src/ops/matrices/mat4x4.h"
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 #import <simd/simd.h>
 #endif
 
 extern "C" {
 
     /*BatchVertexData already defined in renderer.h*/
-    #ifdef __PEN_IOS__
+    #ifdef __PEN_MAC_IOS__
     struct BatchVertexData {
         simd::float3 vertex;
         simd::float4 color;
@@ -47,40 +47,40 @@ extern "C" {
     };
 
     /*----ios_view_delegate----*/
-    void MapIOSUpdateUniforms(pen::Mat4x4 mvp);
-    void MapIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp);
-    void MapIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount);
-    void MapIOSBackground(float r, float g, float b, float a);
+    void MapMacIOSUpdateUniforms(pen::Mat4x4 mvp);
+    void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp);
+    void MapMacIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount);
+    void MapMacIOSBackground(float r, float g, float b, float a);
     /*----ios_view_delegate----*/
 
     /*----ios_vertex_buffer----*/
-    void MapIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size);
-    void MapIOSVertexBufferDestroy(unsigned int layerId);
+    void MapMacIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size);
+    void MapMacIOSVertexBufferDestroy(unsigned int layerId);
     /*----ios_vertex_buffer----*/
 
     /*----ios_argument_buffer----*/
-    void MapIOSArgumentBufferInit(unsigned int layerId);
-    void MapIOSArgumentBufferBind(unsigned int layerId);
-    void MapIOSArgumentBufferDestroy(unsigned int layerId);
+    void MapMacIOSArgumentBufferInit(unsigned int layerId);
+    void MapMacIOSArgumentBufferBind(unsigned int layerId);
+    void MapMacIOSArgumentBufferDestroy(unsigned int layerId);
     /*----ios_argument_buffer----*/
 
     /*----ios_index_buffer----*/
-    void MapIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count);
-    void MapIOSIndexBufferDestroy(unsigned int layerId);
+    void MapMacIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count);
+    void MapMacIOSIndexBufferDestroy(unsigned int layerId);
     /*----ios_index_buffer----*/
 
     /*----ios_shader----*/
-    void MapIOSShaderInit(const char* shaderProgram);
-    void MapIOSUpdateInstanceUniform(IOSInstanceData* data);
+    void MapMacIOSShaderInit(const char* shaderProgram);
+    void MapMacIOSUpdateInstanceUniform(IOSInstanceData* data);
     /*----ios_shader----*/
 
     /*----ios_texture----*/
-    void MapIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData);
-    void MapIOSLoadTexture(const char* path, unsigned int texSlot);
-    void MapIOSUpdatePixels();
+    void MapMacIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData);
+    void MapMacIOSLoadTexture(const char* path, unsigned int texSlot);
+    void MapMacIOSUpdatePixels();
     /*----ios_texture----*/
 
     /*----ios_util----*/
-    const char* MapIOSLoadAsset(const char* path, const char* mimeType);
+    const char* MapMacIOSLoadAsset(const char* path, const char* mimeType);
     /*----ios_util----*/
 };

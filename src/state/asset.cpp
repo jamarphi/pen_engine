@@ -175,7 +175,7 @@ namespace pen {
 	#ifdef __PEN_ANDROID__
 		fileData = AndroidLoadAsset(pen::State::Get()->androidAssetManager, fileName.c_str(), &length);
     #else
-        fileData = (char*)MapIOSLoadAsset(fileName.substr(0, fileName.find(".")).c_str(), fileName.substr(fileName.find(".") + 1).c_str());
+        fileData = (char*)MapMacIOSLoadAsset(fileName.substr(0, fileName.find(".")).c_str(), fileName.substr(fileName.find(".") + 1).c_str());
 	#endif
 #endif
 		Asset asset = Asset();

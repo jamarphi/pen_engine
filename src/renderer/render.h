@@ -30,7 +30,7 @@ under the License.
 #include "../ops/matrices/mat4x4.h"
 #include "../ops/operations/operations.h"
 #include "camera.h"
-#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
+#include "../../ext/platforms/mac_ios/mac_ios_cpp_objective_c_mapping.h"
 
 namespace pen {
 	class Render {

@@ -21,7 +21,7 @@ under the License.
 #pragma once
 #include <vector>
 #include "../state/config.h"
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 #include "../../dependencies/glad/glad.h"
 #endif
 

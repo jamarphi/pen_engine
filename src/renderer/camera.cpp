@@ -45,11 +45,11 @@ namespace pen {
 		}
 	}
 
+#ifndef __PEN_MOBILE__
 	bool Camera::HandleInput(void* cameraWindow) {
 		/*Orient the view based on user input*/
 		if (!pen::State::Get()->handleCameraInput) return false;
 
-#ifndef __PEN_MOBILE__
 		glfwwindow* window = (glfwwindow*)cameraWindow;
 		if (glfwGetKey(window, pen::in::KEYS::UP) == pen::in::PRESSED
 			|| glfwGetMouseButton(window, pen::in::KEYS::UP) == pen::in::HELD) {
@@ -132,7 +132,81 @@ namespace pen {
 			glfwSetInputMode(window, glfw_CURSOR, glfw_CURSOR_NORMAL);
 			firstDrag = true;
 		}
-#endif
 		return true;
 	}
+#else
+    bool Camera::HandleInput(int key, int action) {
+        /*Orient the view based on user input for Mac*/
+        if (!pen::State::Get()->handleCameraInput) return false;
+
+        if (key == pen::in::KEYS::UP && action == pen::in::KEYS::PRESSED) {
+            /*Up*/
+            cameraPosition += (at * cameraSpeed);
+            firstMove = false;
+        }
+
+        if (key == pen::in::KEYS::DOWN && action == pen::in::KEYS::PRESSED) {
+            /*Down*/
+            cameraPosition += (at * -1.0f * cameraSpeed);
+            firstMove = false;
+        }
+
+        if (key == pen::in::KEYS::W && action == pen::in::KEYS::PRESSED) {
+            /*Forward*/
+            for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+                if (pen::ui::LM::layers.at(i)->is3D) pen::ui::LM::layers.at(i)->translation.z -= 0.1f;
+            }
+            firstMove = false;
+        }
+
+        if (key == pen::in::KEYS::S && action == pen::in::KEYS::PRESSED) {
+            /*Backward*/
+            for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+                if (pen::ui::LM::layers.at(i)->is3D) pen::ui::LM::layers.at(i)->translation.z += 0.1f;
+            }
+            firstMove = false;
+        }
+
+        if (key == pen::in::KEYS::LEFT && action == pen::in::KEYS::PRESSED) {
+            /*Left*/
+            cameraPosition += ((pen::op::CrossProduct(viewOrientation, at).Normalize()) * -1.0f * cameraSpeed);
+            firstMove = false;
+        }
+
+        if (key == pen::in::KEYS::RIGHT && action == pen::in::KEYS::PRESSED) {
+            /*Right*/
+            cameraPosition += ((pen::op::CrossProduct(viewOrientation, at).Normalize()) * cameraSpeed);
+            firstMove = false;
+        }
+
+        if (key == pen::in::KEYS::SPACE && (action == pen::in::KEYS::PRESSED
+            || action == pen::in::KEYS::HELD)) {
+            /*Change angle of view*/
+            firstMove = false;
+
+            if (firstDrag) {
+                firstDrag = false;
+            }
+
+            double x = 0.0f, y = 0.0f;
+
+            float rotX = cameraSensitivity * (float)(y - (screenHeight / 2)) / screenHeight;
+            float rotY = cameraSensitivity * (float)(x - (screenHeight / 2)) / screenHeight;
+
+            pen::Vec3 newOrientation = pen::op::RotateVec(viewOrientation, -1.0f * rotX,
+                (pen::op::CrossProduct(viewOrientation, at).Normalize()));
+
+            if (!(pen::op::AngleBetween(newOrientation, at) <= 5.0f * 3.14159f / 180.0f
+                || pen::op::AngleBetween(newOrientation, at * -1.0f) <= 5.0f * 3.14159f / 180.0f)) {
+                viewOrientation = newOrientation;
+            }
+
+            viewOrientation = pen::op::RotateVec(viewOrientation, -1.0f * rotY, at * -1.0f);
+        }
+        else if (key == pen::in::KEYS::SPACE && action == pen::in::KEYS::RELEASED) {
+            firstDrag = true;
+        }
+        return true;
+    }
+#endif
 }

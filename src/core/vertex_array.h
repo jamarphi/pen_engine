@@ -21,13 +21,13 @@ under the License.
 #pragma once
 #include "../state/config.h"
 #include "../state/state.h"
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 #include "../../dependencies/glad/glad.h"
 #endif
 #include "vertex_buffer.h"
 #include "vertex_buffer_schema.h"
 #include <iostream>
-#include "../../ext/platforms/ios/ios_cpp_objective_c_mapping.h"
+#include "../../ext/platforms/mac_ios/mac_ios_cpp_objective_c_mapping.h"
 
 class VertexBufferLayout;
 
@@ -38,7 +38,7 @@ private:
 public:
 	VertexArray();
 	~VertexArray();
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 	void AddBuffer(const VertexBufferSchema& schema);
     void Bind() const;
     void Destroy();

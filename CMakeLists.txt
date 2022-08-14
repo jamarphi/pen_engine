@@ -71,7 +71,7 @@ file(GLOB_RECURSE PROJECT_LIB_SOURCES "${CMAKE_SOURCE_DIR}/src/*.h" "${CMAKE_SOU
     "${CMAKE_SOURCE_DIR}/dependencies/*.h" "${CMAKE_SOURCE_DIR}/dependencies/*.cpp"
     "${CMAKE_SOURCE_DIR}/ext/ai/*.h" "${CMAKE_SOURCE_DIR}/ext/ai/*.cpp"
     "${CMAKE_SOURCE_DIR}/ext/misc/*.h" "${CMAKE_SOURCE_DIR}/ext/misc/*.cpp"
-    "${CMAKE_SOURCE_DIR}/ext/platforms/ios/*.h" "${CMAKE_SOURCE_DIR}/ext/platforms/ios/*.cpp"
+    "${CMAKE_SOURCE_DIR}/ext/platforms/mac_ios/*.h" "${CMAKE_SOURCE_DIR}/ext/platforms/mac_ios/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/*.c")
 
 #Creates the .so library for Android
@@ -83,7 +83,7 @@ endif()
 if(NOT APPLE)
 add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "${CMAKE_SOURCE_DIR}/../app.cpp")
 else()
-add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "${CMAKE_SOURCE_DIR}/ext/platforms/ios/ios_manager.mm")
+add_executable(${PROJECT_NAME} ${PROJECT_LIB_SOURCES} "${CMAKE_SOURCE_DIR}/ext/platforms/mac_ios/mac_ios_manager.mm")
 endif()
 
 #Sets the C++ version now that the project is created
@@ -110,8 +110,10 @@ if(APPLE)
     find_library(FOUNDATION Foundation REQUIRED)
     find_library(QUARTZ QuartzCore REQUIRED)
     find_library(METAL Metal REQUIRED)
-    target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SRC_DIR}/ext/platforms/ios/metal)
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${FOUNDATION} ${QUARTZ} ${METAL})
+    find_library(METALKIT MetalKit REQUIRED)
+    find_library(APPKIT AppKit REQUIRED)
+    target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SRC_DIR}/ext/platforms/mac_ios/metal)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${FOUNDATION} ${QUARTZ} ${METAL} ${METALKIT} ${APPKIT})
     
     elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
     target_link_libraries(${PROJECT_NAME} GLESv2 EGL)

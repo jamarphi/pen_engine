@@ -18,9 +18,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
-#include "ios_view_delegate.h"
+#include "mac_ios_view_delegate.h"
 
-#ifdef __PEN_IOS__
+#ifdef __PEN_MAC_IOS__
 @implementation PenMTKViewDelegate
 
 - (void) drawRect:(CGRect)rect
@@ -31,6 +31,157 @@ under the License.
     inst.iosMtkView = self;
     (*pen::State::Get()->mobileOnRenderCallback)();
 }
+
+#ifndef TARGET_OS_IOS
+- (BOOL)acceptsFirstResponder {
+    return YES;
+}
+
+- (void)mouseDown:(NSEvent *)event {
+    /*A click has started*/
+    IOSState* inst = [IOSState Get];
+    pen::State::Get()->keyableItem = nullptr;
+    NSPoint location = event.locationInWindow;
+    NSPoint localPoint = [self convertPoint:location fromView:inst.iosMtkView];
+    
+    double xPos = (double)location.x;
+    double yPos = (double)location.y;
+    /*Flip y position to start from the bottom*/
+    yPos = inst->actualScreenHeight - yPos;
+
+    /*Scale based on screen width and height*/
+    xPos = xPos * inst->screenWidth / inst->actualScreenWidth;
+    yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
+    pen::State::Get()->mobileMouseX = xPos;
+    pen::State::Get()->mobileMouseY = yPos;
+    pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
+}
+
+- (void)mouseDragged:(NSEvent *)event {
+    /*A click is being dragged*/
+    NSPoint location = event.locationInWindow;
+    double xPos = (double)location.x;
+    double yPos = (double)location.y;
+    pen::State* inst = pen::State::Get();
+    if ((inst->handleGUIDragEvents && inst->draggableItem != nullptr)
+        || inst->handleCameraInput) {
+        /*Flip y position to start from the bottom*/
+        yPos = inst->actualScreenHeight - yPos;
+
+        /*Scale based on screen width and height*/
+        xPos = xPos * inst->screenWidth / inst->actualScreenWidth;
+        yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
+        pen::State::Get()->mobileMouseX = xPos;
+        pen::State::Get()->mobileMouseY = yPos;
+
+        bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::SPACE, pen::in::KEYS::HELD);
+        if (!cameraHandled) {
+            pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->draggableItem;
+            item->OnDrag(item, &xPos, &yPos);
+        }
+    }
+}
+
+- (void)mouseUp:(NSEvent *)event {
+    /*A click has ended*/
+    IOSState* inst = [IOSState Get];
+    pen::State::Get()->draggableItem = nullptr;
+    NSPoint location = event.locationInWindow;
+    NSPoint localPoint = [self convertPoint:location fromView:inst.iosMtkView];
+    double xPos = (double)location.x;
+    double yPos = (double)location.y;
+    /*Flip y position to start from the bottom*/
+    yPos = inst->actualScreenHeight - yPos;
+
+    /*Scale based on screen width and height*/
+    xPos = xPos * inst->screenWidth / inst->actualScreenWidth;
+    yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
+    pen::State::Get()->mobileMouseX = xPos;
+    pen::State::Get()->mobileMouseY = yPos;
+    pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
+}
+
+- (void)keyDown:(NSEvent *)event{
+    /*A key has been pressed*/
+    NSString* characters = [event characters];
+    const char* keys = [characters UTF8String];
+    pen::State* inst = pen::State::Get();
+    if ((inst->handleGUIKeyEvents && inst->keyableItem != nullptr) || inst->handleCameraInput) {
+        bool cameraHandled = pen::Render::Get()->camera.HandleInput((int)keys[0], pen::int::KEYS::PRESSED);
+        if (!cameraHandled) {
+            pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->keyableItem;
+            item->OnKey(item, (int)keys[0], pen::in::KEYS::PRESSED);
+        }
+    }
+}
+
+- (void)keyUp:(NSEvent *)event{
+    /*A key has been released*/
+    NSString* characters = [event characters];
+    const char* keys = [characters UTF8String];
+    pen::State* inst = pen::State::Get();
+    if ((inst->handleGUIKeyEvents && inst->keyableItem != nullptr) || inst->handleCameraInput) {
+        bool cameraHandled = pen::Render::Get()->camera.HandleInput((int)keys[0], pen::int::KEYS::RELEASED);
+        if (!cameraHandled) {
+            pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->keyableItem;
+            item->OnKey(item, (int)keys[0], pen::in::KEYS::RELEASED);
+        }
+    }
+}
+
+- (NSSize)windowWillResize:(NSWindow *)sender
+                    toSize:(NSSize)frameSize {
+    /*Update the size of the window*/
+    int width = (int) frameSize.width;
+    int height = (int) frameSize.height;
+    pen::State* inst = pen::State::Get();
+    if (width < inst->screenWidth || height < inst->screenHeight) {
+        width = inst->screenWidth;
+        height = inst->screenHeight;
+    }
+
+    inst->actualScreenHeight = height;
+    inst->actualScreenWidth = width;
+}
+
+#else
+- (void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    /*A touch has started*/
+    IOSState* inst = [IOSState Get];
+    pen::State* stateInst = pen::State::Get();
+    UITouch* touch = [[touches allObjects] objectAtIndex:0];
+    CGPoint location = [touch locationInView:inst.iosMtkView];
+    double xPos = (double)location.x;
+    double yPos = (double)location.y;
+    /*Flip y position to start from the bottom*/
+    yPos = stateInst->actualScreenHeight - yPos;
+
+    /*Scale based on screen width and height*/
+    xPos = xPos * stateInst->screenWidth / stateInst->actualScreenWidth;
+    yPos = yPos * stateInst->screenHeight / stateInst->actualScreenHeight;
+    pen::State::Get()->mobileMouseX = xPos;
+    pen::State::Get()->mobileMouseY = yPos;
+    pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
+}
+- (void) touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    /*A touch has ended*/
+    IOSState* inst = [IOSState Get];
+    pen::State* stateInst = pen::State::Get();
+    UITouch* touch = [[touches allObjects] objectAtIndex:0];
+    CGPoint location = [touch locationInView:inst.iosMtkView];
+    double xPos = (double)location.x;
+    double yPos = (double)location.y;
+    /*Flip y position to start from the bottom*/
+    yPos = stateInst->actualScreenHeight - yPos;
+
+    /*Scale based on screen width and height*/
+    xPos = xPos * stateInst->screenWidth / stateInst->actualScreenWidth;
+    yPos = yPos * stateInst->screenHeight / stateInst->actualScreenHeight;
+    pen::State::Get()->mobileMouseX = xPos;
+    pen::State::Get()->mobileMouseY = yPos;
+    pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
+}
+#endif
 
 + (void) UpdateUniforms: (pen::Mat4x4) mvp{
 	/*Updates the uniform data*/
@@ -149,12 +300,12 @@ under the License.
 }
 @end
 
-void MapIOSUpdateUniforms(pen::Mat4x4 mvp){
+void MapMacIOSUpdateUniforms(pen::Mat4x4 mvp){
     /*Updates the uniform data*/
     [PenMTKViewDelegate UpdateUniforms:mvp];
 }
 
-void MapIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp){
+void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp){
     /*Submits the vertex data to the GPU*/
     NSMutableDictionary* argumentBuffers = [IOSArgumentBuffer IOSArgumentBuffersGet];
     NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
@@ -163,13 +314,13 @@ void MapIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pe
                                    :data :size :mvp];
 }
 
-void MapIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount){
+void MapMacIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount){
     /*Render the ios mtk view*/
     NSMutableDictionary* indexBuffers = [IOSIndexBuffer IOSIndexBuffersGet];
     [PenMTKViewDelegate Render:shapeType :indexCount :[indexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] :instanceCount];
 }
 
-void MapIOSBackground(float r, float g, float b, float a){
+void MapMacIOSBackground(float r, float g, float b, float a){
     /*Updates the background of the mtk window*/
     [PenMTKViewDelegate Background:r :g :b :a];
 }

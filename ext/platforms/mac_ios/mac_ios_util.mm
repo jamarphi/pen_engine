@@ -19,9 +19,23 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 
-#include "ios_http.h"
+#include "mac_ios_util.h"
 
-#ifdef __PEN_IOS__
-@implementation IOSHttp
+#ifdef __PEN_MAC_IOS__
+@implementation IOSUtil
++ (const char*) IOSLoadAsset:(const char*) path :(const char*) mimeType {
+    /*Loads in an asset*/
+    const char* file;
+    NSBundle* main = [NSBundle mainBundle];
+    NSString* resourcePath = [main pathForResource:[NSString stringWithUTF8String:path] ofType:[NSString stringWithUTF8String:mimeType]];
+    NSString* data = [NSString stringWithContentsOfFile:resourcePath encoding:NSUTF8StringEncoding error:nil];
+    file = [data UTF8String];
+    return file;
+}
 @end
+
+const char* MapMacIOSLoadAsset(const char* path, const char* mimeType){
+    /*Loads in an asset*/
+    return [IOSUtil IOSLoadAsset:path :mimeType];
+}
 #endif

@@ -214,15 +214,15 @@ namespace pen {
 			return action;
 		}
 
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_AGENT_MOBILE__
 		void Agent::Save(const std::string& path) {
+#else
+        std::string Agent::Save(const std::string& path) {
             /*
              On mobile the text file will be returned as a string for the user to save it
              to a server or their own custom database since android's asset directory is read only
              and ios should be the same to keep things consistent
              */
-#else
-        std::string Agent::Save(const std::string& path) {
 #endif
 			/*Save an agent model*/
 			std::string tempPath = (path.find(".arlpen") != std::string::npos ? path : path + ".arlpen");
@@ -230,13 +230,13 @@ namespace pen {
             bool header = true;
             bool writing = true;
             int counter = 0;
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_AGENT_MOBILE__
             std::ofstream modelFile;
 			modelFile.open(tempPath);
 			if (modelFile.is_open()) {
 #endif
 				while (writing) {
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_AGENT_MOBILE__
 					input = "";
 #endif
 					/*Write a state*/
@@ -246,7 +246,7 @@ namespace pen {
 							+ "\nplanning steps:" + std::to_string(planningSteps) + "\ninitial state id:" + std::to_string(initialState->id)
 							+ "\nnum episodes:" + std::to_string(numEpisodes)
 							+ "\nid/policies num/[states]/state params num/{policies}/reward/state value/optimal policy\n");
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_AGENT_MOBILE__
 						modelFile << input;
 #endif
 						header = false;
@@ -260,7 +260,7 @@ namespace pen {
 								+ "^" + std::to_string(s->optimalPolicy->value) + "^" + s->optimalPolicy->actionName));
 
                         input += ("\n----\n");
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_AGENT_MOBILE__
                         modelFile << input;
 #endif
 
@@ -268,13 +268,13 @@ namespace pen {
 						if (counter == numStates) {
 							writing = false;
                             input += ("\n----\n");
-    #ifndef __PEN_MOBILE__
+    #ifndef __PEN_AI_AGENT_MOBILE__
                             modelFile << input;
     #endif
 						}
 					}
 				}
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_AGENT_MOBILE__
 				modelFile.close();
 			}
 #else

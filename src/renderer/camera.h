@@ -20,7 +20,7 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "../state/config.h"
-#ifndef __PEN_IOS__
+#ifndef __PEN_MAC_IOS__
 #include "../../dependencies/glad/glad.h"
 #endif
 #ifndef __PEN_MOBILE__
@@ -51,6 +51,10 @@ namespace pen {
 		Camera(pen::Vec3 viewPosition, int viewWidth, int viewHeight);
 		~Camera();
 		void Update(float fov, float zNear, float zFar, pen::Mat4x4* view, pen::Mat4x4* proj, pen::Layer* layer);
-		bool HandleInput(void* cameraWindow);
+#ifndef __PEN_MAC_IOS__
+        bool HandleInput(void* cameraWindow);
+#else
+        bool HandleInput(int key, int action);
+#endif
 	};
 }
