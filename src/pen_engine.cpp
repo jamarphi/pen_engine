@@ -263,7 +263,7 @@ namespace pen {
         *x = *x * inst->screenWidth / inst->actualScreenWidth;
         *y = *y * inst->screenHeight / inst->actualScreenHeight;
 #else
-        * x = inst->mobileMouseX;
+        *x = inst->mobileMouseX;
         *y = inst->mobileMouseY;
 #endif
     }
@@ -573,7 +573,7 @@ namespace pen {
 
     void Pen::SetMobileCallbacks(void (*onRenderCallback)(), void (*onClickCallback)(double, double), void (*onResumeCallback)(),
         void (*onPauseCallback)(), void (*onKeyCallback)(char), void (*onTiltCallback)(double, double, double, double),
-        void (*onBluetoothCallback)()) {
+        void (*onAndroidBluetoothCallback)(), void (*onMacIosBluetoothCallback)(char*, long)) {
         /*Sets the mobile callback functions for mobile devices*/
 #ifdef __PEN_MOBILE__
         pen::State* inst = pen::State::Get();
@@ -583,7 +583,8 @@ namespace pen {
         inst->mobileOnPauseCallback = onPauseCallback;
         inst->mobileOnKeyCallback = onKeyCallback;
         inst->mobileOnTiltCallback = onTiltCallback;
-        inst->mobileOnBluetoothCallback = onBluetoothCallback;
+        inst->mobileAndroidOnBluetoothCallback = onAndroidBluetoothCallback;
+        inst->mobileMacIosOnBluetoothCallback = onMacIosBluetoothCallback;
 
         /*Adds in the default assets*/
         pen::Asset::Add(pen::Asset("default"));

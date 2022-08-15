@@ -83,4 +83,16 @@ extern "C" {
     /*----ios_util----*/
     const char* MapMacIOSLoadAsset(const char* path, const char* mimeType);
     /*----ios_util----*/
+
+    /*----ios_bluetooth----*/
+    void MapMacIOSBluetoothAddDevice(const char* device);
+    void MapMacIOSBluetoothScan();
+    void MapMacIOSBluetoothStop();
+    unsigned int MapMacIOSBluetoothGetCountOfPeripherals();
+    const char* MapMacIOSBluetoothGetPeripheral(unsigned int index);
+    void MapMacIOSBluetoothConnect(const char* device, const char* deviceCharacteristicDescriptor);
+    void MapMacIOSBluetoothRead(const char* device);
+    void MapMacIOSBluetoothWrite(char* data, long length);
+    void MapMacIOSBluetoothDisconnect(const char* device);
+    /*----ios_bluetooth----*/
 };

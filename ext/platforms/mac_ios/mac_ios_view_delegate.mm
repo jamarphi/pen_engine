@@ -151,34 +151,29 @@ under the License.
     pen::State* stateInst = pen::State::Get();
     UITouch* touch = [[touches allObjects] objectAtIndex:0];
     CGPoint location = [touch locationInView:inst.iosMtkView];
-    double xPos = (double)location.x;
-    double yPos = (double)location.y;
-    /*Flip y position to start from the bottom*/
-    yPos = stateInst->actualScreenHeight - yPos;
-
-    /*Scale based on screen width and height*/
-    xPos = xPos * stateInst->screenWidth / stateInst->actualScreenWidth;
-    yPos = yPos * stateInst->screenHeight / stateInst->actualScreenHeight;
-    pen::State::Get()->mobileMouseX = xPos;
-    pen::State::Get()->mobileMouseY = yPos;
+    pen::State::Get()->mobileMouseX = (double)location.x;
+    pen::State::Get()->mobileMouseY = (double)stateInst->actualScreenHeight - (double)location.y;
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
 }
+
+- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    /*A touch is moving*/
+    IOSState* inst = [IOSState Get];
+    pen::State* stateInst = pen::State::Get();
+    UITouch* touch = [[touches allObjects] objectAtIndex:0];
+    CGPoint location = [touch locationInView:inst.iosMtkView];
+    pen::State::Get()->mobileMouseX = (double)location.x;
+    pen::State::Get()->mobileMouseY = (double)stateInst->actualScreenHeight - (double)location.y;
+}
+
 - (void) touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     /*A touch has ended*/
     IOSState* inst = [IOSState Get];
     pen::State* stateInst = pen::State::Get();
     UITouch* touch = [[touches allObjects] objectAtIndex:0];
     CGPoint location = [touch locationInView:inst.iosMtkView];
-    double xPos = (double)location.x;
-    double yPos = (double)location.y;
-    /*Flip y position to start from the bottom*/
-    yPos = stateInst->actualScreenHeight - yPos;
-
-    /*Scale based on screen width and height*/
-    xPos = xPos * stateInst->screenWidth / stateInst->actualScreenWidth;
-    yPos = yPos * stateInst->screenHeight / stateInst->actualScreenHeight;
-    pen::State::Get()->mobileMouseX = xPos;
-    pen::State::Get()->mobileMouseY = yPos;
+    pen::State::Get()->mobileMouseX = (double)location.x;
+    pen::State::Get()->mobileMouseY = (double)stateInst->actualScreenHeight - (double)location.y;
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
 }
 #endif

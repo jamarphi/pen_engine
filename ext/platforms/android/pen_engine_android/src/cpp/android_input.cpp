@@ -26,21 +26,21 @@ under the License.
 
 extern "C" {
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesBegin(JNIEnv* env, jclass obj, jint id, jfloat x, jfloat y) {
-        /*Click event*/
+        /*A touch has started*/
         pen::State::Get()->mobileMouseX = (double)x;
-        pen::State::Get()->mobileMouseY = (double)y;
+        pen::State::Get()->mobileMouseY = (double)pen::State::Get()->actualScreenHeight - (double)y;
         pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
     }
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesEnd(JNIEnv* env, jclass obj, jint id, jfloat x, jfloat y) {
-        /*Release event*/
+        /*A touch has ended*/
         pen::State::Get()->mobileMouseX = (double)x;
-        pen::State::Get()->mobileMouseY = (double)y;
+        pen::State::Get()->mobileMouseY = (double)pen::State::Get()->actualScreenHeight - (double)y;
         pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
     }
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesMove(JNIEnv* env, jclass obj, jintArray ids, jfloatArray xs, jfloatArray ys) {
-        /*Handles drag events*/
+        /*A touch is moving*/
         const int size = env->GetArrayLength(ids);
         jint* id = new jint[size];
         jfloat* x = new jfloat[size];
@@ -50,9 +50,8 @@ extern "C" {
         env->GetFloatArrayRegion(xs, 0, size, x);
         env->GetFloatArrayRegion(ys, 0, size, y);
         
-        intptr_t* idlong = new intptr_t[size];
-        for (int i = 0; i < size; i++)
-            idlong[i] = id[i];
+        pen::State::Get()->mobileMouseX = (double)x[size - 1];
+        pen::State::Get()->mobileMouseY = (double)pen::State::Get()->actualScreenHeight - (double)y[size - 1];
     }
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenAccelerometer_onSensorChanged(JNIEnv* env, jclass obj, jfloat x, jfloat y, jfloat z, jlong timeStamp) {
