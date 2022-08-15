@@ -22,6 +22,76 @@ under the License.
 #include "mac_ios_http.h"
 
 #ifdef __PEN_MAC_IOS__
+static PenMacIOSHttp* instance;
+static NSURLSession* session;
+
 @implementation PenMacIOSHttp
+- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request
+                            completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler{
+    /*
+     Handles a GET or POST http request
+     Completion request gets handled in MapMacPenMacIOSHttpRequest
+     */
+    return nil;
+}
+
++ (NSURLSessionDataTask*)Get{
+    /*Returns an instance of PenMacIOSHttp*/
+    if (!instance){
+        instance = [[PenMacIOSHttp alloc] init];
+        session = [NSURLSession sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration delegate:instance delegateQueue:nil];
+    }
+    return (NSURLSessionDataTask*)instance;
+}
+
++ (NSURLSession*)GetSession{
+    /*Returns the http session*/
+    return session;
+}
 @end
+
+void MapMacPenMacIOSHttpRequest(const char* url, unsigned int type, pen::Map<std::string,std::string>* httpBody){
+    /*Sends an http request*/
+    NSURL* nsUrl = [NSURL URLWithString:[NSString stringWithUTF8String:url]];
+    NSMutableURLRequest* request;
+    request = [request initWithURL:nsUrl];
+    request.HTTPMethod = (type == 0) ? @"GET" : @"POST";
+    if(type == 1){
+        NSMutableDictionary<NSString*,NSString*>* nsHttpBody = [NSMutableDictionary dictionary];
+        for(int i = 0; i < httpBody->Size(); i++){
+            const char* key = httpBody->items[i].first.c_str();
+            const char* value = httpBody->items[i].second.c_str();
+            [nsHttpBody setObject:[NSString stringWithUTF8String:value] forKey:[NSString stringWithUTF8String:key]];
+        }
+        NSData* bodyData = [NSJSONSerialization dataWithJSONObject:nsHttpBody options:NSJSONWritingPrettyPrinted error:nil];
+        request.HTTPBody = bodyData;
+        [request setValue:@"Content-Type" forHTTPHeaderField:@"application/json"];
+    }
+    
+    void (^completionHandler)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error){
+        if(data){
+            NSArray* responseData = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            if(responseData){
+                pen::Map<std::string,std::string> responseMap = pen::Map<std::string,std::string>();
+                for(NSDictionary* responseItem in responseData){
+                    NSArray* keys = [responseItem allKeys];
+                    NSArray* values = [responseItem allValues];
+                    NSString* key = [keys objectAtIndex:0];
+                    NSString* value = [values objectAtIndex:0];
+                    const char* keyStr = [key UTF8String];
+                    const char* valueStr = [value UTF8String];
+                    responseMap.Insert(std::string(keyStr), std::string(valueStr));
+                }
+                (*pen::State::Get()->mobileOnHttpCallback)(responseMap);
+            }
+        }else{
+            (*pen::State::Get()->mobileOnHttpCallback)(pen::Map<std::string,std::string>());
+        }
+    };
+    
+    NSURLSession* httpSession = [PenMacIOSHttp GetSession];
+    NSURLSessionDataTask* task = [httpSession dataTaskWithRequest:request completionHandler:completionHandler];
+    [task resume];
+}
+
 #endif

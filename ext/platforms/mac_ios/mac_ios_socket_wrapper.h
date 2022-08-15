@@ -21,20 +21,40 @@ under the License.
 #pragma once
 
 #include "../../../src/state/config.h"
+#include "mac_ios_cpp_objective_c_mapping.h"
 
+namespace pen {
+    namespace ios {
+        namespace conn {
+            namespace socket{
+            
+                enum TYPE {
+                    CONNECTED = 0,
+                    DATA_RECEIVED = 1,
+                    CLOSED_WITH_ERROR = 2
+                }
+            
+                static void Connect (const std::string& url){
+                    /*Connects to a server*/
 #ifdef __PEN_MAC_IOS__
-#import "mac_ios_state.h"
-#import "../../../src/state/state.h"
-
-@class PenMacIOSHttp;
-
-@interface PenMacIOSHttp : NSObject<NSURLSessionDelegate>
-
-/*Inherited from NSURLSessionDelegate*/
-- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request
-                            completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
-
-+ (NSURLSessionDataTask*)Get;
-+ (NSURLSession*)GetSession;
-@end
+                    MapMacPenMacIOSSocketConnect(url.c_str());
 #endif
+                }
+            
+                static void Send (char* data, long length){
+                    /*Sends data to the server*/
+#ifdef __PEN_MAC_IOS__
+                    MapMacPenMacIOSSocketSend(data, length);
+#endif
+                }
+            
+                static void Receive (){
+                    /*Receives data from the server*/
+#ifdef __PEN_MAC_IOS__
+                    MapMacPenMacIOSSocketReceive();
+#endif
+                }
+            }
+        }
+    }
+}

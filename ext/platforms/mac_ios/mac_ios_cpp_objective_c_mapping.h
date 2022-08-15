@@ -21,22 +21,20 @@ under the License.
 #pragma once
 
 #include "../../../src/ops/matrices/mat4x4.h"
+#include "../../../src/objects/containers/map.h"
 
 #ifdef __PEN_MAC_IOS__
 #import <simd/simd.h>
-#endif
 
 extern "C" {
 
     /*BatchVertexData already defined in renderer.h*/
-    #ifdef __PEN_MAC_IOS__
     struct BatchVertexData {
         simd::float3 vertex;
         simd::float4 color;
         simd::float2 texCoord;
         simd::float1 texId;
     };
-    #endif
 
     struct IOSUniformData {
         simd::float4x4 uMVP;
@@ -100,4 +98,15 @@ extern "C" {
     void MapMacPenMacIOSPeripheralBluetoothAddService(const char* service, const char* characteristic, char* value, long length, unsigned int type);
     void MapMacPenMacIOSPeripheralBluetoothUpdateCharacteristicValue(const char* service, const char* characteristic, char* value);
     /*----mac_ios_peripheral_bluetooth----*/
+
+    /*----mac_ios_http----*/
+    void MapMacPenMacIOSHttpRequest(const char* url, unsigned int type, pen::Map<std::string,std::string>* httpBody = nullptr);
+    /*----mac_ios_http----*/
+
+    /*----mac_ios_socket----*/
+    void MapMacPenMacIOSSocketConnect(const char* url);
+    void MapMacPenMacIOSSocketSend(char* data, long length);
+    void MapMacPenMacIOSSocketReceive();
+    /*----mac_ios_socket----*/
 };
+#endif

@@ -26,15 +26,26 @@ under the License.
 #import "mac_ios_state.h"
 #import "../../../src/state/state.h"
 
-@class PenMacIOSHttp;
+@class PenMacIOSSocket;
 
-@interface PenMacIOSHttp : NSObject<NSURLSessionDelegate>
+@interface PenMacIOSSocket : NSObject<NSURLSessionWebSocketDelegate>
 
-/*Inherited from NSURLSessionDelegate*/
-- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request
-                            completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
+@property(nonatomic, strong) NSURLSession* session;
 
-+ (NSURLSessionDataTask*)Get;
+/*Inherited from NSURLSessionWebSocketDelegate*/
+- (void)URLSession:(NSURLSession *)socketSession
+     webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask
+didOpenWithProtocol:(NSString *)protocol;
+- (void)URLSession:(NSURLSession *)session
+     webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask
+  didCloseWithCode:(NSURLSessionWebSocketCloseCode)closeCode
+            reason:(NSData *)reason;
+
+- (void) Connect:(NSString*)url;
+- (void) Send:(NSData*) data;
+- (void) Receive;
++ (PenMacIOSSocket*)Get;
 + (NSURLSession*)GetSession;
++ (NSURLSessionWebSocketTask*)GetTask;
 @end
 #endif

@@ -13,7 +13,8 @@ This function should be in the OnCreate function of a Pen Engine instantiation, 
     public:
         void OnCreate() override {
             pen::Pen::SetMobileCallbacks(&yourMobileRenderCallback, &yourMobileClickCallback, &yourMobileResumeCallback,
-                &yourMobilePauseCallback, &yourMobileKeyCallback, &yourMobileTiltCallback, &yourAndroidMobileBluetoothCallback, &yourMacIosMobileBluetoothCallback);
+                &yourMobilePauseCallback, &yourMobileKeyCallback, &yourMobileTiltCallback, &yourAndroidMobileBluetoothCallback, &yourMacIosMobileBluetoothCallback
+                &yourMobileHttpCallback);
             pen::Pen::SetMobileTextures(pathListVector);
 
             /*All logic in OnCreate should come after the two previous functions*/

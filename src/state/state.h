@@ -93,6 +93,8 @@ namespace pen {
 		void (*mobileOnTiltCallback)(double, double, double, double) = nullptr;
 		void (*mobileAndroidOnBluetoothCallback)() = nullptr;
         void (*mobileMacIosOnBluetoothCallback)(char*, long, unsigned int) = nullptr;
+        void (*mobileOnHttpCallback)(pen::Map<std::string,std::string>) = nullptr;
+        void (*mobileOnSocketCallback)(char*, unsigned int);
 
 		/*----Android----*/
 		void* javaEnv = nullptr;
@@ -102,7 +104,7 @@ namespace pen {
 		/*----Mobile----*/
 	public:
 		static State* Get() {
-			if (!instance)
+            if (!instance)
 				instance = new State();
 			return instance;
 		}

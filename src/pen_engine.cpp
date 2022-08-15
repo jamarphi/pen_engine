@@ -573,7 +573,8 @@ namespace pen {
 
     void Pen::SetMobileCallbacks(void (*onRenderCallback)(), void (*onClickCallback)(double, double), void (*onResumeCallback)(),
         void (*onPauseCallback)(), void (*onKeyCallback)(char), void (*onTiltCallback)(double, double, double, double),
-        void (*onAndroidBluetoothCallback)(), void (*onMacIosBluetoothCallback)(char*, long, unsigned int)) {
+        void (*onAndroidBluetoothCallback)(), void (*onMacIosBluetoothCallback)(char*, long, unsigned int),
+        void (*onHttpCallback)(pen::Map<std::string,std::string>), void (*onSocketCallback)(char*, unsigned int)) {
         /*Sets the mobile callback functions for mobile devices*/
 #ifdef __PEN_MOBILE__
         pen::State* inst = pen::State::Get();
@@ -585,6 +586,8 @@ namespace pen {
         inst->mobileOnTiltCallback = onTiltCallback;
         inst->mobileAndroidOnBluetoothCallback = onAndroidBluetoothCallback;
         inst->mobileMacIosOnBluetoothCallback = onMacIosBluetoothCallback;
+        inst->mobileOnHttpCallback = onHttpCallback;
+        inst->mobileOnSocketCallback = onSocketCallback;
 
         /*Adds in the default assets*/
         pen::Asset::Add(pen::Asset("default"));

@@ -13,7 +13,8 @@ This function should be in the OnCreate function of a Pen Engine instantiation, 
     public:
         void OnCreate() override {
             pen::Pen::SetMobileCallbacks(&yourMobileRenderCallback, &yourMobileClickCallback, &yourMobileResumeCallback,
-                &yourMobilePauseCallback, &yourMobileKeyCallback, &yourMobileTiltCallback, &yourAndroidMobileBluetoothCallback, &yourMacIosMobileBluetoothCallback);
+                &yourMobilePauseCallback, &yourMobileKeyCallback, &yourMobileTiltCallback, &yourAndroidMobileBluetoothCallback, &yourMacIosMobileBluetoothCallback
+                &yourMobileHttpCallback);
             pen::Pen::SetMobileTextures(pathListVector);
 
             /*All logic in OnCreate should come after the two previous functions*/
@@ -187,6 +188,68 @@ If a central subscribes to your service, then you can update the value of the ch
             delete[] data;
         }
         
+    }
+
+---------------------------------------------------------------------------
+
+# 1.8.2.2 - Mac And IOS HTTP
+
+To do an http requests do the following:
+
+    pen::ios::conn::http::Send(const std::string& url, unsigned int type, pen::Map<std::string,std::string>* httpBody = nullptr);
+    
+The types are defined as the following:
+
+    - pen::ios::conn::http::TYPE::GET
+    - pen::ios::conn::http::TYPE::POST
+    
+If expecting anything back from the request do:
+
+    void your httpCallback(pen::Map<std::string,std::string> response){
+        /*Handle the response*/
+    }
+}
+
+---------------------------------------------------------------------------
+
+# 1.8.2.3 - Mac And IOS Sockets
+
+To do a socket request to a server first connect:
+
+    pen::ios::conn::socket::Connect(const std::string& url);
+    
+Once connected you can be notified by doing:
+
+    void your socketCallback(char* data, unsigned int messageType){
+        /*Perform send or receive requests*/
+        if(messageType == pen::ios::conn::socket::TYPE::CLOSED_WITH_ERROR){
+            /*An error has occurred during the connection with the server
+        }
+    }
+
+The message types are defined as the following:
+
+    - pen::ios::conn::socket::TYPE::CONNECTED after the device has connected a server
+    - pen::ios::conn::socket::TYPE::DATA_RECEIVED after the device has received data from a server
+    - pen::ios::conn::socket::TYPE::CLOSED_WITH_ERROR if an error has occurred during a connection
+    
+When sending data to a server do:
+
+    pen::ios::conn::socket::Send(char* data, long length);
+
+When receiving data from a server do:
+
+    pen::ios::conn::socket::Receive();
+        
+Once the data is received you can be notified by doing:
+
+    void your socketCallback(char* data, unsigned int messageType){
+        /*Handle received data*/
+        if(messageType == pen::ios::conn::socket::TYPE::CLOSED_WITH_ERROR){
+            /*An error has occurred during the connection with the server
+        }else{
+        
+        }
     }
 
 ---------------------------------------------------------------------------

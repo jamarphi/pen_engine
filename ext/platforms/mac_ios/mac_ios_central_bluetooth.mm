@@ -32,6 +32,10 @@ static NSMutableArray<CBCharacteristic*>* characteristics;
 
 - (void)centralManagerDidUpdateState:(nonnull CBCentralManager *)central {
     /*Update made to the central bluetooth state*/
+    peripherals = [[NSMutableArray alloc] init];
+    preferredDevices = [[NSMutableArray alloc] init];
+    receivers = [[NSMutableArray alloc] init];
+    characteristics = [[NSMutableArray alloc] init];
 }
 
 - (void)centralManager:(CBCentralManager *)central

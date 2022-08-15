@@ -21,20 +21,25 @@ under the License.
 #pragma once
 
 #include "../../../src/state/config.h"
+#include "mac_ios_cpp_objective_c_mapping.h"
 
+namespace pen {
+    namespace ios {
+        namespace conn {
+            namespace http{
+                enum TYPE {
+                    GET = 0,
+                    POST = 1
+                };
+            
+                static void Send (const std::string& url, unsigned int type, pen::Map<std::string,std::string>* httpBody = nullptr){
+                    /*Sends an http request*/
 #ifdef __PEN_MAC_IOS__
-#import "mac_ios_state.h"
-#import "../../../src/state/state.h"
-
-@class PenMacIOSHttp;
-
-@interface PenMacIOSHttp : NSObject<NSURLSessionDelegate>
-
-/*Inherited from NSURLSessionDelegate*/
-- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request
-                            completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
-
-+ (NSURLSessionDataTask*)Get;
-+ (NSURLSession*)GetSession;
-@end
+                    MapMacPenMacIOSHttpRequest(url.c_str(), type, httpBody);
 #endif
+                }
+            }
+        }
+    }
+}
+

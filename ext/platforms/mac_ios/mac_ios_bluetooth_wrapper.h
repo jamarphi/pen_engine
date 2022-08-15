@@ -37,58 +37,80 @@ namespace pen {
                 /*----Central side functions----*/
                 static void Scan (std::vector<std::string> devices = {}){
                     /*Start scanning for devices*/
+#ifdef __PEN_MAC_IOS__
                     for(int i = 0; i < devices.size(); i++){
                         MapMacPenMacIOSCentralBluetoothAddDevice(devices[i].c_str());
                     }
                     MapMacPenMacIOSCentralBluetoothConnect();
+#endif
                 }
             
                 static void Stop () {
                     /*Stops scanning for peripheral devices*/
+#ifdef __PEN_MAC_IOS__
                     MapMacPenMacIOSCentralBluetoothStop();
+#endif
                 }
             
                 static std::vector<std::string> QueryPotentialConnections(){
                     /*Return the potential connections*/
+#ifdef __PEN_MAC_IOS__
                     std::vector<std::string> devices;
                     unsigned int deviceCount = MapMacPenMacIOSCentralBluetoothGetCountOfPeripherals();
                     for(int i = 0; i < deviceCount; i++){
                         devices.push_back(std::string(MapMacPenMacIOSCentralBluetoothGetPeripheral()));
                     }
                     return devices;
+#else
+                    return {};
+#endif
                 }
             
                 static void Connect (const std::string& device, const std::string& descriptor) {
                     /*Connect to a peripheral device*/
+#ifdef __PEN_MAC_IOS__
                     MapMacPenMacIOSCentralBluetoothConnect(device.c_str(), descriptor.c_str());
+#endif
                 }
             
                 static void Read(const std::string& device){
                     /*Reads the value from the current characteristic of a given device*/
+#ifdef __PEN_MAC_IOS__
                     MapMacPenMacIOSCentralBluetoothRead(device.c_str());
+#endif
                 }
             
                 static void Write(char* data, long length){
                     /*Writes a value for the current characteristic to all the connected devices*/
+#ifdef __PEN_MAC_IOS__
                     MapMacPenMacIOSCentralBluetoothWrite(data, length);
+#endif
                 }
             
                 static void Disconnect(const std::string& device){
                     /*Disconnect from a given device*/
+#ifdef __PEN_MAC_IOS__
                     MapMacPenMacIOSCentralBluetoothDisconnect(device.c_str());
+#endif
                 }
+                /*----Central side functions----*/
             
                 namespace rec {
                     /*----Peripheral side functions----*/
                     static void AddService(const std::string& service, const std::string& characteristic, char* value, long length, unsigned int type){
                         /*Adds a service for the peripheral side*/
+#ifdef __PEN_MAC_IOS__
                         MapMacPenMacIOSPeripheralBluetoothStart(service.c_str(), characteristic.c_str(), value, length, type);
+#endif
                     }
                 
                     static void UpdateCharacteristic(const std::string& service, const std::string& characteristic, char* value){
                         /*Updates the value of a characteristic*/
+#ifdef __PEN_MAC_IOS__
                         MapMacPenMacIOSPeripheralBluetoothUpdateCharacteristicValue(service.c_str(), characteristic.c_str(), value);
+#endif
                     }
+                    /*----Peripheral side functions----*/
                 }
             }
         }

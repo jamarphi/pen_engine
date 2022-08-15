@@ -29,6 +29,7 @@ static NSMutableDictionary<NSString*,NSMutableArray<CBMutableCharacteristic*>*>*
 
 - (void)peripheralManagerDidUpdateState:(nonnull CBPeripheralManager *)peripheral {
     /*Update made to the peripheral bluetooth state*/
+    services = [NSMutableDictionary dictionary];
 }
 
 - (void)peripheralManager:(CBPeripheralManager *)peripheral
