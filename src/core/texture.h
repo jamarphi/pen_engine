@@ -56,6 +56,6 @@ public:
 
 private:
 #ifdef __PEN_MAC_IOS__
-	static void InitializeIOSTexture(const std::string& path, const unsigned int& type, const unsigned int& texSlot);
+	static void InitializePenMacIOSTexture(const std::string& path, const unsigned int& type, const unsigned int& texSlot);
 #endif
 };

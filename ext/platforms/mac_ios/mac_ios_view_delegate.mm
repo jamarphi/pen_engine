@@ -21,13 +21,13 @@ under the License.
 #include "mac_ios_view_delegate.h"
 
 #ifdef __PEN_MAC_IOS__
-@implementation PenMTKViewDelegate
+@implementation PenMacIOSMTKViewDelegate
 
 - (void) drawRect:(CGRect)rect
 {
     /*Draws data in MTK view*/
     [super drawRect:rect];
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
     inst.iosMtkView = self;
     (*pen::State::Get()->mobileOnRenderCallback)();
 }
@@ -39,7 +39,7 @@ under the License.
 
 - (void)mouseDown:(NSEvent *)event {
     /*A click has started*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
     pen::State::Get()->keyableItem = nullptr;
     NSPoint location = event.locationInWindow;
     NSPoint localPoint = [self convertPoint:location fromView:inst.iosMtkView];
@@ -84,7 +84,7 @@ under the License.
 
 - (void)mouseUp:(NSEvent *)event {
     /*A click has ended*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
     pen::State::Get()->draggableItem = nullptr;
     NSPoint location = event.locationInWindow;
     NSPoint localPoint = [self convertPoint:location fromView:inst.iosMtkView];
@@ -147,7 +147,7 @@ under the License.
 #else
 - (void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     /*A touch has started*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
     pen::State* stateInst = pen::State::Get();
     UITouch* touch = [[touches allObjects] objectAtIndex:0];
     CGPoint location = [touch locationInView:inst.iosMtkView];
@@ -158,7 +158,7 @@ under the License.
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     /*A touch is moving*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
     pen::State* stateInst = pen::State::Get();
     UITouch* touch = [[touches allObjects] objectAtIndex:0];
     CGPoint location = [touch locationInView:inst.iosMtkView];
@@ -168,7 +168,7 @@ under the License.
 
 - (void) touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     /*A touch has ended*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
     pen::State* stateInst = pen::State::Get();
     UITouch* touch = [[touches allObjects] objectAtIndex:0];
     CGPoint location = [touch locationInView:inst.iosMtkView];
@@ -180,7 +180,7 @@ under the License.
 
 + (void) UpdateUniforms: (pen::Mat4x4) mvp{
 	/*Updates the uniform data*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
 	simd::float4 colA = {mvp.matrix[0][0], mvp.matrix[1][0], mvp.matrix[2][0], mvp.matrix[3][0]};
 	simd::float4 colB = {mvp.matrix[0][1], mvp.matrix[1][1], mvp.matrix[2][1], mvp.matrix[3][1]};
 	simd::float4 colC = {mvp.matrix[0][2], mvp.matrix[1][2], mvp.matrix[2][2], mvp.matrix[3][2]};
@@ -216,13 +216,13 @@ under the License.
 #ifndef TARGET_OS_IOS
     [iosVertexBuffer didModifyRange: NSMakeRange(0, [iosVertexBuffer length])];
 #endif
-    [PenMTKViewDelegate DrawIOSView:iosArgumentBuffer :iosVertexBuffer];
+    [PenMacIOSMTKViewDelegate DrawIOSView:iosArgumentBuffer :iosVertexBuffer];
 }
 
 + (void) DrawIOSView: (id<MTLBuffer>) iosArgumentBuffer
                       :(id<MTLBuffer>) iosVertexBuffer {
     /*Use the ios mtk view to render batch data*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
     dispatch_semaphore_wait(inst.dispatchSemaphore, DISPATCH_TIME_FOREVER);
     id<MTLCommandBuffer> pCmd = [inst.iosCommandQueue commandBuffer];
     MTLRenderPassDescriptor* pRpd = [inst.iosMtkView currentRenderPassDescriptor];
@@ -239,7 +239,7 @@ under the License.
     [inst.iosCommandEncoder useResource:iosVertexBuffer usage:MTLResourceUsageRead];
     [inst.iosCommandEncoder setVertexBuffer:inst.iosUniformBuffer offset:0 atIndex:1];
     [inst.iosCommandEncoder setVertexBuffer:inst.iosInstanceBuffer offset:0 atIndex:2];
-    NSMutableArray * textures = [IOSState GetTextures];
+    NSMutableArray * textures = [PenMacIOSState GetTextures];
     [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:0] atIndex:0];
     [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:1] atIndex:1];
     [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:2] atIndex:2];
@@ -258,7 +258,7 @@ under the License.
                  :(unsigned int) instanceCount{
     /*Render the ios mtk view*/
     MTLPrimitiveType type;
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
 
     switch (shapeType) {
     case 0:
@@ -290,33 +290,33 @@ under the License.
 :(float) b
 :(float) a{
     /*Updates the background of the mtk window*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
     [inst.iosMtkView setClearColor:MTLClearColorMake(r, g, b, a)];
 }
 @end
 
 void MapMacIOSUpdateUniforms(pen::Mat4x4 mvp){
     /*Updates the uniform data*/
-    [PenMTKViewDelegate UpdateUniforms:mvp];
+    [PenMacIOSMTKViewDelegate UpdateUniforms:mvp];
 }
 
 void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp){
     /*Submits the vertex data to the GPU*/
-    NSMutableDictionary* argumentBuffers = [IOSArgumentBuffer IOSArgumentBuffersGet];
-    NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
-    [PenMTKViewDelegate SubmitBatch:[argumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
+    NSMutableDictionary* argumentBuffers = [PenMacIOSArgumentBuffer PenMacIOSArgumentBuffersGet];
+    NSMutableDictionary* vertexBuffers = [PenMacIOSVertexBuffer PenMacIOSVertexBuffersGet];
+    [PenMacIOSMTKViewDelegate SubmitBatch:[argumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
                                    :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
                                    :data :size :mvp];
 }
 
 void MapMacIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount){
     /*Render the ios mtk view*/
-    NSMutableDictionary* indexBuffers = [IOSIndexBuffer IOSIndexBuffersGet];
-    [PenMTKViewDelegate Render:shapeType :indexCount :[indexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] :instanceCount];
+    NSMutableDictionary* indexBuffers = [PenMacIOSIndexBuffer PenMacIOSIndexBuffersGet];
+    [PenMacIOSMTKViewDelegate Render:shapeType :indexCount :[indexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] :instanceCount];
 }
 
 void MapMacIOSBackground(float r, float g, float b, float a){
     /*Updates the background of the mtk window*/
-    [PenMTKViewDelegate Background:r :g :b :a];
+    [PenMacIOSMTKViewDelegate Background:r :g :b :a];
 }
 #endif

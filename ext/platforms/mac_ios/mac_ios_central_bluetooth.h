@@ -27,13 +27,13 @@ under the License.
 #import "../../../src/state/state.h"
 #import <CoreBluetooth/CoreBluetooth.h>
 
-@class IOSBluetooth;
+@class PenMacIOSCentralBluetooth;
 
-@interface IOSBluetooth : NSObject<CBCentralManagerDelegate, CBPeripheralDelegate>
-@property CBCentralManager* manager;
+@interface PenMacIOSCentralBluetooth : NSObject<CBCentralManagerDelegate, CBPeripheralDelegate>
+@property CBCentralManager* centralManager;
 @property NSString* characteristicDescriptor;
 
-/*Inherited from CoreBluetooth*/
+/*Inherited from CoreBluetooth for the central side*/
 - (void)centralManagerDidUpdateState:(nonnull CBCentralManager *)central;
 - (void)centralManager:(CBCentralManager *)central
  didDiscoverPeripheral:(CBPeripheral *)peripheral
@@ -56,11 +56,15 @@ didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic
 didWriteValueForCharacteristic:(CBCharacteristic *)characteristic
              error:(NSError *)error;
 
+/*Inherited from CoreBluetooth for the peripheral side*/
+
+
+/*Central side functions*/
 -(void) Init;
 -(void) Connect:(CBPeripheral*) peripheral;
 -(void) Read:(NSString*) device;
 -(void) Write: (const void*) bytes :(long)length;
-+(IOSBluetooth*) Get;
++(PenMacIOSCentralBluetooth*) Get;
 -(NSMutableArray<CBPeripheral*>*) GetPeripherals;
 -(NSMutableArray<CBUUID*>*) GetPreferredDevices;
 -(NSMutableArray<CBPeripheral*>*) GetReceivers;

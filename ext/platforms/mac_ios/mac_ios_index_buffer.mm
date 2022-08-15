@@ -23,10 +23,10 @@ under the License.
 #ifdef __PEN_MAC_IOS__
 static NSMutableDictionary* iosIndexBuffers;
 
-@implementation IOSIndexBuffer
-+ (void) IOSIndexBufferInit: (unsigned int) layerId :(int*) data :(unsigned int) count{
+@implementation PenMacIOSIndexBuffer
++ (void) PenMacIOSIndexBufferInit: (unsigned int) layerId :(int*) data :(unsigned int) count{
     /*Creates an ios index buffer*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
 #ifndef TARGET_OS_IOS
     id<MTLBuffer> iosIndexBuffer = [inst.iosDevice newBufferWithLength:count options:MTLResourceStorageModeManaged];
 #else
@@ -39,26 +39,26 @@ static NSMutableDictionary* iosIndexBuffers;
     [iosIndexBuffers setObject:iosIndexBuffer forKey:[NSString stringWithFormat:@"%d", layerId]];
 }
 
-+ (void) IOSIndexBufferDestroy: (unsigned int) layerId{
++ (void) PenMacIOSIndexBufferDestroy: (unsigned int) layerId{
 	/*Removes buffer from GPU*/
     if([iosIndexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] != nil){
         [iosIndexBuffers removeObjectForKey:[NSString stringWithFormat:@"%d", layerId]];
     }
 }
 
-+ (NSMutableDictionary*) IOSIndexBuffersGet{
++ (NSMutableDictionary*) PenMacIOSIndexBuffersGet{
     /*Returns the index buffer list*/
     return iosIndexBuffers;
 }
 @end
 
-void MapMacIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count){
+void MapMacPenMacIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count){
     /*Creates an ios index buffer*/
-    [IOSIndexBuffer IOSIndexBufferInit:layerId :data :count];
+    [PenMacIOSIndexBuffer PenMacIOSIndexBufferInit:layerId :data :count];
 }
 
-void MapMacIOSIndexBufferDestroy(unsigned int layerId){
+void MapMacPenMacIOSIndexBufferDestroy(unsigned int layerId){
     /*Removes buffer from GPU*/
-    [IOSIndexBuffer IOSIndexBufferDestroy:layerId];
+    [PenMacIOSIndexBuffer PenMacIOSIndexBufferDestroy:layerId];
 }
 #endif

@@ -28,7 +28,7 @@ under the License.
 #import "mac_ios_index_buffer.h"
 #import "mac_ios_shader.h"
 
-@interface PenIOSAppDelegate : NSObject
+@interface PenMacIOSAppDelegate : NSObject
 
     /*These methods are inherited from NSObject*/
     - (void) applicationWillFinishLaunching: (NSNotification*) pNotification;

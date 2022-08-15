@@ -241,7 +241,7 @@ namespace pen {
 #endif
         static void SetMobileCallbacks(void (*onRenderCallback)(), void (*onClickCallback)(double, double), void (*onResumeCallback)(),
             void (*onPauseCallback)(), void (*onKeyCallback)(char), void (*onTiltCallback)(double, double, double, double), 
-            void (*onAndroidBluetoothCallback)(), void (*onMacIosBluetoothCallback)(char*, long));
+            void (*onAndroidBluetoothCallback)(), void (*onMacIosBluetoothCallback)(char*, long, unsigned int));
 
         static void SetMobileTextures(const std::vector<std::string>& textureList);
 

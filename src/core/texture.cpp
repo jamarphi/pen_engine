@@ -68,7 +68,7 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 #ifndef __PEN_MAC_IOS__
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
 #else
-		Texture::InitializeIOSTexture(path, 0, slot);
+		Texture::InitializePenMacIOSTexture(path, 0, slot);
 #endif
 	}
 	else if (path.compare("pixel") == 0) {
@@ -76,7 +76,7 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 #ifndef __PEN_MAC_IOS__
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, pen::State::Get()->pixelArray);
 #else
-		Texture::InitializeIOSTexture(path, 1, slot);
+		Texture::InitializePenMacIOSTexture(path, 1, slot);
 #endif
 	}
 	else {
@@ -92,7 +92,7 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
             tempPath = tempPath.substr(1);
         }
         tempPath = pen::Asset::ParsePath(tempPath);
-		Texture::InitializeIOSTexture(tempPath, 2, slot);
+		Texture::InitializePenMacIOSTexture(tempPath, 2, slot);
 #endif
 	}
 }
@@ -151,7 +151,7 @@ void Texture::UpdatePixels() {
 }
 
 #ifdef __PEN_MAC_IOS__
-void Texture::InitializeIOSTexture(const std::string& path, const unsigned int& type, const unsigned int& texSlot) {
+void Texture::InitializePenMacIOSTexture(const std::string& path, const unsigned int& type, const unsigned int& texSlot) {
 	/*Initialize textures for Metal*/
 	uint32_t texWidth = 0;
 	uint32_t texHeight = 0;

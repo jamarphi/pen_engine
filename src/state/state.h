@@ -92,7 +92,7 @@ namespace pen {
 		void (*mobileOnPauseCallback)() = nullptr;
 		void (*mobileOnTiltCallback)(double, double, double, double) = nullptr;
 		void (*mobileAndroidOnBluetoothCallback)() = nullptr;
-        void (*mobileMacIosOnBluetoothCallback)(char*, long) = nullptr;
+        void (*mobileMacIosOnBluetoothCallback)(char*, long, unsigned int) = nullptr;
 
 		/*----Android----*/
 		void* javaEnv = nullptr;

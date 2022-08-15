@@ -26,9 +26,9 @@ under the License.
 #import "mac_ios_state.h"
 #import "../../../src/ops/matrices/mat4x4.h"
 
-@interface IOSShader : NSObject
+@interface PenMacIOSShader : NSObject
 
-+ (void) IOSShaderInit: (const char*) shaderProgram;
++ (void) PenMacIOSShaderInit: (const char*) shaderProgram;
 	+ (void) IOSUpdateInstanceUniform: (IOSInstanceData*) data;
 @end
 #endif

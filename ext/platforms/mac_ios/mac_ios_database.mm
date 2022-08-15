@@ -22,6 +22,6 @@ under the License.
 #include "mac_ios_database.h"
 
 #ifdef __PEN_MAC_IOS__
-@implementation IOSDatabase
+@implementation PenMacIOSDatabase
 @end
 #endif

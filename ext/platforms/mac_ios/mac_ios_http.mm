@@ -22,6 +22,6 @@ under the License.
 #include "mac_ios_http.h"
 
 #ifdef __PEN_MAC_IOS__
-@implementation IOSHttp
+@implementation PenMacIOSHttp
 @end
 #endif

@@ -46,53 +46,58 @@ extern "C" {
         simd::float3 uInstancedOffsets;
     };
 
-    /*----ios_view_delegate----*/
+    /*----mac_ios_view_delegate----*/
     void MapMacIOSUpdateUniforms(pen::Mat4x4 mvp);
     void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp);
     void MapMacIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount);
     void MapMacIOSBackground(float r, float g, float b, float a);
-    /*----ios_view_delegate----*/
+    /*----mac_ios_view_delegate----*/
 
-    /*----ios_vertex_buffer----*/
-    void MapMacIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size);
-    void MapMacIOSVertexBufferDestroy(unsigned int layerId);
-    /*----ios_vertex_buffer----*/
+    /*----mac_ios_vertex_buffer----*/
+    void MapMacPenMacIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size);
+    void MapMacPenMacIOSVertexBufferDestroy(unsigned int layerId);
+    /*----mac_ios_vertex_buffer----*/
 
-    /*----ios_argument_buffer----*/
-    void MapMacIOSArgumentBufferInit(unsigned int layerId);
-    void MapMacIOSArgumentBufferBind(unsigned int layerId);
-    void MapMacIOSArgumentBufferDestroy(unsigned int layerId);
-    /*----ios_argument_buffer----*/
+    /*----mac_ios_argument_buffer----*/
+    void MapMacPenMacIOSArgumentBufferInit(unsigned int layerId);
+    void MapMacPenMacIOSArgumentBufferBind(unsigned int layerId);
+    void MapMacPenMacIOSArgumentBufferDestroy(unsigned int layerId);
+    /*----mac_ios_argument_buffer----*/
 
-    /*----ios_index_buffer----*/
-    void MapMacIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count);
-    void MapMacIOSIndexBufferDestroy(unsigned int layerId);
-    /*----ios_index_buffer----*/
+    /*----mac_ios_index_buffer----*/
+    void MapMacPenMacIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count);
+    void MapMacPenMacIOSIndexBufferDestroy(unsigned int layerId);
+    /*----mac_ios_index_buffer----*/
 
-    /*----ios_shader----*/
-    void MapMacIOSShaderInit(const char* shaderProgram);
+    /*----mac_ios_shader----*/
+    void MapMacPenMacIOSShaderInit(const char* shaderProgram);
     void MapMacIOSUpdateInstanceUniform(IOSInstanceData* data);
-    /*----ios_shader----*/
+    /*----mac_ios_shader----*/
 
-    /*----ios_texture----*/
+    /*----mac_ios_texture----*/
     void MapMacIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData);
     void MapMacIOSLoadTexture(const char* path, unsigned int texSlot);
     void MapMacIOSUpdatePixels();
-    /*----ios_texture----*/
+    /*----mac_ios_texture----*/
 
-    /*----ios_util----*/
+    /*----mac_ios_util----*/
     const char* MapMacIOSLoadAsset(const char* path, const char* mimeType);
-    /*----ios_util----*/
+    /*----mac_ios_util----*/
 
-    /*----ios_bluetooth----*/
-    void MapMacIOSBluetoothAddDevice(const char* device);
-    void MapMacIOSBluetoothScan();
-    void MapMacIOSBluetoothStop();
-    unsigned int MapMacIOSBluetoothGetCountOfPeripherals();
-    const char* MapMacIOSBluetoothGetPeripheral(unsigned int index);
-    void MapMacIOSBluetoothConnect(const char* device, const char* deviceCharacteristicDescriptor);
-    void MapMacIOSBluetoothRead(const char* device);
-    void MapMacIOSBluetoothWrite(char* data, long length);
-    void MapMacIOSBluetoothDisconnect(const char* device);
-    /*----ios_bluetooth----*/
+    /*----mac_ios_central_bluetooth----*/
+    void MapMacPenMacIOSCentralBluetoothAddDevice(const char* device);
+    void MapMacPenMacIOSCentralBluetoothScan();
+    void MapMacPenMacIOSCentralBluetoothStop();
+    unsigned int MapMacPenMacIOSCentralBluetoothGetCountOfPeripherals();
+    const char* MapMacPenMacIOSCentralBluetoothGetPeripheral(unsigned int index);
+    void MapMacPenMacIOSCentralBluetoothConnect(const char* device, const char* deviceCharacteristicDescriptor);
+    void MapMacPenMacIOSCentralBluetoothRead(const char* device);
+    void MapMacPenMacIOSCentralBluetoothWrite(char* data, long length);
+    void MapMacPenMacIOSCentralBluetoothDisconnect(const char* device);
+    /*----mac_ios_central_bluetooth----*/
+
+    /*----mac_ios_peripheral_bluetooth----*/
+    void MapMacPenMacIOSPeripheralBluetoothAddService(const char* service, const char* characteristic, char* value, long length, unsigned int type);
+    void MapMacPenMacIOSPeripheralBluetoothUpdateCharacteristicValue(const char* service, const char* characteristic, char* value);
+    /*----mac_ios_peripheral_bluetooth----*/
 };

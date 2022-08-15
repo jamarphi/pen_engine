@@ -21,14 +21,14 @@ under the License.
 #import "mac_ios_state.h"
 
 #ifdef __PEN_MAC_IOS__
-static IOSState* instance;
+static PenMacIOSState* instance;
 static NSMutableArray* iosTextures;
 
-@implementation IOSState
+@implementation PenMacIOSState
 
-+ (IOSState*) Get{
++ (PenMacIOSState*) Get{
     if (!instance)
-        instance = [[IOSState alloc] init];
+        instance = [[PenMacIOSState alloc] init];
     return instance;
 }
 

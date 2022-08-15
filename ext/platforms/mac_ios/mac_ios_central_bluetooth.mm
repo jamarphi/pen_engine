@@ -19,20 +19,19 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 
-#include "mac_ios_bluetooth.h"
+#include "mac_ios_central_bluetooth.h"
 
 #ifdef __PEN_MAC_IOS__
-static IOSBluetooth* instance;
+static PenMacIOSCentralBluetooth* instance;
 static NSMutableArray<CBPeripheral*>* peripherals;
 static NSMutableArray<CBUUID*>* preferredDevices;
 static NSMutableArray<CBPeripheral*>* receivers;
 static NSMutableArray<CBCharacteristic*>* characteristics;
 
-@implementation IOSBluetooth
+@implementation PenMacIOSCentralBluetooth
 
 - (void)centralManagerDidUpdateState:(nonnull CBCentralManager *)central {
-    /*Update made to bluetooth state*/
-    
+    /*Update made to the central bluetooth state*/
 }
 
 - (void)centralManager:(CBCentralManager *)central
@@ -89,7 +88,7 @@ didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic
     NSData* data = characteristic.value;
     char* dataBuffer = (char*)data.bytes;
     long length = (long)data.length;
-    (*pen::State::Get()->mobileMacIosOnBluetoothCallback)(dataBuffer, length);
+    (*pen::State::Get()->mobileMacIosOnBluetoothCallback)(dataBuffer, length, 0);
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral
@@ -103,7 +102,7 @@ didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic
     NSData* data = characteristic.value;
     char* dataBuffer = (char*)data.bytes;
     long length = (long)data.length;
-    (*pen::State::Get()->mobileMacIosOnBluetoothCallback)(dataBuffer, length);
+    (*pen::State::Get()->mobileMacIosOnBluetoothCallback)(dataBuffer, length, 0);
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral
@@ -118,18 +117,20 @@ didWriteValueForCharacteristic:(CBCharacteristic *)characteristic
 
 -(void) Init {
     /*Sets up bluetooth*/
-    self.manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil options:nil];
-    [self.manager scanForPeripheralsWithServices:preferredDevices options:nil];
+    if(!self.centralManager){
+        self.centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil options:nil];
+    }
+    [self.centralManager scanForPeripheralsWithServices:preferredDevices options:nil];
 }
 
 -(void) Stop {
     /*Stops the scanning of peripherals*/
-    [self.manager stopScan];
+    [self.centralManager stopScan];
 }
 
 -(void) Connect:(CBPeripheral*) peripheral{
     /*Connects to a peripheral device*/
-    [self.manager connectPeripheral:peripheral options:nil];
+    [self.centralManager connectPeripheral:peripheral options:nil];
 }
 
 -(void) Read:(NSString*) device{
@@ -169,10 +170,10 @@ didWriteValueForCharacteristic:(CBCharacteristic *)characteristic
     }
 }
 
-+(IOSBluetooth*) Get{
-    /*Returns an instance of IOSBluetooth*/
++(PenMacIOSCentralBluetooth*) Get{
+    /*Returns an instance of PenMacIOSCentralBluetooth*/
     if (!instance)
-        instance = [[IOSBluetooth alloc] init];
+        instance = [[PenMacIOSCentralBluetooth alloc] init];
     return instance;
 }
 
@@ -197,41 +198,41 @@ didWriteValueForCharacteristic:(CBCharacteristic *)characteristic
 }
 @end
 
-void MapMacIOSBluetoothAddDevice(const char* device){
+void MapMacPenMacIOSCentralBluetoothAddDevice(const char* device){
     /*Add a device to preferred devices*/
     NSString* deviceStr = [NSString stringWithUTF8String:device];
     CBUUID* uuid = [CBUUID UUIDWithString:deviceStr];
-    [[[IOSBluetooth Get] GetPreferredDevices] addObject:uuid];
+    [[[PenMacIOSCentralBluetooth Get] GetPreferredDevices] addObject:uuid];
 }
 
-void MapMacIOSBluetoothScan(){
+void MapMacPenMacIOSCentralBluetoothScan(){
     /*Start scanning for peripheral devices*/
-    [[IOSBluetooth Get] Init];
+    [[PenMacIOSCentralBluetooth Get] Init];
 }
 
-void MapMacIOSBluetoothStop(){
+void MapMacPenMacIOSCentralBluetoothStop(){
     /*Stops scanning for peripheral devices*/
-    [[IOSBluetooth Get] Stop];
+    [[PenMacIOSCentralBluetooth Get] Stop];
 }
 
-unsigned int MapMacIOSBluetoothGetCountOfPeripherals(){
+unsigned int MapMacPenMacIOSCentralBluetoothGetCountOfPeripherals(){
     /*Returns the number of peripherals*/
-    return [[[IOSBluetooth Get] GetPeripherals] count];
+    return [[[PenMacIOSCentralBluetooth Get] GetPeripherals] count];
 }
 
-const char* MapMacIOSBluetoothGetPeripheral(unsigned int index){
+const char* MapMacPenMacIOSCentralBluetoothGetPeripheral(unsigned int index){
     /*Returns a peripheral device*/
-    CBPeripheral* peripheral = [[[IOSBluetooth Get] GetPeripherals] objectAtIndex:index];
+    CBPeripheral* peripheral = [[[PenMacIOSCentralBluetooth Get] GetPeripherals] objectAtIndex:index];
     return [peripheral.name UTF8String];
 }
 
-void MapMacIOSBluetoothConnect(const char* device, const char* deviceCharacteristicDescriptor){
+void MapMacPenMacIOSCentralBluetoothConnect(const char* device, const char* deviceCharacteristicDescriptor){
     /*Connect to a peripheral device*/
     NSString* deviceStr = [NSString stringWithUTF8String:device];
-    NSMutableArray<CBPeripheral*>* devices = [[IOSBluetooth Get] GetPeripherals];
+    NSMutableArray<CBPeripheral*>* devices = [[PenMacIOSCentralBluetooth Get] GetPeripherals];
     for(CBPeripheral* peripheral in devices){
         if([peripheral.name isEqualToString:deviceStr]){
-            IOSBluetooth* inst = [IOSBluetooth Get];
+            PenMacIOSCentralBluetooth* inst = [PenMacIOSCentralBluetooth Get];
             inst.characteristicDescriptor = [NSString stringWithUTF8String:deviceCharacteristicDescriptor];
             [inst Connect:peripheral];
             break;
@@ -239,18 +240,18 @@ void MapMacIOSBluetoothConnect(const char* device, const char* deviceCharacteris
     }
 }
 
-void MapMacIOSBluetoothRead(const char* device){
+void MapMacPenMacIOSCentralBluetoothRead(const char* device){
     /*Reads the value from the current characteristic of a given device*/
-    [[IOSBluetooth Get] Read:[NSString stringWithUTF8String:device]];
+    [[PenMacIOSCentralBluetooth Get] Read:[NSString stringWithUTF8String:device]];
 }
 
-void MapMacIOSBluetoothWrite(char* data, long length){
+void MapMacPenMacIOSCentralBluetoothWrite(char* data, long length){
     /*Reads the value of the current characteristic*/
-    [[IOSBluetooth Get] Write:(const void*)data :length];
+    [[PenMacIOSCentralBluetooth Get] Write:(const void*)data :length];
 }
 
-void MapMacIOSBluetoothDisconnect(const char* device){
+void MapMacPenMacIOSCentralBluetoothDisconnect(const char* device){
     /*Disconnect from a given device*/
-    [[IOSBluetooth Get] Disconnect:[NSString stringWithUTF8String:device]];
+    [[PenMacIOSCentralBluetooth Get] Disconnect:[NSString stringWithUTF8String:device]];
 }
 #endif

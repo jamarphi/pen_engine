@@ -573,7 +573,7 @@ namespace pen {
 
     void Pen::SetMobileCallbacks(void (*onRenderCallback)(), void (*onClickCallback)(double, double), void (*onResumeCallback)(),
         void (*onPauseCallback)(), void (*onKeyCallback)(char), void (*onTiltCallback)(double, double, double, double),
-        void (*onAndroidBluetoothCallback)(), void (*onMacIosBluetoothCallback)(char*, long)) {
+        void (*onAndroidBluetoothCallback)(), void (*onMacIosBluetoothCallback)(char*, long, unsigned int)) {
         /*Sets the mobile callback functions for mobile devices*/
 #ifdef __PEN_MOBILE__
         pen::State* inst = pen::State::Get();

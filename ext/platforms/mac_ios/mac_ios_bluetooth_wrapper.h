@@ -27,47 +27,68 @@ namespace pen {
     namespace ios {
         namespace conn {
             namespace bt{
+                enum TYPE {
+                    CENTRAL = 0,
+                    PERIPHERAL = 1,
+                    READ = 2,
+                    WRITE = 3
+                };
+            
+                /*----Central side functions----*/
                 static void Scan (std::vector<std::string> devices = {}){
                     /*Start scanning for devices*/
                     for(int i = 0; i < devices.size(); i++){
-                        MapMacIOSBluetoothAddDevice(devices[i].c_str());
+                        MapMacPenMacIOSCentralBluetoothAddDevice(devices[i].c_str());
                     }
-                    MapMacIOSBluetoothConnect();
+                    MapMacPenMacIOSCentralBluetoothConnect();
                 }
             
                 static void Stop () {
                     /*Stops scanning for peripheral devices*/
-                    MapMacIOSBluetoothStop();
+                    MapMacPenMacIOSCentralBluetoothStop();
                 }
             
                 static std::vector<std::string> QueryPotentialConnections(){
                     /*Return the potential connections*/
                     std::vector<std::string> devices;
-                    unsigned int deviceCount = MapMacIOSBluetoothGetCountOfPeripherals();
+                    unsigned int deviceCount = MapMacPenMacIOSCentralBluetoothGetCountOfPeripherals();
                     for(int i = 0; i < deviceCount; i++){
-                        devices.push_back(std::string(MapMacIOSBluetoothGetPeripheral()));
+                        devices.push_back(std::string(MapMacPenMacIOSCentralBluetoothGetPeripheral()));
                     }
                     return devices;
                 }
             
-                static void Connect (std::string device, std::string descriptor) {
+                static void Connect (const std::string& device, const std::string& descriptor) {
                     /*Connect to a peripheral device*/
-                    MapMacIOSBluetoothConnect(device.c_str(), descriptor.c_str());
+                    MapMacPenMacIOSCentralBluetoothConnect(device.c_str(), descriptor.c_str());
                 }
             
-                static void Read(const char* device){
+                static void Read(const std::string& device){
                     /*Reads the value from the current characteristic of a given device*/
-                    MapMacIOSBluetoothRead(device);
+                    MapMacPenMacIOSCentralBluetoothRead(device.c_str());
                 }
             
                 static void Write(char* data, long length){
                     /*Writes a value for the current characteristic to all the connected devices*/
-                    MapMacIOSBluetoothWrite(data, length);
+                    MapMacPenMacIOSCentralBluetoothWrite(data, length);
                 }
             
-                static void Disconnect(const char* device){
+                static void Disconnect(const std::string& device){
                     /*Disconnect from a given device*/
-                    MapMacIOSBluetoothDisconnect(device);
+                    MapMacPenMacIOSCentralBluetoothDisconnect(device.c_str());
+                }
+            
+                namespace rec {
+                    /*----Peripheral side functions----*/
+                    static void AddService(const std::string& service, const std::string& characteristic, char* value, long length, unsigned int type){
+                        /*Adds a service for the peripheral side*/
+                        MapMacPenMacIOSPeripheralBluetoothStart(service.c_str(), characteristic.c_str(), value, length, type);
+                    }
+                
+                    static void UpdateCharacteristic(const std::string& service, const std::string& characteristic, char* value){
+                        /*Updates the value of a characteristic*/
+                        MapMacPenMacIOSPeripheralBluetoothUpdateCharacteristicValue(service.c_str(), characteristic.c_str(), value);
+                    }
                 }
             }
         }

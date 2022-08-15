@@ -99,6 +99,8 @@ In Build Settings -> C++ Language Dialect, make sure it is C++17.
 
 # 1.8.2.1 - Mac And IOS Bluetooth
 
+# Bluetooth As A Central
+
 If using bluetooth you have to add a description for the bluetooth permission in
 your Info.plist file.
 
@@ -116,7 +118,7 @@ Once you have a desired device that you want to connect with, you connect by doi
 
     pen::ios::conn::bt::Connect(std::string device, std::string descriptor);
 
-This descriptor is for the characteristic associated with the service you want to interact
+This descriptor is the same name as the characteristic associated with the service you want to interact
 with for the given device, this should be known beforehand when connecting.
 
 You can connect with multiple devices at once.
@@ -124,16 +126,22 @@ You can connect with multiple devices at once.
 Once a connection is established a subscription is made to automatically read data from the device
 within the bluetoothCallback, data can be read by doing:
 
-    macIosBluetoothCallback(char* bytes, long length){
+    void macIosBluetoothCallback(char* bytes, long length, unsigned int type){
         /*Handle the value from the characteristic*/
+        if(type == pen::ios::conn::bt::TYPE::CENTRAL){
+        
+        }
     }
     
 You can also read data manually by doing with the callback being the same:
 
     pen::ios::conn::bt::Read(const char* device);
 
-    macIosBluetoothCallback(char* bytes, long length){
+    void macIosBluetoothCallback(char* bytes, long length, unsigned int type){
         /*Handle the value from the characteristic*/
+        if(type == pen::ios::conn::bt::TYPE::CENTRAL){
+        
+        }
     }
 
 Data can written to the current characteristic for all connected devices by doing:
@@ -143,5 +151,42 @@ Data can written to the current characteristic for all connected devices by doin
 Once done with a connected device, the connection can be closed by doing:
 
     pen::ios::conn::bt::Disconnect(const char* device);
+    
+# Bluetooth As A Peripheral
+
+When using bluetooth as a peripheral device you initiate bluetooth by doing:
+
+    pen::ios::conn::bt::rec::AddService(const char* service, const char* characteristic, char* value, long length, unsigned int type);
+
+The types can be defined as the following:
+
+    - pen::ios::conn::bt::TYPE::READ for a readable service characteristic
+    - pen::ios::conn::bt::TYPE::READ for a writable service characteristic
+    
+Now your service will be advertised to any centrals that are available to connect.
+
+If a central subscribes to your service, then you can update the value of the characteristic by doing:
+
+    void macIosBluetoothCallback(char* bytes, long length, unsigned int type){
+        /*Update the value of the characteristic*/
+        if(type == pen::ios::conn::bt::TYPE::PERIPHERAL){
+            /*
+            The bytes variable is now a string that has the name of the service and characteristic
+            separated by a colon
+            */
+            std::string serviceCharacteristicPair(bytes);
+            std::string serviceName = serviceCharacteristicPair.substr(0, serviceCharacteristicPair.find(":"));
+            std::string characteristicName = serviceCharacteristicPair.substr(serviceCharacteristicPair.find(":") + 1);
+            
+            /*The length is used to update the value with the correct number of bytes*/
+            char* data = new char[length];
+            
+            /*Set the data*/
+
+            pen::ios::conn::bt::rec::UpdateCharacteristic(serviceName, characteristicName, data);
+            delete[] data;
+        }
+        
+    }
 
 ---------------------------------------------------------------------------

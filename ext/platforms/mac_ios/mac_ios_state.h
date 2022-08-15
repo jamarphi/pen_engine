@@ -41,9 +41,9 @@ under the License.
 #import <simd/simd.h>
 #import "mac_ios_cpp_objective_c_mapping.h"
 
-@class IOSState;
+@class PenMacIOSState;
 
-@interface IOSState : NSObject
+@interface PenMacIOSState : NSObject
 
 	@property MTKView* iosMtkView;
     @property id<MTLDevice> iosDevice;
@@ -63,7 +63,7 @@ under the License.
     @property NSWindow* iosWindow;
 #endif
 
-+ (IOSState*) Get;
++ (PenMacIOSState*) Get;
 + (NSMutableArray*) GetTextures;
 @end
 #endif

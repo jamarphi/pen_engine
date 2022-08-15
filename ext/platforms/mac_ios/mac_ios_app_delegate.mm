@@ -22,7 +22,7 @@ under the License.
 
 #ifdef __PEN_MAC_IOS__
 
-@implementation PenIOSAppDelegate
+@implementation PenMacIOSAppDelegate
 
 - (void) applicationWillFinishLaunching: (NSNotification*) pNotification
 {
@@ -36,7 +36,7 @@ under the License.
 - (void) applicationDidFinishLaunching: (NSNotification*) pNotification
 {
     /*After application is done launching*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
     MTLDepthStencilDescriptor* pDsDesc = [[MTLDepthStencilDescriptor alloc] init];
     [pDsDesc setDepthCompareFunction:MTLCompareFunctionLess];
     [pDsDesc setDepthWriteEnabled:true];
@@ -47,10 +47,10 @@ under the License.
     inst.dispatchSemaphore = dispatch_semaphore_create(3);
     
     /*Initialize static arrays*/
-    NSMutableArray* textures = [IOSState GetTextures];
-    NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
-    NSMutableDictionary* argumentBuffers = [IOSArgumentBuffer IOSArgumentBuffersGet];
-    NSMutableDictionary* indexBuffers = [IOSIndexBuffer IOSIndexBuffersGet];
+    NSMutableArray* textures = [PenMacIOSState GetTextures];
+    NSMutableDictionary* vertexBuffers = [PenMacIOSVertexBuffer PenMacIOSVertexBuffersGet];
+    NSMutableDictionary* argumentBuffers = [PenMacIOSArgumentBuffer PenMacIOSArgumentBuffersGet];
+    NSMutableDictionary* indexBuffers = [PenMacIOSIndexBuffer PenMacIOSIndexBuffersGet];
     textures = [[NSMutableArray alloc] init];
     vertexBuffers = [NSMutableDictionary dictionary];
     argumentBuffers = [NSMutableDictionary dictionary];
@@ -68,7 +68,7 @@ under the License.
 
     inst.iosDevice = MTLCreateSystemDefaultDevice();
 
-    inst.iosMtkView = [[PenMTKViewDelegate alloc] initWithFrame: frame device:inst.iosDevice];
+    inst.iosMtkView = [[PenMacIOSMTKViewDelegate alloc] initWithFrame: frame device:inst.iosDevice];
     [inst.iosMtkView setColorPixelFormat: MTLPixelFormatBGRA8Unorm_sRGB];
 
 #ifndef TARGET_OS_IOS

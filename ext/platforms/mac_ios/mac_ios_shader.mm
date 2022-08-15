@@ -22,10 +22,10 @@ under the License.
 
 #ifdef __PEN_MAC_IOS__
 
-@implementation IOSShader
-+ (void) IOSShaderInit: (const char*) shaderProgram {
+@implementation PenMacIOSShader
++ (void) PenMacIOSShaderInit: (const char*) shaderProgram {
 	/*Creates a Metal shader*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
 	//using NS::StringEncoding::UTF8StringEncoding;
 
 	NSError* pError = nullptr;
@@ -55,7 +55,7 @@ under the License.
 
 + (void) IOSUpdateInstanceUniform: (IOSInstanceData*) data{
 	/*Updates the instanced offsets*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
 	int size = sizeof(IOSInstanceData) * 400;
 #ifndef TARGET_OS_IOS
     id<MTLBuffer> instanceBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeManaged];
@@ -70,13 +70,13 @@ under the License.
 }
 @end
 
-void MapMacIOSShaderInit(const char* shaderProgram){
+void MapMacPenMacIOSShaderInit(const char* shaderProgram){
     /*Creates a Metal shader*/
-    [IOSShader IOSShaderInit:shaderProgram];
+    [PenMacIOSShader PenMacIOSShaderInit:shaderProgram];
 }
 
 void MapMacIOSUpdateInstanceUniform(IOSInstanceData* data){
     /*Updates the instanced offsets*/
-    [IOSShader IOSUpdateInstanceUniform:data];
+    [PenMacIOSShader IOSUpdateInstanceUniform:data];
 }
 #endif

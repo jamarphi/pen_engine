@@ -25,12 +25,12 @@ under the License.
 #ifdef __PEN_MAC_IOS__
 #import "mac_ios_state.h"
 
-@interface IOSIndexBuffer : NSObject
+@interface PenMacIOSIndexBuffer : NSObject
 
-+ (void) IOSIndexBufferInit :(unsigned int) layerId
++ (void) PenMacIOSIndexBufferInit :(unsigned int) layerId
                 :(int*) data
                 :(unsigned int) count;
-	+ (void) IOSIndexBufferDestroy: (unsigned int) layerId;
-+ (NSMutableDictionary*) IOSIndexBuffersGet;
+	+ (void) PenMacIOSIndexBufferDestroy: (unsigned int) layerId;
++ (NSMutableDictionary*) PenMacIOSIndexBuffersGet;
 @end
 #endif

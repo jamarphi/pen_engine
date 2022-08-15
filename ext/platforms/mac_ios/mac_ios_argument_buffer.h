@@ -26,11 +26,11 @@ under the License.
 #import "mac_ios_state.h"
 #import "mac_ios_vertex_buffer.h"
 
-@interface IOSArgumentBuffer : NSObject
+@interface PenMacIOSArgumentBuffer : NSObject
 
-+ (void) IOSArgumentBufferInit: (unsigned int) layerId :(id<MTLBuffer>) dataBuffer;
-	+ (void) IOSArgumentBufferBind: (unsigned int) layerId;
-	+ (void) IOSArgumentBufferDestroy: (unsigned int) layerId;
-+ (NSMutableDictionary*) IOSArgumentBuffersGet;
++ (void) PenMacIOSArgumentBufferInit: (unsigned int) layerId :(id<MTLBuffer>) dataBuffer;
+	+ (void) PenMacIOSArgumentBufferBind: (unsigned int) layerId;
+	+ (void) PenMacIOSArgumentBufferDestroy: (unsigned int) layerId;
++ (NSMutableDictionary*) PenMacIOSArgumentBuffersGet;
 @end
 #endif

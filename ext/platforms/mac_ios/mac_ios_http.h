@@ -25,7 +25,7 @@ under the License.
 #ifdef __PEN_MAC_IOS__
 #import "mac_ios_state.h"
 
-@interface IOSHttp : NSObject
+@interface PenMacIOSHttp : NSObject
 
 @end
 #endif

@@ -26,7 +26,7 @@ under the License.
 #import "../../../src/state/state.h"
 #import "mac_ios_state.h"
 
-@interface IOSTexture : NSObject
+@interface PenMacIOSTexture : NSObject
 
     + (void) IOSInitializeTexture: (unsigned int) texWidth
                          :(unsigned int) texHeight

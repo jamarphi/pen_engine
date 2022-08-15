@@ -25,14 +25,14 @@ under the License.
 #ifdef __PEN_MAC_IOS__
 #import "mac_ios_state.h"
 
-@class IOSVertexBuffer;
+@class PenMacIOSVertexBuffer;
 
-@interface IOSVertexBuffer : NSObject
+@interface PenMacIOSVertexBuffer : NSObject
 
-    + (void) IOSVertexBufferInit:(unsigned int) layerId
+    + (void) PenMacIOSVertexBufferInit:(unsigned int) layerId
                      :(BatchVertexData*) data
                      :(unsigned int) size;
-	+ (void) IOSVertexBufferDestroy: (unsigned int) layerId;
-+ (NSMutableDictionary*) IOSVertexBuffersGet;
+	+ (void) PenMacIOSVertexBufferDestroy: (unsigned int) layerId;
++ (NSMutableDictionary*) PenMacIOSVertexBuffersGet;
 @end
 #endif

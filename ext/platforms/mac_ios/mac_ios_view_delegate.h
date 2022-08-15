@@ -36,7 +36,7 @@ under the License.
 
 #define MVP_MATRIX_SIZE sizeof(float) * 16
 
-@interface PenMTKViewDelegate : MTKView
+@interface PenMacIOSMTKViewDelegate : MTKView
 
     /*Virtual methods inherited from MTKView*/
     - (void) drawRect:(CGRect)rect;

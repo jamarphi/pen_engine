@@ -23,11 +23,11 @@ under the License.
 #ifdef __PEN_MAC_IOS__
 static NSMutableDictionary* iosArgumentBuffers;
 
-@implementation IOSArgumentBuffer
+@implementation PenMacIOSArgumentBuffer
 
-+ (void) IOSArgumentBufferInit: (unsigned int) layerId :(id<MTLBuffer>) dataBuffer{
++ (void) PenMacIOSArgumentBufferInit: (unsigned int) layerId :(id<MTLBuffer>) dataBuffer{
     /*Creates an ios argument buffer for formatting vertex data*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
 #ifndef TARGET_OS_IOS
     id<MTLBuffer> iosArgumentBuffer = [inst.iosDevice newBufferWithLength:[inst.iosArgEncoder encodedLength] options:MTLResourceStorageModeManaged];
 #else
@@ -36,43 +36,43 @@ static NSMutableDictionary* iosArgumentBuffers;
     [inst.iosArgEncoder setArgumentBuffer:iosArgumentBuffer offset:0];
     [inst.iosArgEncoder setBuffer:dataBuffer offset:0 atIndex:0];
 #ifndef TARGET_OS_IOS
-    [IOSArgumentBuffer didModifyRange: NSRangeMake(0, [iosArgumentBuffer length])];
+    [PenMacIOSArgumentBuffer didModifyRange: NSRangeMake(0, [iosArgumentBuffer length])];
 #endif
     [iosArgumentBuffers setObject:iosArgumentBuffer forKey:[NSString stringWithFormat:@"%d", layerId]];
 }
 
-+ (void) IOSArgumentBufferBind: (unsigned int) layerId{
++ (void) PenMacIOSArgumentBufferBind: (unsigned int) layerId{
 	/*Binds the ios argument buffer*/
-    IOSState* inst = [IOSState Get];
+    PenMacIOSState* inst = [PenMacIOSState Get];
     [inst.iosArgEncoder setArgumentBuffer:[iosArgumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] offset:0];
 }
 
-+ (void) IOSArgumentBufferDestroy: (unsigned int) layerId{
++ (void) PenMacIOSArgumentBufferDestroy: (unsigned int) layerId{
 	/*Removes the buffer from the GPU*/
     if([iosArgumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] != nil){
         [iosArgumentBuffers removeObjectForKey:[NSString stringWithFormat:@"%d", layerId]];
     }
 }
 
-+(NSMutableDictionary*) IOSArgumentBuffersGet{
++(NSMutableDictionary*) PenMacIOSArgumentBuffersGet{
     /*Returns the argument buffer list*/
     return iosArgumentBuffers;
 }
 @end
 
-void MapMacIOSArgumentBufferInit(unsigned int layerId){
+void MapMacPenMacIOSArgumentBufferInit(unsigned int layerId){
     /*Creates an ios argument buffer for formatting vertex data*/
-    NSMutableDictionary* vertexBuffers = [IOSVertexBuffer IOSVertexBuffersGet];
-    [IOSArgumentBuffer IOSArgumentBufferInit:layerId :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]];
+    NSMutableDictionary* vertexBuffers = [PenMacIOSVertexBuffer PenMacIOSVertexBuffersGet];
+    [PenMacIOSArgumentBuffer PenMacIOSArgumentBufferInit:layerId :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]];
 }
 
-void MapMacIOSArgumentBufferBind(unsigned int layerId){
+void MapMacPenMacIOSArgumentBufferBind(unsigned int layerId){
     /*Binds the ios argument buffer*/
-    [IOSArgumentBuffer IOSArgumentBufferBind:layerId];
+    [PenMacIOSArgumentBuffer PenMacIOSArgumentBufferBind:layerId];
 }
 
-void MapMacIOSArgumentBufferDestroy(unsigned int layerId){
+void MapMacPenMacIOSArgumentBufferDestroy(unsigned int layerId){
     /*Removes the buffer from the GPU*/
-    [IOSArgumentBuffer IOSArgumentBufferDestroy:layerId];
+    [PenMacIOSArgumentBuffer PenMacIOSArgumentBufferDestroy:layerId];
 }
 #endif

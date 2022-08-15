@@ -273,20 +273,20 @@ The device name does not need to be known before searching, it will just connect
 
 Once a connection is established captured by the bluetoothCallback, data can be read by doing:
 
-    androidBluetoothCallback(){
+    void androidBluetoothCallback(){
         int numBytes = 0;
         char* data =  pen::android::conn::bt::Read(&numBytes);
     }
 
 Data can also be written by doing:
 
-    androidBluetoothCallback(){
+    void androidBluetoothCallback(){
          pen::android::conn::bt::Write(char* buffer, int numBytes);
     }
 
 Once done with a connected device, the connection can be closed by doing:
 
-    androidBluetoothCallback(){
+    void androidBluetoothCallback(){
          pen::android::conn::bt::Close();
     }
 

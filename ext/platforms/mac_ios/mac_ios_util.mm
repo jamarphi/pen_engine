@@ -22,7 +22,7 @@ under the License.
 #include "mac_ios_util.h"
 
 #ifdef __PEN_MAC_IOS__
-@implementation IOSUtil
+@implementation PenMacIOSUtil
 + (const char*) IOSLoadAsset:(const char*) path :(const char*) mimeType {
     /*Loads in an asset*/
     const char* file;
@@ -36,6 +36,6 @@ under the License.
 
 const char* MapMacIOSLoadAsset(const char* path, const char* mimeType){
     /*Loads in an asset*/
-    return [IOSUtil IOSLoadAsset:path :mimeType];
+    return [PenMacIOSUtil IOSLoadAsset:path :mimeType];
 }
 #endif

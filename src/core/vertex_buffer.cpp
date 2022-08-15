@@ -34,7 +34,7 @@ VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
 #else
 VertexBuffer::VertexBuffer(unsigned int layerId, BatchVertexData* data, unsigned int size) {
 	/*For IOS Metal buffers*/
-    MapMacIOSVertexBufferInit(layerId, data, size);
+    MapMacPenMacIOSVertexBufferInit(layerId, data, size);
 }
 #endif
 
@@ -73,6 +73,6 @@ void VertexBuffer::Destroy() {
 #else
 void VertexBuffer::Destroy(unsigned int layerId) {
     /*Removes the vertex buffer from memory on the GPU*/
-    MapMacIOSVertexBufferDestroy(layerId);
+    MapMacPenMacIOSVertexBufferDestroy(layerId);
 }
 #endif

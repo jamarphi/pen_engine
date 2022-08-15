@@ -120,7 +120,7 @@ namespace pen {
 		return program;
 #else
         /*In Metal the vertex and fragment shader source is combined*/
-        MapMacIOSShaderInit(vertexShader.c_str());
+        MapMacPenMacIOSShaderInit(vertexShader.c_str());
         return 0;
 #endif
 	}

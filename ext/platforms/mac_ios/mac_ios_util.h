@@ -25,7 +25,7 @@ under the License.
 #ifdef __PEN_MAC_IOS__
 #import "mac_ios_state.h"
 
-@interface IOSUtil : NSObject
+@interface PenMacIOSUtil : NSObject
 + (const char*) IOSLoadAsset:(const char*) path :(const char*) mimeType;
 @end
 #endif
