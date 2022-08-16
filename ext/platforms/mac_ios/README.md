@@ -79,6 +79,8 @@ Next go to Build Phases -> Link Binary With Libraries -> add the following libra
 - QuartzCore
 - MetalKit
 - CoreBluetooth
+- libsqlite3.tbd
+- AVFAudio
 
 For IOS:
 
@@ -117,7 +119,7 @@ While scanning, potential connections can be constantly queried with:
     
 Once you have a desired device that you want to connect with, you connect by doing:
 
-    pen::ios::conn::bt::Connect(std::string device, std::string descriptor);
+    pen::ios::conn::bt::Connect(const char* device, const char* descriptor);
 
 This descriptor is the same name as the characteristic associated with the service you want to interact
 with for the given device, this should be known beforehand when connecting.
@@ -184,7 +186,7 @@ If a central subscribes to your service, then you can update the value of the ch
             
             /*Set the data*/
 
-            pen::ios::conn::bt::rec::UpdateCharacteristic(serviceName, characteristicName, data);
+            pen::ios::conn::bt::rec::UpdateCharacteristic(serviceName.c_str(), characteristicName.c_str(), data);
             delete[] data;
         }
         
@@ -216,7 +218,7 @@ If expecting anything back from the request do:
 
 To do a socket request to a server first connect:
 
-    pen::ios::conn::socket::Connect(const std::string& url);
+    pen::ios::conn::socket::Connect(const char* url);
     
 Once connected you can be notified by doing:
 
@@ -251,5 +253,51 @@ Once the data is received you can be notified by doing:
         
         }
     }
+
+---------------------------------------------------------------------------
+
+# 1.8.2.4 - Mac And IOS Database
+
+If you want to use persisted memory for your mac and ios applications you can call the following:
+
+    /*Needs to be called before any database operation*/
+    - pen::ios::db::Start(const char* database, const char* table);
+    
+    /*Creates a table if it does not exist already in the database*/
+    - pen::ios::db::CreateTable(const char* table);
+
+    /*Adds or updates a key value in the database*/
+    - pen::ios::db::Insert(const char* table, const char* key, const char* value);
+
+    /*Retrieves a key value from the database as a string*/
+    - pen::ios::db::Get(const char* table, const char* key);
+
+    /*Removes a key from the database*/
+    - pen::ios::db::Delete(const char* table, const char* key);
+
+    /*Deletes a table from the database*/
+    - pen::ios::db::Drop(const char* table);
+
+---------------------------------------------------------------------------
+
+# 1.8.1.4 - Android Loading
+
+You can load in assets such as level packs by doing:
+
+    pen::Asset::Load(std::string file, nullptr);
+
+---------------------------------------------------------------------------
+
+# 1.8.2.5 - Mac And IOS Sound
+
+To play sounds and music do:
+
+    - pen::ios::sound::Play(const char* file, unsigned int loopNumber = 0);
+    
+    - pen::ios::sound::Pause(const char* file);
+    
+    - pen::ios::sound::Stop(const char* file);
+    
+    - pen::ios::sound::Remove(const char* file);
 
 ---------------------------------------------------------------------------

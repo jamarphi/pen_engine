@@ -24,8 +24,22 @@ under the License.
 
 #ifdef __PEN_MAC_IOS__
 #import "mac_ios_state.h"
+#import <sqlite3.h>
+
+@class PenMacIOSDatabase;
 
 @interface PenMacIOSDatabase : NSObject
+@property(nonatomic, strong) NSString* databasePath;
 
+- (void) StartDatabase: (NSString*) databaseName :(NSString*) tableName;
+- (void) CreateTable: (NSString*) table;
+- (void) Insert: (NSString*) table :(NSString*) key :(NSString*) value;
+- (char*) GetItem: (NSString*) table :(NSString*) key;
+- (void) UpdateItem: (NSString*) table :(NSString*) key :(NSString*) value;
+- (void) DeleteItem: (NSString*) table :(NSString*) key;
+- (void) ClearTable: (NSString*) table;
+- (void) DropTable: (NSString*) table;
+
++(PenMacIOSDatabase*) Get;
 @end
 #endif

@@ -21,6 +21,7 @@ under the License.
 #pragma once
 
 #include "../../../src/state/config.h"
+#include "../../../src/state/state.h"
 #include "mac_ios_cpp_objective_c_mapping.h"
 
 namespace pen {
@@ -66,17 +67,17 @@ namespace pen {
 #endif
                 }
             
-                static void Connect (const std::string& device, const std::string& descriptor) {
+                static void Connect (const char* device, const char* descriptor) {
                     /*Connect to a peripheral device*/
 #ifdef __PEN_MAC_IOS__
-                    MapMacPenMacIOSCentralBluetoothConnect(device.c_str(), descriptor.c_str());
+                    MapMacPenMacIOSCentralBluetoothConnect(device, descriptor);
 #endif
                 }
             
-                static void Read(const std::string& device){
+                static void Read(const char* device){
                     /*Reads the value from the current characteristic of a given device*/
 #ifdef __PEN_MAC_IOS__
-                    MapMacPenMacIOSCentralBluetoothRead(device.c_str());
+                    MapMacPenMacIOSCentralBluetoothRead(device);
 #endif
                 }
             
@@ -87,27 +88,27 @@ namespace pen {
 #endif
                 }
             
-                static void Disconnect(const std::string& device){
+                static void Disconnect(const char* device){
                     /*Disconnect from a given device*/
 #ifdef __PEN_MAC_IOS__
-                    MapMacPenMacIOSCentralBluetoothDisconnect(device.c_str());
+                    MapMacPenMacIOSCentralBluetoothDisconnect(device);
 #endif
                 }
                 /*----Central side functions----*/
             
                 namespace rec {
                     /*----Peripheral side functions----*/
-                    static void AddService(const std::string& service, const std::string& characteristic, char* value, long length, unsigned int type){
+                    static void AddService(const char* service, const char* characteristic, char* value, long length, unsigned int type){
                         /*Adds a service for the peripheral side*/
 #ifdef __PEN_MAC_IOS__
-                        MapMacPenMacIOSPeripheralBluetoothStart(service.c_str(), characteristic.c_str(), value, length, type);
+                        MapMacPenMacIOSPeripheralBluetoothStart(service, characteristic, value, length, type);
 #endif
                     }
                 
-                    static void UpdateCharacteristic(const std::string& service, const std::string& characteristic, char* value){
+                    static void UpdateCharacteristic(const char* service, const char* characteristic, char* value){
                         /*Updates the value of a characteristic*/
 #ifdef __PEN_MAC_IOS__
-                        MapMacPenMacIOSPeripheralBluetoothUpdateCharacteristicValue(service.c_str(), characteristic.c_str(), value);
+                        MapMacPenMacIOSPeripheralBluetoothUpdateCharacteristicValue(service, characteristic, value);
 #endif
                     }
                     /*----Peripheral side functions----*/

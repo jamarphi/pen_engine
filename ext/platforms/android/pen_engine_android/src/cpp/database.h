@@ -29,7 +29,7 @@ extern "C" {
 	namespace pen {
 		namespace android {
 			namespace db {
-				bool AndroidDBStart(const char* dbName, const char* tableName) {
+				void Start(const char* dbName, const char* tableName) {
 					/*Initialize the database on the Java end*/
 					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
 					jclass localStorageClass = env->FindClass(
@@ -42,19 +42,38 @@ extern "C" {
 							jstring javaDBName = env->NewStringUTF(dbName);
 							jstring javaTableName = env->NewStringUTF(tableName);
 
-							bool success = env->CallStaticBooleanMethod(
+							env->CallStaticVoidMethod(
 								localStorageClass, methodID, javaDBName, javaTableName);
 
 							env->DeleteLocalRef(javaDBName);
 							env->DeleteLocalRef(javaTableName);
-
-							return success;
 						}
-						return false;
 					}
 				}
+            
+                void CreateTable(const char* tableName) {
+                    /*Initialize the database on the Java end*/
+                    JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
+                    jclass localStorageClass = env->FindClass(
+                        "com/jamar/penengine/PenLocalStorage");
+                    if (localStorageClass != nullptr) {
+                        jmethodID methodID = env->GetStaticMethodID(localStorageClass,
+                            "createTable",
+                            "(Ljava/lang/String;)V");
+                        if (methodID != nullptr) {
+                            jstring javaDBName = env->NewStringUTF(dbName);
+                            jstring javaTableName = env->NewStringUTF(tableName);
 
-				void AndroidDBClose() {
+                            env->CallStaticVoidMethod(
+                                localStorageClass, methodID, javaDBName, javaTableName);
+
+                            env->DeleteLocalRef(javaDBName);
+                            env->DeleteLocalRef(javaTableName);
+                        }
+                    }
+                }
+
+				void Close() {
 					/*Close the database connection*/
 					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
 					jclass localStorageClass = env->FindClass(
@@ -68,7 +87,7 @@ extern "C" {
 					}
 				}
 
-				void AndroidDBSetItem(const char* key, const char* value) {
+				void Insert(const char* table, const char* key, const char* value) {
 					/*Adds or updates key value in database*/
 					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
 					jclass localStorageClass = env->FindClass(
@@ -76,21 +95,23 @@ extern "C" {
 					if (localStorageClass != nullptr) {
 						jmethodID methodID = env->GetStaticMethodID(localStorageClass,
 							"setItem",
-							"(Ljava/lang/String;Ljava/lang/String;)V");
+							"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
 						if (methodID != nullptr) {
+                            jstring javaTable = env->NewStringUTF(table);
 							jstring javaKey = env->NewStringUTF(key);
 							jstring javaValue = env->NewStringUTF(value);
 
-							env->CallStaticVoidMethod(localStorageClass, methodID, javaKey,
+							env->CallStaticVoidMethod(localStorageClass, methodID, javaTable, javaKey,
 								javaValue);
 
+                            env->DeleteLocalRef(javaTable);
 							env->DeleteLocalRef(javaKey);
 							env->DeleteLocalRef(javaValue);
 						}
 					}
 				}
 
-				std::string AndroidDBGetItem(const char* key) {
+				std::string Get(const char* table, const char* key) {
 					/*Retrieve item from database*/
 					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
 					jclass localStorageClass = env->FindClass(
@@ -98,15 +119,17 @@ extern "C" {
 					if (localStorageClass != nullptr) {
 						jmethodID methodID = env->GetStaticMethodID(localStorageClass,
 							"getItem",
-							"(Ljava/lang/String;)V");
+							"(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
 						if (methodID != nullptr) {
+                            jstring javaTable = env->NewStringUTF(table);
 							jstring javaKey = env->NewStringUTF(key);
 
 							jstring javaValue = (jstring)env->CallStaticObjectMethod(
-								localStorageClass, methodID, javaKey);
+								localStorageClass, methodID, javaTable, javaKey);
 							const char* javaValueStrArr = env->GetStringUTFChars(javaValue,
 								0);
 
+                            env->DeleteLocalRef(javaTable);
 							env->DeleteLocalRef(javaKey);
 							env->DeleteLocalRef(javaValue);
 
@@ -118,7 +141,7 @@ extern "C" {
 					return "";
 				}
 
-				void AndroidDBRemoveItem(const char* key) {
+				void Delete(const char* table, const char* key) {
 					/*Remove key from database*/
 					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
 					jclass localStorageClass = env->FindClass(
@@ -128,25 +151,45 @@ extern "C" {
 							"removeItem",
 							"(Ljava/lang/String;)V");
 						if (methodID != nullptr) {
+                            jstring javaTable = env->NewStringUTF(table);
 							jstring javaKey = env->NewStringUTF(key);
 
-							env->CallStaticVoidMethod(localStorageClass, methodID, javaKey);
+							env->CallStaticVoidMethod(localStorageClass, methodID, javaTable, javaKey);
 
+                            env->DeleteLocalRef(javaTable);
 							env->DeleteLocalRef(javaKey);
 						}
 					}
 				}
+            
+                void Clear(const char* table) {
+                    JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
+                    /*Delete everythingfrom the table*/
+                    jclass localStorageClass = env->FindClass(
+                        "com/jamar/penengine/PenLocalStorage");
+                    if (localStorageClass != nullptr) {
+                        jmethodID methodID = env->GetStaticMethodID(localStorageClass,
+                            "clearTable", "(Ljava/lang/String;)V");
+                        if (methodID != nullptr) {
+                            jstring javaTable = env->NewStringUTF(table);
+                            
+                            env->CallStaticVoidMethod(localStorageClass, methodID, table);
+                        }
+                    }
+                }
 
-				void AndroidDBDeleteTable() {
+				void Drop(const char* table) {
 					JNIEnv* env = (JNIEnv*)pen::State::Get()->javaEnv;
-					/*Delete the table from database*/
+					/*Delete the table from the database*/
 					jclass localStorageClass = env->FindClass(
 						"com/jamar/penengine/PenLocalStorage");
 					if (localStorageClass != nullptr) {
 						jmethodID methodID = env->GetStaticMethodID(localStorageClass,
-							"clear", "()V");
+							"dropTable", "(Ljava/lang/String;)V");
 						if (methodID != nullptr) {
-							env->CallStaticVoidMethod(localStorageClass, methodID);
+                            jstring javaTable = env->NewStringUTF(table);
+                            
+							env->CallStaticVoidMethod(localStorageClass, methodID, table);
 						}
 					}
 				}

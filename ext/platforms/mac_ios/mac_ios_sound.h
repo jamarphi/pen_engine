@@ -21,26 +21,21 @@ under the License.
 #pragma once
 
 #include "../../../src/state/config.h"
-#include "../../../src/state/state.h"
-#include "mac_ios_cpp_objective_c_mapping.h"
 
-namespace pen {
-    namespace ios {
-        namespace conn {
-            namespace http{
-                enum TYPE {
-                    GET = 0,
-                    POST = 1
-                };
-            
-                static void Send (const char* url, unsigned int type, pen::Map<std::string,std::string>* httpBody = nullptr){
-                    /*Sends an http request*/
 #ifdef __PEN_MAC_IOS__
-                    MapMacPenMacIOSHttpRequest(url, type, httpBody);
+#import "mac_ios_state.h"
+#import <AVFAudio/AVFAudio.h>
+
+@class PenMacIOSSound;
+
+@interface PenMacIOSSound : NSObject
+
+- (void) Play: (NSString*) file :(unsigned int) loopNum;
+- (void) Pause: (NSString*) file;
+- (void) Stop: (NSString*) file;
+- (void) Remove: (NSString*) file;
+
++(PenMacIOSSound*) Get;
+@end
 #endif
-                }
-            }
-        }
-    }
-}
 

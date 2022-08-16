@@ -216,25 +216,31 @@ file and information here:
 
 # 1.8.1.1 - Android Persisted Memory
 
-If you want to perform manipulation of persisted memory for your android application you can call the following:
+If you want to use persisted memory for your android application you can call the following:
 
     /*Needs to be called before any database operation*/
-    - pen::android::db::Start(const char* dbName, const char* tableName);
+    - pen::android::db::Start(const char* database, const char* table);
+    
+    /*Creates a table if it does not exist already in the database*/
+    - pen::android::db::CreateTable(const char* table);
 
     /*Closes the database connection once you are done*/
     - pen::android::db::Close();
 
     /*Adds or updates a key value in the database*/
-    - pen::android::db::SetItem(const char* key, const char* value);
+    - pen::android::db::Insert(const char* table, const char* key, const char* value);
 
     /*Retrieves a key value from the database as a string*/
-    - pen::android::db::GetItem(const char* key);
+    - pen::android::db::Get(const char* table, const char* key);
 
     /*Removes a key from the database*/
-    - pen::android::db::RemoveItemById(const char* key);
+    - pen::android::db::Delete(const char* table, const char* key);
 
-    /*Deletes the table from the database*/
-    - pen::android::db::DeleteTable();
+    /*Deletes everything from a table/
+    - pen::android::db::Clear(const char* table);
+    
+    /*Deletes a table from the database*/
+    - pen::android::db::Drop(const char* table);
 
 ---------------------------------------------------------------------------
 

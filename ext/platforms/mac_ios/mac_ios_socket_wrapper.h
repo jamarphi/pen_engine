@@ -34,10 +34,10 @@ namespace pen {
                     CLOSED_WITH_ERROR = 2
                 }
             
-                static void Connect (const std::string& url){
+                static void Connect (const char* url){
                     /*Connects to a server*/
 #ifdef __PEN_MAC_IOS__
-                    MapMacPenMacIOSSocketConnect(url.c_str());
+                    MapMacPenMacIOSSocketConnect(url);
 #endif
                 }
             

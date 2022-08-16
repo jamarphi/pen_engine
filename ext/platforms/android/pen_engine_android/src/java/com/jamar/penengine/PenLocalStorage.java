@@ -29,21 +29,19 @@ import android.util.Log;
 
 public class PenLocalStorage {
 
-    private static String DATABASE_NAME = "jsb.sqlite";
-    private static String TABLE_NAME = "data";
+    private static String DATABASE_NAME = "pen.sqlite";
+    private static String INITIAL_TABLE_NAME = "data";
     private static final int DATABASE_VERSION = 1;  
     private static DBOpenHelper mDatabaseOpenHelper = null;
     private static SQLiteDatabase mDatabase = null;
 
-    public static boolean init(String dbName, String tableName) {
+    public static void init(String dbName, String tableName) {
         if (MainActivity.getContext() != null) {
             DATABASE_NAME = dbName;
             TABLE_NAME = tableName;
             mDatabaseOpenHelper = new DBOpenHelper(MainActivity.getContext());
             mDatabase = mDatabaseOpenHelper.getWritableDatabase();
-            return true;
         }
-        return false;
     }
     
     public static void destroy() {
@@ -52,19 +50,28 @@ public class PenLocalStorage {
         }
     }
     
-    public static void setItem(String key, String value) {
+    public static void createTable(String table) {
         try {
-            String sql = "replace into "+TABLE_NAME+"(key,value)values(?,?)";
+            String sql = "create table if not exists " + table + "(key text primary key, value text);";
             mDatabase.execSQL(sql, new Object[] { key, value });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
-    public static String getItem(String key) {
+    public static void setItem(String table, String key, String value) {
+        try {
+            String sql = "replace into " + table + "(key,value) values (?,?)";
+            mDatabase.execSQL(sql, new Object[] { key, value });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static String getItem(String table, String key) {
         String ret = null;
         try {
-        String sql = "select value from "+TABLE_NAME+" where key=?";
+        String sql = "select value from " + table + " where key=?";
         Cursor c = mDatabase.rawQuery(sql, new String[]{key});  
         while (c.moveToNext()) {
             if (ret != null) 
@@ -80,18 +87,27 @@ public class PenLocalStorage {
         return ret;
     }
     
-    public static void removeItem(String key) {
+    public static void removeItem(String table, String key) {
         try {
-            String sql = "delete from "+TABLE_NAME+" where key=?";
+            String sql = "delete from " + table + " where key=?";
             mDatabase.execSQL(sql, new Object[] {key});
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
-    public static void clear() {
+    public static void clearTable(String table) {
         try {
-            String sql = "delete from "+TABLE_NAME;
+            String sql = "delete from " + table;
+            mDatabase.execSQL(sql);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void dropTable(String table) {
+        try {
+            String sql = "drop table " + table;
             mDatabase.execSQL(sql);
         } catch (Exception e) {
             e.printStackTrace();
@@ -106,7 +122,7 @@ public class PenLocalStorage {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+"(key TEXT PRIMARY KEY,value TEXT);");
+            db.execSQL("create table if not exists " + INITIAL_TABLE_NAME + "(key integer primary key, value text);");
         }
         
         @Override

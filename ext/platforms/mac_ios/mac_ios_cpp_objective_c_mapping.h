@@ -108,5 +108,23 @@ extern "C" {
     void MapMacPenMacIOSSocketSend(char* data, long length);
     void MapMacPenMacIOSSocketReceive();
     /*----mac_ios_socket----*/
+
+    /*----mac_ios_database----*/
+    void MapMacPenMacIOSDatabaseStart(const char* database, const char* table);
+    void MapMacPenMacIOSDatabaseCreateTable(const char* table);
+    void MapMacPenMacIOSDatabaseInsert(const char* table, const char* key, const char* value);
+    char* MapMacPenMacIOSDatabaseGet(const char* table, const char* key);
+    void MapMacPenMacIOSDatabaseUpdate(const char* table, const char* key, const char* value);
+    void MapMacPenMacIOSDatabaseDelete(const char* table, const char* key);
+    void MapMacPenMacIOSDatabaseClear(const char* table);
+    void MapMacPenMacIOSDatabaseDrop(const char* table);
+    /*----mac_ios_database----*/
+
+    /*----mac_ios_sound----*/
+    void MapMacPenMacIOSSoundPlay(const char* file, unsigned int loopNum);
+    void MapMacPenMacIOSSoundPause(const char* file);
+    void MapMacPenMacIOSSoundStop(const char* file);
+    void MapMacPenMacIOSSoundRemove(const char* file);
+    /*----mac_ios_sound----*/
 };
 #endif
