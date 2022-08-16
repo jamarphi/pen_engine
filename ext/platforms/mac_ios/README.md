@@ -79,8 +79,8 @@ Next go to Build Phases -> Link Binary With Libraries -> add the following libra
 - QuartzCore
 - MetalKit
 - CoreBluetooth
-- libsqlite3.tbd
 - AVFAudio
+- libsqlite3.tbd
 
 For IOS:
 

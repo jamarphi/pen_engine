@@ -46,16 +46,7 @@ set_target_properties(glfw PROPERTIES LINKER_LANGUAGE CXX)
 endif()
 
 if(APPLE)
-#glfw gets added via the local lib
 set(NON_LINUX ON)
-#add_library(glfw STATIC IMPORTED)
-
-#This is for setting the glfw static lib
-#set_property(TARGET glfw PROPERTY IMPORTED_LOCATION #"${CMAKE_SOURCE_DIR}/dependencies/glfw/lib-mac/libglfw3.a")
-#set_property(TARGET glfw PROPERTY INTERFACE_INCLUDE_DIRECTORIES #"${CMAKE_SOURCE_DIR}/dependencies/glfw")
-
-#Sets the linker language
-#set_target_properties(glfw PROPERTIES LINKER_LANGUAGE CXX)
 endif()
 
 if(NOT NON_LINUX)
@@ -101,19 +92,20 @@ endif()
 if(APPLE)
     if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
     #For Mac builds
-    #find_library(COCOA_LIB cocoa)
-    #find_library(IOKIT_LIB IOKit)
-    #find_library(CORE_VIDEO_LIB CoreVideo)
-    #target_link_libraries(${PROJECT_NAME} PUBLIC ${COCOA_LIB} ${IOKIT_LIB} ${CORE_VIDEO_LIB} #glfw ${OPENGL_LIBRARIES})
-    
-    #Search for Metal libraries
     find_library(FOUNDATION Foundation REQUIRED)
     find_library(QUARTZ QuartzCore REQUIRED)
     find_library(METAL Metal REQUIRED)
     find_library(METALKIT MetalKit REQUIRED)
-    find_library(APPKIT AppKit REQUIRED)
-    target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SRC_DIR}/ext/platforms/mac_ios/metal)
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${FOUNDATION} ${QUARTZ} ${METAL} ${METALKIT} ${APPKIT})
+    find_library(COREBLUETOOTH CoreBluetooth REQUIRED)
+    find_library(AVFAUDIO AVFAudio REQUIRED)
+    add_library(sqlite3 SHARED IMPORTED)
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
+    find_library(APPKIT UIKit REQUIRED)
+    else()
+        find_library(APPKIT AppKit REQUIRED)
+    endif()
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${FOUNDATION} ${QUARTZ} ${METAL} ${METALKIT}
+    ${APPKIT} ${COREBLUETOOTH} ${AVFAUDIO} ${sqlite3})
     
     elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
     target_link_libraries(${PROJECT_NAME} GLESv2 EGL)
