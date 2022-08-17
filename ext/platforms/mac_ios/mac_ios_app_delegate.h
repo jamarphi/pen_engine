@@ -28,7 +28,13 @@ under the License.
 #import "mac_ios_index_buffer.h"
 #import "mac_ios_shader.h"
 
-@interface PenMacIOSAppDelegate : NSObject
+@class RootViewController;
+
+#ifndef TARGET_OS_IOS
+@interface PenMacIOSAppDelegate : NSObject<NSApplicationDelegate>
+#else
+@interface PenMacIOSAppDelegate : NSObject<UIApplicationDelegate>
+#endif
 
     /*These methods are inherited from NSObject*/
     - (void) applicationWillFinishLaunching: (NSNotification*) pNotification;

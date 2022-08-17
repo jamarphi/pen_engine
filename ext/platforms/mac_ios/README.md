@@ -98,6 +98,10 @@ been copied.  If any errors are encountered from the copy bundle section then re
 
 In Build Settings -> C++ Language Dialect, make sure it is C++17.
 
+In General -> Deployment clear the entry for Main Interface.
+
+In your Info.plist remove the Storyboard key and set the value Delegate Class Name to PenMacIOSAppDelegate.
+
 ---------------------------------------------------------------------------
 
 # 1.8.2.1 - Mac And IOS Bluetooth

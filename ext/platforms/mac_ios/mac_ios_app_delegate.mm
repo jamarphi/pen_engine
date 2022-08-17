@@ -58,17 +58,23 @@ under the License.
 
     App* app = new App();
     pen::State::Get()->mobileActive = true;
-    app->CreateApplication("App", 110, 540, "");    
+#ifndef TARGET_OS_IOS
+    app->CreateApplication("App", 960, 540, "");
+#else
+    app->CreateApplication("App", UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height, "");
+#endif
     
     inst.iosCommandQueue = [inst.iosDevice newCommandQueue];
-    CGRect frame = CGRectMake(0, 0, 110, 540);
 #ifndef TARGET_OS_IOS
+    CGRect frame = CGRectMake(0, 0, 960, 540);
     NSWindow* iosWindow = [[NSWindow alloc] init: frame :NSWindowStyleMaskClosable | NSWindowStyleMaskTitled :NSBackingStoreBuffered :false];
+#else
+    UIWindow* iosWindow = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
 #endif
 
     inst.iosDevice = MTLCreateSystemDefaultDevice();
 
-    inst.iosMtkView = [[PenMacIOSMTKViewDelegate alloc] initWithFrame: frame device:inst.iosDevice];
+    inst.iosMtkView = [[PenMacIOSMTKViewDelegate alloc] initWithFrame: UIScreen.mainScreen.bounds device:inst.iosDevice];
     [inst.iosMtkView setColorPixelFormat: MTLPixelFormatBGRA8Unorm_sRGB];
 
 #ifndef TARGET_OS_IOS
@@ -76,6 +82,11 @@ under the License.
     [iosWindow setContentView: inst.iosMtkView];
     [iosWindow setTitle: [NSString stringWithUTF8String:appName]];
     [iosWindow makeKeyAndOrderFront:nil];
+#else
+    inst.iosWindow = iosWindow;
+    [iosWindow addSubview:inst.iosMtkView];
+    [[iosWindow rootViewController] prefersStatusBarHidden];
+    [iosWindow makeKeyAndVisible];
 #endif
 
 #ifndef TARGET_OS_IOS

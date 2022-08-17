@@ -61,6 +61,8 @@ under the License.
 
 #ifndef TARGET_OS_IOS
     @property NSWindow* iosWindow;
+#else
+    @property UIWindow* iosWindow;
 #endif
 
 + (PenMacIOSState*) Get;

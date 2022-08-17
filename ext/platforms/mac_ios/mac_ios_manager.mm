@@ -30,6 +30,7 @@ under the License.
 int main(int argc, char* argv[])
 {
 #ifndef TARGET_OS_IOS
+    [[NSApplication sharedApplication] setDelegate:[[PenMacIOSAppDelegate alloc] init]];
     return NSApplicationMain(argc, argv);
 #else
     return UIApplicationMain(argc, argv, nil, @"PenMacIOSAppDelegate");
