@@ -73,7 +73,8 @@ on the PC version and are ready to build it for Mac and IOS.
 For using Xcode, first go and create two targets inside of your application if you have not done so already,
 one for Mac and one for IOS.  Also remove any folders associated with these two targets.
 
-Next go to Build Phases -> Link Binary With Libraries -> add the following libraries:
+Next for both targets go to Build Phases -> Link Binary With Libraries -> and clear out any entries, then add 
+the following libraries:
 
 - Foundation
 - Metal
@@ -91,13 +92,20 @@ For Mac:
 
 - AppKit
 
-After that, right click on your project in the project explorer and add pen_engine to both targets, this should
-automatically populate Build Phases -> Compile Sources.
+After that, right click on your project in the project explorer and add pen_engine to both targets,
+make sure that copy files as needed and create groups are both selected,
+this may duplicate pen_engine so remove the first one and rename the linked one to pen_engine, 
+this should automatically populate Build Phases -> Compile Sources for both targets.
 
-In Build Phases -> Copy Bundle Resources for both targets make sure to remove any 
-android resources in there that may have been copied.  Also remove the Info.plist file 
-from there if it is copied over.  If any errors are encountered from the copy 
-bundle section then remove those files as well.
+In the Mac build target remove the ios directory mac_ios_view_controller.mm,
+and remove the mac directory one from the ios target.
+
+In Build Phases -> Copy Bundle Resources for both targets remove everything except the
+bitmap.png in pen_engine/res/textures/fonts and the respective storyboards for each target.
+
+In Build Settings -> Packaging, set the Info.plist File entry for the mac target to
+$(PROJECT_DIR)/your project folder/pen_engine/ext/platforms/mac_ios/mac/Info.plist,
+and the ios target entry to $(PROJECT_DIR)/your project folder/pen_engine/ext/platforms/mac_ios/ios/Info.plist
 
 In Build Settings -> C++ Language Dialect, make sure it is C++17.
 

@@ -26,7 +26,6 @@ under the License.
 + (void) PenMacIOSShaderInit: (const char*) shaderProgram {
 	/*Creates a Metal shader*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-	//using NS::StringEncoding::UTF8StringEncoding;
 
 	NSError* pError = nullptr;
     id<MTLLibrary> pLibrary = [inst.iosDevice newLibraryWithSource:[NSString stringWithUTF8String:shaderProgram] options:nil error: &pError];
