@@ -92,7 +92,9 @@ didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic
     NSData* data = characteristic.value;
     char* dataBuffer = (char*)data.bytes;
     long length = (long)data.length;
-    (*pen::State::Get()->mobileMacIosOnBluetoothCallback)(dataBuffer, length, 0);
+    if(pen::State::Get()->mobileMacIosOnBluetoothCallback != nullptr){
+        (*pen::State::Get()->mobileMacIosOnBluetoothCallback)(dataBuffer, length, 0);
+    }
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral
@@ -106,7 +108,9 @@ didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic
     NSData* data = characteristic.value;
     char* dataBuffer = (char*)data.bytes;
     long length = (long)data.length;
-    (*pen::State::Get()->mobileMacIosOnBluetoothCallback)(dataBuffer, length, 0);
+    if(pen::State::Get()->mobileMacIosOnBluetoothCallback != nullptr){
+        (*pen::State::Get()->mobileMacIosOnBluetoothCallback)(dataBuffer, length, 0);
+    }
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral

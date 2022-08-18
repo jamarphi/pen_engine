@@ -22,7 +22,5 @@ under the License.
 
 #include "../../../src/state/config.h"
 #ifdef __PEN_MAC_IOS__
-#import "mac_ios_view_delegate.h"
 #import "mac_ios_app_delegate.h"
-
 #endif

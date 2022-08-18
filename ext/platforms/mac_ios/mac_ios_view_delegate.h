@@ -22,6 +22,7 @@ under the License.
 #include "../../../src/state/config.h"
 
 #ifdef __PEN_MAC_IOS__
+#import "../../../src/state/state.h"
 #import "mac_ios_state.h"
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
@@ -36,10 +37,12 @@ under the License.
 
 #define MVP_MATRIX_SIZE sizeof(float) * 16
 
-@interface PenMacIOSMTKViewDelegate : MTKView
+@interface PenMacIOSMTKViewDelegate : NSObject<MTKViewDelegate>
 
-    /*Virtual methods inherited from MTKView*/
-    - (void) drawRect:(CGRect)rect;
+    /*Virtual method inherited from MTKView*/
+- (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view size:(CGSize)size;
+- (void)drawInMTKView:(nonnull MTKView *)view;
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size;
 #ifndef TARGET_OS_IOS
     - (BOOL)acceptsFirstResponder;
     - (void)mouseDown:(NSEvent *)event;

@@ -70,7 +70,8 @@ To get started building for Mac and IOS, first go to pen_engine/state/config.h a
 If you uncomment this line, your application will not run for PC, so only do this once you have tested
 on the PC version and are ready to build it for Mac and IOS.
 
-For using Xcode, first go and create a target inside of your ios application if you have not done so already.
+For using Xcode, first go and create two targets inside of your application if you have not done so already,
+one for Mac and one for IOS.  Also remove any folders associated with these two targets.
 
 Next go to Build Phases -> Link Binary With Libraries -> add the following libraries:
 
@@ -90,17 +91,15 @@ For Mac:
 
 - AppKit
 
-After that, right click on your target in the project explorer and add pen_engine to your target, this should
+After that, right click on your project in the project explorer and add pen_engine to both targets, this should
 automatically populate Build Phases -> Compile Sources.
 
-In Build Phases -> Copy Bundle Resources make sure to remove any android resources in there that may have
-been copied.  If any errors are encountered from the copy bundle section then remove those files as well.
+In Build Phases -> Copy Bundle Resources for both targets make sure to remove any 
+android resources in there that may have been copied.  Also remove the Info.plist file 
+from there if it is copied over.  If any errors are encountered from the copy 
+bundle section then remove those files as well.
 
 In Build Settings -> C++ Language Dialect, make sure it is C++17.
-
-In General -> Deployment clear the entry for Main Interface.
-
-In your Info.plist remove the Storyboard key and set the value Delegate Class Name to PenMacIOSAppDelegate.
 
 ---------------------------------------------------------------------------
 

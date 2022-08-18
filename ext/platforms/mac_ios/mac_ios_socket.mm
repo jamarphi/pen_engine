@@ -31,7 +31,9 @@ static NSURLSessionWebSocketTask* task;
      webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask
 didOpenWithProtocol:(NSString *)protocol{
     /*Handshake successful*/
-    (*pen::State::Get()->mobileOnSocketCallback)(nullptr, 0);
+    if(pen::State::Get()->mobileOnSocketCallback != nullptr){
+        (*pen::State::Get()->mobileOnSocketCallback)(nullptr, 0);
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -39,7 +41,9 @@ didOpenWithProtocol:(NSString *)protocol{
   didCloseWithCode:(NSURLSessionWebSocketCloseCode)closeCode
             reason:(NSData *)reason{
     /*Socket connection has closed*/
-    (*pen::State::Get()->mobileOnSocketCallback)(nullptr, 2);
+    if(pen::State::Get()->mobileOnSocketCallback != nullptr){
+        (*pen::State::Get()->mobileOnSocketCallback)(nullptr, 2);
+    }
 }
 
 - (void) Connect:(NSString*)url {
@@ -69,7 +73,9 @@ didOpenWithProtocol:(NSString *)protocol{
         }else {
             NSData* data = message.data;
             const void* dataBuffer = [data bytes];
-            (*pen::State::Get()->mobileOnSocketCallback)((char*)dataBuffer, 1);
+            if(pen::State::Get()->mobileOnSocketCallback != nullptr){
+                (*pen::State::Get()->mobileOnSocketCallback)((char*)dataBuffer, 1);
+            }
         }
     };
     [task receiveMessageWithCompletionHandler:completionHandler];

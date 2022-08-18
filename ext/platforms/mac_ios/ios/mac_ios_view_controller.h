@@ -19,34 +19,22 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
-#include "../../../src/state/config.h"
+#include "../../../../src/state/config.h"
 
 #ifdef __PEN_MAC_IOS__
-#import "../../../src/state/state.h"
-#import "mac_ios_state.h"
+#import "../mac_ios_state.h"
+#import "../mac_ios_view_delegate.h"
+#import "../mac_ios_vertex_buffer.h"
+#import "../mac_ios_argument_buffer.h"
+#import "../mac_ios_index_buffer.h"
 
-#ifndef TARGET_OS_IOS
-@interface PenMacIOSAppDelegate : NSObject<NSApplicationDelegate>
-#else
-@interface PenMacIOSAppDelegate : UIResponder<UIApplicationDelegate>
-#endif
+#ifdef TARGET_OS_IOS
+@interface PenIOSViewController : UIViewController
 
-#ifndef TARGET_OS_IOS
-@property (nonatomic, strong) NSWindow* window;
-#else
-@property (nonatomic, strong) UIWindow* window;
-#endif
+    /*Virtual method inherited from UIViewController*/
+    - (void)viewDidLoad;
 
-/*These methods are inherited from NSObject or UIResponder*/
-#ifndef TARGET_OS_IOS
-- (void) applicationWillFinishLaunching: (NSNotification*) pNotification;
-- (void) applicationDidFinishLaunching: (NSNotification*) pNotification;
-- (bool) applicationShouldTerminateAfterLastWindowClosed: (NSApplication*) pSender;
-#else
-- (BOOL)application:(UIApplication *)application
-didFinishLaunchingWithOptions:(NSDictionary<UIApplicationLaunchOptionsKey, id> *)launchOptions;
-#endif
-- (void) applicationDidBecomeActive: (NSNotification*) pNotification;
-- (void) applicationWillResignActive: (NSNotification*) pNotification;
 @end
 #endif
+#endif
+

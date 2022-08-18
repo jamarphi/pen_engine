@@ -27,11 +27,11 @@ under the License.
 #ifdef TARGET_IPHONE_SIMULATOR
 #import <UIKit/UIKit.h>
 #elifdef TARGET_OS_IPHONE
-#import <UIKit/UIKit.hpp>
+#import <UIKit/UIKit.h>
 #elifdef TARGET_OS_IOS
-#import <UIKit/UIKit.hpp>
+#import <UIKit/UIKit.h>
 #elifdef TARGET_OS_MAC
-#import <AppKit/AppKit.hpp>
+#import <AppKit/AppKit.h>
 #endif
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
@@ -40,6 +40,8 @@ under the License.
 #import <MetalKit/MetalKit.h>
 #import <simd/simd.h>
 #import "mac_ios_cpp_objective_c_mapping.h"
+
+#define MVP_MATRIX_SIZE sizeof(float) * 16
 
 @class PenMacIOSState;
 

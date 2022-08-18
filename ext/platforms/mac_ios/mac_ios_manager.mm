@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
     [[NSApplication sharedApplication] setDelegate:[[PenMacIOSAppDelegate alloc] init]];
     return NSApplicationMain(argc, argv);
 #else
-    return UIApplicationMain(argc, argv, nil, @"PenMacIOSAppDelegate");
+    return UIApplicationMain(argc, argv, nil, NSStringFromClass([PenMacIOSAppDelegate class]));
 #endif
 }
 #endif

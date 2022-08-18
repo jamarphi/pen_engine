@@ -82,10 +82,14 @@ void MapMacPenMacIOSHttpRequest(const char* url, unsigned int type, pen::Map<std
                     const char* valueStr = [value UTF8String];
                     responseMap.Insert(std::string(keyStr), std::string(valueStr));
                 }
-                (*pen::State::Get()->mobileOnHttpCallback)(responseMap);
+                if(pen::State::Get()->mobileOnHttpCallback != nullptr){
+                    (*pen::State::Get()->mobileOnHttpCallback)(responseMap);
+                }
             }
         }else{
-            (*pen::State::Get()->mobileOnHttpCallback)(pen::Map<std::string,std::string>());
+            if(pen::State::Get()->mobileOnHttpCallback != nullptr){
+                (*pen::State::Get()->mobileOnHttpCallback)(pen::Map<std::string,std::string>());
+            }
         }
     };
     

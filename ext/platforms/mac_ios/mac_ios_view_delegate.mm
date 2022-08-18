@@ -23,13 +23,82 @@ under the License.
 #ifdef __PEN_MAC_IOS__
 @implementation PenMacIOSMTKViewDelegate
 
-- (void) drawRect:(CGRect)rect
+- (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view size:(CGSize)size
 {
-    /*Draws data in MTK view*/
-    [super drawRect:rect];
-    PenMacIOSState* inst = [PenMacIOSState Get];
-    inst.iosMtkView = self;
+    self = [super init];
+    if(self)
+    {
+        PenMacIOSState* inst = [PenMacIOSState Get];
+        inst.iosDevice = view.device;
+        MTLDepthStencilDescriptor* pDsDesc = [[MTLDepthStencilDescriptor alloc] init];
+        [pDsDesc setDepthCompareFunction:MTLCompareFunctionLess];
+        [pDsDesc setDepthWriteEnabled:true];
+        inst.iosDepthStencilState = [inst.iosDevice newDepthStencilStateWithDescriptor:pDsDesc];
+
+        /*Currently at max three different buffer types sent to metal shaders*/
+        inst.dispatchSemaphore = dispatch_semaphore_create(3);
+        
+        /*Initialize static arrays*/
+        NSMutableArray* textures = [PenMacIOSState GetTextures];
+        NSMutableDictionary* vertexBuffers = [PenMacIOSVertexBuffer PenMacIOSVertexBuffersGet];
+        NSMutableDictionary* argumentBuffers = [PenMacIOSArgumentBuffer PenMacIOSArgumentBuffersGet];
+        NSMutableDictionary* indexBuffers = [PenMacIOSIndexBuffer PenMacIOSIndexBuffersGet];
+        textures = [[NSMutableArray alloc] init];
+        vertexBuffers = [NSMutableDictionary dictionary];
+        argumentBuffers = [NSMutableDictionary dictionary];
+        indexBuffers = [NSMutableDictionary dictionary];
+        
+        App* app = new App();
+        pen::State::Get()->mobileActive = true;
+        app->CreateApplication("App", size.width, size.height, "");
+        
+        inst.iosCommandQueue = [inst.iosDevice newCommandQueue];
+        inst.iosMtkView = view;
+        inst.iosWindow = view.window;
+        [inst.iosMtkView setColorPixelFormat: MTLPixelFormatBGRA8Unorm_sRGB];
+
+    #ifndef TARGET_OS_IOS
+        [inst.iosWindow setTitle: [NSString stringWithUTF8String:appName]];
+        [inst.iosWindow makeKeyAndOrderFront:nil];
+    #else
+        [[inst.iosWindow rootViewController] prefersStatusBarHidden];
+        [inst.iosWindow makeKeyAndVisible];
+    #endif
+
+    #ifndef TARGET_OS_IOS
+        NSApplication* pApp = reinterpret_cast<NSApplication*>([inst.iosLaunchNotification object]);
+        [pApp activateIgnoringOtherApps:true];
+    #endif
+
+        /*Initialize uniforms*/
+    #ifndef TARGET_OS_IOS
+        inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:MVP_MATRIX_SIZE options:MTLResourceStorageModeManaged];
+    #else
+        inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:MVP_MATRIX_SIZE options:MTLResourceStorageModeShared];
+    #endif
+    
+        app->OnCreate();
+    }
+
+    return self;
+}
+
+- (void)drawInMTKView:(nonnull MTKView *)view {
+    /*Render loop*/
     (*pen::State::Get()->mobileOnRenderCallback)();
+}
+
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
+{
+    /*Update the size of the screen*/
+    pen::State* inst = pen::State::Get();
+    if (size.width < inst->screenWidth || size.height < inst->screenHeight) {
+        size.width = inst->screenWidth;
+        size.height = inst->screenHeight;
+    }
+
+    inst->actualScreenHeight = size.height;
+    inst->actualScreenWidth = size.width;
 }
 
 #ifndef TARGET_OS_IOS
