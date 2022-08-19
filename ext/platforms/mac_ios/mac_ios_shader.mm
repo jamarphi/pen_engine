@@ -23,7 +23,7 @@ under the License.
 #ifdef __PEN_MAC_IOS__
 
 @implementation PenMacIOSShader
-+ (void) PenMacIOSShaderInit: (const char*) shaderProgram {
++ (void) PenMacIOSShaderInit: (const char*) shaderProgram :(unsigned int) type {
 	/*Creates a Metal shader*/
     PenMacIOSState* inst = [PenMacIOSState Get];
 
@@ -45,16 +45,32 @@ under the License.
     [pDesc setFragmentFunction:pFragFn];
     [[[pDesc colorAttachments] objectAtIndexedSubscript:0] setPixelFormat:MTLPixelFormatBGRA8Unorm_sRGB];
 
-    inst.iosPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:pDesc error:&pError];
-	if (!inst.iosPipelineState)
-	{
-        __builtin_printf("%s", [[pError localizedDescription] UTF8String]);
-	}
+    switch(type){
+        case 1:
+            inst.iosPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:pDesc error:&pError];
+            if (!inst.iosPipelineState)
+            {
+                __builtin_printf("%s", [[pError localizedDescription] UTF8String]);
+            }
+            inst.isInstanced = 0;
+            break;
+        case 2:
+            inst.iosInstancedPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:pDesc error:&pError];
+            if (!inst.iosInstancedPipelineState)
+            {
+                __builtin_printf("%s", [[pError localizedDescription] UTF8String]);
+            }
+            break;
+        default:
+            break;
+    }
+    
 }
 
 + (void) IOSUpdateInstanceUniform: (IOSInstanceData*) data{
 	/*Updates the instanced offsets*/
     PenMacIOSState* inst = [PenMacIOSState Get];
+    inst.isInstanced = 1;
 	int size = sizeof(IOSInstanceData) * 400;
 #ifndef TARGET_OS_IOS
     id<MTLBuffer> instanceBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeManaged];
@@ -69,9 +85,9 @@ under the License.
 }
 @end
 
-void MapMacPenMacIOSShaderInit(const char* shaderProgram){
+void MapMacPenMacIOSShaderInit(const char* shaderProgram, unsigned int type){
     /*Creates a Metal shader*/
-    [PenMacIOSShader PenMacIOSShaderInit:shaderProgram];
+    [PenMacIOSShader PenMacIOSShaderInit:shaderProgram :type];
 }
 
 void MapMacIOSUpdateInstanceUniform(IOSInstanceData* data){

@@ -51,6 +51,7 @@ under the License.
     @property id<MTLDevice> iosDevice;
     @property id<MTLCommandQueue> iosCommandQueue;
     @property id<MTLRenderPipelineState> iosPipelineState;
+    @property id<MTLRenderPipelineState> iosInstancedPipelineState;
     @property NSNotification* iosLaunchNotification;
     @property id<MTLArgumentEncoder> iosArgEncoder;
     @property id<MTLDepthStencilState> iosDepthStencilState;
@@ -60,6 +61,7 @@ under the License.
     @property id<MTLRenderCommandEncoder> iosCommandEncoder;
     @property id<MTLCommandBuffer> iosCommandBuffer;
     @property dispatch_semaphore_t dispatchSemaphore;
+    @property unsigned int isInstanced;
 
 #ifndef TARGET_OS_IOS
     @property NSWindow* iosWindow;

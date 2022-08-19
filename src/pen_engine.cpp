@@ -46,13 +46,6 @@ namespace pen {
         glfwWindowHint(glfw_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(glfw_OPENGL_PROFILE, glfw_OPENGL_CORE_PROFILE);
 
-        /*__APPLE__ is a glfw macro*/
-#ifdef __APPLE__
-#ifndef __PEN_MAC_IOS__
-        glfwWindowHint(glfw_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-#endif
-
         glfwwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, appName, NULL, NULL);
         if (window == NULL)
         {
@@ -111,8 +104,8 @@ namespace pen {
         /*Initialize shaders*/
         pen::Shader shader(1);
         inst->appShader = shader;
-        pen::Shader instancedShader(2);
-        inst->instancedShader = instancedShader;
+        //pen::Shader instancedShader(2);
+        //inst->instancedShader = instancedShader;
 
         /*Set initial scaling for text characters*/
         inst->textScaling = 25;

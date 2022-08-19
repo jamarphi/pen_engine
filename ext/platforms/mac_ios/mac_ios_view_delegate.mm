@@ -30,10 +30,6 @@ under the License.
     {
         PenMacIOSState* inst = [PenMacIOSState Get];
         inst.iosDevice = view.device;
-        MTLDepthStencilDescriptor* pDsDesc = [[MTLDepthStencilDescriptor alloc] init];
-        [pDsDesc setDepthCompareFunction:MTLCompareFunctionLess];
-        [pDsDesc setDepthWriteEnabled:true];
-        inst.iosDepthStencilState = [inst.iosDevice newDepthStencilStateWithDescriptor:pDsDesc];
 
         /*Currently at max three different buffer types sent to metal shaders*/
         inst.dispatchSemaphore = dispatch_semaphore_create(3);
@@ -44,16 +40,6 @@ under the License.
         
         inst.iosCommandQueue = [inst.iosDevice newCommandQueue];
         inst.iosMtkView = view;
-        inst.iosWindow = view.window;
-        [inst.iosMtkView setColorPixelFormat: MTLPixelFormatBGRA8Unorm_sRGB];
-
-    #ifndef TARGET_OS_IOS
-        [inst.iosWindow setTitle: [NSString stringWithUTF8String:appName]];
-        [inst.iosWindow makeKeyAndOrderFront:nil];
-    #else
-        //[[inst.iosWindow rootViewController] prefersStatusBarHidden];
-        //[inst.iosWindow makeKeyAndVisible];
-    #endif
 
     #ifndef TARGET_OS_IOS
         NSApplication* pApp = reinterpret_cast<NSApplication*>([inst.iosLaunchNotification object]);
@@ -268,20 +254,22 @@ under the License.
 + (void) SubmitBatch: (id<MTLBuffer>) iosArgumentBuffer
     :(id<MTLBuffer>) iosVertexBuffer
     :(BatchVertexData*) data
-    :(int) size
-    :(pen::Mat4x4) mvp{
+    :(int) size {
     /*Submits the vertex data to the GPU*/
     memcpy([iosVertexBuffer contents], data, size);
 #ifndef TARGET_OS_IOS
     [iosVertexBuffer didModifyRange: NSMakeRange(0, [iosVertexBuffer length])];
 #endif
-    [PenMacIOSMTKViewDelegate DrawIOSView:iosArgumentBuffer :iosVertexBuffer];
 }
 
-+ (void) DrawIOSView: (id<MTLBuffer>) iosArgumentBuffer
-                      :(id<MTLBuffer>) iosVertexBuffer {
-    /*Use the ios mtk view to render batch data*/
++ (void) Render: (unsigned int) layerId
+                 :(unsigned int) shapeType
+                 :(int) indexCount
+                 :(unsigned int) instanceCount{
+    /*Renders the ios mtk view*/
     PenMacIOSState* inst = [PenMacIOSState Get];
+    id<MTLBuffer> iosVertexBuffer = [[PenMacIOSVertexBuffer Get].iosVertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]];
+    id<MTLBuffer> iosIndexBuffer = [[PenMacIOSIndexBuffer Get].iosIndexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]];
     dispatch_semaphore_wait(inst.dispatchSemaphore, DISPATCH_TIME_FOREVER);
     id<MTLCommandBuffer> pCmd = [inst.iosCommandQueue commandBuffer];
     MTLRenderPassDescriptor* pRpd = [inst.iosMtkView currentRenderPassDescriptor];
@@ -292,24 +280,20 @@ under the License.
         dispatch_semaphore_signal( inst.dispatchSemaphore );
     }];
 
+    [inst.iosCommandEncoder setViewport:(MTLViewport){0.0, 0.0, inst.iosMtkView.bounds.size.width, inst.iosMtkView.bounds.size.height, 0.0, 1.0}];
     [inst.iosCommandEncoder setRenderPipelineState:inst.iosPipelineState];
-    [inst.iosCommandEncoder setDepthStencilState:inst.iosDepthStencilState];
+    if(inst.isInstanced > 0){
+        [inst.iosCommandEncoder setRenderPipelineState:inst.iosInstancedPipelineState];
+        [inst.iosCommandEncoder setVertexBuffer:inst.iosInstanceBuffer offset:0 atIndex:2];
+    }
     [inst.iosCommandEncoder setVertexBuffer:iosVertexBuffer offset:0 atIndex:0];
     //[inst.iosCommandEncoder useResource:iosVertexBuffer usage:MTLResourceUsageRead];
     [inst.iosCommandEncoder setVertexBuffer:inst.iosUniformBuffer offset:0 atIndex:1];
-    [inst.iosCommandEncoder setVertexBuffer:inst.iosInstanceBuffer offset:0 atIndex:2];
     [inst.iosCommandEncoder setFragmentTextures:[PenMacIOSState GetTextures] withRange:NSMakeRange(0,8)];
     [inst.iosCommandEncoder setCullMode:MTLCullModeBack];
     [inst.iosCommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-}
-
-+ (void) Render: (unsigned int) shapeType
-                 :(int) indexCount
-                 :(id<MTLBuffer>) iosIndexBuffer
-                 :(unsigned int) instanceCount{
-    /*Render the ios mtk view*/
+    
     MTLPrimitiveType type;
-    PenMacIOSState* inst = [PenMacIOSState Get];
 
     switch (shapeType) {
     case 0:
@@ -326,11 +310,11 @@ under the License.
         type = MTLPrimitiveTypeTriangle;
         break;
     default:
-            type = MTLPrimitiveTypeTriangle;
+        type = MTLPrimitiveTypeTriangle;
         break;
     }
 
-    [inst.iosCommandEncoder drawIndexedPrimitives:type indexCount:indexCount indexType:MTLIndexTypeUInt16 indexBuffer:iosIndexBuffer indexBufferOffset:0 instanceCount:instanceCount];
+    [inst.iosCommandEncoder drawIndexedPrimitives:type indexCount:indexCount indexType:MTLIndexTypeUInt16 indexBuffer:iosIndexBuffer indexBufferOffset:0 instanceCount:(instanceCount + 1)];
     [inst.iosCommandEncoder endEncoding];
     [inst.iosCommandBuffer presentDrawable:[inst.iosMtkView currentDrawable]];
     [inst.iosCommandBuffer commit];
@@ -342,13 +326,7 @@ under the License.
 :(float) a{
     /*Updates the background of the mtk window*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-    //[inst.iosMtkView setClearColor:MTLClearColorMake(r, g, b, a)];
-    inst.iosMtkView.clearColor = MTLClearColorMake(r, g, b, a);
-#ifndef TARGET_OS_IOS
-    //inst.iosMtkView.layer.backgroundColor = [NSColor colorWithRed:r green:g blue:b alpha:a].CGColor;
-#else
-    //inst.iosMtkView.layer.backgroundColor = [UIColor colorWithRed:r green:g blue:b alpha:a].CGColor;
-#endif
+    [inst.iosMtkView setClearColor:MTLClearColorMake(r, g, b, a)];
 }
 @end
 
@@ -357,21 +335,18 @@ void MapMacIOSUpdateUniforms(pen::Mat4x4 mvp){
     [PenMacIOSMTKViewDelegate UpdateUniforms:mvp];
 }
 
-void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp){
+void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size){
     /*Submits the vertex data to the GPU*/
     NSMutableDictionary* argumentBuffers = [PenMacIOSArgumentBuffer Get].iosArgumentBuffers;
     NSMutableDictionary* vertexBuffers = [PenMacIOSVertexBuffer Get].iosVertexBuffers;
-    id<MTLBuffer> vertex = [vertexBuffers objectForKey:@"0"];
-    [vertex contents];
     [PenMacIOSMTKViewDelegate SubmitBatch:[argumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
                                    :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
-                                   :data :size :mvp];
+                                   :data :size];
 }
 
 void MapMacIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount){
     /*Render the ios mtk view*/
-    NSMutableDictionary* indexBuffers = [PenMacIOSIndexBuffer Get].iosIndexBuffers;
-    [PenMacIOSMTKViewDelegate Render:shapeType :indexCount :[indexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] :instanceCount];
+    [PenMacIOSMTKViewDelegate Render:layerId :shapeType :indexCount :instanceCount];
 }
 
 void MapMacIOSBackground(float r, float g, float b, float a){

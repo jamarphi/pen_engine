@@ -80,7 +80,7 @@ namespace pen {
 #ifndef __PEN_MAC_IOS__
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(layer->batchVertices), layer->batchVertices);
 #else
-            MapMacIOSSubmitBatch(layer->id, layer->batchVertices, sizeof(layer->batchVertices), mvp);
+            MapMacIOSSubmitBatch(layer->id, layer->batchVertices, sizeof(layer->batchVertices));
 
 #endif
             if (pen::State::Get()->firstUpdateFrame) {

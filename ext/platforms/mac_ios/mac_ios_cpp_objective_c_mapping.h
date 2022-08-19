@@ -46,7 +46,7 @@ extern "C" {
 
     /*----mac_ios_view_delegate----*/
     void MapMacIOSUpdateUniforms(pen::Mat4x4 mvp);
-    void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp);
+    void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size);
     void MapMacIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount);
     void MapMacIOSBackground(float r, float g, float b, float a);
     /*----mac_ios_view_delegate----*/
@@ -68,7 +68,7 @@ extern "C" {
     /*----mac_ios_index_buffer----*/
 
     /*----mac_ios_shader----*/
-    void MapMacPenMacIOSShaderInit(const char* shaderProgram);
+    void MapMacPenMacIOSShaderInit(const char* shaderProgram, unsigned int type);
     void MapMacIOSUpdateInstanceUniform(IOSInstanceData* data);
     /*----mac_ios_shader----*/
 

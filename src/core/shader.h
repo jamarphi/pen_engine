@@ -64,11 +64,7 @@ namespace pen {
 			"in vec4 color;\n"
 			"in vec2 texCoord;\n"
 			"in float texIndex;\n"
-#ifdef __APPLE__
-			"uniform sampler2D uTextures[13];\n"
-#else
 			"uniform sampler2D uTextures[32];\n"
-#endif
 			"void main() {\n"
 			"int index = int(texIndex);\n"
 			"FragColor = (texture(uTextures[index], texCoord) * color);\n"
@@ -97,11 +93,7 @@ namespace pen {
 			"in vec4 color;\n"
 			"in vec2 texCoord;\n"
 			"in float texIndex;\n"
-#ifdef __APPLE__
-			"uniform sampler2D uTextures[13];\n"
-#else
 			"uniform sampler2D uTextures[32];\n"
-#endif
 			"void main() {\n"
 			"int index = int(texIndex);\n"
 			"FragColor = (texture(uTextures[index], texCoord) * color);\n"
@@ -192,26 +184,45 @@ namespace pen {
 					float4x4 uMVP;
 				};
 
-				v2f vertex vertexMain(
+				v2f vertex vertexMain(uint vertexId [[vertex_id]],
 									   device const BatchVertexData* vertexData [[buffer(0)]],
-									   device const IOSUniformData* uniformData [[buffer(1)]],
-										uint vertexId [[vertex_id]]
+									   device const IOSUniformData* uniformData [[buffer(1)]]
+										
 										)
 				{
 					v2f out;
 					const device BatchVertexData& vd = vertexData[vertexId];
-					float4 pos = float4( vd.position.xyz, 1.0f ) * uniformData[vertexId].uMVP;
-					out.position = pos;
-					out.color = vd.color;
-					out.texCoord = vd.texCoord.xy;
-					out.texIndex = vd.texId;
+					//float4 pos = float4( vd.position.xyz, 1.0f ) * uniformData[vertexId].uMVP;
+					//out.position = pos;
+					//out.color = vd.color;
+					//out.texCoord = vd.texCoord.xy;
+					//out.texIndex = vd.texId;
+                    if(vertexId == 0){
+                    out.position = float4(-0.5,-0.5,0.0,1.0);
+                    }else if(vertexId == 1){
+                        out.position = float4(0.5,-0.5,0.0,1.0);
+                   }else if(vertexId == 2)
+                   {
+                   out.position = float4(0.5,0.5,0.0,1.0);
+                   }else if(vertexId == 3)
+                   {
+                   out.position = float4(-0.5,-0.5,0.0,1.0);
+                   }else if(vertexId == 4)
+                   {
+                   out.position = float4(0.5,0.5,0.0,1.0);
+                   }else if(vertexId == 5){
+                    out.position = float4(-0.5,0.5,0.0,1.0);
+                    }
+                    out.color = float4(1.0,1.0,1.0,1.0);
+                    out.texCoord = float2(0.0,1.0);
+                    out.texIndex = 0.0;
 					return out;
 				}
 
 				float4 fragment fragmentMain( v2f in [[stage_in]], array<texture2d<half>, 8> tex [[texture(0)]] )
 				{
 					constexpr sampler s( address::repeat, filter::linear );
-					half4 texel = tex[in.texIndex].sample( s, in.texCoord ).rgba;
+					half4 texel = tex[0].sample( s, in.texCoord ).rgba;
 
 					float4 outColor = in.color * (float4)texel;
 					return outColor;
@@ -299,6 +310,11 @@ namespace pen {
 #ifndef __PEN_MAC_IOS__
 		GLint GetUniformLocation(const std::string& name);
 #endif
+        
+#ifndef __PEN_MAC_IOS__
 		unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
+#else
+        unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader, const unsigned int& type);
+#endif
 	};
 }

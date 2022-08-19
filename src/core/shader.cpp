@@ -32,21 +32,21 @@ namespace pen {
 #ifndef __PEN_MAC_IOS__
 			rendererId = CreateShader(shaderProgram, fragmentProgram);
 #else
-			rendererId = CreateShader(shaderProgram, "");
+			rendererId = CreateShader(shaderProgram, "", 1);
 #endif
 			break;
 		case 2:
 #ifndef __PEN_MAC_IOS__
 			rendererId = CreateShader(instancedShaderProgram, instancedFragmentProgram);
 #else
-			rendererId = CreateShader(instancedShaderProgram, "");
+			rendererId = CreateShader(instancedShaderProgram, "", 2);
 #endif
 			break;
 		default:
 #ifndef __PEN_MAC_IOS__
 			rendererId = CreateShader(shaderProgram, fragmentProgram);
 #else
-			rendererId = CreateShader(shaderProgram, "");
+			rendererId = CreateShader(shaderProgram, "", 1);
 #endif
 			break;
 		}
@@ -102,9 +102,10 @@ namespace pen {
 #endif
 	}
 
+#ifndef __PEN_MAC_IOS__
 	unsigned int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
 		/*Creates the vertex and fragment shader for rendering*/
-#ifndef __PEN_MAC_IOS__
+
 		unsigned int program = glCreateProgram();
 		unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
 
@@ -118,12 +119,14 @@ namespace pen {
 		glDeleteShader(vs);
 		glDeleteShader(fs);
 		return program;
-#else
-        /*In Metal the vertex and fragment shader source is combined*/
-        MapMacPenMacIOSShaderInit(vertexShader.c_str());
-        return 0;
-#endif
 	}
+#else
+    unsigned int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader, const unsigned int& type) {
+        /*In Metal the vertex and fragment shader source is combined*/
+        MapMacPenMacIOSShaderInit(vertexShader.c_str(), type);
+        return 0;
+    }
+#endif
 
 	void Shader::SetUniform1i(const std::string& name, int value) {
 		/*Sets an integer uniform in the shader*/

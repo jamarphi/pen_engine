@@ -64,11 +64,9 @@ under the License.
                          :(BatchVertexData*) data
                          :(int) size
                         :(pen::Mat4x4) mvp;
-    + (void) DrawIOSView: (id<MTLBuffer>) iosArgumentBuffer
-                        :(id<MTLBuffer>) iosVertexBuffer;
-    + (void) Render: (unsigned int) shapeType
+    + (void) Render: (unsigned int) layerId
+                     :(unsigned int) shapeType
                      :(int) indexCount
-                     :(id<MTLBuffer>) iosIndexBuffer
                      :(unsigned int) instanceCount;
     + (void) Background: (float) r
                      : (float) g
