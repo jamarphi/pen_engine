@@ -38,8 +38,8 @@ under the License.
     [texture replaceRegion:MTLRegionMake2D(0, 0, texWidth, texHeight) mipmapLevel:0 withBytes:textureData bytesPerRow:texWidth * 4];
     if(type == 1) inst.iosPixelBuffer = texture;
     if(texSlot < 8) {
-        NSMutableArray* textures = [PenMacIOSState GetTextures];
-        [textures replaceObjectAtIndex:texSlot withObject:texture];
+        id<MTLTexture> __strong* textures = [PenMacIOSState GetTextures];
+        textures[texSlot] = texture;
     }
 }
 
@@ -60,8 +60,8 @@ under the License.
     }
     
     if(texSlot < 8) {
-        NSMutableArray* textures = [PenMacIOSState GetTextures];
-        [textures replaceObjectAtIndex:texSlot withObject:texture];
+        id<MTLTexture> __strong* textures = [PenMacIOSState GetTextures];
+        textures[texSlot] = texture;
     }
 }
 

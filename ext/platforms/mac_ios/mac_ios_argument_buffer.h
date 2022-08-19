@@ -28,9 +28,11 @@ under the License.
 
 @interface PenMacIOSArgumentBuffer : NSObject
 
-+ (void) PenMacIOSArgumentBufferInit: (unsigned int) layerId :(id<MTLBuffer>) dataBuffer;
-	+ (void) PenMacIOSArgumentBufferBind: (unsigned int) layerId;
-	+ (void) PenMacIOSArgumentBufferDestroy: (unsigned int) layerId;
-+ (NSMutableDictionary*) PenMacIOSArgumentBuffersGet;
+@property(nonatomic, strong) NSMutableDictionary* iosArgumentBuffers;
+
+- (void) PenMacIOSArgumentBufferInit: (unsigned int) layerId :(id<MTLBuffer>) dataBuffer;
+	- (void) PenMacIOSArgumentBufferBind: (unsigned int) layerId;
+	- (void) PenMacIOSArgumentBufferDestroy: (unsigned int) layerId;
++ (PenMacIOSArgumentBuffer*) Get;
 @end
 #endif

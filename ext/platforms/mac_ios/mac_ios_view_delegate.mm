@@ -38,16 +38,6 @@ under the License.
         /*Currently at max three different buffer types sent to metal shaders*/
         inst.dispatchSemaphore = dispatch_semaphore_create(3);
         
-        /*Initialize static arrays*/
-        NSMutableArray* textures = [PenMacIOSState GetTextures];
-        NSMutableDictionary* vertexBuffers = [PenMacIOSVertexBuffer PenMacIOSVertexBuffersGet];
-        NSMutableDictionary* argumentBuffers = [PenMacIOSArgumentBuffer PenMacIOSArgumentBuffersGet];
-        NSMutableDictionary* indexBuffers = [PenMacIOSIndexBuffer PenMacIOSIndexBuffersGet];
-        textures = [[NSMutableArray alloc] init];
-        vertexBuffers = [NSMutableDictionary dictionary];
-        argumentBuffers = [NSMutableDictionary dictionary];
-        indexBuffers = [NSMutableDictionary dictionary];
-        
         App* app = new App();
         pen::State::Get()->mobileActive = true;
         app->CreateApplication("App", size.width, size.height, "");
@@ -61,8 +51,8 @@ under the License.
         [inst.iosWindow setTitle: [NSString stringWithUTF8String:appName]];
         [inst.iosWindow makeKeyAndOrderFront:nil];
     #else
-        [[inst.iosWindow rootViewController] prefersStatusBarHidden];
-        [inst.iosWindow makeKeyAndVisible];
+        //[[inst.iosWindow rootViewController] prefersStatusBarHidden];
+        //[inst.iosWindow makeKeyAndVisible];
     #endif
 
     #ifndef TARGET_OS_IOS
@@ -269,7 +259,7 @@ under the License.
 #endif
     }
     
-    std::memcpy([inst.iosUniformBuffer contents], data, size);
+    memcpy([inst.iosUniformBuffer contents], data, size);
 #ifndef TARGET_OS_IOS
     [inst.iosUniformBuffer didModifyRange: NSMakeRange(0, [inst.iosUniformBuffer length])];
 #endif
@@ -281,7 +271,7 @@ under the License.
     :(int) size
     :(pen::Mat4x4) mvp{
     /*Submits the vertex data to the GPU*/
-    std::memcpy([iosVertexBuffer contents], data, size);
+    memcpy([iosVertexBuffer contents], data, size);
 #ifndef TARGET_OS_IOS
     [iosVertexBuffer didModifyRange: NSMakeRange(0, [iosVertexBuffer length])];
 #endif
@@ -304,19 +294,11 @@ under the License.
 
     [inst.iosCommandEncoder setRenderPipelineState:inst.iosPipelineState];
     [inst.iosCommandEncoder setDepthStencilState:inst.iosDepthStencilState];
-    [inst.iosCommandEncoder setVertexBuffer:iosArgumentBuffer offset:0 atIndex:0];
-    [inst.iosCommandEncoder useResource:iosVertexBuffer usage:MTLResourceUsageRead];
+    [inst.iosCommandEncoder setVertexBuffer:iosVertexBuffer offset:0 atIndex:0];
+    //[inst.iosCommandEncoder useResource:iosVertexBuffer usage:MTLResourceUsageRead];
     [inst.iosCommandEncoder setVertexBuffer:inst.iosUniformBuffer offset:0 atIndex:1];
     [inst.iosCommandEncoder setVertexBuffer:inst.iosInstanceBuffer offset:0 atIndex:2];
-    NSMutableArray * textures = [PenMacIOSState GetTextures];
-    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:0] atIndex:0];
-    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:1] atIndex:1];
-    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:2] atIndex:2];
-    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:3] atIndex:3];
-    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:4] atIndex:4];
-    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:5] atIndex:5];
-    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:6] atIndex:6];
-    [inst.iosCommandEncoder setFragmentTexture:[textures objectAtIndex:7] atIndex:7];
+    [inst.iosCommandEncoder setFragmentTextures:[PenMacIOSState GetTextures] withRange:NSMakeRange(0,8)];
     [inst.iosCommandEncoder setCullMode:MTLCullModeBack];
     [inst.iosCommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
 }
@@ -360,7 +342,13 @@ under the License.
 :(float) a{
     /*Updates the background of the mtk window*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-    [inst.iosMtkView setClearColor:MTLClearColorMake(r, g, b, a)];
+    //[inst.iosMtkView setClearColor:MTLClearColorMake(r, g, b, a)];
+    inst.iosMtkView.clearColor = MTLClearColorMake(r, g, b, a);
+#ifndef TARGET_OS_IOS
+    //inst.iosMtkView.layer.backgroundColor = [NSColor colorWithRed:r green:g blue:b alpha:a].CGColor;
+#else
+    //inst.iosMtkView.layer.backgroundColor = [UIColor colorWithRed:r green:g blue:b alpha:a].CGColor;
+#endif
 }
 @end
 
@@ -371,8 +359,10 @@ void MapMacIOSUpdateUniforms(pen::Mat4x4 mvp){
 
 void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size, pen::Mat4x4 mvp){
     /*Submits the vertex data to the GPU*/
-    NSMutableDictionary* argumentBuffers = [PenMacIOSArgumentBuffer PenMacIOSArgumentBuffersGet];
-    NSMutableDictionary* vertexBuffers = [PenMacIOSVertexBuffer PenMacIOSVertexBuffersGet];
+    NSMutableDictionary* argumentBuffers = [PenMacIOSArgumentBuffer Get].iosArgumentBuffers;
+    NSMutableDictionary* vertexBuffers = [PenMacIOSVertexBuffer Get].iosVertexBuffers;
+    id<MTLBuffer> vertex = [vertexBuffers objectForKey:@"0"];
+    [vertex contents];
     [PenMacIOSMTKViewDelegate SubmitBatch:[argumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
                                    :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
                                    :data :size :mvp];
@@ -380,7 +370,7 @@ void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size,
 
 void MapMacIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount){
     /*Render the ios mtk view*/
-    NSMutableDictionary* indexBuffers = [PenMacIOSIndexBuffer PenMacIOSIndexBuffersGet];
+    NSMutableDictionary* indexBuffers = [PenMacIOSIndexBuffer Get].iosIndexBuffers;
     [PenMacIOSMTKViewDelegate Render:shapeType :indexCount :[indexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] :instanceCount];
 }
 

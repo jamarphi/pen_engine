@@ -174,14 +174,14 @@ namespace pen {
 				struct v2f
 				{
 					float4 position [[position]];
-					half4 color;
+					float4 color;
 					float2 texCoord;
 					float texIndex;
 				};
 
 				struct BatchVertexData
 				{
-					float3 vertex;
+					float3 position;
 					float4 color;
 					float2 texCoord;
 					float texId;
@@ -199,8 +199,8 @@ namespace pen {
 										)
 				{
 					v2f out;
-					const device BatchVertexData& vd = vertexData[ vertexId ];
-					float4 pos = float4( vd.vertex, 1.0 ) * uniformData[vertex_id].uMVP;
+					const device BatchVertexData& vd = vertexData[vertexId];
+					float4 pos = float4( vd.position.xyz, 1.0f ) * uniformData[vertexId].uMVP;
 					out.position = pos;
 					out.color = vd.color;
 					out.texCoord = vd.texCoord.xy;
@@ -208,12 +208,12 @@ namespace pen {
 					return out;
 				}
 
-				half4 fragment fragmentMain( v2f in [[stage_in]], texture2d_array< half, access::sample > tex [[texture(0)]] )
+				float4 fragment fragmentMain( v2f in [[stage_in]], array<texture2d<half>, 8> tex [[texture(0)]] )
 				{
 					constexpr sampler s( address::repeat, filter::linear );
-					half4 texel = tex[in.texIndex.x].sample( s, in.texCoord ).rgba;
+					half4 texel = tex[in.texIndex].sample( s, in.texCoord ).rgba;
 
-					half4 outColor = in.color * texel;
+					float4 outColor = in.color * (float4)texel;
 					return outColor;
 				}
 			)";
@@ -225,14 +225,14 @@ namespace pen {
 				struct v2f
 				{
 					float4 position [[position]];
-					half4 color;
+					float4 color;
 					float2 texCoord;
 					float texIndex;
 				};
 
 				struct BatchVertexData
 				{
-					float3 vertex;
+					float3 position;
 					float4 color;
 					float2 texCoord;
 					float texId;
@@ -258,8 +258,8 @@ namespace pen {
 				{
 					v2f out;
 					const device BatchVertexData& vd = vertexData[ vertexId ];
-					float4 pos = float4( vd.vertex, 1.0 ) * uniformData[vertex_id].uMVP;
-					float3 offset = vec3(instanceData[instance_id].uInstancedOffsets[instance_id].x, instanceData[instance_id].uInstancedOffsets[instance_id].y, instanceData[instance_id].uInstancedOffsets[instance_id].z);
+					float4 pos = float4( vd.position.xyz, 1.0 ) * uniformData[vertexId].uMVP;
+					float3 offset = float3(instanceData[instanceId].uInstancedOffsets.x, instanceData[instanceId].uInstancedOffsets.y, instanceData[instanceId].uInstancedOffsets.z);
 					out.position = float4( pos.x + offset.x, pos.y + offset.y, pos.z + offset.z, 1.0 );
 					out.color = vd.color;
 					out.texCoord = vd.texCoord.xy;
@@ -267,12 +267,12 @@ namespace pen {
 					return out;
 				}
 
-				half4 fragment fragmentMain( v2f in [[stage_in]], texture2d_array< half, access::sample > tex [[texture(0)]] )
+				float4 fragment fragmentMain( v2f in [[stage_in]], array<texture2d<half>, 8> tex [[texture(0)]] )
 				{
 					constexpr sampler s( address::repeat, filter::linear );
-					half4 texel = tex[in.texIndex.x].sample( s, in.texCoord ).rgba;
+					half4 texel = tex[in.texIndex].sample( s, in.texCoord ).rgba;
 
-					half4 outColor = in.color * texel;
+					float4 outColor = in.color * (float4)texel;
 					return outColor;
 				}
 			)";

@@ -30,7 +30,7 @@ extern "C" {
 
     /*BatchVertexData already defined in renderer.h*/
     struct BatchVertexData {
-        simd::float3 vertex;
+        simd::float3 position;
         simd::float4 color;
         simd::float2 texCoord;
         simd::float1 texId;

@@ -68,6 +68,6 @@ under the License.
 #endif
 
 + (PenMacIOSState*) Get;
-+ (NSMutableArray*) GetTextures;
++(id<MTLTexture> __strong*) GetTextures;
 @end
 #endif

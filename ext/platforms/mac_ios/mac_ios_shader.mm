@@ -31,14 +31,14 @@ under the License.
     id<MTLLibrary> pLibrary = [inst.iosDevice newLibraryWithSource:[NSString stringWithUTF8String:shaderProgram] options:nil error: &pError];
 	if (!pLibrary)
 	{
-		__builtin_printf("%s", [pError localizedDescription]);
+		__builtin_printf("%s", [[pError localizedDescription] UTF8String]);
 	}
 
     id<MTLFunction> pVertexFn = [pLibrary newFunctionWithName:@"vertexMain"];
     id<MTLFunction> pFragFn = [pLibrary newFunctionWithName:@"fragmentMain"];
 
-    id<MTLArgumentEncoder> pArgEncoder = [pVertexFn newArgumentEncoderWithBufferIndex:0];
-	inst.iosArgEncoder = pArgEncoder;
+    //id<MTLArgumentEncoder> pArgEncoder = [pVertexFn newArgumentEncoderWithBufferIndex:0];
+	//inst.iosArgEncoder = pArgEncoder;
 
     MTLRenderPipelineDescriptor* pDesc = [[MTLRenderPipelineDescriptor alloc] init];
     [pDesc setVertexFunction:pVertexFn];
@@ -48,7 +48,7 @@ under the License.
     inst.iosPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:pDesc error:&pError];
 	if (!inst.iosPipelineState)
 	{
-        __builtin_printf("%s", [pError localizedDescription]);
+        __builtin_printf("%s", [[pError localizedDescription] UTF8String]);
 	}
 }
 
@@ -63,7 +63,7 @@ under the License.
 #endif
     memcpy([instanceBuffer contents], data, size);
 #ifndef TARGET_OS_IOS
-    [instanceBuffer didModifyRange: NSRangeMake(0, [instanceBuffer length])];
+    [instanceBuffer didModifyRange: NSMakeRange(0, [instanceBuffer length])];
 #endif
 	inst.iosInstanceBuffer = instanceBuffer;
 }

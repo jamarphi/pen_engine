@@ -31,7 +31,7 @@ under the License.
 namespace pen {
 #ifndef __PEN_MAC_IOS__
 	struct BatchVertexData {
-		float vertex[3];
+		float position[3];
 		float color[4];
 		float texCoord[2];
 		float texId;

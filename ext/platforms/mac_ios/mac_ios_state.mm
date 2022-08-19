@@ -22,17 +22,19 @@ under the License.
 
 #ifdef __PEN_MAC_IOS__
 static PenMacIOSState* instance;
-static NSMutableArray* iosTextures;
+static id<MTLTexture> __strong iosTextures[8];
 
 @implementation PenMacIOSState
 
 + (PenMacIOSState*) Get{
-    if (!instance)
+    if (!instance){
         instance = [[PenMacIOSState alloc] init];
+    }
     return instance;
 }
 
-+(NSMutableArray*) GetTextures{
++(id<MTLTexture> __strong*) GetTextures{
+    /*Returns the texture list*/
     return iosTextures;
 }
 @end

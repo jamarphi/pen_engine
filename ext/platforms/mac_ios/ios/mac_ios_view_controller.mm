@@ -26,7 +26,6 @@ under the License.
 @implementation PenIOSViewController
 {
     MTKView* _view;
-
     PenMacIOSMTKViewDelegate* _renderer;
 }
 
@@ -50,16 +49,16 @@ under the License.
         if ( (strongSelf = weakSelf) )
         {
             strongSelf->_renderer = [[PenMacIOSMTKViewDelegate alloc] initWithMetalKitView:strongSelf->_view size:size];
-        
+
             NSAssert(strongSelf->_renderer, @"Renderer failed initialization");
-            
+
             dispatch_async( dispatch_get_main_queue(), ^(){
                 PenIOSViewController* innerStrongSelf;
                 if ( (innerStrongSelf = weakSelf) )
                 {
                     [innerStrongSelf->_renderer mtkView:innerStrongSelf->_view
                                  drawableSizeWillChange:innerStrongSelf->_view.drawableSize];
-                    
+
                     innerStrongSelf->_view.delegate = innerStrongSelf->_renderer;
                 }
             });

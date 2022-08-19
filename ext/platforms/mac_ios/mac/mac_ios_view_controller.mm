@@ -36,7 +36,7 @@ under the License.
     
     _view = (MTKView *)self.view;
     _view.device = MTLCreateSystemDefaultDevice();
-    _view.layer.backgroundColor = [UIColor colorWithRed:0.65 green:0.65 blue:0.65 alpha:1.0].CGColor;
+    _view.layer.backgroundColor = [NSColor colorWithRed:0.65 green:0.65 blue:0.65 alpha:1.0].CGColor;
     _view.preferredFramesPerSecond = 30;
 
     NSAssert(_view.device, @"Metal is not supported on this device");
