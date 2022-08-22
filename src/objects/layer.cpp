@@ -63,11 +63,7 @@ namespace pen {
 
         vb.Bind();
         /*Adds the attribute layout to the vertex array object*/
-#ifndef __PEN_MAC_IOS__
         va.AddBuffer(layout);
-#else
-        va.AddBuffer(id);
-#endif
 
         InitializeIndices();
 
@@ -120,9 +116,14 @@ namespace pen {
 
     void Layer::Destroy() {
         /*Removes the vertex array, vertex buffer, and index buffer objects from memory on the GPU*/
-        va.Destroy(id);
+        va.Destroy();
+#ifndef __PEN_MAC_IOS__
+        vb.Destroy();
+        ib.Destroy();
+#else
         vb.Destroy(id);
         ib.Destroy(id);
+#endif
     }
 
     void Layer::CombineBuffers() {

@@ -27,7 +27,6 @@ under the License.
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import "mac_ios_vertex_buffer.h"
-#import "mac_ios_argument_buffer.h"
 #import "mac_ios_index_buffer.h"
 /*
   This file is for the instantiation of Pen Engine by the user in order to include it's OnCreate function.
@@ -59,11 +58,9 @@ under the License.
 #endif
 
     + (void) UpdateUniforms: (pen::Mat4x4) mvp;
-    + (void) SubmitBatch: (id<MTLBuffer>) iosArgumentBuffer
-                         :(id<MTLBuffer>) iosVertexBuffer
+    + (void) SubmitBatch:(id<MTLBuffer>) iosVertexBuffer
                          :(BatchVertexData*) data
-                         :(int) size
-                        :(pen::Mat4x4) mvp;
+                        :(int) size;
     + (void) Render: (unsigned int) layerId
                      :(unsigned int) shapeType
                      :(int) indexCount

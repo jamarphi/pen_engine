@@ -102,14 +102,17 @@ namespace pen {
         pen::State* inst = pen::State::Get();
         pen::Render* render = pen::Render::Get();
 
-#ifndef __PEN_MOBILE__
-        /*Loops through and binds the assets for a particular batch*/
+#ifndef __PEN_ANDROID__
+        /*
+         Loops through and binds the assets for a particular batch
+         Android textures are loaded in on the Java side via a different thread
+         */
         for (int i = 0; i < inst->textureUnits; i++) {
             std::string a = pen::Asset::FindById(i);
 
             /*Asset regex gets returned if the given asset name could not be found*/
-            if (a != ASSET_REGEX) {
-                Texture::Get()->Initialize(pen::Asset::FindById(i).c_str(), i);
+            if (a != PEN_ASSET_NOT_FOUND) {
+                Texture::Get()->Initialize(pen::Asset::FindById(i), i);
             }
         }
 #endif

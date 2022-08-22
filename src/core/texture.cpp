@@ -85,14 +85,18 @@ void Texture::Initialize(const std::string& path, const unsigned int slot) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
 #else
         tempPath = path;
-        if (tempPath[2] == '/' && tempPath[3] == '/') {
-            tempPath = tempPath.substr(4);
+        if(tempPath != ""){
+            if (tempPath[2] == '/' && tempPath[3] == '/') {
+                tempPath = tempPath.substr(4);
+            }
+            else if (tempPath[0] == '/') {
+                tempPath = tempPath.substr(1);
+            }
+            tempPath = pen::Asset::ParsePath(tempPath);
+            Texture::InitializePenMacIOSTexture(tempPath, 2, slot);
+        }else {
+            Texture::InitializePenMacIOSTexture(tempPath, 0, slot);
         }
-        else if (tempPath[0] == '/') {
-            tempPath = tempPath.substr(1);
-        }
-        tempPath = pen::Asset::ParsePath(tempPath);
-		Texture::InitializePenMacIOSTexture(tempPath, 2, slot);
 #endif
 	}
 }
@@ -176,11 +180,13 @@ void Texture::InitializePenMacIOSTexture(const std::string& path, const unsigned
 		texWidth = 1280;
 		texHeight = 720;
 		textureData = pen::State::Get()->pixelArray;
-        MapMacIOSInitializeTexture(texWidth, texHeight, type, texSlot, textureData);
+        if(textureData != nullptr){
+            MapMacIOSInitializeTexture(texWidth, texHeight, type, texSlot, textureData);
+        }
 		break;
 	case 2:
 		/*Textures loaded from memory*/
-        MapMacIOSLoadTexture(path.c_str(), texSlot);
+        MapMacIOSLoadTexture(path.substr(0, path.find(".")).c_str(), path.substr(path.find(".") + 1).c_str(), texSlot);
 		break;
 	default:
 		break;

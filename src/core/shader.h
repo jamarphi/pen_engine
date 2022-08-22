@@ -184,45 +184,26 @@ namespace pen {
 					float4x4 uMVP;
 				};
 
-				v2f vertex vertexMain(uint vertexId [[vertex_id]],
+				v2f vertex vertexMain(
 									   device const BatchVertexData* vertexData [[buffer(0)]],
-									   device const IOSUniformData* uniformData [[buffer(1)]]
-										
+									   device const IOSUniformData* uniformData [[buffer(1)]],
+                                       uint vertexId [[vertex_id]]
 										)
 				{
 					v2f out;
 					const device BatchVertexData& vd = vertexData[vertexId];
-					//float4 pos = float4( vd.position.xyz, 1.0f ) * uniformData[vertexId].uMVP;
-					//out.position = pos;
-					//out.color = vd.color;
-					//out.texCoord = vd.texCoord.xy;
-					//out.texIndex = vd.texId;
-                    if(vertexId == 0){
-                    out.position = float4(-0.5,-0.5,0.0,1.0);
-                    }else if(vertexId == 1){
-                        out.position = float4(0.5,-0.5,0.0,1.0);
-                   }else if(vertexId == 2)
-                   {
-                   out.position = float4(0.5,0.5,0.0,1.0);
-                   }else if(vertexId == 3)
-                   {
-                   out.position = float4(-0.5,-0.5,0.0,1.0);
-                   }else if(vertexId == 4)
-                   {
-                   out.position = float4(0.5,0.5,0.0,1.0);
-                   }else if(vertexId == 5){
-                    out.position = float4(-0.5,0.5,0.0,1.0);
-                    }
-                    out.color = float4(1.0,1.0,1.0,1.0);
-                    out.texCoord = float2(0.0,1.0);
-                    out.texIndex = 0.0;
+					float4 pos = float4( vd.position.xyz, 1.0f ) * uniformData[0].uMVP;
+					out.position = pos;
+					out.color = vd.color;
+					out.texCoord = float2(vd.texCoord.x, -vd.texCoord.y);
+					out.texIndex = vd.texId;
 					return out;
 				}
 
 				float4 fragment fragmentMain( v2f in [[stage_in]], array<texture2d<half>, 8> tex [[texture(0)]] )
 				{
 					constexpr sampler s( address::repeat, filter::linear );
-					half4 texel = tex[0].sample( s, in.texCoord ).rgba;
+					half4 texel = tex[in.texIndex].sample( s, in.texCoord ).rgba;
 
 					float4 outColor = in.color * (float4)texel;
 					return outColor;
@@ -269,11 +250,11 @@ namespace pen {
 				{
 					v2f out;
 					const device BatchVertexData& vd = vertexData[ vertexId ];
-					float4 pos = float4( vd.position.xyz, 1.0 ) * uniformData[vertexId].uMVP;
+					float4 pos = float4( vd.position.xyz, 1.0 ) * uniformData[0].uMVP;
 					float3 offset = float3(instanceData[instanceId].uInstancedOffsets.x, instanceData[instanceId].uInstancedOffsets.y, instanceData[instanceId].uInstancedOffsets.z);
 					out.position = float4( pos.x + offset.x, pos.y + offset.y, pos.z + offset.z, 1.0 );
 					out.color = vd.color;
-					out.texCoord = vd.texCoord.xy;
+					out.texCoord = float2(vd.texCoord.x, -vd.texCoord.y);
 					out.texIndex = vd.texId;
 					return out;
 				}

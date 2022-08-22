@@ -26,7 +26,7 @@ under the License.
 #include "../../ext/platforms/android/pen_engine_android/src/cpp/android_asset.h"
 #endif
 
-#define ASSET_REGEX "#$#"
+#define PEN_ASSET_NOT_FOUND "#$#"
 
 namespace pen {
 	class Asset {

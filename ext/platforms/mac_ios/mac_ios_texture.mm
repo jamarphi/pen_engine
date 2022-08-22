@@ -43,20 +43,18 @@ under the License.
     }
 }
 
-+ (void) IOSLoadTexture:(const char *)path :(unsigned int) texSlot{
++ (void) IOSLoadTexture:(NSString*)path :(NSString*)mimeType :(unsigned int) texSlot{
     /*Loads in a texture*/
     PenMacIOSState* inst = [PenMacIOSState Get];
     MTKTextureLoader *loader = [[MTKTextureLoader alloc] initWithDevice: inst.iosDevice];
-        
-#ifndef TARGET_OS_IOS
-    id<MTLTexture> texture = [loader newTextureWithName:[NSString stringWithUTF8String:path] scaleFactor:[inst.iosWindow backingScaleFactor] bundle:[NSBundle mainBundle] options:nil error:nil];
-#else
-    id<MTLTexture> texture = [loader newTextureWithName:[NSString stringWithUTF8String:path] scaleFactor:[inst.iosMtkView contentScaleFactor] bundle:[NSBundle mainBundle] options:nil error:nil];
-#endif
+    NSError* error;
+    NSURL* textureFile = [[NSBundle mainBundle] URLForResource:path withExtension:mimeType];
+    
+    id<MTLTexture> texture = [loader newTextureWithContentsOfURL:textureFile options:nil error:&error];
         
     if(!texture)
     {
-        NSLog(@"Failed to create the texture from %@", [NSString stringWithUTF8String:path]);
+        __builtin_printf("%s", [[error localizedDescription] UTF8String]);
     }
     
     if(texSlot < 8) {
@@ -77,9 +75,9 @@ void MapMacIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, u
     [PenMacIOSTexture IOSInitializeTexture:texWidth :texHeight :type :texSlot :textureData];
 }
 
-void MapMacIOSLoadTexture(const char* path, unsigned int texSlot){
+void MapMacIOSLoadTexture(const char* path, const char* mimeType, unsigned int texSlot){
     /*Loads a Metal ios texture*/
-    [PenMacIOSTexture IOSLoadTexture:path :texSlot];
+    [PenMacIOSTexture IOSLoadTexture:[NSString stringWithUTF8String:path] :[NSString stringWithUTF8String:mimeType] :texSlot];
 }
 
 void MapMacIOSUpdatePixels(){

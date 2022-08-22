@@ -190,10 +190,7 @@ namespace pen {
 		}
 
 		static void PixelLayerAlloc() {
-			/*
-			Dimensions of pixel by default is 1,280 in width by 720 in height.
-			3,686,400 pixels, four values per pixel.
-			*/
+			/*Dimensions of pixel by default is 1,280 in width by 720 in height*/
 #ifndef __PEN_ANDROID__
 			unsigned char* dataArray = new unsigned char[3686400];
 

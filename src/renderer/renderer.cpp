@@ -54,7 +54,7 @@ namespace pen {
 
         This function goes through the pipeline and does not need to be called directly by you*/
         shader.Bind();
-        va.Bind(layerId);
+        va.Bind();
         vb.Bind();
         ib.Bind();
         

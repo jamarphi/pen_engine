@@ -85,7 +85,7 @@ namespace pen {
         stateInst->appWindow = (void*)window;
         Get()->SCREEN_WIDTH = SCR_WIDTH;
         Get()->SCREEN_HEIGHT = SCR_HEIGHT;
-        inst->appOrthoCoord = { 0.0f,(float)SCR_WIDTH,0.0f,(float)SCR_HEIGHT,-1.0f,1.0f };
+        inst->appOrthoCoord = { 0.0f,(float)SCR_WIDTH,0.0f,(float)SCR_HEIGHT,-1.0f, 1.0f };
         stateInst->screenWidth = SCR_WIDTH;
         stateInst->screenHeight = SCR_HEIGHT;
         stateInst->actualScreenWidth = SCR_WIDTH;
@@ -585,7 +585,13 @@ namespace pen {
         /*Adds in the default assets*/
         pen::Asset::Add(pen::Asset("default"));
         pen::Asset::Add(pen::Asset("fonts/bitmap.png"));
+#ifdef __PEN_ANDROID__
+        /*
+         The bitmap is added to the root directory in the NS bundle for Mac and IOS
+         For Android it is in the fonts directory
+         */
         pen::Asset::assetMap.Find(1)->second.name = "fonts/bitmap.png";
+#endif
         pen::Asset::Add(pen::Asset("pixel"));
 #endif
     }

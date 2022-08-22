@@ -43,7 +43,7 @@ namespace pen {
 		}
 
 		name = Asset::ParsePath(fileName);
-		root = fileName.substr(0, fileName.find(name));
+		root = assetPath.substr(0, fileName.find(name));
 		data = nullptr;
 	}
 
@@ -64,7 +64,7 @@ namespace pen {
 
 	std::string Asset::FindById(const unsigned int& queryId) {
 		/*Finds an asset based on its assigned id*/
-	    return (Asset::assetMap.Find(queryId) != nullptr) ? Asset::assetMap.Find(queryId)->second.name : ASSET_REGEX;
+	    return (Asset::assetMap.Find(queryId) != nullptr) ? Asset::assetMap.Find(queryId)->second.name : PEN_ASSET_NOT_FOUND;
 	}
 
 	unsigned int Asset::GetId(const std::string& name) {

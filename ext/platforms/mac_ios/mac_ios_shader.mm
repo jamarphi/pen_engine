@@ -27,38 +27,41 @@ under the License.
 	/*Creates a Metal shader*/
     PenMacIOSState* inst = [PenMacIOSState Get];
 
-	NSError* pError = nullptr;
-    id<MTLLibrary> pLibrary = [inst.iosDevice newLibraryWithSource:[NSString stringWithUTF8String:shaderProgram] options:nil error: &pError];
-	if (!pLibrary)
+	NSError* error = nullptr;
+    id<MTLLibrary> library = [inst.iosDevice newLibraryWithSource:[NSString stringWithUTF8String:shaderProgram] options:nil error: &error];
+	if (!library)
 	{
-		__builtin_printf("%s", [[pError localizedDescription] UTF8String]);
+		__builtin_printf("%s", [[error localizedDescription] UTF8String]);
 	}
 
-    id<MTLFunction> pVertexFn = [pLibrary newFunctionWithName:@"vertexMain"];
-    id<MTLFunction> pFragFn = [pLibrary newFunctionWithName:@"fragmentMain"];
+    id<MTLFunction> vertexFn = [library newFunctionWithName:@"vertexMain"];
+    id<MTLFunction> fragFn = [library newFunctionWithName:@"fragmentMain"];
 
-    //id<MTLArgumentEncoder> pArgEncoder = [pVertexFn newArgumentEncoderWithBufferIndex:0];
-	//inst.iosArgEncoder = pArgEncoder;
-
-    MTLRenderPipelineDescriptor* pDesc = [[MTLRenderPipelineDescriptor alloc] init];
-    [pDesc setVertexFunction:pVertexFn];
-    [pDesc setFragmentFunction:pFragFn];
-    [[[pDesc colorAttachments] objectAtIndexedSubscript:0] setPixelFormat:MTLPixelFormatBGRA8Unorm_sRGB];
+    MTLRenderPipelineDescriptor* desc = [[MTLRenderPipelineDescriptor alloc] init];
+    [desc setVertexFunction:vertexFn];
+    [desc setFragmentFunction:fragFn];
+    [[[desc colorAttachments] objectAtIndexedSubscript:0] setPixelFormat:MTLPixelFormatBGRA8Unorm_sRGB];
+    [[[desc colorAttachments] objectAtIndexedSubscript:0] setBlendingEnabled:YES];
+    [[[desc colorAttachments] objectAtIndexedSubscript:0] setRgbBlendOperation:MTLBlendOperationAdd];
+    [[[desc colorAttachments] objectAtIndexedSubscript:0] setAlphaBlendOperation:MTLBlendOperationAdd];
+    [[[desc colorAttachments] objectAtIndexedSubscript:0] setSourceRGBBlendFactor:MTLBlendFactorOne];
+    [[[desc colorAttachments] objectAtIndexedSubscript:0] setSourceAlphaBlendFactor:MTLBlendFactorOne];
+    [[[desc colorAttachments] objectAtIndexedSubscript:0] setDestinationRGBBlendFactor:MTLBlendFactorOneMinusSourceAlpha];
+    [[[desc colorAttachments] objectAtIndexedSubscript:0] setDestinationAlphaBlendFactor:MTLBlendFactorOneMinusSourceAlpha];
 
     switch(type){
         case 1:
-            inst.iosPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:pDesc error:&pError];
+            inst.iosPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:desc error:&error];
             if (!inst.iosPipelineState)
             {
-                __builtin_printf("%s", [[pError localizedDescription] UTF8String]);
+                __builtin_printf("%s", [[error localizedDescription] UTF8String]);
             }
-            inst.isInstanced = 0;
             break;
         case 2:
-            inst.iosInstancedPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:pDesc error:&pError];
+            inst.iosInstancedPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:desc error:&error];
             if (!inst.iosInstancedPipelineState)
             {
-                __builtin_printf("%s", [[pError localizedDescription] UTF8String]);
+                __builtin_printf("%s", [[error localizedDescription] UTF8String]);
             }
             break;
         default:
@@ -70,7 +73,6 @@ under the License.
 + (void) IOSUpdateInstanceUniform: (IOSInstanceData*) data{
 	/*Updates the instanced offsets*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-    inst.isInstanced = 1;
 	int size = sizeof(IOSInstanceData) * 400;
 #ifndef TARGET_OS_IOS
     id<MTLBuffer> instanceBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeManaged];

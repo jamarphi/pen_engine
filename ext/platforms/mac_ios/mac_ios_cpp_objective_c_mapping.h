@@ -56,12 +56,6 @@ extern "C" {
     void MapMacPenMacIOSVertexBufferDestroy(unsigned int layerId);
     /*----mac_ios_vertex_buffer----*/
 
-    /*----mac_ios_argument_buffer----*/
-    void MapMacPenMacIOSArgumentBufferInit(unsigned int layerId);
-    void MapMacPenMacIOSArgumentBufferBind(unsigned int layerId);
-    void MapMacPenMacIOSArgumentBufferDestroy(unsigned int layerId);
-    /*----mac_ios_argument_buffer----*/
-
     /*----mac_ios_index_buffer----*/
     void MapMacPenMacIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count);
     void MapMacPenMacIOSIndexBufferDestroy(unsigned int layerId);
@@ -74,7 +68,7 @@ extern "C" {
 
     /*----mac_ios_texture----*/
     void MapMacIOSInitializeTexture(unsigned int texWidth, unsigned int texHeight, unsigned int type, unsigned int texSlot, unsigned char* textureData);
-    void MapMacIOSLoadTexture(const char* path, unsigned int texSlot);
+    void MapMacIOSLoadTexture(const char* path, const char* mimeType, unsigned int texSlot);
     void MapMacIOSUpdatePixels();
     /*----mac_ios_texture----*/
 

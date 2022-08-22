@@ -85,27 +85,25 @@ namespace pen {
 			pen::State* inst = pen::State::Get();
 			inst->pixelDrawn = true;
 
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_ANDROID__
 			inst->pixelArray[y * 5120 + (4 * x)] = (unsigned char)(255 * color.x);
 			inst->pixelArray[y * 5120 + (4 * x) + 1] = (unsigned char)(255 * color.y);
 			inst->pixelArray[y * 5120 + (4 * x) + 2] = (unsigned char)(255 * color.z);
 			inst->pixelArray[y * 5120 + (4 * x) + 3] = (unsigned char)(255 * color.w);
 #else
-	#ifdef __PEN_ANDROID__
-			AndroidDrawPixel(x, y, color.x, color.y, color.z, color.w);
-	#endif
+        AndroidDrawPixel(x, y, color.x, color.y, color.z, color.w);
 #endif
 		}
 	}
 
 	static void Flush() {
 		/*Clear the pixel buffer*/
-#ifndef __PEN_MOBILE__
+        pen::State* inst = pen::State::Get();
+        inst->pixelDrawn = true;
+#ifndef __PEN_ANDROID__
 		std::memset(pen::State::Get()->pixelArray, 0, 3686400);
 #else
-	#ifdef __PEN_ANDROID__
-		AndroidPixelFlush();
-	#endif
+    AndroidPixelFlush();
 #endif
 	}
 

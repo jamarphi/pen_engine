@@ -46,13 +46,13 @@ under the License.
         [pApp activateIgnoringOtherApps:true];
     #endif
 
-        /*Initialize uniforms*/
+        /*Initializes uniforms*/
     #ifndef TARGET_OS_IOS
         inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:MVP_MATRIX_SIZE options:MTLResourceStorageModeManaged];
     #else
         inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:MVP_MATRIX_SIZE options:MTLResourceStorageModeShared];
     #endif
-    
+        
         app->OnCreate();
     }
 
@@ -237,7 +237,7 @@ under the License.
 
 	int size = sizeof(IOSUniformData);
 
-    if(inst.iosUniformBuffer == nil){
+    if(!inst.iosUniformBuffer){
 #ifndef TARGET_OS_IOS
         inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeManaged];
 #else
@@ -251,8 +251,7 @@ under the License.
 #endif
 }
 
-+ (void) SubmitBatch: (id<MTLBuffer>) iosArgumentBuffer
-    :(id<MTLBuffer>) iosVertexBuffer
++ (void) SubmitBatch:(id<MTLBuffer>) iosVertexBuffer
     :(BatchVertexData*) data
     :(int) size {
     /*Submits the vertex data to the GPU*/
@@ -268,6 +267,7 @@ under the License.
                  :(unsigned int) instanceCount{
     /*Renders the ios mtk view*/
     PenMacIOSState* inst = [PenMacIOSState Get];
+    inst.isInstanced = instanceCount > 0 ? 1 : 0;
     id<MTLBuffer> iosVertexBuffer = [[PenMacIOSVertexBuffer Get].iosVertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]];
     id<MTLBuffer> iosIndexBuffer = [[PenMacIOSIndexBuffer Get].iosIndexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]];
     dispatch_semaphore_wait(inst.dispatchSemaphore, DISPATCH_TIME_FOREVER);
@@ -280,14 +280,12 @@ under the License.
         dispatch_semaphore_signal( inst.dispatchSemaphore );
     }];
 
-    [inst.iosCommandEncoder setViewport:(MTLViewport){0.0, 0.0, inst.iosMtkView.bounds.size.width, inst.iosMtkView.bounds.size.height, 0.0, 1.0}];
     [inst.iosCommandEncoder setRenderPipelineState:inst.iosPipelineState];
     if(inst.isInstanced > 0){
         [inst.iosCommandEncoder setRenderPipelineState:inst.iosInstancedPipelineState];
         [inst.iosCommandEncoder setVertexBuffer:inst.iosInstanceBuffer offset:0 atIndex:2];
     }
     [inst.iosCommandEncoder setVertexBuffer:iosVertexBuffer offset:0 atIndex:0];
-    //[inst.iosCommandEncoder useResource:iosVertexBuffer usage:MTLResourceUsageRead];
     [inst.iosCommandEncoder setVertexBuffer:inst.iosUniformBuffer offset:0 atIndex:1];
     [inst.iosCommandEncoder setFragmentTextures:[PenMacIOSState GetTextures] withRange:NSMakeRange(0,8)];
     [inst.iosCommandEncoder setCullMode:MTLCullModeBack];
@@ -314,7 +312,7 @@ under the License.
         break;
     }
 
-    [inst.iosCommandEncoder drawIndexedPrimitives:type indexCount:indexCount indexType:MTLIndexTypeUInt16 indexBuffer:iosIndexBuffer indexBufferOffset:0 instanceCount:(instanceCount + 1)];
+    [inst.iosCommandEncoder drawIndexedPrimitives:type indexCount:indexCount indexType:MTLIndexTypeUInt32 indexBuffer:iosIndexBuffer indexBufferOffset:0 instanceCount:(instanceCount + 1)];
     [inst.iosCommandEncoder endEncoding];
     [inst.iosCommandBuffer presentDrawable:[inst.iosMtkView currentDrawable]];
     [inst.iosCommandBuffer commit];
@@ -337,11 +335,8 @@ void MapMacIOSUpdateUniforms(pen::Mat4x4 mvp){
 
 void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size){
     /*Submits the vertex data to the GPU*/
-    NSMutableDictionary* argumentBuffers = [PenMacIOSArgumentBuffer Get].iosArgumentBuffers;
     NSMutableDictionary* vertexBuffers = [PenMacIOSVertexBuffer Get].iosVertexBuffers;
-    [PenMacIOSMTKViewDelegate SubmitBatch:[argumentBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
-                                   :[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]]
-                                   :data :size];
+    [PenMacIOSMTKViewDelegate SubmitBatch:[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] :data :size];
 }
 
 void MapMacIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount){

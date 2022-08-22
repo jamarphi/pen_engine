@@ -27,7 +27,6 @@ under the License.
 #include "vertex_buffer.h"
 #include "vertex_buffer_schema.h"
 #include <iostream>
-#include "../../ext/platforms/mac_ios/mac_ios_cpp_objective_c_mapping.h"
 
 class VertexBufferLayout;
 
@@ -38,14 +37,8 @@ private:
 public:
 	VertexArray();
 	~VertexArray();
-#ifndef __PEN_MAC_IOS__
 	void AddBuffer(const VertexBufferSchema& schema);
     void Bind() const;
     void Destroy();
-#else
-	void AddBuffer(const unsigned int layerId);
-    void Bind(const unsigned int layerId) const;
-    void Destroy(const unsigned int layerId);
-#endif
 	void Unbind() const;
 };

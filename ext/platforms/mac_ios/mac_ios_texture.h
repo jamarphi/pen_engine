@@ -33,7 +33,8 @@ under the License.
                          :(unsigned int) type
                          :(unsigned int) texSlot
                          :(unsigned char*) textureData;
-    + (void) IOSLoadTexture: (const char*) path
+    + (void) IOSLoadTexture: (NSString*) path
+                       :(NSString*)mimeType
                        : (unsigned int) texSlot;
 	+ (void) IOSUpdatePixels;
 @end
