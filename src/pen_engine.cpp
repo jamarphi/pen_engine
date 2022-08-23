@@ -168,9 +168,16 @@ namespace pen {
 
     void Pen::ManageRender() {
         /*Manage swaps for each render*/
+#ifndef __PEN_MAC_IOS__
         for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
             pen::Render::RenderLayer(pen::ui::LM::layers[i]);
         }
+#else
+        unsigned int layerCount = pen::ui::LM::layers.size();
+        for (int i = 0; i < layerCount; i++) {
+            pen::Render::RenderLayer(pen::ui::LM::layers[layerCount - i - 1]);
+        }
+#endif
 
 #ifndef __PEN_MOBILE__
         glfwSwapBuffers(GetWindow());
@@ -565,7 +572,7 @@ namespace pen {
 #endif
 
     void Pen::SetMobileCallbacks(void (*onRenderCallback)(), void (*onClickCallback)(double, double), void (*onResumeCallback)(),
-        void (*onPauseCallback)(), void (*onKeyCallback)(char), void (*onTiltCallback)(double, double, double, double),
+        void (*onPauseCallback)(), void (*onKeyCallback)(char), void (*onTiltCallback)(double, double, double),
         void (*onAndroidBluetoothCallback)(), void (*onMacIosBluetoothCallback)(char*, long, unsigned int),
         void (*onHttpCallback)(pen::Map<std::string,std::string>), void (*onSocketCallback)(char*, unsigned int)) {
         /*Sets the mobile callback functions for mobile devices*/

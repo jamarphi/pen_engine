@@ -24,10 +24,9 @@ under the License.
 #ifdef __PEN_MAC_IOS__
 #import "../../../src/state/state.h"
 #import "mac_ios_state.h"
-#import <Metal/Metal.h>
-#import <MetalKit/MetalKit.h>
 #import "mac_ios_vertex_buffer.h"
 #import "mac_ios_index_buffer.h"
+#import <CoreMotion/CoreMotion.h>
 /*
   This file is for the instantiation of Pen Engine by the user in order to include it's OnCreate function.
   In the OnCreate function it is expected that pen::Pen::SetMobileCallbacks(); is called.
@@ -37,6 +36,10 @@ under the License.
 #define MVP_MATRIX_SIZE sizeof(float) * 16
 
 @interface PenMacIOSMTKViewDelegate : NSObject<MTKViewDelegate>
+
+@property(nonatomic, strong) id<CAMetalDrawable> _Nullable previousDrawable;
+@property(nonatomic, strong) id<MTLTexture> _Nullable previousTexture;
+@property(nonatomic, strong) CMMotionManager* _Nonnull  motionManager;
 
     /*Virtual method inherited from MTKView*/
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view size:(CGSize)size;
@@ -57,6 +60,7 @@ under the License.
     - (void) touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
 #endif
 
+    + (PenMacIOSMTKViewDelegate*) Get;
     + (void) UpdateUniforms: (pen::Mat4x4) mvp;
     + (void) SubmitBatch:(id<MTLBuffer>) iosVertexBuffer
                          :(BatchVertexData*) data

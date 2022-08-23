@@ -82,6 +82,7 @@ the following libraries:
 - MetalKit
 - CoreBluetooth
 - AVFAudio
+- CoreMotion
 - libsqlite3.tbd
 
 For IOS:
@@ -310,5 +311,15 @@ To play sounds and music do:
     - pen::ios::sound::Stop(const char* file);
     
     - pen::ios::sound::Remove(const char* file);
+
+---------------------------------------------------------------------------
+
+# 1.8.2.6 - Mac And IOS Accelerometer
+
+For tilting events you can access them by doing:
+
+    void tiltCallback(double acelX, double acelY, double acelZ){
+         /*Handle the accelerometer update*/
+    }
 
 ---------------------------------------------------------------------------

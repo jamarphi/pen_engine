@@ -337,3 +337,13 @@ To play a sound do:
     Pen::android::sound::Play(std::string file, bool isMusic = false);
 
 ---------------------------------------------------------------------------
+
+# 1.8.1.8 - Android Accelerometer
+
+For tilting events you can access them by doing:
+
+    void tiltCallback(double acelX, double acelY, double acelZ){
+         /*Handle the accelerometer update*/
+    }
+
+---------------------------------------------------------------------------

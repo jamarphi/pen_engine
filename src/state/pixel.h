@@ -86,10 +86,17 @@ namespace pen {
 			inst->pixelDrawn = true;
 
 #ifndef __PEN_ANDROID__
+#ifndef __PEN_MAC_IOS__
 			inst->pixelArray[y * 5120 + (4 * x)] = (unsigned char)(255 * color.x);
 			inst->pixelArray[y * 5120 + (4 * x) + 1] = (unsigned char)(255 * color.y);
 			inst->pixelArray[y * 5120 + (4 * x) + 2] = (unsigned char)(255 * color.z);
 			inst->pixelArray[y * 5120 + (4 * x) + 3] = (unsigned char)(255 * color.w);
+#else
+            inst->pixelArray[(720 - y) * 5120 + (4 * x)] = (unsigned char)(255 * color.x);
+            inst->pixelArray[(720 - y) * 5120 + (4 * x) + 1] = (unsigned char)(255 * color.y);
+            inst->pixelArray[(720 - y) * 5120 + (4 * x) + 2] = (unsigned char)(255 * color.z);
+            inst->pixelArray[(720 - y) * 5120 + (4 * x) + 3] = (unsigned char)(255 * color.w);
+#endif
 #else
         AndroidDrawPixel(x, y, color.x, color.y, color.z, color.w);
 #endif

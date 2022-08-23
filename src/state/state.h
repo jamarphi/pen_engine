@@ -90,7 +90,7 @@ namespace pen {
 		void (*mobileOnRenderCallback)() = nullptr;
 		void (*mobileOnResumeCallback)() = nullptr;
 		void (*mobileOnPauseCallback)() = nullptr;
-		void (*mobileOnTiltCallback)(double, double, double, double) = nullptr;
+		void (*mobileOnTiltCallback)(double, double, double) = nullptr;
 		void (*mobileAndroidOnBluetoothCallback)() = nullptr;
         void (*mobileMacIosOnBluetoothCallback)(char*, long, unsigned int) = nullptr;
         void (*mobileOnHttpCallback)(pen::Map<std::string,std::string>) = nullptr;

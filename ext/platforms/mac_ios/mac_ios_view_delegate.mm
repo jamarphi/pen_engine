@@ -21,6 +21,8 @@ under the License.
 #include "mac_ios_view_delegate.h"
 
 #ifdef __PEN_MAC_IOS__
+static PenMacIOSMTKViewDelegate* instance;
+
 @implementation PenMacIOSMTKViewDelegate
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view size:(CGSize)size
@@ -29,6 +31,21 @@ under the License.
     if(self)
     {
         PenMacIOSState* inst = [PenMacIOSState Get];
+        self.motionManager = [[CMMotionManager alloc] init];
+        if(self.motionManager.isAccelerometerAvailable){
+            self.motionManager.accelerometerUpdateInterval = 1.0 / 60.0;
+            void (^accelerometerCallback)(CMAccelerometerData*, NSError*) = ^(CMAccelerometerData* accelerometerData, NSError* error){
+                double acelX = (double)accelerometerData.acceleration.x;
+                double acelY = (double)accelerometerData.acceleration.y;
+                double acelZ = (double)accelerometerData.acceleration.z;
+                
+                if (pen::State::Get()->mobileOnTiltCallback != nullptr){ (*pen::State::Get()->mobileOnTiltCallback)(acelX, acelY, acelZ);
+                }
+            };
+            
+            [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue] withHandler:accelerometerCallback];
+        }
+        
         inst.iosDevice = view.device;
 
         /*Currently at max three different buffer types sent to metal shaders*/
@@ -40,6 +57,7 @@ under the License.
         
         inst.iosCommandQueue = [inst.iosDevice newCommandQueue];
         inst.iosMtkView = view;
+        [inst.iosMtkView setFramebufferOnly:NO];
 
     #ifndef TARGET_OS_IOS
         NSApplication* pApp = reinterpret_cast<NSApplication*>([inst.iosLaunchNotification object]);
@@ -55,7 +73,7 @@ under the License.
         
         app->OnCreate();
     }
-
+    instance = self;
     return self;
 }
 
@@ -223,6 +241,11 @@ under the License.
 }
 #endif
 
++ (PenMacIOSMTKViewDelegate*) Get{
+    /*Returns an instance of + PenMacIOSMTKViewDelegate*/
+    return instance;
+}
+
 + (void) UpdateUniforms: (pen::Mat4x4) mvp{
 	/*Updates the uniform data*/
     PenMacIOSState* inst = [PenMacIOSState Get];
@@ -271,12 +294,12 @@ under the License.
     id<MTLBuffer> iosVertexBuffer = [[PenMacIOSVertexBuffer Get].iosVertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]];
     id<MTLBuffer> iosIndexBuffer = [[PenMacIOSIndexBuffer Get].iosIndexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]];
     dispatch_semaphore_wait(inst.dispatchSemaphore, DISPATCH_TIME_FOREVER);
-    id<MTLCommandBuffer> pCmd = [inst.iosCommandQueue commandBuffer];
-    MTLRenderPassDescriptor* pRpd = [inst.iosMtkView currentRenderPassDescriptor];
-    inst.iosCommandEncoder = [pCmd renderCommandEncoderWithDescriptor:pRpd];
-    inst.iosCommandBuffer = pCmd;
+    id<MTLCommandBuffer> command = [inst.iosCommandQueue commandBuffer];
+    MTLRenderPassDescriptor* renderPassDescriptor = [inst.iosMtkView currentRenderPassDescriptor];
+    inst.iosCommandEncoder = [command renderCommandEncoderWithDescriptor:renderPassDescriptor];
+    inst.iosCommandBuffer = command;
     
-    [pCmd addCompletedHandler:^(id<MTLCommandBuffer> dispatchCallback) {
+    [command addCompletedHandler:^(id<MTLCommandBuffer> dispatchCallback) {
         dispatch_semaphore_signal( inst.dispatchSemaphore );
     }];
 
@@ -314,7 +337,56 @@ under the License.
 
     [inst.iosCommandEncoder drawIndexedPrimitives:type indexCount:indexCount indexType:MTLIndexTypeUInt32 indexBuffer:iosIndexBuffer indexBufferOffset:0 instanceCount:(instanceCount + 1)];
     [inst.iosCommandEncoder endEncoding];
-    [inst.iosCommandBuffer presentDrawable:[inst.iosMtkView currentDrawable]];
+    
+    id<MTLBlitCommandEncoder> blitCommandEncoder = [command blitCommandEncoder];
+    id<CAMetalDrawable> previousDrawable = [PenMacIOSMTKViewDelegate Get].previousDrawable;
+    id<MTLTexture> previousTexture = [PenMacIOSMTKViewDelegate Get].previousTexture;
+    id<CAMetalDrawable> currentDrawable = [inst.iosMtkView currentDrawable];
+    if(previousDrawable && currentDrawable && previousTexture != currentDrawable.texture){
+        [blitCommandEncoder copyFromTexture:previousTexture toTexture:currentDrawable.texture];
+        
+//        int textureSize = currentDrawable.texture.width * currentDrawable.texture.height * 4;
+//        unsigned char* previousTextureData = new unsigned char[textureSize];
+//        unsigned char* currentTextureData = new unsigned char[textureSize];
+//
+//        [previousDrawable.texture getBytes:previousTextureData bytesPerRow:previousDrawable.texture.width * 4 fromRegion:MTLRegionMake2D(0, 0, previousDrawable.texture.width, previousDrawable.texture.height) mipmapLevel:0];
+//        [currentDrawable.texture getBytes:currentTextureData bytesPerRow:currentDrawable.texture.width * 4 fromRegion:MTLRegionMake2D(0, 0, currentDrawable.texture.width, currentDrawable.texture.height) mipmapLevel:0];
+//
+//        for(int i = 0; i < textureSize; i+=4){
+//            int a = (int)previousTextureData[i];
+//            int b = (int)previousTextureData[i + 1];
+//            int c = (int)previousTextureData[i + 2];
+//            int d = (int)previousTextureData[i + 3];
+//            if(i == 6000){
+//                float tb = 1.0f;
+//            }
+//
+//            if((int)previousTextureData[i + 3] > 0)
+//               //&& ((int)previousTextureData[i] != 0) &&
+//                 // ((int)previousTextureData[i + 1] != 255) &&
+//                  //((int)previousTextureData[i + 2] != 0))
+//            {
+//                currentTextureData[i] = previousTextureData[i];
+//                currentTextureData[i + 1] = previousTextureData[i + 1];
+//                currentTextureData[i + 2] = previousTextureData[i + 2];
+//                currentTextureData[i + 3] = previousTextureData[i + 3];
+//            }else{
+//                float t = 1.0f;
+//            }
+//        }
+//
+//        [currentDrawable.texture replaceRegion:MTLRegionMake2D(0, 0, currentDrawable.texture.width, currentDrawable.texture.height) mipmapLevel:0 withBytes:currentTextureData bytesPerRow:currentDrawable.texture.width * 4];
+//        delete[] previousTextureData;
+//        delete[] currentTextureData;
+    }
+    [blitCommandEncoder endEncoding];
+    if(currentDrawable){// && layerId > 0){
+        [PenMacIOSMTKViewDelegate Get].previousDrawable = currentDrawable;
+        [PenMacIOSMTKViewDelegate Get].previousTexture = currentDrawable.texture;
+    }else{
+        //[PenMacIOSMTKViewDelegate Get].previousDrawable = nil;
+    }
+    [inst.iosCommandBuffer presentDrawable:currentDrawable];
     [inst.iosCommandBuffer commit];
 }
 

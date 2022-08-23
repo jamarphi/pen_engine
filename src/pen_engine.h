@@ -57,7 +57,8 @@ under the License.
 #include "renderer/camera.h"
 #include "objects/containers/map.h"
 #include "objects/containers/json.h"
-#include "../ext/platforms/android/pen_engine_android/src/cpp/log.h"
+#include "../ext/platforms/android/pen_engine_android/src/cpp/android_log.h"
+#include "../ext/platforms/android/pen_engine_android/src/cpp/android_database.h"
 #include "../ext/platforms/android/pen_engine_android/src/cpp/android_bluetooth.h"
 #include "../ext/platforms/android/pen_engine_android/src/cpp/android_http.h"
 #include "../ext/platforms/android/pen_engine_android/src/cpp/android_socket.h"
@@ -240,7 +241,7 @@ namespace pen {
         static void mobile_click_callback(int button, int action, int mods);
 #endif
         static void SetMobileCallbacks(void (*onRenderCallback)(), void (*onClickCallback)(double, double), void (*onResumeCallback)(),
-            void (*onPauseCallback)(), void (*onKeyCallback)(char), void (*onTiltCallback)(double, double, double, double), 
+            void (*onPauseCallback)(), void (*onKeyCallback)(char), void (*onTiltCallback)(double, double, double), 
             void (*onAndroidBluetoothCallback)(), void (*onMacIosBluetoothCallback)(char*, long, unsigned int),
             void (*onHttpCallback)(pen::Map<std::string,std::string>), void (*onSocketCallback)(char*, unsigned int));
 

@@ -22,7 +22,7 @@ under the License.
 
 #ifdef __PEN_ANDROID__
 #include <android/asset_manager_jni.h>
-#define MOBILE_ACCELERATION_CONSTANT 9.80665f
+#define ANDROID_MOBILE_ACCELERATION_CONSTANT 9.80665f
 
 extern "C" {
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesBegin(JNIEnv* env, jclass obj, jint id, jfloat x, jfloat y) {
@@ -56,12 +56,11 @@ extern "C" {
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenAccelerometer_onSensorChanged(JNIEnv* env, jclass obj, jfloat x, jfloat y, jfloat z, jlong timeStamp) {
         /*Handle tilt events*/
-        double acelX = -((double)x / MOBILE_ACCELERATION_CONSTANT);
-        double acelY = -((double)y / MOBILE_ACCELERATION_CONSTANT);
-        double acelZ = -((double)z / MOBILE_ACCELERATION_CONSTANT);
-        double acelTimestamp = (double)timeStamp / 1e9;
+        double acelX = -((double)x / ANDROID_MOBILE_ACCELERATION_CONSTANT);
+        double acelY = -((double)y / ANDROID_MOBILE_ACCELERATION_CONSTANT);
+        double acelZ = -((double)z / ANDROID_MOBILE_ACCELERATION_CONSTANT);
 
-        if (pen::State::Get()->mobileOnTiltCallback != nullptr) (*pen::State::Get()->mobileOnTiltCallback)(acelX, acelY, acelZ, acelTimestamp);
+        if (pen::State::Get()->mobileOnTiltCallback != nullptr) (*pen::State::Get()->mobileOnTiltCallback)(acelX, acelY, acelZ);
     }
 }
 #endif
