@@ -27,12 +27,10 @@ under the License.
 
 @interface PenMacIOSIndexBuffer : NSObject
 
-@property(nonatomic, strong) NSMutableDictionary* iosIndexBuffers;
+@property(nonatomic, strong) id<MTLBuffer> iosIndexBuffer;
 
-- (void) PenMacIOSIndexBufferInit :(unsigned int) layerId
-                :(int*) data
+- (void) PenMacIOSIndexBufferInit:(int*) data
                 :(unsigned int) count;
-	- (void) PenMacIOSIndexBufferDestroy: (unsigned int) layerId;
 + (PenMacIOSIndexBuffer*) Get;
 @end
 #endif

@@ -56,7 +56,11 @@ namespace pen {
 
 	public:
 		static void Background(pen::Vec4 color);
+#ifndef __PEN_MAC_IOS__
 		static void RenderLayer(pen::Layer *layer);
+#else
+        static void RenderLayer();
+#endif
 
 	private:
 		static void TextureSet();

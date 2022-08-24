@@ -168,7 +168,9 @@ namespace pen {
 					float4 position [[position]];
 					float4 color;
 					float2 texCoord;
-					float texIndex;
+					float texId;
+                    float layerId;
+                    float instanceCount;
 				};
 
 				struct BatchVertexData
@@ -177,57 +179,8 @@ namespace pen {
 					float4 color;
 					float2 texCoord;
 					float texId;
-				};
-
-				struct IOSUniformData
-				{
-					float4x4 uMVP;
-				};
-
-				v2f vertex vertexMain(
-									   device const BatchVertexData* vertexData [[buffer(0)]],
-									   device const IOSUniformData* uniformData [[buffer(1)]],
-                                       uint vertexId [[vertex_id]]
-										)
-				{
-					v2f out;
-					const device BatchVertexData& vd = vertexData[vertexId];
-					float4 pos = float4( vd.position.xyz, 1.0f ) * uniformData[0].uMVP;
-					out.position = pos;
-					out.color = vd.color;
-					out.texCoord = float2(vd.texCoord.x, -vd.texCoord.y);
-					out.texIndex = vd.texId;
-					return out;
-				}
-
-				float4 fragment fragmentMain( v2f in [[stage_in]], array<texture2d<half>, 8> tex [[texture(0)]] )
-				{
-					constexpr sampler s( address::repeat, filter::linear );
-					half4 texel = tex[in.texIndex].sample( s, in.texCoord ).rgba;
-
-					float4 outColor = in.color * (float4)texel;
-					return outColor;
-				}
-			)";
-
-		const char* instancedShaderProgram = R"(
-				#include <metal_stdlib>
-				using namespace metal;
-
-				struct v2f
-				{
-					float4 position [[position]];
-					float4 color;
-					float2 texCoord;
-					float texIndex;
-				};
-
-				struct BatchVertexData
-				{
-					float3 position;
-					float4 color;
-					float2 texCoord;
-					float texId;
+                    float layerId;
+                    float instanceCount;
 				};
 
 				struct IOSUniformData
@@ -250,19 +203,27 @@ namespace pen {
 				{
 					v2f out;
 					const device BatchVertexData& vd = vertexData[ vertexId ];
-					float4 pos = float4( vd.position.xyz, 1.0 ) * uniformData[0].uMVP;
-					float3 offset = float3(instanceData[instanceId].uInstancedOffsets.x, instanceData[instanceId].uInstancedOffsets.y, instanceData[instanceId].uInstancedOffsets.z);
-					out.position = float4( pos.x + offset.x, pos.y + offset.y, pos.z + offset.z, 1.0 );
+					float4 pos = float4( vd.position.xyz, 1.0 ) * uniformData[(int)vd.layerId].uMVP;
+                    if(vd.instanceCount > 0.0){
+                        float3 offset = float3(instanceData[instanceId].uInstancedOffsets.x, instanceData[instanceId].uInstancedOffsets.y, instanceData[instanceId].uInstancedOffsets.z);
+                        pos.x = pos.x + offset.x;
+                        pos.y = pos.y + offset.y;
+                        pos.z = pos.z + offset.z;
+                    }
+
+					out.position = pos;
 					out.color = vd.color;
 					out.texCoord = float2(vd.texCoord.x, -vd.texCoord.y);
-					out.texIndex = vd.texId;
+					out.texId = vd.texId;
+                    out.layerId = vd.layerId;
+                    out.instanceCount = vd.instanceCount;
 					return out;
 				}
 
 				float4 fragment fragmentMain( v2f in [[stage_in]], array<texture2d<half>, 8> tex [[texture(0)]] )
 				{
 					constexpr sampler s( address::repeat, filter::linear );
-					half4 texel = tex[in.texIndex].sample( s, in.texCoord ).rgba;
+					half4 texel = tex[in.texId].sample( s, in.texCoord ).rgba;
 
 					float4 outColor = in.color * (float4)texel;
 					return outColor;
@@ -292,10 +253,6 @@ namespace pen {
 		GLint GetUniformLocation(const std::string& name);
 #endif
         
-#ifndef __PEN_MAC_IOS__
 		unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
-#else
-        unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader, const unsigned int& type);
-#endif
 	};
 }

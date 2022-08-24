@@ -31,7 +31,11 @@ under the License.
     [textureDesc setHeight:texHeight];
     [textureDesc setPixelFormat:MTLPixelFormatRGBA8Unorm];
     [textureDesc setTextureType:MTLTextureType2D];
+#if !TARGET_OS_OSX
     [textureDesc setStorageMode:MTLStorageModeShared];
+#else
+    [textureDesc setStorageMode:MTLStorageModeManaged];
+#endif
     [textureDesc setUsage:MTLResourceUsageSample | MTLResourceUsageRead];
 
     id<MTLTexture> texture = [inst.iosDevice newTextureWithDescriptor:textureDesc];

@@ -22,6 +22,9 @@ under the License.
 
 #ifdef __PEN_MAC_IOS__
 static PenMacIOSMTKViewDelegate* instance;
+static IOSUniformData* uniformArray;
+static unsigned int previousLayerCount;
+static unsigned int layerCount;
 
 @implementation PenMacIOSMTKViewDelegate
 
@@ -31,6 +34,7 @@ static PenMacIOSMTKViewDelegate* instance;
     if(self)
     {
         PenMacIOSState* inst = [PenMacIOSState Get];
+#if !TARGET_OS_OSX
         self.motionManager = [[CMMotionManager alloc] init];
         if(self.motionManager.isAccelerometerAvailable){
             self.motionManager.accelerometerUpdateInterval = 1.0 / 60.0;
@@ -45,6 +49,7 @@ static PenMacIOSMTKViewDelegate* instance;
             
             [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue] withHandler:accelerometerCallback];
         }
+#endif
         
         inst.iosDevice = view.device;
 
@@ -57,18 +62,10 @@ static PenMacIOSMTKViewDelegate* instance;
         
         inst.iosCommandQueue = [inst.iosDevice newCommandQueue];
         inst.iosMtkView = view;
-        [inst.iosMtkView setFramebufferOnly:NO];
 
-    #ifndef TARGET_OS_IOS
-        NSApplication* pApp = reinterpret_cast<NSApplication*>([inst.iosLaunchNotification object]);
-        [pApp activateIgnoringOtherApps:true];
-    #endif
-
-        /*Initializes uniforms*/
-    #ifndef TARGET_OS_IOS
-        inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:MVP_MATRIX_SIZE options:MTLResourceStorageModeManaged];
-    #else
-        inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:MVP_MATRIX_SIZE options:MTLResourceStorageModeShared];
+    #if TARGET_OS_OSX
+        NSApplication* macApp = reinterpret_cast<NSApplication*>([inst.iosLaunchNotification object]);
+        [macApp activateIgnoringOtherApps:true];
     #endif
         
         app->OnCreate();
@@ -95,7 +92,7 @@ static PenMacIOSMTKViewDelegate* instance;
     inst->actualScreenWidth = size.width;
 }
 
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
 - (BOOL)acceptsFirstResponder {
     return YES;
 }
@@ -103,20 +100,21 @@ static PenMacIOSMTKViewDelegate* instance;
 - (void)mouseDown:(NSEvent *)event {
     /*A click has started*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-    pen::State::Get()->keyableItem = nullptr;
+    pen::State* coreStateInst = pen::State::Get();
+    coreStateInst->keyableItem = nullptr;
     NSPoint location = event.locationInWindow;
-    NSPoint localPoint = [self convertPoint:location fromView:inst.iosMtkView];
+    NSPoint localPoint = [inst.iosMtkView convertPoint:location fromView:inst.iosMtkView];
     
     double xPos = (double)location.x;
     double yPos = (double)location.y;
     /*Flip y position to start from the bottom*/
-    yPos = inst->actualScreenHeight - yPos;
+    yPos = coreStateInst->actualScreenHeight - yPos;
 
     /*Scale based on screen width and height*/
-    xPos = xPos * inst->screenWidth / inst->actualScreenWidth;
-    yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
-    pen::State::Get()->mobileMouseX = xPos;
-    pen::State::Get()->mobileMouseY = yPos;
+    xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
+    yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
+    coreStateInst->mobileMouseX = xPos;
+    coreStateInst->mobileMouseY = yPos;
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
 }
 
@@ -134,8 +132,8 @@ static PenMacIOSMTKViewDelegate* instance;
         /*Scale based on screen width and height*/
         xPos = xPos * inst->screenWidth / inst->actualScreenWidth;
         yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
-        pen::State::Get()->mobileMouseX = xPos;
-        pen::State::Get()->mobileMouseY = yPos;
+        inst->mobileMouseX = xPos;
+        inst->mobileMouseY = yPos;
 
         bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::SPACE, pen::in::KEYS::HELD);
         if (!cameraHandled) {
@@ -148,17 +146,18 @@ static PenMacIOSMTKViewDelegate* instance;
 - (void)mouseUp:(NSEvent *)event {
     /*A click has ended*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-    pen::State::Get()->draggableItem = nullptr;
+    pen::State* coreStateInst = pen::State::Get();
+    coreStateInst->draggableItem = nullptr;
     NSPoint location = event.locationInWindow;
-    NSPoint localPoint = [self convertPoint:location fromView:inst.iosMtkView];
+    NSPoint localPoint = [inst.iosMtkView convertPoint:location fromView:inst.iosMtkView];
     double xPos = (double)location.x;
     double yPos = (double)location.y;
     /*Flip y position to start from the bottom*/
-    yPos = inst->actualScreenHeight - yPos;
+    yPos = coreStateInst->actualScreenHeight - yPos;
 
     /*Scale based on screen width and height*/
-    xPos = xPos * inst->screenWidth / inst->actualScreenWidth;
-    yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
+    xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
+    yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
     pen::State::Get()->mobileMouseX = xPos;
     pen::State::Get()->mobileMouseY = yPos;
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
@@ -170,7 +169,7 @@ static PenMacIOSMTKViewDelegate* instance;
     const char* keys = [characters UTF8String];
     pen::State* inst = pen::State::Get();
     if ((inst->handleGUIKeyEvents && inst->keyableItem != nullptr) || inst->handleCameraInput) {
-        bool cameraHandled = pen::Render::Get()->camera.HandleInput((int)keys[0], pen::int::KEYS::PRESSED);
+        bool cameraHandled = pen::Render::Get()->camera.HandleInput((int)keys[0], pen::in::KEYS::PRESSED);
         if (!cameraHandled) {
             pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->keyableItem;
             item->OnKey(item, (int)keys[0], pen::in::KEYS::PRESSED);
@@ -184,7 +183,7 @@ static PenMacIOSMTKViewDelegate* instance;
     const char* keys = [characters UTF8String];
     pen::State* inst = pen::State::Get();
     if ((inst->handleGUIKeyEvents && inst->keyableItem != nullptr) || inst->handleCameraInput) {
-        bool cameraHandled = pen::Render::Get()->camera.HandleInput((int)keys[0], pen::int::KEYS::RELEASED);
+        bool cameraHandled = pen::Render::Get()->camera.HandleInput((int)keys[0], pen::in::KEYS::RELEASED);
         if (!cameraHandled) {
             pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->keyableItem;
             item->OnKey(item, (int)keys[0], pen::in::KEYS::RELEASED);
@@ -205,6 +204,7 @@ static PenMacIOSMTKViewDelegate* instance;
 
     inst->actualScreenHeight = height;
     inst->actualScreenWidth = width;
+    return frameSize;
 }
 
 #else
@@ -242,34 +242,55 @@ static PenMacIOSMTKViewDelegate* instance;
 #endif
 
 + (PenMacIOSMTKViewDelegate*) Get{
-    /*Returns an instance of + PenMacIOSMTKViewDelegate*/
+    /*Returns an instance of PenMacIOSMTKViewDelegate*/
     return instance;
 }
 
-+ (void) UpdateUniforms: (pen::Mat4x4) mvp{
++ (void) AddUniform:(unsigned int) layerId :(pen::Mat4x4) mvp{
+    /*Adds a uniform to the uniform dictionary*/
+    if(!uniformArray){
+        layerCount = layerId + 1;
+        uniformArray = new IOSUniformData[layerCount];
+    }
+    
+    if(layerId > layerCount - 1){
+        IOSUniformData* tempArray = new IOSUniformData[layerId + 1];
+        for(int i = 0; i < layerCount; i++){
+            tempArray[i] = uniformArray[i];
+        }
+        delete uniformArray;
+        layerCount = layerId + 1;
+        uniformArray = tempArray;
+    }
+    
+    simd::float4 colA = {mvp.matrix[0][0], mvp.matrix[1][0], mvp.matrix[2][0], mvp.matrix[3][0]};
+    simd::float4 colB = {mvp.matrix[0][1], mvp.matrix[1][1], mvp.matrix[2][1], mvp.matrix[3][1]};
+    simd::float4 colC = {mvp.matrix[0][2], mvp.matrix[1][2], mvp.matrix[2][2], mvp.matrix[3][2]};
+    simd::float4 colD = {mvp.matrix[0][3], mvp.matrix[1][3], mvp.matrix[2][3], mvp.matrix[3][3]};
+    simd::float4x4 mat = simd::float4x4(colA, colB, colC, colD);
+    
+    IOSUniformData uniform = IOSUniformData{mat};
+    uniformArray[layerId] = uniform;
+}
+
++ (void) UpdateUniforms{
 	/*Updates the uniform data*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-	simd::float4 colA = {mvp.matrix[0][0], mvp.matrix[1][0], mvp.matrix[2][0], mvp.matrix[3][0]};
-	simd::float4 colB = {mvp.matrix[0][1], mvp.matrix[1][1], mvp.matrix[2][1], mvp.matrix[3][1]};
-	simd::float4 colC = {mvp.matrix[0][2], mvp.matrix[1][2], mvp.matrix[2][2], mvp.matrix[3][2]};
-	simd::float4 colD = {mvp.matrix[0][3], mvp.matrix[1][3], mvp.matrix[2][3], mvp.matrix[3][3]};
-	simd::float4x4 mat = simd::float4x4(colA, colB, colC, colD);
+	
+	int size = sizeof(IOSUniformData) * layerCount;
 
-	IOSUniformData* data = new IOSUniformData[1];
-	data[0].uMVP = mat;
-
-	int size = sizeof(IOSUniformData);
-
-    if(!inst.iosUniformBuffer){
-#ifndef TARGET_OS_IOS
+    if(!inst.iosUniformBuffer || previousLayerCount != layerCount){
+        
+#if TARGET_OS_OSX
         inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeManaged];
 #else
         inst.iosUniformBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
 #endif
+        previousLayerCount = layerCount;
     }
     
-    memcpy([inst.iosUniformBuffer contents], data, size);
-#ifndef TARGET_OS_IOS
+    memcpy([inst.iosUniformBuffer contents], uniformArray, size);
+#if TARGET_OS_OSX
     [inst.iosUniformBuffer didModifyRange: NSMakeRange(0, [inst.iosUniformBuffer length])];
 #endif
 }
@@ -279,115 +300,63 @@ static PenMacIOSMTKViewDelegate* instance;
     :(int) size {
     /*Submits the vertex data to the GPU*/
     memcpy([iosVertexBuffer contents], data, size);
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
     [iosVertexBuffer didModifyRange: NSMakeRange(0, [iosVertexBuffer length])];
 #endif
 }
 
-+ (void) Render: (unsigned int) layerId
-                 :(unsigned int) shapeType
-                 :(int) indexCount
-                 :(unsigned int) instanceCount{
++ (void) Render:(unsigned int) shapeType
+                 :(int) indexCount{
     /*Renders the ios mtk view*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-    inst.isInstanced = instanceCount > 0 ? 1 : 0;
-    id<MTLBuffer> iosVertexBuffer = [[PenMacIOSVertexBuffer Get].iosVertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]];
-    id<MTLBuffer> iosIndexBuffer = [[PenMacIOSIndexBuffer Get].iosIndexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]];
+    id<MTLBuffer> iosVertexBuffer = [PenMacIOSVertexBuffer Get].iosVertexBuffer;
+    id<MTLBuffer> iosIndexBuffer = [PenMacIOSIndexBuffer Get].iosIndexBuffer;
     dispatch_semaphore_wait(inst.dispatchSemaphore, DISPATCH_TIME_FOREVER);
     id<MTLCommandBuffer> command = [inst.iosCommandQueue commandBuffer];
     MTLRenderPassDescriptor* renderPassDescriptor = [inst.iosMtkView currentRenderPassDescriptor];
-    inst.iosCommandEncoder = [command renderCommandEncoderWithDescriptor:renderPassDescriptor];
-    inst.iosCommandBuffer = command;
-    
-    [command addCompletedHandler:^(id<MTLCommandBuffer> dispatchCallback) {
-        dispatch_semaphore_signal( inst.dispatchSemaphore );
-    }];
-
-    [inst.iosCommandEncoder setRenderPipelineState:inst.iosPipelineState];
-    if(inst.isInstanced > 0){
-        [inst.iosCommandEncoder setRenderPipelineState:inst.iosInstancedPipelineState];
-        [inst.iosCommandEncoder setVertexBuffer:inst.iosInstanceBuffer offset:0 atIndex:2];
-    }
-    [inst.iosCommandEncoder setVertexBuffer:iosVertexBuffer offset:0 atIndex:0];
-    [inst.iosCommandEncoder setVertexBuffer:inst.iosUniformBuffer offset:0 atIndex:1];
-    [inst.iosCommandEncoder setFragmentTextures:[PenMacIOSState GetTextures] withRange:NSMakeRange(0,8)];
-    [inst.iosCommandEncoder setCullMode:MTLCullModeBack];
-    [inst.iosCommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-    
-    MTLPrimitiveType type;
-
-    switch (shapeType) {
-    case 0:
-        type = MTLPrimitiveTypePoint;
-        break;
-    case 1:
-        type = MTLPrimitiveTypeLine;
-        break;
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-        type = MTLPrimitiveTypeTriangle;
-        break;
-    default:
-        type = MTLPrimitiveTypeTriangle;
-        break;
-    }
-
-    [inst.iosCommandEncoder drawIndexedPrimitives:type indexCount:indexCount indexType:MTLIndexTypeUInt32 indexBuffer:iosIndexBuffer indexBufferOffset:0 instanceCount:(instanceCount + 1)];
-    [inst.iosCommandEncoder endEncoding];
-    
-    id<MTLBlitCommandEncoder> blitCommandEncoder = [command blitCommandEncoder];
-    id<CAMetalDrawable> previousDrawable = [PenMacIOSMTKViewDelegate Get].previousDrawable;
-    id<MTLTexture> previousTexture = [PenMacIOSMTKViewDelegate Get].previousTexture;
-    id<CAMetalDrawable> currentDrawable = [inst.iosMtkView currentDrawable];
-    if(previousDrawable && currentDrawable && previousTexture != currentDrawable.texture){
-        [blitCommandEncoder copyFromTexture:previousTexture toTexture:currentDrawable.texture];
+    if(renderPassDescriptor){
+        inst.iosCommandEncoder = [command renderCommandEncoderWithDescriptor:renderPassDescriptor];
+        inst.iosCommandBuffer = command;
         
-//        int textureSize = currentDrawable.texture.width * currentDrawable.texture.height * 4;
-//        unsigned char* previousTextureData = new unsigned char[textureSize];
-//        unsigned char* currentTextureData = new unsigned char[textureSize];
-//
-//        [previousDrawable.texture getBytes:previousTextureData bytesPerRow:previousDrawable.texture.width * 4 fromRegion:MTLRegionMake2D(0, 0, previousDrawable.texture.width, previousDrawable.texture.height) mipmapLevel:0];
-//        [currentDrawable.texture getBytes:currentTextureData bytesPerRow:currentDrawable.texture.width * 4 fromRegion:MTLRegionMake2D(0, 0, currentDrawable.texture.width, currentDrawable.texture.height) mipmapLevel:0];
-//
-//        for(int i = 0; i < textureSize; i+=4){
-//            int a = (int)previousTextureData[i];
-//            int b = (int)previousTextureData[i + 1];
-//            int c = (int)previousTextureData[i + 2];
-//            int d = (int)previousTextureData[i + 3];
-//            if(i == 6000){
-//                float tb = 1.0f;
-//            }
-//
-//            if((int)previousTextureData[i + 3] > 0)
-//               //&& ((int)previousTextureData[i] != 0) &&
-//                 // ((int)previousTextureData[i + 1] != 255) &&
-//                  //((int)previousTextureData[i + 2] != 0))
-//            {
-//                currentTextureData[i] = previousTextureData[i];
-//                currentTextureData[i + 1] = previousTextureData[i + 1];
-//                currentTextureData[i + 2] = previousTextureData[i + 2];
-//                currentTextureData[i + 3] = previousTextureData[i + 3];
-//            }else{
-//                float t = 1.0f;
-//            }
-//        }
-//
-//        [currentDrawable.texture replaceRegion:MTLRegionMake2D(0, 0, currentDrawable.texture.width, currentDrawable.texture.height) mipmapLevel:0 withBytes:currentTextureData bytesPerRow:currentDrawable.texture.width * 4];
-//        delete[] previousTextureData;
-//        delete[] currentTextureData;
+        [command addCompletedHandler:^(id<MTLCommandBuffer> dispatchCallback) {
+            dispatch_semaphore_signal( inst.dispatchSemaphore );
+        }];
+
+        [inst.iosCommandEncoder setRenderPipelineState:inst.iosPipelineState];
+        [inst.iosCommandEncoder setVertexBuffer:iosVertexBuffer offset:0 atIndex:0];
+        [inst.iosCommandEncoder setVertexBuffer:inst.iosUniformBuffer offset:0 atIndex:1];
+        [inst.iosCommandEncoder setVertexBuffer:inst.iosInstanceBuffer offset:0 atIndex:2];
+        [inst.iosCommandEncoder setFragmentTextures:[PenMacIOSState GetTextures] withRange:NSMakeRange(0,8)];
+        [inst.iosCommandEncoder setCullMode:MTLCullModeBack];
+        [inst.iosCommandEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+        
+        MTLPrimitiveType type;
+
+        switch (shapeType) {
+        case 0:
+            type = MTLPrimitiveTypePoint;
+            break;
+        case 1:
+            type = MTLPrimitiveTypeLine;
+            break;
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+            type = MTLPrimitiveTypeTriangle;
+            break;
+        default:
+            type = MTLPrimitiveTypeTriangle;
+            break;
+        }
+
+        [inst.iosCommandEncoder drawIndexedPrimitives:type indexCount:indexCount indexType:MTLIndexTypeUInt32 indexBuffer:iosIndexBuffer indexBufferOffset:0 instanceCount:inst.isInstanced > 0 ? 400 : 1];
+        [inst.iosCommandEncoder endEncoding];
+        
+        [inst.iosCommandBuffer presentDrawable:[inst.iosMtkView currentDrawable]];
+        [inst.iosCommandBuffer commit];
     }
-    [blitCommandEncoder endEncoding];
-    if(currentDrawable){// && layerId > 0){
-        [PenMacIOSMTKViewDelegate Get].previousDrawable = currentDrawable;
-        [PenMacIOSMTKViewDelegate Get].previousTexture = currentDrawable.texture;
-    }else{
-        //[PenMacIOSMTKViewDelegate Get].previousDrawable = nil;
-    }
-    [inst.iosCommandBuffer presentDrawable:currentDrawable];
-    [inst.iosCommandBuffer commit];
 }
 
 + (void) Background: (float) r
@@ -400,20 +369,24 @@ static PenMacIOSMTKViewDelegate* instance;
 }
 @end
 
-void MapMacIOSUpdateUniforms(pen::Mat4x4 mvp){
+void MapMacIOSAddUniform(unsigned int layerId, pen::Mat4x4 mvp){
+    /*Adds a uniform to the uniform dictionary*/
+    [PenMacIOSMTKViewDelegate AddUniform:layerId :mvp];
+}
+
+void MapMacIOSUpdateUniforms(){
     /*Updates the uniform data*/
-    [PenMacIOSMTKViewDelegate UpdateUniforms:mvp];
+    [PenMacIOSMTKViewDelegate UpdateUniforms];
 }
 
-void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size){
+void MapMacIOSSubmitBatch(BatchVertexData* data, int size){
     /*Submits the vertex data to the GPU*/
-    NSMutableDictionary* vertexBuffers = [PenMacIOSVertexBuffer Get].iosVertexBuffers;
-    [PenMacIOSMTKViewDelegate SubmitBatch:[vertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] :data :size];
+    [PenMacIOSMTKViewDelegate SubmitBatch:[PenMacIOSVertexBuffer Get].iosVertexBuffer :data :size];
 }
 
-void MapMacIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount){
+void MapMacIOSRender(unsigned int shapeType, int indexCount){
     /*Render the ios mtk view*/
-    [PenMacIOSMTKViewDelegate Render:layerId :shapeType :indexCount :instanceCount];
+    [PenMacIOSMTKViewDelegate Render:shapeType :indexCount];
 }
 
 void MapMacIOSBackground(float r, float g, float b, float a){

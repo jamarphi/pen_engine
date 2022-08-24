@@ -92,7 +92,7 @@ namespace pen {
             texCoordEndX = itemTexCoordEndX;
             texCoordEndY = itemTexCoordEndY;
 
-            bufferPositions = pen::ui::Shape::GetBatchPosition(positions, size, objectShapeType, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
+            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, objectShapeType, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(), 
                 itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
 
             /*Checks to make sure the item is on the screen to be rendered*/
@@ -217,7 +217,7 @@ namespace pen {
             if (isActive && forceActive) {
                 /*If this object uses a text character as the texture, it gets bufferPositions from the bitmap function since it uses certain sections of the bitmap*/
                 if (shapeType != pen::ui::Shape::COMPLEX) bufferPositions = isText ? pen::ui::Shape::BitmapFontPosition(positions, size, color, pen::State::Get()->asciiMap.Find(textureName)->second, &bufferPositions[0], angles.x, angles.y, angles.z)
-                    : pen::ui::Shape::GetBatchPosition(positions, size, shapeType, color, &bufferPositions[0], angles.x, angles.y, angles.z, GetAssetId(), texCoordStartX, texCoordStartY, texCoordEndX, texCoordEndY);
+                    : pen::ui::Shape::GetItemBatchData(positions, size, shapeType, color, &bufferPositions[0], angles.x, angles.y, angles.z, GetAssetId(), texCoordStartX, texCoordStartY, texCoordEndX, texCoordEndY);
 
                 for (int i = 0; i < childItems.size(); i++) {
                     if (!childItems[i]->isActive || !childItems[i]->forceActive) continue;
@@ -333,7 +333,7 @@ namespace pen {
                     childItems[i]->positions.y = (i == 0 ? initialPosY : childItems[i - 1]->positions.y) + newDistanceY;
 
                     childItems[i]->bufferPositions = childItems[i]->isText ? pen::ui::Shape::BitmapFontPosition(childItems[i]->positions, childItems[i]->size, childItems[i]->color, pen::State::Get()->asciiMap.Find(childItems[i]->textureName)->second, &childItems[i]->bufferPositions[0], childItems[i]->angles.x, childItems[i]->angles.y, childItems[i]->angles.z)
-                        : pen::ui::Shape::GetBatchPosition(childItems[i]->positions, childItems[i]->size, childItems[i]->shapeType, childItems[i]->color, &childItems[i]->bufferPositions[0], childItems[i]->angles.x, childItems[i]->angles.y, childItems[i]->angles.z, childItems[i]->GetAssetId(), childItems[i]->texCoordStartX, childItems[i]->texCoordStartY, childItems[i]->texCoordEndX, childItems[i]->texCoordEndY);
+                        : pen::ui::Shape::GetItemBatchData(childItems[i]->positions, childItems[i]->size, childItems[i]->shapeType, childItems[i]->color, &childItems[i]->bufferPositions[0], childItems[i]->angles.x, childItems[i]->angles.y, childItems[i]->angles.z, childItems[i]->GetAssetId(), childItems[i]->texCoordStartX, childItems[i]->texCoordStartY, childItems[i]->texCoordEndX, childItems[i]->texCoordEndY);
 
                     if (angleX != 0.0f) childItems[i]->ItemRotate(angleX, 0, true);
                     if (angleY != 0.0f) childItems[i]->ItemRotate(angleY, 1, true);
@@ -384,7 +384,7 @@ namespace pen {
 
                 /*Resets the buffer positions before rotating*/
                 std::vector<float> tempPositions = (isText) ? pen::ui::Shape::BitmapFontPosition(positions, size, color, pen::State::Get()->asciiMap.Find(textureName)->second, &bufferPositions[0], 0.0f, 0.0f, 0.0f)
-                    : pen::ui::Shape::GetBatchPosition(positions, size, shapeType, color, &bufferPositions[0], 0.0f, 0.0f, 0.0f, GetAssetId(), texCoordStartX, texCoordStartY, texCoordEndX, texCoordEndY);
+                    : pen::ui::Shape::GetItemBatchData(positions, size, shapeType, color, &bufferPositions[0], 0.0f, 0.0f, 0.0f, GetAssetId(), texCoordStartX, texCoordStartY, texCoordEndX, texCoordEndY);
 
                 pen::Vec2 pointOfOrigin = calculatePointOfOrigin ? this->parent->ItemGetPointOfOrigin(&tempPositions[0], axis) : objectPointOfOrigin;
 

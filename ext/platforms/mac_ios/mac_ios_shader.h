@@ -28,7 +28,7 @@ under the License.
 
 @interface PenMacIOSShader : NSObject
 
-+ (void) PenMacIOSShaderInit: (const char*) shaderProgram :(unsigned int) type;
++ (void) PenMacIOSShaderInit: (const char*) shaderProgram;
 	+ (void) IOSUpdateInstanceUniform: (IOSInstanceData*) data;
 @end
 #endif

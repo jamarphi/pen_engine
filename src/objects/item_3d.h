@@ -35,9 +35,15 @@ namespace pen {
         Item3D(bool childItem, pen::Vec3 objectPositions, unsigned int objectShapeType, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
             bool objectIsFixed = false, float* objectBufferPositions = nullptr, const std::string& objectTexture = "");
 
+#ifndef __PEN_MAC_IOS__
         Item3D(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
             bool objectIsFixed = false, std::string objectTextureName = "",
             float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
+#else
+        Item3D(int* layerIndices, uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
+            bool objectIsFixed = false, std::string objectTextureName = "",
+            float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
+#endif
 
         ~Item3D();
 

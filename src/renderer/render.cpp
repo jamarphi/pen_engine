@@ -32,6 +32,7 @@ namespace pen {
 #endif
     }
 
+#ifndef __PEN_MAC_IOS__
     void Render::RenderLayer(pen::Layer* layer) {
         /*Render a batch of objects*/
         Render* inst = pen::Render::Get();
@@ -53,13 +54,13 @@ namespace pen {
             TextureSet();
             inst->firstTime = false;
         }
-
+        
         /*Update the instanced uniforms*/
         if (layer->isInstanced) UpdatedInstancedUniforms(layer);
         
         /*If pixel-by-pixel drawing is needed*/
         if (pen::State::Get()->usingBuffer) Texture::UpdatePixels();
-
+        
         pen::op::Translate(&layer->model, pen::Vec3(layer->translation.x, layer->translation.y, layer->translation.z));
 
         /*Update camera*/
@@ -68,21 +69,12 @@ namespace pen {
         /*This model view projection matrix is used for transformations of a given layer*/
         pen::Mat4x4 mvp = (layer->model * (layer->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (layer->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
 
-#ifndef __PEN_MAC_IOS__
         shader.SetUniformMat4x4f("uMVP", mvp);
-#else
-        MapMacIOSUpdateUniforms(mvp);
-#endif
 
         /*Binds the vertex buffer of a given layer and updates the GPU with the buffer data*/
         layer->vb.Bind();
         if (pen::State::Get()->updateBatch) {
-#ifndef __PEN_MAC_IOS__
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(layer->batchVertices), layer->batchVertices);
-#else
-            MapMacIOSSubmitBatch(layer->id, layer->batchVertices, sizeof(layer->batchVertices));
-
-#endif
             if (pen::State::Get()->firstUpdateFrame) {
                 pen::State::Get()->firstUpdateFrame = false;
             }
@@ -91,12 +83,54 @@ namespace pen {
             }
         }
 
-#ifndef __PEN_MAC_IOS__
-        pen::Renderer::Draw(layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
-#else
-        pen::Renderer::Draw(layer->id, layer->va, layer->ib, layer->indexCount, layer->vb, shader, 0, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
-#endif
+        pen::Renderer::Draw(layer->va, layer->ib, layer->indexCount, layer->vb, shader, layer->shapeType, layer->isInstanced, layer->instancedDataList.size());
     }
+#else
+    void Render::RenderLayer() {
+        /*Render a batch of objects*/
+        Render* inst = pen::Render::Get();
+
+        /*Bind the initial assets*/
+        if (inst->firstTime) {
+            TextureSet();
+            
+            inst->firstTime = false;
+        }
+        
+        /*If pixel-by-pixel drawing is needed*/
+        if (pen::State::Get()->usingBuffer) Texture::UpdatePixels();
+        
+        for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+            pen::op::Translate(&pen::ui::LM::layers[i]->model, pen::Vec3(pen::ui::LM::layers[i]->translation.x, pen::ui::LM::layers[i]->translation.y, pen::ui::LM::layers[i]->translation.z));
+
+            /*Update camera*/
+            inst->camera.Update(45, 0.1f, 100.0f, &inst->appPerspectiveView, &inst->appPerspectiveProj, pen::ui::LM::layers[i]);
+
+            /*This model view projection matrix is used for transformations of a given layer*/
+            pen::Mat4x4 mvp = (pen::ui::LM::layers[i]->model * (pen::ui::LM::layers[i]->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (pen::ui::LM::layers[i]->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
+
+            MapMacIOSAddUniform(pen::ui::LM::layers[i]->id, mvp);
+            
+            /*Update the instanced uniforms*/
+            UpdatedInstancedUniforms(pen::ui::LM::layers[0]);
+        }
+        
+        MapMacIOSUpdateUniforms();
+
+        /*Updates the GPU with the buffer data*/
+        if (pen::State::Get()->updateBatch) {
+            MapMacIOSSubmitBatch(pen::Layer::batchVertices, BATCH_VERTICES_SIZE);
+            if (pen::State::Get()->firstUpdateFrame) {
+                pen::State::Get()->firstUpdateFrame = false;
+            }
+            else {
+                pen::State::Get()->updateBatch = false;
+            }
+        }
+
+        pen::Renderer::Draw(pen::Layer::indexCount);
+    }
+#endif
 
     void Render::TextureSet() {
         pen::State* inst = pen::State::Get();
@@ -104,7 +138,7 @@ namespace pen {
 
 #ifndef __PEN_ANDROID__
         /*
-         Loops through and binds the assets for a particular batch
+         Loops through and binds the texture assets
          Android textures are loaded in on the Java side via a different thread
          */
         for (int i = 0; i < inst->textureUnits; i++) {
@@ -125,20 +159,34 @@ namespace pen {
         }
     }
 
+
     void Render::UpdatedInstancedUniforms(pen::Layer* layer) {
         /*Update the uniforms for the instanced shader*/
-        pen::Render* render = pen::Render::Get();
-        int vecCount = layer->instancedDataList.size() > 400 ? 400 : layer->instancedDataList.size();
 #ifndef __PEN_MAC_IOS__
+        pen::Render* inst = pen::Render::Get();
+        int vecCount = layer->instancedDataList.size() > 400 ? 400 : layer->instancedDataList.size();
         for (int i = 0; i < vecCount; i++) {
-            render->instancedShader.SetUniform3f("uInstancedOffsets[" + std::to_string(i) + "]", layer->instancedDataList[i]);
+            inst->instancedShader.SetUniform3f("uInstancedOffsets[" + std::to_string(i) + "]", layer->instancedDataList[i]);
         }
 #else
-        IOSInstanceData* instanceData = new IOSInstanceData[vecCount];
-        for (int i = 0; i < vecCount; i++) {
-            instanceData[i].uInstancedOffsets.x = layer->instancedDataList[i]->x;
-            instanceData[i].uInstancedOffsets.y = layer->instancedDataList[i]->y;
-            instanceData[i].uInstancedOffsets.z = layer->instancedDataList[i]->z;
+        /*Update the instanced uniform data for the Metal shader*/
+        pen::Render* inst = pen::Render::Get();
+        std::vector<pen::Vec3*> instancedDataList = layer->instancedDataList != nullptr ? *layer->instancedDataList : std::vector<pen::Vec3*>();
+        int vecCount = instancedDataList.size() > 0 ? instancedDataList.size() : 400;
+        IOSInstanceData* instanceData = MapMacIOSGetInstanceData();
+        if(instanceData == nullptr) instanceData = new IOSInstanceData[vecCount];
+        if(layer->instancedDataList != nullptr){
+            for (int i = 0; i < vecCount; i++) {
+                instanceData[i].uInstancedOffsets.x = instancedDataList[i]->x;
+                instanceData[i].uInstancedOffsets.y = instancedDataList[i]->y;
+                instanceData[i].uInstancedOffsets.z = instancedDataList[i]->z;
+            }
+        }else{
+            for (int i = 0; i < vecCount; i++) {
+                instanceData[i].uInstancedOffsets.x = 0.0f;
+                instanceData[i].uInstancedOffsets.y = 0.0f;
+                instanceData[i].uInstancedOffsets.z = 0.0f;
+            }
         }
         MapMacIOSUpdateInstanceUniform(instanceData);
 #endif

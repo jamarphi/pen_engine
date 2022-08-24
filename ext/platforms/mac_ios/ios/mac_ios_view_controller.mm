@@ -22,7 +22,7 @@ under the License.
 #import "mac_ios_view_controller.h"
 
 #ifdef __PEN_MAC_IOS__
-#ifdef TARGET_OS_IOS
+#if !TARGET_OS_OSX
 @implementation PenIOSViewController
 {
     MTKView* _view;
@@ -35,11 +35,10 @@ under the License.
     
     _view = (MTKView *)self.view;
     _view.device = MTLCreateSystemDefaultDevice();
-    _view.layer.backgroundColor = [UIColor colorWithRed:0.65 green:0.65 blue:0.65 alpha:1.0].CGColor;
     _view.preferredFramesPerSecond = 30;
     [[_view.window rootViewController] prefersStatusBarHidden];
     [_view setColorPixelFormat: MTLPixelFormatBGRA8Unorm_sRGB];
-
+    
     NSAssert(_view.device, @"Metal is not supported on this device");
 
     dispatch_queue_t q = dispatch_get_global_queue( QOS_CLASS_USER_INITIATED, 0 );

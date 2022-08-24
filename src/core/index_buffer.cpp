@@ -24,19 +24,17 @@ IndexBuffer::IndexBuffer() {
 
 }
 
-#ifndef __PEN_MAC_IOS__
 IndexBuffer::IndexBuffer(int* data, unsigned int count) : indexCount(count) {
 	/*Using static draw for the index buffer since it won't change*/
+#ifndef __PEN_MAC_IOS__
 	glGenBuffers(1, &rendererId);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rendererId);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count, data, GL_STATIC_DRAW);
-}
 #else
-IndexBuffer::IndexBuffer(unsigned int layerId, int* data, unsigned int count) : indexCount(count) {
-    /*For IOS Metal index buffers*/
-    MapMacPenMacIOSIndexBufferInit(layerId, data, count);
-}
+    /*For the Mac and IOS Metal index buffer*/
+    MapMacPenMacIOSIndexBufferInit(data, count);
 #endif
+}
 
 IndexBuffer::~IndexBuffer() {
 	
@@ -63,10 +61,5 @@ void IndexBuffer::Unbind() const {
 void IndexBuffer::Destroy() {
 	/*Removes the index buffer from memory on the GPU*/
 	glDeleteBuffers(1, &rendererId);
-}
-#else
-void IndexBuffer::Destroy(unsigned int layerId) {
-    /*Removes the index buffer from memory on the GPU*/
-    MapMacPenMacIOSIndexBufferDestroy(layerId);
 }
 #endif

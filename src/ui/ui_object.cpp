@@ -44,7 +44,7 @@ namespace pen {
             texCoordEndX = itemTexCoordEndX;
             texCoordEndY = itemTexCoordEndY;
 
-            bufferPositions = pen::ui::Shape::GetBatchPosition(positions, size, objectShapeType, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
+            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, objectShapeType, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
                 itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
 
             shapeType = objectShapeType;

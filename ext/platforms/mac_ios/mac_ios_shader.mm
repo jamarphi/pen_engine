@@ -23,7 +23,7 @@ under the License.
 #ifdef __PEN_MAC_IOS__
 
 @implementation PenMacIOSShader
-+ (void) PenMacIOSShaderInit: (const char*) shaderProgram :(unsigned int) type {
++ (void) PenMacIOSShaderInit: (const char*) shaderProgram {
 	/*Creates a Metal shader*/
     PenMacIOSState* inst = [PenMacIOSState Get];
 
@@ -49,47 +49,49 @@ under the License.
     [[[desc colorAttachments] objectAtIndexedSubscript:0] setDestinationRGBBlendFactor:MTLBlendFactorOneMinusSourceAlpha];
     [[[desc colorAttachments] objectAtIndexedSubscript:0] setDestinationAlphaBlendFactor:MTLBlendFactorOneMinusSourceAlpha];
 
-    switch(type){
-        case 1:
-            inst.iosPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:desc error:&error];
-            if (!inst.iosPipelineState)
-            {
-                __builtin_printf("%s", [[error localizedDescription] UTF8String]);
-            }
-            break;
-        case 2:
-            inst.iosInstancedPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:desc error:&error];
-            if (!inst.iosInstancedPipelineState)
-            {
-                __builtin_printf("%s", [[error localizedDescription] UTF8String]);
-            }
-            break;
-        default:
-            break;
+    inst.iosPipelineState = [inst.iosDevice newRenderPipelineStateWithDescriptor:desc error:&error];
+    if (!inst.iosPipelineState)
+    {
+        __builtin_printf("%s", [[error localizedDescription] UTF8String]);
     }
-    
 }
 
 + (void) IOSUpdateInstanceUniform: (IOSInstanceData*) data{
 	/*Updates the instanced offsets*/
     PenMacIOSState* inst = [PenMacIOSState Get];
 	int size = sizeof(IOSInstanceData) * 400;
-#ifndef TARGET_OS_IOS
-    id<MTLBuffer> instanceBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeManaged];
-#else
-    id<MTLBuffer> instanceBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
+    if(!inst.iosInstanceBuffer){
+    #if TARGET_OS_OSX
+        id<MTLBuffer> instanceBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeManaged];
+    #else
+        id<MTLBuffer> instanceBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
+    #endif
+        inst.iosInstanceBuffer = instanceBuffer;
+    }
+    memcpy([inst.iosInstanceBuffer contents], data, size);
+#if TARGET_OS_OSX
+    [inst.iosInstanceBuffer didModifyRange: NSMakeRange(0, [inst.iosInstanceBuffer length])];
 #endif
-    memcpy([instanceBuffer contents], data, size);
-#ifndef TARGET_OS_IOS
-    [instanceBuffer didModifyRange: NSMakeRange(0, [instanceBuffer length])];
-#endif
-	inst.iosInstanceBuffer = instanceBuffer;
 }
 @end
 
-void MapMacPenMacIOSShaderInit(const char* shaderProgram, unsigned int type){
+void MapMacPenMacIOSShaderInit(const char* shaderProgram){
     /*Creates a Metal shader*/
-    [PenMacIOSShader PenMacIOSShaderInit:shaderProgram :type];
+    [PenMacIOSShader PenMacIOSShaderInit:shaderProgram];
+}
+
+void MapMacIOSSetInstanceState(unsigned int instanceState){
+    /*Sets the instance state for rendering*/
+    [PenMacIOSState Get].isInstanced = instanceState;
+}
+
+IOSInstanceData* MapMacIOSGetInstanceData(){
+    /*Returns the instance buffer data if there is any*/
+    IOSInstanceData* data = reinterpret_cast<IOSInstanceData*>([[PenMacIOSState Get].iosInstanceBuffer contents]);
+    if(data){
+        return data;
+    }
+    return nullptr;
 }
 
 void MapMacIOSUpdateInstanceUniform(IOSInstanceData* data){

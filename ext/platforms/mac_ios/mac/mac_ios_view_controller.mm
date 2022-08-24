@@ -22,7 +22,7 @@ under the License.
 #import "mac_ios_view_controller.h"
 
 #ifdef __PEN_MAC_IOS__
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
 @implementation PenMacViewController
 {
     MTKView* _view;
@@ -36,9 +36,9 @@ under the License.
     
     _view = (MTKView *)self.view;
     _view.device = MTLCreateSystemDefaultDevice();
-    _view.layer.backgroundColor = [NSColor colorWithRed:0.65 green:0.65 blue:0.65 alpha:1.0].CGColor;
     _view.preferredFramesPerSecond = 30;
     [_view setColorPixelFormat: MTLPixelFormatBGRA8Unorm_sRGB];
+    [_view setFramebufferOnly:NO];
 
     NSAssert(_view.device, @"Metal is not supported on this device");
 

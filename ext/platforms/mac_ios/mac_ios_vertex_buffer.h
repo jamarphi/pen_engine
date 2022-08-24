@@ -29,12 +29,10 @@ under the License.
 
 @interface PenMacIOSVertexBuffer : NSObject
 
-@property (nonatomic,strong) NSMutableDictionary* iosVertexBuffers;
+@property (nonatomic,strong) id<MTLBuffer> iosVertexBuffer;
 
-    - (void) PenMacIOSVertexBufferInit:(unsigned int) layerId
-                     :(BatchVertexData*) data
+    - (void) PenMacIOSVertexBufferInit:(BatchVertexData*) data
                      :(unsigned int) size;
-	- (void) PenMacIOSVertexBufferDestroy: (unsigned int) layerId;
     + (PenMacIOSVertexBuffer*) Get;
 @end
 #endif

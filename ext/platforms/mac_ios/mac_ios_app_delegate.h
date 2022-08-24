@@ -25,20 +25,20 @@ under the License.
 #import "../../../src/state/state.h"
 #import "mac_ios_state.h"
 
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
 @interface PenMacIOSAppDelegate : NSObject<NSApplicationDelegate>
 #else
 @interface PenMacIOSAppDelegate : UIResponder<UIApplicationDelegate>
 #endif
 
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
 @property (nonatomic, strong) NSWindow* window;
 #else
 @property (nonatomic, strong) UIWindow* window;
 #endif
 
 /*These methods are inherited from NSObject or UIResponder*/
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
 - (void) applicationWillFinishLaunching: (NSNotification*) pNotification;
 - (void) applicationDidFinishLaunching: (NSNotification*) pNotification;
 - (bool) applicationShouldTerminateAfterLastWindowClosed: (NSApplication*) pSender;

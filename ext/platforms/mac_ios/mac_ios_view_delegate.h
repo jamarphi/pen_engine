@@ -26,26 +26,28 @@ under the License.
 #import "mac_ios_state.h"
 #import "mac_ios_vertex_buffer.h"
 #import "mac_ios_index_buffer.h"
+#if !TARGET_OS_OSX
 #import <CoreMotion/CoreMotion.h>
+#endif
 /*
   This file is for the instantiation of Pen Engine by the user in order to include it's OnCreate function.
   In the OnCreate function it is expected that pen::Pen::SetMobileCallbacks(); is called.
 */
 #import "../../../../app.h"
 
-#define MVP_MATRIX_SIZE sizeof(float) * 16
-
 @interface PenMacIOSMTKViewDelegate : NSObject<MTKViewDelegate>
 
 @property(nonatomic, strong) id<CAMetalDrawable> _Nullable previousDrawable;
 @property(nonatomic, strong) id<MTLTexture> _Nullable previousTexture;
+#if !TARGET_OS_OSX
 @property(nonatomic, strong) CMMotionManager* _Nonnull  motionManager;
+#endif
 
     /*Virtual method inherited from MTKView*/
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view size:(CGSize)size;
 - (void)drawInMTKView:(nonnull MTKView *)view;
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size;
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
     - (BOOL)acceptsFirstResponder;
     - (void)mouseDown:(NSEvent *)event;
     - (void)mouseDragged:(NSEvent *)event;
@@ -61,14 +63,13 @@ under the License.
 #endif
 
     + (PenMacIOSMTKViewDelegate*) Get;
-    + (void) UpdateUniforms: (pen::Mat4x4) mvp;
+    + (void) AddUniform:(unsigned int) layerId :(pen::Mat4x4) mvp;
+    + (void) UpdateUniforms;
     + (void) SubmitBatch:(id<MTLBuffer>) iosVertexBuffer
                          :(BatchVertexData*) data
                         :(int) size;
-    + (void) Render: (unsigned int) layerId
-                     :(unsigned int) shapeType
-                     :(int) indexCount
-                     :(unsigned int) instanceCount;
+    + (void) Render:(unsigned int) shapeType
+                     :(int) indexCount;
     + (void) Background: (float) r
                      : (float) g
                      : (float) b

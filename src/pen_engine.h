@@ -220,13 +220,13 @@ namespace pen {
         static void HandleGUIClickEvents(bool choice, bool (*userClickCatchAll)());
 
 #ifndef __PEN_ANDROID__
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
         static void HandleGUIDragEvents(bool choice);
 #endif
 #endif
 
 #ifndef __PEN_ANDROID__
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
         static void HandleGUIKeyEvents(bool choice);
 #endif
 #endif
@@ -246,7 +246,7 @@ namespace pen {
             void (*onHttpCallback)(pen::Map<std::string,std::string>), void (*onSocketCallback)(char*, unsigned int));
 
         static void SetMobileTextures(const std::vector<std::string>& textureList);
-
+        static void SetInstancedOffsets(std::vector<pen::Vec3*>* offsets);
 
     private:
         void InitializeAsciiMap();

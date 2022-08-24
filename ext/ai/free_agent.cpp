@@ -354,13 +354,13 @@ namespace pen {
 
 #ifndef __PEN_MOBILE__
 		void FreeAgent::Save(const std::string& path) {
+#else
+        std::string FreeAgent::Save(const std::string& path) {
             /*
              On mobile the text file will be returned as a string for the user to save it
              to a server or their own custom database since android's asset directory is read only
              and ios should be the same to keep things consistent
              */
-#else
-        std::string FreeAgent::Save(const std::string& path) {
 #endif
 			/*Save a free agent model*/
 			std::string tempPath = (path.find(".farlpen") != std::string::npos ? path : path + ".farlpen");
@@ -433,6 +433,7 @@ namespace pen {
 #else
             return input;
 #endif
+            return "";
 		}
 
 		void FreeAgent::Load(const std::string& path, pen::ai::Action** userActions, long userNumActions) {

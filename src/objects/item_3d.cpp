@@ -36,12 +36,13 @@ namespace pen {
         model = pen::Mat4x4(1.0f);
         textureName = objectTexture;
 
-        bufferPositions = pen::ui::Shape::GetBatchPosition(positions, size, pen::ui::Shape::OBJ_3D, objectColor, objectBufferPositions, 0.0f, 0.0f, 0.0f, GetAssetId());
+        bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::OBJ_3D, objectColor, objectBufferPositions, 0.0f, 0.0f, 0.0f, GetAssetId());
 
         /*Checks to make sure the item is on the screen to be rendered*/
         CheckActiveStatus();
     }
 
+#ifndef __PEN_MAC_IOS__
     Item3D::Item3D(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor,
         bool objectIsFixed, std::string objectTextureName,
         float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
@@ -70,6 +71,35 @@ namespace pen {
         /*Checks to make sure the item is on the screen to be rendered*/
         CheckActiveStatus();
     }
+#else
+    Item3D::Item3D(int* layerIndices, uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor,
+        bool objectIsFixed, std::string objectTextureName,
+        float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
+        /*Regular constructor*/
+        id = objectId;
+        positions = objectPositions;
+        /*Size does not matter for the main item*/
+        size = objectSize;
+        isFixed = objectIsFixed;
+        angles = pen::Vec3(0.0f, 0.0f, 0.0f);
+        isSingular = true;
+
+        shapeType = pen::ui::Shape::OBJ_3D;
+        color = objectColor;
+
+        textureName = objectTextureName;
+
+        texCoordStartX = itemTexCoordStartX;
+        texCoordStartY = itemTexCoordStartY;
+        texCoordEndX = itemTexCoordEndX;
+        texCoordEndY = itemTexCoordEndY;
+
+        indices3D = layerIndices;
+
+        /*Checks to make sure the item is on the screen to be rendered*/
+        CheckActiveStatus();
+    }
+#endif
 
     Item3D::~Item3D() {
         bufferPositions.clear();

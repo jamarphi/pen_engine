@@ -34,15 +34,11 @@ public:
 
 public:
 	IndexBuffer();
-	IndexBuffer(int* data, unsigned int count);
 	~IndexBuffer();
+    IndexBuffer(int* data, unsigned int count);
     
 #ifndef __PEN_MAC_IOS__
-    IndexBuffer(int* data, unsigned int count);
     void Destroy();
-#else
-    IndexBuffer(unsigned int layerId, int* data, unsigned int count);
-    void Destroy(unsigned int layerId);
 #endif
 
 	void Bind() const;

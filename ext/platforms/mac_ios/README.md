@@ -82,12 +82,12 @@ the following libraries:
 - MetalKit
 - CoreBluetooth
 - AVFAudio
-- CoreMotion
 - libsqlite3.tbd
 
 For IOS:
 
 - UIKit
+- CoreMotion
 
 For Mac:
 
@@ -112,7 +112,14 @@ In Build Settings -> C++ Language Dialect, make sure it is C++17.
 
 ---------------------------------------------------------------------------
 
-# 1.8.2.1 - Mac And IOS Bluetooth
+# 1.8.2.1 - Mac And IOS Instancing
+
+For instancing pen::Pen::SetInstancedOffsets(std::vector<pen::Vec3*>* offsets) is used to update the
+global instance offsets.
+
+---------------------------------------------------------------------------
+
+# 1.8.2.2 - Mac And IOS Bluetooth
 
 # Bluetooth As A Central
 
@@ -206,7 +213,7 @@ If a central subscribes to your service, then you can update the value of the ch
 
 ---------------------------------------------------------------------------
 
-# 1.8.2.2 - Mac And IOS HTTP
+# 1.8.2.3 - Mac And IOS HTTP
 
 To do an http requests do the following:
 
@@ -226,7 +233,7 @@ If expecting anything back from the request do:
 
 ---------------------------------------------------------------------------
 
-# 1.8.2.3 - Mac And IOS Sockets
+# 1.8.2.4 - Mac And IOS Sockets
 
 To do a socket request to a server first connect:
 
@@ -268,7 +275,7 @@ Once the data is received you can be notified by doing:
 
 ---------------------------------------------------------------------------
 
-# 1.8.2.4 - Mac And IOS Database
+# 1.8.2.5 - Mac And IOS Database
 
 If you want to use persisted memory for your mac and ios applications you can call the following:
 
@@ -292,7 +299,7 @@ If you want to use persisted memory for your mac and ios applications you can ca
 
 ---------------------------------------------------------------------------
 
-# 1.8.1.4 - Android Loading
+# 1.8.1.6 - Android Loading
 
 You can load in assets such as level packs by doing:
 
@@ -300,7 +307,7 @@ You can load in assets such as level packs by doing:
 
 ---------------------------------------------------------------------------
 
-# 1.8.2.5 - Mac And IOS Sound
+# 1.8.2.7 - Mac And IOS Sound
 
 To play sounds and music do:
 
@@ -314,7 +321,7 @@ To play sounds and music do:
 
 ---------------------------------------------------------------------------
 
-# 1.8.2.6 - Mac And IOS Accelerometer
+# 1.8.2.8 - IOS Accelerometer
 
 For tilting events you can access them by doing:
 

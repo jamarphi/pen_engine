@@ -31,19 +31,28 @@ under the License.
 #include <iostream>
 #include <vector>
 
+#ifndef __PEN_MAC_IOS__
 #define MAX_OBJECTS 10000
 #define RENDERER_VERTEX_SIZE sizeof(BatchVertexData)
-#define RENDERER_SPRITE_SIZE RENDERER_VERTEX_SIZE * 6
-#define RENDERER_BUFFER_SIZE RENDERER_SPRITE_SIZE * MAX_OBJECTS
+#define RENDERER_BUFFER_SIZE 6 * RENDERER_VERTEX_SIZE * MAX_OBJECTS
 #define RENDERER_INDICES_SIZE MAX_OBJECTS * 6
+#define THREE_D_RENDERER_INDICES_SIZE RENDERER_INDICES_SIZE
 #define BATCH_VERTEX_ELEMENTS 10
+#endif
 
 namespace pen {
 	class Layer {
 	public:
 		uint16_t id;
+#ifndef __PEN_MAC_IOS__
 		int batchIndices[RENDERER_INDICES_SIZE];
-		int indexCount;
+        int indexCount;
+#else
+        static int* batchIndices;
+        static bool buffersInitialized;
+        static int indexCount;
+#endif
+		
 		unsigned int itemCount = 0;
 		VertexArray va;
 		VertexBuffer vb;
@@ -51,7 +60,8 @@ namespace pen {
 #ifndef __PEN_MAC_IOS__
 		float batchVertices[MAX_OBJECTS * BATCH_VERTEX_ELEMENTS];
 #else
-		BatchVertexData batchVertices[MAX_OBJECTS];
+		static BatchVertexData* batchVertices;
+        static long vertexOffset;
 #endif
 		std::vector<pen::ui::Item*> layerItems;
 		pen::Vec3 translation;
@@ -61,7 +71,11 @@ namespace pen {
 		bool isWireFrame = false;
 		pen::Mat4x4 model;
 		bool isInstanced = false;
+#ifndef __PEN_MAC_IOS__
 		std::vector<pen::Vec3*> instancedDataList;
+#else
+        std::vector<pen::Vec3*>* instancedDataList = nullptr;
+#endif
 
 		/*Only one main item can be pushed to this layer*/
 		bool isSingular = false;

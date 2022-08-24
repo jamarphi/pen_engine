@@ -32,9 +32,9 @@ VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
 	glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 }
 #else
-VertexBuffer::VertexBuffer(unsigned int layerId, BatchVertexData* data, unsigned int size) {
-	/*For IOS Metal buffers*/
-    MapMacPenMacIOSVertexBufferInit(layerId, data, size);
+VertexBuffer::VertexBuffer(BatchVertexData* data, unsigned int size) {
+	/*For the Mac and IOS Metal vertex buffer*/
+    MapMacPenMacIOSVertexBufferInit(data, size);
 }
 #endif
 
@@ -69,10 +69,5 @@ void VertexBuffer::Unbind() const {
 void VertexBuffer::Destroy() {
 	/*Removes the vertex buffer from memory on the GPU*/
 	glDeleteBuffers(1, &rendererId);
-}
-#else
-void VertexBuffer::Destroy(unsigned int layerId) {
-    /*Removes the vertex buffer from memory on the GPU*/
-    MapMacPenMacIOSVertexBufferDestroy(layerId);
 }
 #endif

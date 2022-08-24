@@ -259,7 +259,7 @@ namespace pen {
                     }
                     else {
                         tempPositions = (object->isText) ? pen::ui::Shape::BitmapFontPosition(object->positions, object->size, object->color, pen::State::Get()->asciiMap.Find(object->textureName)->second, &object->bufferPositions[0], 0.0f, 0.0f, 0.0f)
-                            : pen::ui::Shape::GetBatchPosition(object->positions, object->size, object->shapeType, object->color, &object->bufferPositions[0], 0.0f, 0.0f, 0.0f, object->GetAssetId(), object->texCoordStartX, object->texCoordStartY, object->texCoordEndX, object->texCoordEndY);
+                            : pen::ui::Shape::GetItemBatchData(object->positions, object->size, object->shapeType, object->color, &object->bufferPositions[0], 0.0f, 0.0f, 0.0f, object->GetAssetId(), object->texCoordStartX, object->texCoordStartY, object->texCoordEndX, object->texCoordEndY);
                     }
 
                     pen::Vec2 pointOfOrigin = (calculatePointOfOrigin && object->shapeType != pen::ui::Shape::COMPLEX) ? GetPointOfOrigin(object, &tempPositions[0], axis) : objectPointOfOrigin;

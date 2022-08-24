@@ -34,6 +34,8 @@ extern "C" {
         simd::float4 color;
         simd::float2 texCoord;
         simd::float1 texId;
+        simd::float1 layerId;
+        simd::float1 instanceCount;
     };
 
     struct IOSUniformData {
@@ -44,25 +46,42 @@ extern "C" {
         simd::float3 uInstancedOffsets;
     };
 
+#ifdef __PEN_MAC_IOS__
+#define MAX_OBJECTS 30 * 10000
+#define MAX_OBJECTS_SINGULAR 10000
+#define RENDERER_VERTEX_SIZE sizeof(BatchVertexData)
+#define BATCH_VERTICES_SIZE RENDERER_VERTEX_SIZE * MAX_OBJECTS
+#define RENDERER_BUFFER_SIZE 6 * RENDERER_VERTEX_SIZE * MAX_OBJECTS
+#define RENDERER_INDICES_SIZE MAX_OBJECTS * 6
+#define THREE_D_RENDERER_INDICES_SIZE RENDERER_INDICES_SIZE / 30
+
+/*
+ This is the same as the core BATCH_VERTEX_ELEMENTS since layer specific data is added in during
+ pen::ui::Submit() for Metal
+ */
+#define BATCH_VERTEX_ELEMENTS 10
+#endif
+
     /*----mac_ios_view_delegate----*/
-    void MapMacIOSUpdateUniforms(pen::Mat4x4 mvp);
-    void MapMacIOSSubmitBatch(unsigned int layerId, BatchVertexData* data, int size);
-    void MapMacIOSRender(unsigned int shapeType, int indexCount, unsigned int layerId, unsigned int instanceCount);
+    void MapMacIOSAddUniform(unsigned int layerId, pen::Mat4x4 mvp);
+    void MapMacIOSUpdateUniforms();
+    void MapMacIOSSubmitBatch(BatchVertexData* data, int size);
+    void MapMacIOSRender(unsigned int shapeType, int indexCount);
     void MapMacIOSBackground(float r, float g, float b, float a);
     /*----mac_ios_view_delegate----*/
 
     /*----mac_ios_vertex_buffer----*/
-    void MapMacPenMacIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size);
-    void MapMacPenMacIOSVertexBufferDestroy(unsigned int layerId);
+    void MapMacPenMacIOSVertexBufferInit(BatchVertexData* data, unsigned int size);
     /*----mac_ios_vertex_buffer----*/
 
     /*----mac_ios_index_buffer----*/
-    void MapMacPenMacIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count);
-    void MapMacPenMacIOSIndexBufferDestroy(unsigned int layerId);
+    void MapMacPenMacIOSIndexBufferInit(int* data, unsigned int count);
     /*----mac_ios_index_buffer----*/
 
     /*----mac_ios_shader----*/
-    void MapMacPenMacIOSShaderInit(const char* shaderProgram, unsigned int type);
+    void MapMacPenMacIOSShaderInit(const char* shaderProgram);
+    void MapMacIOSSetInstanceState(unsigned int instanceState);
+    IOSInstanceData* MapMacIOSGetInstanceData();
     void MapMacIOSUpdateInstanceUniform(IOSInstanceData* data);
     /*----mac_ios_shader----*/
 

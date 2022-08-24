@@ -35,7 +35,7 @@ namespace pen {
     }
 
 #ifndef __PEN_MAC_IOS__
-    void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
+    void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, const unsigned int& shapeType,
         const bool& isInstanced, const unsigned int& instanceCount) {
         /*Draw a batched object to the screen
 
@@ -48,17 +48,11 @@ namespace pen {
         isInstanced ? glDrawElementsInstanced(drawType[shapeType], indexCount, GL_UNSIGNED_INT, 0, instanceCount) : glDrawElements(drawType[shapeType],indexCount, GL_UNSIGNED_INT, 0);
     }
 #else
-    void Renderer::Draw(const uint16_t layerId, const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, int indices, const unsigned int& shapeType,
-        const bool& isInstanced, const unsigned int& instanceCount) {
+    void Renderer::Draw(int& indexCount) {
         /*Draw a batched object to the screen
 
         This function goes through the pipeline and does not need to be called directly by you*/
-        shader.Bind();
-        va.Bind();
-        vb.Bind();
-        ib.Bind();
-        
-        MapMacIOSRender(shapeType, indexCount, layerId, instanceCount);
+        MapMacIOSRender(3, indexCount);
     }
 #endif
 }

@@ -29,7 +29,6 @@ under the License.
 #include <fstream>
 #endif
 
-
 namespace pen {
 	namespace ui {
 		class LM {
@@ -179,12 +178,26 @@ namespace pen {
 
 		static void Submit() {
 			/*This updates the layers with any modified changes done by the user*/
+            pen::Layer::vertexOffset = 0;
+#ifdef __PEN_MAC_IOS__
+            bool isInstanced = false;
+#endif
+            
 			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+#ifdef __PEN_MAC_IOS__
+                if(pen::ui::LM::layers[i]->instancedDataList != nullptr){
+                    if(pen::ui::LM::layers[i]->instancedDataList->size() > 0) isInstanced = true;
+                }
+#endif
 				for (int j = 0; j < pen::ui::LM::layers[i]->layerItems.size(); j++) {
 					pen::ui::LM::layers[i]->layerItems[j]->CombineChildBuffers();
 				}
 				pen::ui::LM::layers[i]->CombineBuffers();
 			}
+            
+#ifdef __PEN_MAC_IOS__
+            isInstanced ? MapMacIOSSetInstanceState(1) : MapMacIOSSetInstanceState(0);
+#endif
 			pen::State::Get()->firstUpdateFrame = true;
 			pen::State::Get()->updateBatch = true;
 		}
@@ -217,9 +230,7 @@ namespace pen {
 			pen::ui::Sort();
 			pen::ui::LM::generalLayerId++;
 
-			/*
-				Allocate an array of points for dealing with pixel drawing.
-			*/
+			/*Allocate an array of points for dealing with pixel drawing*/
 			pen::State* tempStateInst = pen::State::Get();
 			pen::ui::LM::pixelLayer->Push(new pen::ui::Item(PIXEL_DRAWING_ID,
 				pen::Vec3(0.0f, 0.0f, 0.0f),
@@ -417,8 +428,13 @@ namespace pen {
 				std::vector<pen::ui::MtlData*> materialList;
 				pen::ui::MtlData* material = nullptr;
 
+#ifndef __PEN_MAC_IOS__
 				pen::ui::Item* item3D = new pen::Item3D(id, pen::Vec3(0.0f, 0.0f, 0.0f), pen::Vec2(50.0f, 50.0f),
 					objectColor, objectIsFixed);
+#else
+                pen::ui::Item* item3D = new pen::Item3D(pen::Layer::batchIndices, id, pen::Vec3(0.0f, 0.0f, 0.0f), pen::Vec2(50.0f, 50.0f),
+                    objectColor, objectIsFixed);
+#endif
 				item3D->isWireFrame = isWireFrame;
 
 

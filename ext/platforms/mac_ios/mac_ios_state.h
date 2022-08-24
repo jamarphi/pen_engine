@@ -24,12 +24,10 @@ under the License.
 
 #ifdef __PEN_MAC_IOS__
 #import <TargetConditionals.h>
-#ifdef TARGET_IPHONE_SIMULATOR
+#ifdef TARGET_OS_IPHONE
+#if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
-#elifdef TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#elifdef TARGET_OS_IOS
-#import <UIKit/UIKit.h>
+#endif
 #elifdef TARGET_OS_MAC
 #import <AppKit/AppKit.h>
 #endif
@@ -41,8 +39,6 @@ under the License.
 #import <simd/simd.h>
 #import "mac_ios_cpp_objective_c_mapping.h"
 
-#define MVP_MATRIX_SIZE sizeof(float) * 16
-
 @class PenMacIOSState;
 
 @interface PenMacIOSState : NSObject
@@ -51,7 +47,6 @@ under the License.
     @property id<MTLDevice> iosDevice;
     @property id<MTLCommandQueue> iosCommandQueue;
     @property id<MTLRenderPipelineState> iosPipelineState;
-    @property id<MTLRenderPipelineState> iosInstancedPipelineState;
     @property NSNotification* iosLaunchNotification;
     @property id<MTLArgumentEncoder> iosArgEncoder;
     @property id<MTLDepthStencilState> iosDepthStencilState;
@@ -63,7 +58,7 @@ under the License.
     @property dispatch_semaphore_t dispatchSemaphore;
     @property unsigned int isInstanced;
 
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
     @property NSWindow* iosWindow;
 #else
     @property UIWindow* iosWindow;

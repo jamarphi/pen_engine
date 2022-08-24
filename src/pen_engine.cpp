@@ -24,6 +24,13 @@ namespace pen {
     std::vector<pen::Layer*> pen::ui::LM::layers = {};
     pen::Layer* pen::ui::LM::pixelLayer = nullptr;
     uint16_t pen::ui::LM::generalLayerId = 0;
+    #ifdef __PEN_MAC_IOS__
+    BatchVertexData* pen::Layer::batchVertices = new BatchVertexData[MAX_OBJECTS];
+    long pen::Layer::vertexOffset = 0;
+    int* pen::Layer::batchIndices = new int[RENDERER_INDICES_SIZE];
+    bool pen::Layer::buffersInitialized = false;
+    int pen::Layer::indexCount = 0;
+    #endif
 
 #ifndef __PEN_MOBILE__
     void framebuffer_size_callback(glfwwindow* window, int width, int height);
@@ -104,8 +111,11 @@ namespace pen {
         /*Initialize shaders*/
         pen::Shader shader(1);
         inst->appShader = shader;
-        //pen::Shader instancedShader(2);
-        //inst->instancedShader = instancedShader;
+#ifndef __PEN_MAC_IOS__
+        /*The instance shader is the default shader for Metal*/
+        pen::Shader instancedShader(2);
+        inst->instancedShader = instancedShader;
+#endif
 
         /*Set initial scaling for text characters*/
         inst->textScaling = 25;
@@ -173,10 +183,7 @@ namespace pen {
             pen::Render::RenderLayer(pen::ui::LM::layers[i]);
         }
 #else
-        unsigned int layerCount = pen::ui::LM::layers.size();
-        for (int i = 0; i < layerCount; i++) {
-            pen::Render::RenderLayer(pen::ui::LM::layers[layerCount - i - 1]);
-        }
+        pen::Render::RenderLayer();
 #endif
 
 #ifndef __PEN_MOBILE__
@@ -538,7 +545,7 @@ namespace pen {
         if (inst->handleGUIClickEvents || inst->handleCameraInput) {
             bool cameraHandled = false;
 #ifndef __PEN_ANDROID__
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
             /*Handles camera input for Mac*/
             cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::SPACE, action);
 #endif
@@ -611,5 +618,14 @@ namespace pen {
             pen::Asset::Add(pen::Asset(textureList[i]));
         }
 #endif
+    }
+
+    void Pen::SetInstancedOffsets(std::vector<pen::Vec3*>* offsets){
+        /*Updates the instanced data for Mac and IOS*/
+    #ifdef __PEN_MAC_IOS__
+        for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+            pen::ui::LM::layers[i]->instancedDataList = offsets;
+        }
+    #endif
     }
 }

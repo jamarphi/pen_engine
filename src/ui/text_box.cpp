@@ -62,7 +62,7 @@ namespace pen {
             if (size.x == 0.0f) size.x = 50.0f;
             if (size.y == 0.0f) size.y = pen::State::Get()->textScaling;
 
-            bufferPositions = pen::ui::Shape::GetBatchPosition(positions, size, pen::ui::Shape::QUAD, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
+            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::QUAD, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
                 itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
 
             shapeType = pen::ui::Shape::QUAD;
@@ -108,7 +108,7 @@ namespace pen {
             if (size.x == 0.0f) size.x = 50.0f;
             if (size.y == 0.0f) size.y = pen::State::Get()->textScaling;
 
-            bufferPositions = pen::ui::Shape::GetBatchPosition(positions, size, pen::ui::Shape::QUAD, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
+            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::QUAD, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
                 itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
 
             shapeType = pen::ui::Shape::QUAD;

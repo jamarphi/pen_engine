@@ -40,7 +40,7 @@ under the License.
  and ios should be the same to keep things consistent
  */
 #ifdef __APPLE__
-#ifdef TARGET_OS_IOS
+#if !TARGET_OS_OSX
 #define __PEN_AI_AGENT_MOBILE__
 #endif
 #endif

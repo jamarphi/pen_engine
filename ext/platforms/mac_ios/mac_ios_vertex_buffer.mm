@@ -25,47 +25,33 @@ under the License.
 static PenMacIOSVertexBuffer* instance;
 
 @implementation PenMacIOSVertexBuffer
-- (void) PenMacIOSVertexBufferInit: (unsigned int) layerId
-   :(BatchVertexData*) data
+- (void) PenMacIOSVertexBufferInit:(BatchVertexData*) data
    :(unsigned int) size{
     /*Creates a vertex buffer for a specific layer*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
     id<MTLBuffer> iosVertexBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeManaged];
 #else
     id<MTLBuffer> iosVertexBuffer = [inst.iosDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
 #endif
     memcpy([iosVertexBuffer contents], data, size);
-#ifndef TARGET_OS_IOS
-    [PenMacIOSVertexBuffer didModifyRange: NSMakeRange(0, [iosVertexBuffer length])];
+#if TARGET_OS_OSX
+    [iosVertexBuffer didModifyRange: NSMakeRange(0, [iosVertexBuffer length])];
 #endif
-    [self.iosVertexBuffers setObject:iosVertexBuffer forKey:[NSString stringWithFormat:@"%d", layerId]];
-}
-
-- (void) PenMacIOSVertexBufferDestroy: (unsigned int) layerId{
-	/*Removes the buffer from the GPU*/
-    if([self.iosVertexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] != nil){
-        [self.iosVertexBuffers removeObjectForKey:[NSString stringWithFormat:@"%d", layerId]];
-    }
+    self.iosVertexBuffer = iosVertexBuffer;
 }
 
 + (PenMacIOSVertexBuffer*) Get{
     /*Returns an instance of PenMacIOSVertexBuffer*/
     if (!instance){
         instance = [[PenMacIOSVertexBuffer alloc] init];
-        instance.iosVertexBuffers = [NSMutableDictionary dictionary];
     }
     return instance;
 }
 @end
 
-void MapMacPenMacIOSVertexBufferInit(unsigned int layerId, BatchVertexData* data, unsigned int size){
+void MapMacPenMacIOSVertexBufferInit(BatchVertexData* data, unsigned int size){
     /*Creates a vertex buffer for a specific layer*/
-    [[PenMacIOSVertexBuffer Get] PenMacIOSVertexBufferInit :layerId :data :size];
-}
-
-void MapMacPenMacIOSVertexBufferDestroy(unsigned int layerId){
-    /*Removes the buffer from the GPU*/
-    [[PenMacIOSVertexBuffer Get] PenMacIOSVertexBufferDestroy:layerId];
+    [[PenMacIOSVertexBuffer Get] PenMacIOSVertexBufferInit :data :size];
 }
 #endif

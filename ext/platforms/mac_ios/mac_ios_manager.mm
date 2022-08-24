@@ -27,12 +27,14 @@ under the License.
 #error No simulator support for Metal API for this SDK version.
 #endif
 
-int main(int argc, char* argv[])
+#if TARGET_OS_OSX
+int main(int argc, const char *_Nonnull argv[])
 {
-#ifndef TARGET_OS_IOS
     [[NSApplication sharedApplication] setDelegate:[[PenMacIOSAppDelegate alloc] init]];
     return NSApplicationMain(argc, argv);
 #else
+int main(int argc, char* argv[])
+{
     return UIApplicationMain(argc, argv, nil, NSStringFromClass([PenMacIOSAppDelegate class]));
 #endif
 }

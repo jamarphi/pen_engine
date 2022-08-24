@@ -24,12 +24,12 @@ under the License.
 
 @implementation PenMacIOSAppDelegate
 
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
 - (void) applicationWillFinishLaunching: (NSNotification*) pNotification
 {
     /*Before application is done launching*/
-    NSApplication* pApp = reinterpret_cast<NSApplication*>([pNotification object]);
-    pApp->setActivationPolicy(NSActivationPolicy::ActivationPolicyRegular);
+    NSApplication* app = reinterpret_cast<NSApplication*>([pNotification object]);
+    [app setActivationPolicy:NSApplicationActivationPolicyRegular];
 }
 
 - (void) applicationDidFinishLaunching: (NSNotification*) pNotification

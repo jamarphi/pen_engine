@@ -24,45 +24,32 @@ under the License.
 static PenMacIOSIndexBuffer* instance;
 
 @implementation PenMacIOSIndexBuffer
-- (void) PenMacIOSIndexBufferInit: (unsigned int) layerId :(int*) data :(unsigned int) count{
+- (void) PenMacIOSIndexBufferInit:(int*) data :(unsigned int) count{
     /*Creates an ios index buffer*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
     id<MTLBuffer> iosIndexBuffer = [inst.iosDevice newBufferWithLength:sizeof(int) * count options:MTLResourceStorageModeManaged];
 #else
     id<MTLBuffer> iosIndexBuffer = [inst.iosDevice newBufferWithLength:sizeof(int) * count options:MTLResourceStorageModeShared];
 #endif
     memcpy([iosIndexBuffer contents], data, sizeof(int) * count);
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
     [self.iosIndexBuffer didModifyRange: NSMakeRange(0, [iosIndexBuffer length])];
 #endif
-    [self.iosIndexBuffers setObject:iosIndexBuffer forKey:[NSString stringWithFormat:@"%d", layerId]];
-}
-
-- (void) PenMacIOSIndexBufferDestroy: (unsigned int) layerId{
-	/*Removes buffer from GPU*/
-    if([self.iosIndexBuffers objectForKey:[NSString stringWithFormat:@"%d", layerId]] != nil){
-        [self.iosIndexBuffers removeObjectForKey:[NSString stringWithFormat:@"%d", layerId]];
-    }
+    self.iosIndexBuffer = iosIndexBuffer;
 }
 
 + (PenMacIOSIndexBuffer*) Get{
     /*Returns an instance of PenMacIOSIndexBuffer*/
     if (!instance){
         instance = [[PenMacIOSIndexBuffer alloc] init];
-        instance.iosIndexBuffers = [NSMutableDictionary dictionary];
     }
     return instance;
 }
 @end
 
-void MapMacPenMacIOSIndexBufferInit(unsigned int layerId, int* data, unsigned int count){
+void MapMacPenMacIOSIndexBufferInit(int* data, unsigned int count){
     /*Creates an ios index buffer*/
-    [[PenMacIOSIndexBuffer Get] PenMacIOSIndexBufferInit:layerId :data :count];
-}
-
-void MapMacPenMacIOSIndexBufferDestroy(unsigned int layerId){
-    /*Removes buffer from GPU*/
-    [[PenMacIOSIndexBuffer Get] PenMacIOSIndexBufferDestroy:layerId];
+    [[PenMacIOSIndexBuffer Get] PenMacIOSIndexBufferInit:data :count];
 }
 #endif

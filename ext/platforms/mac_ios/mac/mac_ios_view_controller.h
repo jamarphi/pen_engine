@@ -27,7 +27,7 @@ under the License.
 #import "../mac_ios_vertex_buffer.h"
 #import "../mac_ios_index_buffer.h"
 
-#ifndef TARGET_OS_IOS
+#if TARGET_OS_OSX
 @interface PenMacViewController : NSViewController
 
     /*Virtual method inherited from NSViewController*/

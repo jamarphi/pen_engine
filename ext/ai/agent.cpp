@@ -214,7 +214,7 @@ namespace pen {
 			return action;
 		}
 
-#ifndef __PEN_AI_AGENT_MOBILE__
+#ifndef __PEN_MOBILE__
 		void Agent::Save(const std::string& path) {
 #else
         std::string Agent::Save(const std::string& path) {
@@ -280,6 +280,7 @@ namespace pen {
 #else
             return input;
 #endif
+            return "";
 		}
 
 		void Agent::Load(const std::string& path, pen::ai::Action** userActions, long userNumActions) {

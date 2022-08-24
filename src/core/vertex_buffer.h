@@ -36,8 +36,7 @@ public:
 	VertexBuffer(const void* data, unsigned int size);
     void Destroy();
 #else
-	VertexBuffer(unsigned int layerId, BatchVertexData* data, unsigned int size);
-    void Destroy(unsigned int layerId);
+	VertexBuffer(BatchVertexData* data, unsigned int size);
 #endif
 	/*For text rendering*/
 	VertexBuffer(unsigned int size);
