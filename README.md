@@ -120,6 +120,10 @@ colors, bitmap font rendering, and texel drawing, so that means there are 29 ava
 in this scenario for Windows and Linux, 8 available texture slots for Mac.  There are 8 slots available
 for Android and IOS as well.
 
+For Mac and IOS there is a limit of 32 layers that can be rendered to the screen.  Each layer consists of 10,000 vertices.
+For most use cases there will be usually one layer for the GUI, one layer for the pixel buffer, and the other 30 layers
+for non-fixed items such as 3D sprites.
+
 When doing cross platform development, your file names for assets can only contain:
 
     - Lowercase letters
