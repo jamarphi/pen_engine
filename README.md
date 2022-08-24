@@ -115,9 +115,10 @@ To load in texture files, add an std::string vector to CreateApplication():
     app.CreateApplication("App", SCR_WIDTH, SCR_HEIGHT, pen_engineDir, pathList);
 
 When doing this use sprite sheets in order to load more textures.  There are 32 available texture slots for 
-Windows and Linux.  There are 13 available texture slots for Mac.  The first three slots are used for solid 
+Windows and Linux.  There are 8 available texture slots for Mac.  The first three slots are used for solid 
 colors, bitmap font rendering, and texel drawing, so that means there are 29 available texture slots left 
-in this scenario for Windows and Linux, 10 available texture slots for Mac.
+in this scenario for Windows and Linux, 8 available texture slots for Mac.  There are 8 slots available
+for Android and IOS as well.
 
 When doing cross platform development, your file names for assets can only contain:
 

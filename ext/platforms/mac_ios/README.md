@@ -1,6 +1,6 @@
 # 1.8.2 - Cross Platform For Mac And IOS
 
-Currently the Windows build for android does not render any items.  Currently the Mac build for android does not render GUI items.
+When building for Mac and IOS, GUI points, lines, and triangles are all drawn as quads.
 
 When using OnRender, you now have to pass your logic into a callback function as follows:
 
