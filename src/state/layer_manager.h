@@ -178,8 +178,8 @@ namespace pen {
 
 		static void Submit() {
 			/*This updates the layers with any modified changes done by the user*/
-            pen::Layer::vertexOffset = 0;
 #ifdef __PEN_MAC_IOS__
+            pen::Layer::indexCount = pen::ui::LM::layers.size() * 6 * MAX_OBJECTS_SINGULAR;
             bool isInstanced = false;
 #endif
             
@@ -591,7 +591,7 @@ namespace pen {
 				}
 
 #ifdef __PEN_MAC_IOS__
-				MapMacPenMacIOSUpdateIndices(batchIndices, RENDERER_INDICES_SIZE);
+				MapMacPenMacIOSUpdateIndices(pen::Layer::batchIndices, RENDERER_INDICES_SIZE);
 #endif
 
 				return item3D;

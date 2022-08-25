@@ -68,8 +68,7 @@ under the License.
     + (void) SubmitBatch:(id<MTLBuffer>) iosVertexBuffer
                          :(BatchVertexData*) data
                         :(int) size;
-    + (void) Render:(unsigned int) shapeType
-                     :(int) indexCount;
+    + (void) Render:(unsigned int) shapeType;
     + (void) Background: (float) r
                      : (float) g
                      : (float) b

@@ -36,7 +36,7 @@ namespace pen {
     const pen::Vec4 PEN_ORANGE = pen::Vec4(1.0f, 0.61f, 0.0f, 1.0f);
     const pen::Vec4 PEN_BROWN = pen::Vec4(0.75f, 0.4f, 0.0f, 1.0f);
     const pen::Vec4 PEN_BEIGE = pen::Vec4(1.0f, 0.68f, 0.33f, 1.0f);
-    const pen::Vec4 PEN_GOLD = pen::Vec4(1.0f, 0.68f, 0.7f, 1.0f);
+    const pen::Vec4 PEN_GOLD = pen::Vec4(1.0f, 0.78f, 0.0f, 1.0f);
     const pen::Vec4 PEN_WHITE = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f);
     const pen::Vec4 PEN_BLACK = pen::Vec4(0.0f, 0.0f, 0.0f, 1.0f);
     const pen::Vec4 PEN_TRANSPARENT = pen::Vec4(0.0f, 0.0f, 0.0f, 0.0f);

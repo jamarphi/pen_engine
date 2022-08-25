@@ -47,7 +47,7 @@ namespace pen {
 		static void Draw(const VertexArray& va, const IndexBuffer& ib, int& indexCount, const VertexBuffer& vb, const pen::Shader& shader, const unsigned int& shapeType,
 			const bool& isInstanced, const unsigned int& instanceCount);
 #else
-        static void Draw(int& indexCount);
+        static void Draw();
 #endif
 	};
 }

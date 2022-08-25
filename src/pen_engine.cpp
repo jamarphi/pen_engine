@@ -26,7 +26,6 @@ namespace pen {
     uint16_t pen::ui::LM::generalLayerId = 0;
     #ifdef __PEN_MAC_IOS__
     BatchVertexData* pen::Layer::batchVertices = new BatchVertexData[MAX_OBJECTS];
-    long pen::Layer::vertexOffset = 0;
     int* pen::Layer::batchIndices = new int[RENDERER_INDICES_SIZE];
     bool pen::Layer::buffersInitialized = false;
     int pen::Layer::indexCount = 0;

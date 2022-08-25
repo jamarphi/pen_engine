@@ -61,7 +61,6 @@ namespace pen {
 		float batchVertices[MAX_OBJECTS * BATCH_VERTEX_ELEMENTS];
 #else
 		static BatchVertexData* batchVertices;
-        static long vertexOffset;
 #endif
 		std::vector<pen::ui::Item*> layerItems;
 		pen::Vec3 translation;

@@ -128,7 +128,7 @@ namespace pen {
             }
         }
 
-        pen::Renderer::Draw(pen::Layer::indexCount);
+        pen::Renderer::Draw();
     }
 #endif
 

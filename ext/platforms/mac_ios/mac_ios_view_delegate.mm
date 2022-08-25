@@ -25,6 +25,7 @@ static PenMacIOSMTKViewDelegate* instance;
 static IOSUniformData* uniformArray;
 static unsigned int previousLayerCount;
 static unsigned int layerCount;
+static long indexCount;
 
 @implementation PenMacIOSMTKViewDelegate
 
@@ -250,6 +251,7 @@ static unsigned int layerCount;
     /*Adds a uniform to the uniform dictionary*/
     if(!uniformArray){
         layerCount = layerId + 1;
+        indexCount = layerCount * 6 * MAX_OBJECTS_SINGULAR;
         uniformArray = new IOSUniformData[layerCount];
     }
     
@@ -260,6 +262,7 @@ static unsigned int layerCount;
         }
         delete uniformArray;
         layerCount = layerId + 1;
+        indexCount = layerCount * 6 * MAX_OBJECTS_SINGULAR;
         uniformArray = tempArray;
     }
     
@@ -305,8 +308,7 @@ static unsigned int layerCount;
 #endif
 }
 
-+ (void) Render:(unsigned int) shapeType
-                 :(int) indexCount{
++ (void) Render:(unsigned int) shapeType{
     /*Renders the ios mtk view*/
     PenMacIOSState* inst = [PenMacIOSState Get];
     id<MTLBuffer> iosVertexBuffer = [PenMacIOSVertexBuffer Get].iosVertexBuffer;
@@ -384,9 +386,9 @@ void MapMacIOSSubmitBatch(BatchVertexData* data, int size){
     [PenMacIOSMTKViewDelegate SubmitBatch:[PenMacIOSVertexBuffer Get].iosVertexBuffer :data :size];
 }
 
-void MapMacIOSRender(unsigned int shapeType, int indexCount){
+void MapMacIOSRender(unsigned int shapeType){
     /*Render the ios mtk view*/
-    [PenMacIOSMTKViewDelegate Render:shapeType :indexCount];
+    [PenMacIOSMTKViewDelegate Render:shapeType];
 }
 
 void MapMacIOSBackground(float r, float g, float b, float a){

@@ -48,11 +48,11 @@ namespace pen {
         isInstanced ? glDrawElementsInstanced(drawType[shapeType], indexCount, GL_UNSIGNED_INT, 0, instanceCount) : glDrawElements(drawType[shapeType],indexCount, GL_UNSIGNED_INT, 0);
     }
 #else
-    void Renderer::Draw(int& indexCount) {
+    void Renderer::Draw() {
         /*Draw a batched object to the screen
 
         This function goes through the pipeline and does not need to be called directly by you*/
-        MapMacIOSRender(3, indexCount);
+        MapMacIOSRender(3);
     }
 #endif
 }

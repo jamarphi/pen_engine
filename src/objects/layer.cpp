@@ -194,7 +194,6 @@ namespace pen {
                         batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texId = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 9];
                         batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].layerId = (float)id;
                         batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].isInstanced = (instancedDataList != nullptr) ? 1 : 0;
-                       // pen::Layer::vertexOffset++;
                     }
 #endif
                 }
@@ -217,7 +216,6 @@ namespace pen {
                         batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texId = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 9];
                         batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].layerId = (float)id;
                         batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].isInstanced = (instancedDataList != nullptr) ? 1 : 0;
-                        //pen::Layer::vertexOffset++;
                     }
 #endif
                 }
@@ -227,8 +225,6 @@ namespace pen {
                 
 #ifndef __PEN_MAC_IOS__
                 UpdateIndexCount(&indexCount, layerItems[i]->complexIndexCount);
-#else
-                UpdateIndexCount(&pen::Layer::indexCount, layerItems[i]->complexIndexCount);
 #endif
             }
         }

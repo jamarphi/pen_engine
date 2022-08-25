@@ -66,7 +66,7 @@ extern "C" {
     void MapMacIOSAddUniform(unsigned int layerId, pen::Mat4x4 mvp);
     void MapMacIOSUpdateUniforms();
     void MapMacIOSSubmitBatch(BatchVertexData* data, int size);
-    void MapMacIOSRender(unsigned int shapeType, int indexCount);
+    void MapMacIOSRender(unsigned int shapeType);
     void MapMacIOSBackground(float r, float g, float b, float a);
     /*----mac_ios_view_delegate----*/
 
