@@ -63,9 +63,9 @@ namespace pen {
         /*Resets the vertices array before combining buffers*/
 #ifndef __PEN_MAC_IOS__
         std::memset(batchVertices, 0, MAX_OBJECTS * BATCH_VERTEX_ELEMENTS);
-        int bufferOffset = 0;
 #endif
 
+        int bufferOffset = 0;
         int vertexNum = 1;
         int itemSize = 0;
         int itemCounter = 0;
@@ -92,19 +92,19 @@ namespace pen {
 #else
                     int lastVertices = (layerItems[i]->bufferPositions.size() - subItemCount) / BATCH_VERTEX_ELEMENTS;
                     for (int j = 0; j < lastVertices; j++) {
-                        batchVertices[pen::Layer::vertexOffset].position.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j)];
-                        batchVertices[pen::Layer::vertexOffset].position.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 1];
-                        batchVertices[pen::Layer::vertexOffset].position.z = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 2];
-                        batchVertices[pen::Layer::vertexOffset].color.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 3];
-                        batchVertices[pen::Layer::vertexOffset].color.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 4];
-                        batchVertices[pen::Layer::vertexOffset].color.z = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 5];
-                        batchVertices[pen::Layer::vertexOffset].color.w = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 6];
-                        batchVertices[pen::Layer::vertexOffset].texCoord.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 7];
-                        batchVertices[pen::Layer::vertexOffset].texCoord.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 8];
-                        batchVertices[pen::Layer::vertexOffset].texId = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 9];
-                        batchVertices[pen::Layer::vertexOffset].layerId = (float)id;
-                        batchVertices[pen::Layer::vertexOffset].instanceCount = (instancedDataList != nullptr) ? instancedDataList->size() : 0;
-                        pen::Layer::vertexOffset++;
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].position.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j)];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].position.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 1];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].position.z = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 2];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].color.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 3];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].color.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 4];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].color.z = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 5];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].color.w = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 6];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texCoord.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 7];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texCoord.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 8];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texId = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 9];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].layerId = (float)id;
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].isInstanced = (instancedDataList != nullptr) ? 1 : 0;
+                        //pen::Layer::vertexOffset++;
                     }
 #endif
                 }
@@ -115,28 +115,26 @@ namespace pen {
                     }
 #else
                     for (int j = 0; j < vertexNum; j++) {
-                        batchVertices[pen::Layer::vertexOffset].position.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j)];
-                        batchVertices[pen::Layer::vertexOffset].position.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 1];
-                        batchVertices[pen::Layer::vertexOffset].position.z = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 2];
-                        batchVertices[pen::Layer::vertexOffset].color.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 3];
-                        batchVertices[pen::Layer::vertexOffset].color.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 4];
-                        batchVertices[pen::Layer::vertexOffset].color.z = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 5];
-                        batchVertices[pen::Layer::vertexOffset].color.w = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 6];
-                        batchVertices[pen::Layer::vertexOffset].texCoord.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 7];
-                        batchVertices[pen::Layer::vertexOffset].texCoord.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 8];
-                        batchVertices[pen::Layer::vertexOffset].texId = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 9];
-                        batchVertices[pen::Layer::vertexOffset].layerId = (float)id;
-                        batchVertices[pen::Layer::vertexOffset].instanceCount = (instancedDataList != nullptr) ? instancedDataList->size() : 0;
-                        pen::Layer::vertexOffset++;
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].position.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j)];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].position.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 1];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].position.z = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 2];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].color.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 3];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].color.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 4];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].color.z = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 5];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].color.w = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 6];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texCoord.x = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 7];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texCoord.y = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 8];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].texId = layerItems[i]->bufferPositions[subItemCount + (BATCH_VERTEX_ELEMENTS * j) + 9];
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].layerId = (float)id;
+                        batchVertices[(id * MAX_OBJECTS_SINGULAR) + (bufferOffset / BATCH_VERTEX_ELEMENTS) + j].isInstanced = (instancedDataList != nullptr) ? 1 : 0;
+                        //pen::Layer::vertexOffset++;
                     }
 #endif
                 }
 
                 /*Index count for 3D objects is managed in the object itself*/
                 subItemCount += itemSize;
-#ifndef __PEN_MAC_IOS__
                 bufferOffset += itemSize;
-#endif
                 itemCounter++;
             }
         }
@@ -144,6 +142,8 @@ namespace pen {
 
     void Layer3D::InitializeIndices() {
         /*Initialize indices based on .obj file*/
+#ifndef __PEN_MAC_IOS__
+        /*For Mac and IOS the indices are already initialized when loading in the model*/
         long offset = (layerItems[0]->itemCount / MAX_OBJECTS) * (THREE_D_RENDERER_INDICES_SIZE / 3);
         long offsetEnd = offset + (THREE_D_RENDERER_INDICES_SIZE / 3);
         if (offsetEnd > layerItems[0]->itemCount * 6) offsetEnd = offset + ((layerItems[0]->itemCount * 6) - offset);
@@ -154,5 +154,6 @@ namespace pen {
             batchIndices[(id * THREE_D_RENDERER_INDICES_SIZE) + counter] = layerItems[0]->indices3D[i];
             counter++;
         }
+#endif
     }
 }

@@ -535,15 +535,27 @@ namespace pen {
 						index4 = faceIndex4.size() > 0 ? std::stoi(faceIndex4) - 1 : -1;
 
 						/*Set the indices to the item indices array*/
+#ifndef __PEN_MAC_IOS__
 						item3D->indices3D[(faceCounter * 3)] = index1;
 						item3D->indices3D[(faceCounter * 3) + 1] = index2;
 						item3D->indices3D[(faceCounter * 3) + 2] = index3;
+#else
+						item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3)] = index1;
+						item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 1] = index2;
+						item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 2] = index3;
+#endif
 
 						if (index4 > -1) {
 							/*Quad*/
+#ifndef __PEN_MAC_IOS__
 							item3D->indices3D[(faceCounter * 3) + 3] = index3;
 							item3D->indices3D[(faceCounter * 3) + 4] = index4;
 							item3D->indices3D[(faceCounter * 3) + 5] = index2;
+#else
+							item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 3] = index3;
+							item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 4] = index4;
+							item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 5] = index2;
+#endif
 							faceCounter += 2;
 							item3D->indexCount3D += 6;
 						}
@@ -577,6 +589,10 @@ namespace pen {
 					pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
 					pen::ui::Sort();
 				}
+
+#ifdef __PEN_MAC_IOS__
+				MapMacPenMacIOSUpdateIndices(batchIndices, RENDERER_INDICES_SIZE);
+#endif
 
 				return item3D;
 			}

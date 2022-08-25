@@ -31,6 +31,7 @@ under the License.
 
 - (void) PenMacIOSIndexBufferInit:(int*) data
                 :(unsigned int) count;
+-(void)UpdateIndices:(int*) data :(unsigned int) count;
 + (PenMacIOSIndexBuffer*) Get;
 @end
 #endif

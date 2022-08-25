@@ -35,7 +35,7 @@ extern "C" {
         simd::float2 texCoord;
         simd::float1 texId;
         simd::float1 layerId;
-        simd::float1 instanceCount;
+        simd::float1 isInstanced;
     };
 
     struct IOSUniformData {
@@ -76,6 +76,7 @@ extern "C" {
 
     /*----mac_ios_index_buffer----*/
     void MapMacPenMacIOSIndexBufferInit(int* data, unsigned int count);
+    void MapMacPenMacIOSUpdateIndices(int* data, unsigned int count);
     /*----mac_ios_index_buffer----*/
 
     /*----mac_ios_shader----*/

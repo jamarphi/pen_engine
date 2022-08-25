@@ -1,6 +1,6 @@
 # 1.8.2 - Cross Platform For Mac And IOS
 
-When building for Mac and IOS, GUI points, lines, and triangles are all drawn as quads.
+When building for Mac and IOS all GUI points and lines will be filled as triangles.
 
 When using OnRender, you now have to pass your logic into a callback function as follows:
 

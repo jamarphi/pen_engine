@@ -170,7 +170,7 @@ namespace pen {
 					float2 texCoord;
 					float texId;
                     float layerId;
-                    float instanceCount;
+                    float isInstanced;
 				};
 
 				struct BatchVertexData
@@ -180,7 +180,7 @@ namespace pen {
 					float2 texCoord;
 					float texId;
                     float layerId;
-                    float instanceCount;
+                    float isInstanced;
 				};
 
 				struct IOSUniformData
@@ -204,7 +204,7 @@ namespace pen {
 					v2f out;
 					const device BatchVertexData& vd = vertexData[ vertexId ];
 					float4 pos = float4( vd.position.xyz, 1.0 ) * uniformData[(int)vd.layerId].uMVP;
-                    if(vd.instanceCount > 0.0){
+                    if(vd.isInstanced > 0.0){
                         float3 offset = float3(instanceData[instanceId].uInstancedOffsets.x, instanceData[instanceId].uInstancedOffsets.y, instanceData[instanceId].uInstancedOffsets.z);
                         pos.x = pos.x + offset.x;
                         pos.y = pos.y + offset.y;
@@ -216,7 +216,7 @@ namespace pen {
 					out.texCoord = float2(vd.texCoord.x, -vd.texCoord.y);
 					out.texId = vd.texId;
                     out.layerId = vd.layerId;
-                    out.instanceCount = vd.instanceCount;
+                    out.isInstanced = vd.isInstanced;
 					return out;
 				}
 

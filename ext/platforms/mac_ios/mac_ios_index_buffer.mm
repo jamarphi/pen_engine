@@ -39,6 +39,14 @@ static PenMacIOSIndexBuffer* instance;
     self.iosIndexBuffer = iosIndexBuffer;
 }
 
+-(void)UpdateIndices:(int*) data :(unsigned int) count{
+    /*Updates the index buffer*/
+     memcpy([self.iosIndexBuffer contents], data, sizeof(int) * count);
+#if TARGET_OS_OSX
+    [self.iosIndexBuffer didModifyRange: NSMakeRange(0, [self.iosIndexBuffer length])];
+#endif
+}
+
 + (PenMacIOSIndexBuffer*) Get{
     /*Returns an instance of PenMacIOSIndexBuffer*/
     if (!instance){
@@ -51,5 +59,10 @@ static PenMacIOSIndexBuffer* instance;
 void MapMacPenMacIOSIndexBufferInit(int* data, unsigned int count){
     /*Creates an ios index buffer*/
     [[PenMacIOSIndexBuffer Get] PenMacIOSIndexBufferInit:data :count];
+}
+
+void MapMacPenMacIOSUpdateIndices(int* data, unsigned int count){
+    /*Updates the index buffer*/
+    [[PenMacIOSIndexBuffer Get] UpdateIndices:data :count];
 }
 #endif

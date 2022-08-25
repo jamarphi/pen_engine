@@ -22,7 +22,6 @@ under the License.
 
 namespace pen {
     namespace ui {
-#ifndef __PEN_MAC_IOS__
         unsigned int Shape::POINT = 0;
         unsigned int Shape::LINE = 1;
         unsigned int Shape::TRI = 2;
@@ -30,15 +29,6 @@ namespace pen {
         unsigned int Shape::BUFFER = 4;
         unsigned int Shape::OBJ_3D = 5;
         unsigned int Shape::COMPLEX = 6;
-#else
-        unsigned int Shape::POINT = 3;
-        unsigned int Shape::LINE = 3;
-        unsigned int Shape::TRI = 3;
-        unsigned int Shape::QUAD = 3;
-        unsigned int Shape::BUFFER = 4;
-        unsigned int Shape::OBJ_3D = 5;
-        unsigned int Shape::COMPLEX = 6;
-#endif
 
         std::vector<float> Shape::GetItemBatchData(pen::Vec3 pos, pen::Vec2 size, unsigned int shapeType, pen::Vec4 color, float* oldPositions, const float& angleX, const float& angleY, const float& angleZ, float texId,
             float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
