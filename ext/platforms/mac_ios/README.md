@@ -5,7 +5,8 @@ When building for Mac and IOS all GUI points and lines will be filled as triangl
 When using OnRender, you now have to pass your logic into a callback function as follows:
 
     pen::Pen::SetMobileCallbacks(&yourMobileRenderCallback, &yourMobileClickCallback, &yourMobileResumeCallback,
-        &yourMobilePauseCallback, &yourMobileKeyCallback, &yourMobileTiltCallback, &yourAndroidMobileBluetoothCallback, &yourMacIosMobileBluetoothCallback);
+            &yourMobilePauseCallback, &yourMobileKeyCallback, &yourMobileTiltCallback, &yourAndroidMobileBluetoothCallback, &yourMacIosMobileBluetoothCallback
+                &yourMobileHttpCallback, &yourMobileSocketCallback);
 
 This function should be in the OnCreate function of a Pen Engine instantiation, for example:
 

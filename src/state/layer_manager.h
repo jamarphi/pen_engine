@@ -44,8 +44,8 @@ namespace pen {
 		static void SortIndices(int layerAIndex, int layerBIndex) {
 			/*Sorts the data for the index buffer*/
 			int layerSize = 6 * MAX_OBJECTS_SINGULAR;
-			int layerAOffset = layerAIndex * MAX_OBJECTS_SINGULAR;
-			int layerBOffset = layerBIndex * MAX_OBJECTS_SINGULAR;
+			int layerAOffset = layerAIndex * layerSize;
+			int layerBOffset = layerBIndex * layerSize;
 			int* tempIndices = new int[layerSize];
 
 			for (int i = 0; i < layerSize; i++) {
@@ -84,7 +84,7 @@ namespace pen {
 		static pen::ui::Item* AddItem(pen::ui::Item* item, bool isInstanced = false, std::vector<pen::Mat2x4*> dataList = {}) {
 			/*Adds a ui item to a layer that can be associated with it, this abstracts away management from the user
 
-				Layers are separated based on their shape type, isFixed, and their isInstanced status
+				Layers are separated based on their shape type, isFixed, isSingular and their isInstanced status
 			*/
 			if (dataList.size() == 0) isInstanced = false;
 			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
@@ -103,24 +103,32 @@ namespace pen {
 						return item;
 					}
 					else {
-						/*Creates a new layer for this asset group, shape type, and/or isFixed status*/
+						/*Creates a new layer for this shape type, isFixed, isSingular and/or isInstanced status*/
 						pen::ui::LM::layers.push_back(new pen::Layer(pen::ui::LM::generalLayerId,
 							item->shapeType, item->isFixed, item->isSingular, item->isWireFrame));
 						pen::ui::LM::generalLayerId++;
 						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item);
+#ifndef __PEN_MAC_IOS__
 						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
+#else
+                        pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize(pen::ui::LM::layers.size() - 1);
+#endif
 						pen::ui::Sort();
 						return item;
 					}
 				}
 			}
 
-			/*Create the first layer for this asset group, shape type, and/or isFixed status*/
+			/*Creates the first layer for this shape type, isFixed, isSingular and/or isInstanced status*/
 			pen::ui::LM::layers.push_back(new pen::Layer(pen::ui::LM::generalLayerId,
 				item->shapeType, item->isFixed, item->isSingular, item->isWireFrame));
 			pen::ui::LM::generalLayerId++;
 			pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item);
-			pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
+#ifndef __PEN_MAC_IOS__
+                        pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
+#else
+                        pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize(pen::ui::LM::layers.size() - 1);
+#endif
 			pen::ui::Sort();
 			return item;
 		}
@@ -263,14 +271,18 @@ namespace pen {
 			pen::ui::Sort();
 			pen::ui::LM::generalLayerId++;
 
-			/*Allocate an array of points for dealing with pixel drawing*/
+			/*Allocates an array of points for dealing with pixel drawing*/
 			pen::State* tempStateInst = pen::State::Get();
 			pen::ui::LM::pixelLayer->Push(new pen::ui::Item(PIXEL_DRAWING_ID,
 				pen::Vec3(0.0f, 0.0f, 0.0f),
 				pen::Vec2(tempStateInst->screenWidth, tempStateInst->screenHeight),
 				pen::ui::Shape::BUFFER, pen::PEN_WHITE, nullptr, nullptr, true, "pixel"));
 			pen::ui::PixelLayerAlloc();
+#ifndef __PEN_MAC_IOS__
 			pen::ui::LM::pixelLayer->Initialize();
+#else
+            pen::ui::LM::pixelLayer->Initialize(pen::ui::LM::layers.size() - 1);
+#endif
 
 
 
@@ -310,7 +322,7 @@ namespace pen {
 #endif
 							tempLayer = pen::ui::LM::layers[j + 1]; /*Next index*/
 							pen::ui::LM::layers[j + 1] = firstTempLayer; /*Current index*/
-							firstTempLayer = tempLayer; /*Set current layer to next layer*/
+							firstTempLayer = tempLayer; /*Sets current layer to next layer*/
 						}
 						else {
 							firstTempLayer = pen::ui::LM::layers[j + 1];
@@ -326,7 +338,7 @@ namespace pen {
 						}
 					}
 
-					/*Place the buffer shape type fixed layer at the index for it to be the first fixed layer*/
+					/*Places the buffer shape type fixed layer at the index for it to be the first fixed layer*/
 					pen::ui::LM::layers[fixedLayers] = bufferLayer;
 
 #ifdef __PEN_MAC_IOS__
@@ -340,13 +352,13 @@ namespace pen {
 					MapMacPenMacIOSUpdateIndices(pen::Layer::batchIndices, RENDERER_INDICES_SIZE);
 #endif
 				}
-				return true;
 			}
+            pen::ui::Submit();
 			return true;
 		}
 
 		static std::string Split(const std::string& line, const char& character, const unsigned int& section) {
-			/*Split a line by a given character*/
+			/*Splits a line by a given character*/
 			int counter = 0;
 			int previousSectionIdx = 0;
 			bool keepGoing = true;
@@ -656,10 +668,12 @@ namespace pen {
 						item3D->shapeType, item3D->isFixed, item3D->isSingular, item3D->isWireFrame, isInstanced, dataList));
 					pen::ui::LM::generalLayerId++;
 					pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item3D, i);
+#ifndef __PEN_MAC_IOS__
 					pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
-					pen::ui::Sort();
-#ifdef __PEN_MAC_IOS__
+#else
+                    pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize(pen::ui::LM::layers.size() - 1);
 #endif
+					pen::ui::Sort();
 				}
 
 #ifdef __PEN_MAC_IOS__

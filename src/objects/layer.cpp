@@ -37,9 +37,17 @@ namespace pen {
         model = pen::Mat4x4(1.0f);
     }
 
+#ifndef __PEN_MAC_IOS__
     void Layer::Initialize() {
+#else
+    void Layer::Initialize(int layerIndex) {
+#endif
         /*Must be called after items are added to layer*/
+#ifndef __PEN_MAC_IOS__
         CombineBuffers();
+#else
+        CombineBuffers(layerIndex);
+#endif
 
 #ifndef __PEN_MAC_IOS__
         VertexBuffer tempVb(sizeof(BatchVertexData) * MAX_OBJECTS);

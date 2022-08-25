@@ -90,10 +90,12 @@ namespace pen {
 		Layer(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame);
 		~Layer();
 
-		void Initialize();
+		
 #ifndef __PEN_MAC_IOS__
+        void Initialize();
 		void Update();
 #else
+        void Initialize(int layerIndex);
 		void Update(int layerIndex);
 #endif
 		virtual bool Push(pen::ui::Item* item, const unsigned int& offset = 0);
