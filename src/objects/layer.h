@@ -33,6 +33,7 @@ under the License.
 
 #ifndef __PEN_MAC_IOS__
 #define MAX_OBJECTS 10000
+#define MAX_OBJECTS_SINGULAR 10000
 #define RENDERER_VERTEX_SIZE sizeof(BatchVertexData)
 #define RENDERER_BUFFER_SIZE 6 * RENDERER_VERTEX_SIZE * MAX_OBJECTS
 #define RENDERER_INDICES_SIZE MAX_OBJECTS * 6
@@ -90,11 +91,19 @@ namespace pen {
 		~Layer();
 
 		void Initialize();
+#ifndef __PEN_MAC_IOS__
 		void Update();
+#else
+		void Update(int layerIndex);
+#endif
 		virtual bool Push(pen::ui::Item* item, const unsigned int& offset = 0);
 		void Pop();
 		void Destroy();
+#ifndef __PEN_MAC_IOS__
 		virtual void CombineBuffers();
+#else
+		virtual void CombineBuffers(int layerIndex);
+#endif
 		virtual void InitializeIndices();
 
 	private:

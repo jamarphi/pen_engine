@@ -40,6 +40,26 @@ namespace pen {
 			static uint16_t generalLayerId;
 		};
 
+#ifdef __PEN_MAC_IOS__
+		static void SortIndices(int layerAIndex, int layerBIndex) {
+			/*Sorts the data for the index buffer*/
+			int layerSize = 6 * MAX_OBJECTS_SINGULAR;
+			int layerAOffset = layerAIndex * MAX_OBJECTS_SINGULAR;
+			int layerBOffset = layerBIndex * MAX_OBJECTS_SINGULAR;
+			int* tempIndices = new int[layerSize];
+
+			for (int i = 0; i < layerSize; i++) {
+				tempIndices[i] = pen::Layer::batchIndices[layerAOffset + i];
+			}
+
+			for (int j = 0; j < layerSize; j++) {
+				pen::Layer::batchIndices[layerAOffset + j] = pen::Layer::batchIndices[layerBOffset + j];
+				pen::Layer::batchIndices[layerBOffset + j] = tempIndices[j];
+			}
+			delete[] tempIndices;
+		}
+#endif
+
 		static void Sort() {
 			/*Sorts the layers to have fixed layers rendered last*/
 			bool keepGoing = true;
@@ -49,6 +69,10 @@ namespace pen {
 					/*Put all fixed layers after non-fixed layers*/
 					if (pen::ui::LM::layers[i]->isFixed && !pen::ui::LM::layers[i + 1]->isFixed) {
 						keepGoing = true;
+#ifdef __PEN_MAC_IOS__
+						pen::ui::SortIndices(i, i + 1);
+						MapMacPenMacIOSUpdateIndices(pen::Layer::batchIndices, RENDERER_INDICES_SIZE);
+#endif
 						pen::Layer* tempLayer = pen::ui::LM::layers[i + 1];
 						pen::ui::LM::layers[i + 1] = pen::ui::LM::layers[i];
 						pen::ui::LM::layers[i] = tempLayer;
@@ -67,11 +91,15 @@ namespace pen {
 				if (pen::ui::LM::layers[i]->shapeType == item->shapeType &&
 					pen::ui::LM::layers[i]->isFixed == item->isFixed && pen::ui::LM::layers[i]->isSingular == item->isSingular
 					&& pen::ui::LM::layers[i]->isInstanced == isInstanced) {
-					if (pen::ui::LM::layers[i]->itemCount + item->itemCount + 1 < MAX_OBJECTS) {
+					if (pen::ui::LM::layers[i]->itemCount + item->itemCount + 1 < MAX_OBJECTS_SINGULAR) {
 						/*Adds the item to an existing layer that has space available*/
 						bool pushed = pen::ui::LM::layers[i]->Push(item);
 						if (!pushed) break;
+#ifndef __PEN_MAC_IOS__
 						pen::ui::LM::layers[i]->Update();
+#else
+						pen::ui::LM::layers[i]->Update(i);
+#endif
 						return item;
 					}
 					else {
@@ -192,7 +220,12 @@ namespace pen {
 				for (int j = 0; j < pen::ui::LM::layers[i]->layerItems.size(); j++) {
 					pen::ui::LM::layers[i]->layerItems[j]->CombineChildBuffers();
 				}
+
+#ifndef __PEN_MAC_IOS__
 				pen::ui::LM::layers[i]->CombineBuffers();
+#else
+				pen::ui::LM::layers[i]->CombineBuffers(i);
+#endif
 			}
             
 #ifdef __PEN_MAC_IOS__
@@ -255,20 +288,57 @@ namespace pen {
 					pen::Layer* bufferLayer = pen::ui::LM::pixelLayer;
 					pen::Layer* firstTempLayer = nullptr;
 					pen::Layer* tempLayer = nullptr;
+#ifdef __PEN_MAC_IOS__
+					int layerSize = 6 * MAX_OBJECTS_SINGULAR;
+					int* firstTempLayerData = new int[layerSize];
+					int* tempLayerData = new int[layerSize];
+					int* bufferLayerData = new int[layerSize];
+					int bufferLayerOffset = pen::ui::LM::layers.size() - 1;
+					for (int m = 0; m < layerSize; m++) {
+						bufferLayerData[m] = pen::Layer::batchIndices[bufferLayerOffset + m];
+					}
+#endif
 					for (int j = fixedLayers; j < pen::ui::LM::layers.size() - 1; j++) {
 						if (j > fixedLayers) {
-							tempLayer = pen::ui::LM::layers[j + 1]; //next index
-							pen::ui::LM::layers[j + 1] = firstTempLayer; //current index
-							firstTempLayer = tempLayer; //set current layer to next layer
+#ifdef __PEN_MAC_IOS__
+							int nextLayerOffset = (j + 1) * layerSize;
+							for (int k = 0; k < layerSize; k++) {
+								tempLayerData[k] = pen::Layer::batchIndices[nextLayerOffset + k];
+								pen::Layer::batchIndices[nextLayerOffset + k] = firstTempLayerData[k];
+								firstTempLayerData[k] = tempLayerData[k];
+							}
+#endif
+							tempLayer = pen::ui::LM::layers[j + 1]; /*Next index*/
+							pen::ui::LM::layers[j + 1] = firstTempLayer; /*Current index*/
+							firstTempLayer = tempLayer; /*Set current layer to next layer*/
 						}
 						else {
 							firstTempLayer = pen::ui::LM::layers[j + 1];
+#ifdef __PEN_MAC_IOS__
+							int firstTempLayerOffset = (j + 1) * layerSize;
+							int shiftedLayerOffset = j * layerSize;
+							for (int l = 0; l < layerSize; l++) {
+								firstTempLayerData[l] = pen::Layer::batchIndices[firstTempLayerOffset + l];
+								pen::Layer::batchIndices[firstTempLayerOffset + l] = pen::Layer::batchIndices[shiftedLayerOffset + l];
+							}
+#endif
 							pen::ui::LM::layers[j + 1] = pen::ui::LM::layers[j];
 						}
 					}
 
 					/*Place the buffer shape type fixed layer at the index for it to be the first fixed layer*/
 					pen::ui::LM::layers[fixedLayers] = bufferLayer;
+
+#ifdef __PEN_MAC_IOS__
+					int fixedLayersOffset = fixedLayers * layerSize;
+					for (int n = 0; n < layerSize; n++) {
+						pen::Layer::batchIndices[fixedLayersOffset + n] = bufferLayerData[n];
+					}
+					delete[] firstTempLayerData;
+					delete[] tempLayerData;
+					delete[] bufferLayerData;
+					MapMacPenMacIOSUpdateIndices(pen::Layer::batchIndices, RENDERER_INDICES_SIZE);
+#endif
 				}
 				return true;
 			}
@@ -581,13 +651,15 @@ namespace pen {
 				item3D->CombineChildBuffers();
 
 				/*Initialize the layers based on the triangle count*/
-				for (int i = 0; i < faceCounter; i += MAX_OBJECTS) {
+				for (int i = 0; i < faceCounter; i += MAX_OBJECTS_SINGULAR) {
 					pen::ui::LM::layers.push_back(new pen::Layer3D(pen::ui::LM::generalLayerId,
 						item3D->shapeType, item3D->isFixed, item3D->isSingular, item3D->isWireFrame, isInstanced, dataList));
 					pen::ui::LM::generalLayerId++;
 					pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item3D, i);
 					pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
 					pen::ui::Sort();
+#ifdef __PEN_MAC_IOS__
+#endif
 				}
 
 #ifdef __PEN_MAC_IOS__

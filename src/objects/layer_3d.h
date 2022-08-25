@@ -31,7 +31,11 @@ namespace pen {
 
 		bool Push(pen::ui::Item* item, const unsigned int& offset = 0);
 
+#ifndef __PEN_MAC_IOS__
 		void CombineBuffers();
+#else
+		void CombineBuffers(int layerIndex);
+#endif
 		void InitializeIndices();
 	};
 }
