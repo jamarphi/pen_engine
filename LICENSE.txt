@@ -178,7 +178,7 @@
    END OF TERMS AND CONDITIONS
 
    Copyright 2021 Jamar Phillip
-   - github: fentacoder
+   - github: jamarphi
    - email: jamar.phillip99@gmail.com
 
    Licensed under the Apache License, Version 2.0 (the "License");
