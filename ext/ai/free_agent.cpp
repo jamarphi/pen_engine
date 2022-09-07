@@ -352,7 +352,7 @@ namespace pen {
 			return -1;
 		}
 
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_FREE_AGENT_MOBILE__
 		void FreeAgent::Save(const std::string& path) {
 #else
         std::string FreeAgent::Save(const std::string& path) {
@@ -433,7 +433,6 @@ namespace pen {
 #else
             return input;
 #endif
-            return "";
 		}
 
 		void FreeAgent::Load(const std::string& path, pen::ai::Action** userActions, long userNumActions) {

@@ -111,7 +111,7 @@ namespace pen {
 #ifndef __PEN_MAC_IOS__
 						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
 #else
-                        pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize(pen::ui::LM::layers.size() - 1);
+						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize(pen::ui::LM::layers.size() - 1);
 #endif
 						pen::ui::Sort();
 						return item;
@@ -125,9 +125,9 @@ namespace pen {
 			pen::ui::LM::generalLayerId++;
 			pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item);
 #ifndef __PEN_MAC_IOS__
-                        pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
+			pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
 #else
-                        pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize(pen::ui::LM::layers.size() - 1);
+			pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize(pen::ui::LM::layers.size() - 1);
 #endif
 			pen::ui::Sort();
 			return item;
@@ -148,65 +148,97 @@ namespace pen {
 			return tempItem;
 		}
 
+		static void RemoveItem3D(pen::ui::Item* item) {
+			/*Removes a 3D item*/
+			std::vector<pen::Layer*> tempList;
+			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+				if (pen::ui::LM::layers[i]->layerItems[0] != item) {
+					tempList.push_back(pen::ui::LM::layers[i]);
+				}
+				else {
+					pen::ui::LM::layers[i]->Destroy();
+					delete pen::ui::LM::layers[i];
+				}
+			}
+			pen::ui::LM::layers = tempList;
+			item->RemoveNestedItems(item);
+#ifndef __PEN_MAC_IOS__
+			/*For non mac ios builds indices3D are separate for each item*/
+			delete[] item->indices3D;
+#endif
+			delete item;
+		}
+
 		static void RemoveItemById(uint32_t id) {
 			/*Removes a specific item based on its id*/
+			pen::ui::Item* item = FindItem(id);
+			if (item->indices3D != nullptr) {
+				/*Item is a 3D item*/
+				RemoveItem3D(item);
+			}
+			else {
+				for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+					for (int j = 0; j < pen::ui::LM::layers[i]->layerItems.size(); j++) {
+						/*Remove all nested items with this id*/
+						pen::ui::LM::layers[i]->layerItems[j]->RemoveItemById(id);
 
-			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-				for (int j = 0; j < pen::ui::LM::layers[i]->layerItems.size(); j++) {
-					/*Remove all nested items with this id*/
-					pen::ui::LM::layers[i]->layerItems[j]->RemoveItemById(id);
-
-					if (pen::ui::LM::layers[i]->layerItems[j]->id == id) {
-						/*Remove this main item from the layer since it also has this id*/
-						std::vector<pen::ui::Item*> tempLayerItems;
-						pen::ui::Item* itemToDelete = nullptr;
-						for (int k = 0; k < pen::ui::LM::layers[i]->layerItems.size(); k++) {
-							if (pen::ui::LM::layers[i]->layerItems[k]->id != id) {
-								tempLayerItems.push_back(pen::ui::LM::layers[i]->layerItems[k]);
+						if (pen::ui::LM::layers[i]->layerItems[j]->id == id) {
+							/*Remove this main item from the layer since it also has this id*/
+							std::vector<pen::ui::Item*> tempLayerItems;
+							pen::ui::Item* itemToDelete = nullptr;
+							for (int k = 0; k < pen::ui::LM::layers[i]->layerItems.size(); k++) {
+								if (pen::ui::LM::layers[i]->layerItems[k]->id != id) {
+									tempLayerItems.push_back(pen::ui::LM::layers[i]->layerItems[k]);
+								}
+								else {
+									itemToDelete = pen::ui::LM::layers[i]->layerItems[k];
+								}
 							}
-							else {
-								itemToDelete = pen::ui::LM::layers[i]->layerItems[k];
-							}
+							pen::ui::LM::layers[i]->layerItems = tempLayerItems;
+							delete itemToDelete;
 						}
-						pen::ui::LM::layers[i]->layerItems = tempLayerItems;
-						delete itemToDelete;
 					}
 				}
 			}
 		}
 
-		static void RemoveItem(pen::ui::Item* id) {
-			/*Removes a specific item based on its id*/
+		static void RemoveItem(pen::ui::Item* item) {
+			/*Removes a specific item*/
+			if (item->indices3D != nullptr) {
+				/*Item is a 3D item*/
+				RemoveItem3D(item);
+			}
+			else {
+				for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+					for (int j = 0; j < pen::ui::LM::layers[i]->layerItems.size(); j++) {
+						/*Remove all nested items with this id*/
+						bool removed = pen::ui::LM::layers[i]->layerItems[j]->RemoveItem(item);
 
-			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-				for (int j = 0; j < pen::ui::LM::layers[i]->layerItems.size(); j++) {
-					/*Remove all nested items with this id*/
-					bool removed = pen::ui::LM::layers[i]->layerItems[j]->RemoveItem(id);
-
-					if (removed) {
-						break;
-						break;
-					}
-
-					if (pen::ui::LM::layers[i]->layerItems[j] == id) {
-						/*Remove this main item from the layer since it has this id*/
-						std::vector<pen::ui::Item*> tempLayerItems;
-						pen::ui::Item* itemToDelete = nullptr;
-						for (int k = 0; k < pen::ui::LM::layers[i]->layerItems.size(); k++) {
-							if (pen::ui::LM::layers[i]->layerItems[k] != id) {
-								tempLayerItems.push_back(pen::ui::LM::layers[i]->layerItems[k]);
-							}
-							else {
-								itemToDelete = pen::ui::LM::layers[i]->layerItems[k];
-							}
+						if (removed) {
+							break;
+							break;
 						}
-						pen::ui::LM::layers[i]->layerItems = tempLayerItems;
-						if (itemToDelete != nullptr) {
-							itemToDelete->RemoveNestedItems(itemToDelete);
-							delete itemToDelete;
+
+						if (pen::ui::LM::layers[i]->layerItems[j] == item) {
+							/*Remove this main item from the layer since it has this id*/
+							std::vector<pen::ui::Item*> tempLayerItems;
+							pen::ui::Item* itemToDelete = nullptr;
+							for (int k = 0; k < pen::ui::LM::layers[i]->layerItems.size(); k++) {
+								if (pen::ui::LM::layers[i]->layerItems[k] != item) {
+									tempLayerItems.push_back(pen::ui::LM::layers[i]->layerItems[k]);
+								}
+								else {
+									itemToDelete = pen::ui::LM::layers[i]->layerItems[k];
+								}
+							}
+							pen::ui::LM::layers[i]->layerItems = tempLayerItems;
+							if (itemToDelete != nullptr) {
+								itemToDelete->RemoveNestedItems(itemToDelete);
+								delete itemToDelete;
+							}
+							break;
+							break;
 						}
-						break;
-						break;
 					}
 				}
 			}
@@ -215,15 +247,15 @@ namespace pen {
 		static void Submit() {
 			/*This updates the layers with any modified changes done by the user*/
 #ifdef __PEN_MAC_IOS__
-            pen::Layer::indexCount = pen::ui::LM::layers.size() * 6 * MAX_OBJECTS_SINGULAR;
-            bool isInstanced = false;
+			pen::Layer::indexCount = pen::ui::LM::layers.size() * 6 * MAX_OBJECTS_SINGULAR;
+			bool isInstanced = false;
 #endif
-            
+
 			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
 #ifdef __PEN_MAC_IOS__
-                if(pen::ui::LM::layers[i]->instancedDataList != nullptr){
-                    if(pen::ui::LM::layers[i]->instancedDataList->size() > 0) isInstanced = true;
-                }
+				if (pen::ui::LM::layers[i]->instancedDataList != nullptr) {
+					if (pen::ui::LM::layers[i]->instancedDataList->size() > 0) isInstanced = true;
+				}
 #endif
 				for (int j = 0; j < pen::ui::LM::layers[i]->layerItems.size(); j++) {
 					pen::ui::LM::layers[i]->layerItems[j]->CombineChildBuffers();
@@ -235,9 +267,9 @@ namespace pen {
 				pen::ui::LM::layers[i]->CombineBuffers(i);
 #endif
 			}
-            
+
 #ifdef __PEN_MAC_IOS__
-            isInstanced ? MapMacIOSSetInstanceState(1) : MapMacIOSSetInstanceState(0);
+			isInstanced ? MapMacIOSSetInstanceState(1) : MapMacIOSSetInstanceState(0);
 #endif
 			pen::State::Get()->firstUpdateFrame = true;
 			pen::State::Get()->updateBatch = true;
@@ -281,7 +313,7 @@ namespace pen {
 #ifndef __PEN_MAC_IOS__
 			pen::ui::LM::pixelLayer->Initialize();
 #else
-            pen::ui::LM::pixelLayer->Initialize(pen::ui::LM::layers.size() - 1);
+			pen::ui::LM::pixelLayer->Initialize(pen::ui::LM::layers.size() - 1);
 #endif
 
 
@@ -353,7 +385,7 @@ namespace pen {
 #endif
 				}
 			}
-            pen::ui::Submit();
+			pen::ui::Submit();
 			return true;
 		}
 
@@ -490,199 +522,233 @@ namespace pen {
 		static pen::ui::Item* AddItem3D(const uint32_t& id, const std::string& path, const pen::Vec4& objectColor, const bool& isInstanced, const std::vector<pen::Vec3*>& dataList, const bool& objectIsFixed, const bool& isWireFrame) {
 			/*Loads in an obj file for the vertices and indices*/
 			std::string tempPath = (path.find(":") != std::string::npos) ? path : GENERAL_MODEL_SOURCE + path;
+
+			/*Checks for any ids to reuse*/
+			std::vector<uint16_t> availableIds;
+			for (int i = 0; i < pen::ui::LM::generalLayerId; i++) {
+				for (int j = 0; j < pen::ui::LM::layers.size(); j++) {
+					if (i == pen::ui::LM::layers[j]->id) break;
+					if (j == pen::ui::LM::layers.size() - 1) availableIds.push_back(i);
+				}
+			}
+
+			/*Checks the 3d layer limit*/
+			int layerLimitCounter = 0;
+			bool roomAvailable = true;
+			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
+				if (pen::ui::LM::layers[i]->is3D) {
+					layerLimitCounter++;
+				}
+			}
+			if (layerLimitCounter == 30) roomAvailable = false;
+
+			if (roomAvailable) {
 #ifndef __PEN_MOBILE__
-			std::ifstream modelFile;
-			modelFile.open(tempPath);
-			if (modelFile.is_open()) {
+				std::ifstream modelFile;
+				modelFile.open(tempPath);
+				if (modelFile.is_open()) {
 #else
-			pen::Asset mobileObj = pen::Asset::Load(tempPath, nullptr);
-			int lineOffset = 0;
-			if(mobileObj.data != nullptr) {
+				pen::Asset mobileObj = pen::Asset::Load(tempPath, nullptr);
+				int lineOffset = 0;
+				if (mobileObj.data != nullptr) {
 #endif
-				/*Create the 3D layer and item*/
-				unsigned int faceCounter = 0;
-				bool quadFormatError = false;
-				std::vector<float> buffPositions;
-				pen::Vec3 vertex1 = pen::Vec3(0.0f, 0.0f, 0.0f);
-				bool firstVertex = true;
-				bool normalize = false;
-				std::string mtlPath;
-				std::vector<pen::ui::MtlData*> materialList;
-				pen::ui::MtlData* material = nullptr;
+					/*Create the 3D layer and item*/
+					unsigned int faceCounter = 0;
+					bool quadFormatError = false;
+					std::vector<float> buffPositions;
+					pen::Vec3 vertex1 = pen::Vec3(0.0f, 0.0f, 0.0f);
+					bool firstVertex = true;
+					bool normalize = false;
+					std::string mtlPath;
+					std::vector<pen::ui::MtlData*> materialList;
+					pen::ui::MtlData* material = nullptr;
 
 #ifndef __PEN_MAC_IOS__
-				pen::ui::Item* item3D = new pen::Item3D(id, pen::Vec3(0.0f, 0.0f, 0.0f), pen::Vec2(50.0f, 50.0f),
-					objectColor, objectIsFixed);
+					pen::ui::Item* item3D = new pen::Item3D(id, pen::Vec3(0.0f, 0.0f, 0.0f), pen::Vec2(50.0f, 50.0f),
+						objectColor, objectIsFixed);
 #else
-                pen::ui::Item* item3D = new pen::Item3D(pen::Layer::batchIndices, id, pen::Vec3(0.0f, 0.0f, 0.0f), pen::Vec2(50.0f, 50.0f),
-                    objectColor, objectIsFixed);
+					pen::ui::Item* item3D = new pen::Item3D(pen::Layer::batchIndices, id, pen::Vec3(0.0f, 0.0f, 0.0f), pen::Vec2(50.0f, 50.0f),
+						objectColor, objectIsFixed);
 #endif
-				item3D->isWireFrame = isWireFrame;
+					item3D->isWireFrame = isWireFrame;
 
 
 #ifndef __PEN_MOBILE__
-				while (!modelFile.eof()) {
+					while (!modelFile.eof()) {
 #else
-				unsigned int fileOffset = 0;
-				std::string mobileObjText(mobileObj.data);
-				while (true) {
+					unsigned int fileOffset = 0;
+					std::string mobileObjText(mobileObj.data);
+					while (true) {
 #endif
-					/*It is assumed that the vertex points in the obj file will be normalized already*/
+						/*It is assumed that the vertex points in the obj file will be normalized already*/
 
 #ifndef __PEN_MOBILE__
-					char fileLine[150];
-					modelFile.getline(fileLine, 150);
+						char fileLine[150];
+						modelFile.getline(fileLine, 150);
 #else
-					std::string fileLine = pen::ui::ReadLine(mobileObjText, &fileOffset);
-					if (fileLine == "") {
-						break;
-					}
+						std::string fileLine = pen::ui::ReadLine(mobileObjText, &fileOffset);
+						if (fileLine == "") {
+							break;
+						}
 #endif
 
-					std::stringstream stream;
-					std::string firstElement;
-					std::string materialStr;
-					std::string point1;
-					std::string point2;
-					std::string point3;
-					std::string point4;
-					int index1 = 0;
-					int index2 = 0;
-					int index3 = 0;
-					int index4 = 0;
-					stream << fileLine;
+						std::stringstream stream;
+						std::string firstElement;
+						std::string materialStr;
+						std::string point1;
+						std::string point2;
+						std::string point3;
+						std::string point4;
+						int index1 = 0;
+						int index2 = 0;
+						int index3 = 0;
+						int index4 = 0;
+						stream << fileLine;
 
-					if (fileLine[0] == 'm' && fileLine[1] == 't') {
-						/*Select material file*/
-						stream >> firstElement >> mtlPath;
-						pen::ui::LoadMtl(item3D, mtlPath);
-						materialList.clear();
-						for (int i = 0; i < item3D->mtlList.size(); i++) {
-							if (item3D->mtlList[i]->file == mtlPath) {
-								materialList.push_back(item3D->mtlList[i]);
+						if (fileLine[0] == 'm' && fileLine[1] == 't') {
+							/*Select material file*/
+							stream >> firstElement >> mtlPath;
+							pen::ui::LoadMtl(item3D, mtlPath);
+							materialList.clear();
+							for (int i = 0; i < item3D->mtlList.size(); i++) {
+								if (item3D->mtlList[i]->file == mtlPath) {
+									materialList.push_back(item3D->mtlList[i]);
+								}
 							}
 						}
-					}else if (fileLine[0] == 'u' && fileLine[1] == 's') {
-						/*Material to select*/
-						stream >> firstElement >> materialStr;
-						for (int i = 0; i < materialList.size(); i++) {
-							if (materialList[i]->name == materialStr) {
-								material = materialList[i];
-								break;
+						else if (fileLine[0] == 'u' && fileLine[1] == 's') {
+							/*Material to select*/
+							stream >> firstElement >> materialStr;
+							for (int i = 0; i < materialList.size(); i++) {
+								if (materialList[i]->name == materialStr) {
+									material = materialList[i];
+									break;
+								}
+							}
+						}
+						else if (fileLine[0] == 'v' && fileLine[1] == ' ') {
+							/*Vertex point*/
+							stream >> firstElement >> vertex1.x >> vertex1.y >> vertex1.z;
+
+							if (firstVertex) {
+								/*Divides all vertex points by 10 if one of the first vertex points is greater than 10*/
+								if (pen::op::Abs(vertex1.x) > 10.0f || pen::op::Abs(vertex1.y) > 10.0f
+									|| pen::op::Abs(vertex1.z) > 10.0f) {
+									vertex1.x /= 10.0f;
+									vertex1.y /= 10.0f;
+									vertex1.z /= 10.0f;
+									normalize = true;
+									firstVertex = false;
+								}
+							}
+							else {
+								if (normalize) {
+									vertex1.x /= 10.0f;
+									vertex1.y /= 10.0f;
+									vertex1.z /= 10.0f;
+								}
+							}
+
+							buffPositions = {
+								vertex1.x, vertex1.y, vertex1.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+							};
+
+							item3D->Push(new pen::Item3D(true, pen::Vec3(vertex1.x, vertex1.y, vertex1.z),
+								pen::ui::Shape::POINT, material != nullptr ? material->color : item3D->color, item3D->isFixed, &buffPositions[0], material != nullptr ? material->texture : ""));
+						}
+						else if (fileLine[0] == 'f') {
+							/*Face data*/
+							stream >> firstElement >> point1 >> point2 >> point3 >> point4;
+							std::string faceIndex1 = pen::ui::Split(point1, '/', 0);
+							std::string faceIndex2 = pen::ui::Split(point2, '/', 0);
+							std::string faceIndex3 = pen::ui::Split(point3, '/', 0);
+							std::string faceIndex4 = point4.size() > 0 ? pen::ui::Split(point4, '/', 0) : "";
+
+							/*Obj files indices start at 1*/
+							index1 = std::stoi(faceIndex1) - 1;
+							index2 = std::stoi(faceIndex2) - 1;
+							index3 = std::stoi(faceIndex3) - 1;
+							index4 = faceIndex4.size() > 0 ? std::stoi(faceIndex4) - 1 : -1;
+
+							/*Set the indices to the item indices array*/
+#ifndef __PEN_MAC_IOS__
+							item3D->indices3D[(faceCounter * 3)] = index1;
+							item3D->indices3D[(faceCounter * 3) + 1] = index2;
+							item3D->indices3D[(faceCounter * 3) + 2] = index3;
+#else
+							item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3)] = index1;
+							item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 1] = index2;
+							item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 2] = index3;
+#endif
+
+							if (index4 > -1) {
+								/*Quad*/
+#ifndef __PEN_MAC_IOS__
+								item3D->indices3D[(faceCounter * 3) + 3] = index3;
+								item3D->indices3D[(faceCounter * 3) + 4] = index4;
+								item3D->indices3D[(faceCounter * 3) + 5] = index2;
+#else
+								item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 3] = index3;
+								item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 4] = index4;
+								item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 5] = index2;
+#endif
+								faceCounter += 2;
+								item3D->indexCount3D += 6;
+							}
+							else {
+								faceCounter++;
+								item3D->indexCount3D += 3;
 							}
 						}
 					}
-					else if (fileLine[0] == 'v' && fileLine[1] == ' ') {
-						/*Vertex point*/
-						stream >> firstElement >> vertex1.x >> vertex1.y >> vertex1.z;
 
-						if (firstVertex) {
-							/*Divides all vertex points by 10 if one of the first vertex points is greater than 10*/
-							if (pen::op::Abs(vertex1.x) > 10.0f || pen::op::Abs(vertex1.y) > 10.0f
-								|| pen::op::Abs(vertex1.z) > 10.0f) {
-								vertex1.x /= 10.0f;
-								vertex1.y /= 10.0f;
-								vertex1.z /= 10.0f;
-								normalize = true;
-								firstVertex = false;
-							}
+#ifndef __PEN_MOBILE__
+					modelFile.close();
+#endif
+
+					/*Check if the element count doesn't match based on the last triangle added*/
+					if (buffPositions.size() % BATCH_VERTEX_ELEMENTS != 0) {
+						std::cout << "buffPositions is not padded correctly to match BATCH_VERTEX_ELEMENTS" << std::endl;
+#ifndef __PEN_MOBILE__
+						glfwTerminate();
+#endif
+					}
+
+					item3D->CombineChildBuffers();
+
+					/*Initialize the layers based on the triangle count*/
+					int idCount = 0;
+					for (int i = 0; i < faceCounter; i += MAX_OBJECTS_SINGULAR) {
+						uint16_t layerId = 0; 
+						if (idCount < availableIds.size()) {
+							layerId = availableIds[idCount];
 						}
 						else {
-							if (normalize) {
-								vertex1.x /= 10.0f;
-								vertex1.y /= 10.0f;
-								vertex1.z /= 10.0f;
-							}
+							if (layerLimitCounter == 30) break;
+							layerId = pen::ui::LM::generalLayerId;
+							pen::ui::LM::generalLayerId++;
+							layerLimitCounter++;
 						}
-
-						buffPositions = {
-							vertex1.x, vertex1.y, vertex1.z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
-						};
-
-						item3D->Push(new pen::Item3D(true, pen::Vec3(vertex1.x, vertex1.y, vertex1.z),
-							pen::ui::Shape::POINT, material != nullptr ? material->color : item3D->color, item3D->isFixed, &buffPositions[0], material != nullptr ? material->texture : ""));
+						idCount++;
+						pen::ui::LM::layers.push_back(new pen::Layer3D(layerId,
+							item3D->shapeType, item3D->isFixed, item3D->isSingular, item3D->isWireFrame, isInstanced, dataList));	
+						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item3D, i);
+#ifndef __PEN_MAC_IOS__
+						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
+#else
+						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize(pen::ui::LM::layers.size() - 1);
+#endif
+						pen::ui::Sort();
 					}
-					else if (fileLine[0] == 'f') {
-						/*Face data*/
-						stream >> firstElement >> point1 >> point2 >> point3 >> point4;
-						std::string faceIndex1 = pen::ui::Split(point1, '/', 0);
-						std::string faceIndex2 = pen::ui::Split(point2, '/', 0);
-						std::string faceIndex3 = pen::ui::Split(point3, '/', 0);
-						std::string faceIndex4 = point4.size() > 0 ? pen::ui::Split(point4, '/', 0) : "";
-
-						/*Obj files indices start at 1*/
-						index1 = std::stoi(faceIndex1) - 1;
-						index2 = std::stoi(faceIndex2) - 1;
-						index3 = std::stoi(faceIndex3) - 1;
-						index4 = faceIndex4.size() > 0 ? std::stoi(faceIndex4) - 1 : -1;
-
-						/*Set the indices to the item indices array*/
-#ifndef __PEN_MAC_IOS__
-						item3D->indices3D[(faceCounter * 3)] = index1;
-						item3D->indices3D[(faceCounter * 3) + 1] = index2;
-						item3D->indices3D[(faceCounter * 3) + 2] = index3;
-#else
-						item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3)] = index1;
-						item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 1] = index2;
-						item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 2] = index3;
-#endif
-
-						if (index4 > -1) {
-							/*Quad*/
-#ifndef __PEN_MAC_IOS__
-							item3D->indices3D[(faceCounter * 3) + 3] = index3;
-							item3D->indices3D[(faceCounter * 3) + 4] = index4;
-							item3D->indices3D[(faceCounter * 3) + 5] = index2;
-#else
-							item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 3] = index3;
-							item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 4] = index4;
-							item3D->indices3D[(pen::ui::LM::generalLayerId * THREE_D_RENDERER_INDICES_SIZE) + (faceCounter * 3) + 5] = index2;
-#endif
-							faceCounter += 2;
-							item3D->indexCount3D += 6;
-						}
-						else {
-							faceCounter++;
-							item3D->indexCount3D += 3;
-						}
-					}
-				}
-
-#ifndef __PEN_MOBILE__
-				modelFile.close();
-#endif
-
-				/*Check if the element count doesn't match based on the last triangle added*/
-				if (buffPositions.size() % BATCH_VERTEX_ELEMENTS != 0) {
-					std::cout << "buffPositions is not padded correctly to match BATCH_VERTEX_ELEMENTS" << std::endl;
-#ifndef __PEN_MOBILE__
-					glfwTerminate();
-#endif
-				}
-
-				item3D->CombineChildBuffers();
-
-				/*Initialize the layers based on the triangle count*/
-				for (int i = 0; i < faceCounter; i += MAX_OBJECTS_SINGULAR) {
-					pen::ui::LM::layers.push_back(new pen::Layer3D(pen::ui::LM::generalLayerId,
-						item3D->shapeType, item3D->isFixed, item3D->isSingular, item3D->isWireFrame, isInstanced, dataList));
-					pen::ui::LM::generalLayerId++;
-					pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item3D, i);
-#ifndef __PEN_MAC_IOS__
-					pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();
-#else
-                    pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize(pen::ui::LM::layers.size() - 1);
-#endif
-					pen::ui::Sort();
-				}
 
 #ifdef __PEN_MAC_IOS__
-				MapMacPenMacIOSUpdateIndices(pen::Layer::batchIndices, RENDERER_INDICES_SIZE);
+					MapMacPenMacIOSUpdateIndices(pen::Layer::batchIndices, RENDERER_INDICES_SIZE);
 #endif
 
-				return item3D;
+					return item3D;
+				}
+				return nullptr;
 			}
-			return nullptr;
 		}
 	}
 }

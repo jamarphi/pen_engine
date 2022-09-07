@@ -178,11 +178,7 @@ namespace pen {
 #endif
 
         static bool Running();
-
-#ifndef __PEN_MOBILE__
         static void CloseWindow();
-#endif
-
         void SetOrthoCoordinates(std::vector<float> orthoCoord);
 
         static float GetDeltaTime();
@@ -195,46 +191,19 @@ namespace pen {
 
         /*----Mouse functions----*/
         static void GetMousePos(double* x, double* y);
-
-#ifndef __PEN_MOBILE__
         static void MakeMouseHidden();
-#endif
-
-#ifndef __PEN_MOBILE__
         static void MakeMouseShow();
-#endif
-
-#ifndef __PEN_MOBILE__
         static bool WindowActive();
-#endif
-
-#ifndef __PEN_MOBILE__
         static int MouseState(int key);
-#endif
         /*----Mouse functions----*/
 
-#ifndef __PEN_MOBILE__
         static int KeyState(int key);
-#endif
 
         static void HandleGUIClickEvents(bool choice, bool (*userClickCatchAll)());
-
-#ifndef __PEN_ANDROID__
-#if TARGET_OS_OSX
         static void HandleGUIDragEvents(bool choice);
-#endif
-#endif
-
-#ifndef __PEN_ANDROID__
-#if TARGET_OS_OSX
         static void HandleGUIKeyEvents(bool choice);
-#endif
-#endif
-
         static bool HandleClick(pen::ui::Item* item, double* xPos, double* yPos, const int& button, const int& action);
-
         static void EnableDepthTesting(bool choice);
-
         static void HandleCameraInput(bool choice);
 
 #ifdef __PEN_MOBILE__

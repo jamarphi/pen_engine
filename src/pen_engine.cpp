@@ -45,6 +45,7 @@ namespace pen {
         Render* inst = pen::Render::Get();
         State* stateInst = pen::State::Get();
         stateInst->penEngineDir = penEngineDir;
+        if (penEngineDir[penEngineDir.length() - 1] == '/' || penEngineDir[penEngineDir.length() - 1] == '\\') stateInst->penEngineDir = penEngineDir.substr(0, penEngineDir.length() - 1);
 
 #ifndef __PEN_MOBILE__
         glfwInit();
@@ -225,11 +226,11 @@ namespace pen {
 #endif
     }
 
-#ifndef __PEN_MOBILE__
     void Pen::CloseWindow() {
+#ifndef __PEN_MOBILE__
         glfwSetWindowShouldClose(GetWindow(), true);
-    }
 #endif
+    }
 
     void Pen::SetOrthoCoordinates(std::vector<float> orthoCoord) {
         /*Updates the orthographic projection for the application*/
@@ -274,45 +275,67 @@ namespace pen {
 #endif
     }
 
-#ifndef __PEN_MOBILE__
     void Pen::MakeMouseHidden() {
         /*Hides the mouse*/
+#ifndef __PEN_MOBILE__
         glfwSetInputMode(GetWindow(), glfw_CURSOR, glfw_CURSOR_HIDDEN);
+#endif
     }
 
     void Pen::MakeMouseShow() {
         /*Shows the mouse*/
+#ifndef __PEN_MOBILE__
         glfwSetInputMode(GetWindow(), glfw_CURSOR, glfw_CURSOR_NORMAL);
+#endif
     }
 
     bool Pen::WindowActive() {
         /*Returns true if the mouse is in the content area of the application window*/
+#ifndef __PEN_MOBILE__
         return glfwGetWindowAttrib(GetWindow(), glfw_HOVERED);
+#endif
     }
 
     int Pen::MouseState(int key) {
+        /*Returns the mouse state*/
+#ifndef __PEN_MOBILE__
         return glfwGetMouseButton(GetWindow(), key);
+#endif
     }
 
     int Pen::KeyState(int key) {
+        /*Returns the key state of the given key*/
+#ifndef __PEN_MOBILE__
         return glfwGetKey(GetWindow(), key);
+#endif
     }
 
     void Pen::HandleGUIClickEvents(bool choice, bool (*userClickCatchAll)()) {
+        /*Toggles GUI click events*/
         pen::State::Get()->handleGUIClickEvents = choice;
         Get()->clickCatchAll = userClickCatchAll;
     }
 
     void Pen::HandleGUIDragEvents(bool choice) {
+        /*Toggles GUI drag events*/
+#ifndef __PEN_ANDROID__
+#if TARGET_OS_OSX
         pen::State::Get()->handleGUIDragEvents = choice;
+#endif
+#endif
     }
 
     void Pen::HandleGUIKeyEvents(bool choice) {
+        /*Toggles GUI key events*/
+#ifndef __PEN_ANDROID__
+#if TARGET_OS_OSX
         pen::State::Get()->handleGUIKeyEvents = choice;
-    }
 #endif
+#endif
+    }
 
     void Pen::EnableDepthTesting(bool choice) {
+        /*Toggles depth testing*/
 #ifndef __PEN_MAC_IOS__
         if (choice) {
             glEnable(GL_DEPTH_TEST);
@@ -324,7 +347,10 @@ namespace pen {
     }
 
     void Pen::HandleCameraInput(bool choice) {
+        /*Toggles camera input*/
+#ifndef __PEN_MOBILE__
         pen::State::Get()->handleCameraInput = choice;
+#endif
     }
 
     void Pen::InitializeAsciiMap() {

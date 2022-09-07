@@ -78,7 +78,7 @@ namespace pen {
 			virtual void Init(pen::ai::AIState** userStates, long userStateNum, pen::ai::AIState* initialState, int numPlanningSteps, float userEpsilon = 0.1f, float userStepSize = 0.1f);
 			pen::ai::AIState* FindState(Agent* agent, char stateId);
 			virtual void Step(bool terminal);
-#ifndef __PEN_MOBILE__
+#ifndef __PEN_AI_AGENT_MOBILE__
 			virtual void Save(const std::string& path);
 #else
             virtual std::string Save(const std::string& path);
