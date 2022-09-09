@@ -208,8 +208,6 @@ Then in order to draw something, for example a line, you would do this inside th
         pen::Draw(i, 100, pen::PEN_RED, maskOptional);
     }
 
-Pixel drawing must be done within the render loop.
-
 You can also pass in a boolean of false to the mask parameter to draw transparency to the buffer if you want,
 by default it does not draw pixels with an alpha of 0.0f so it does not overwrite what is already there with transparency.
 
@@ -221,6 +219,11 @@ The pixel buffer will return a nullptr if accessed directly for mobile builds, t
 
 pen::PixelBufferWidth() and pen::PixelBufferHeight() are used since the texels on the screen are in a different space, this way all of the pixels can be
 covered properly.
+
+If you want to convert between screen and pixel buffer coordinates you can do:
+
+    - pen::ScreenToPixel(float* x, float* y);
+    - pen::PixelToScreen(float* x, float* y);
 
 You can pan the pixel buffer based on screen dimensions with:
 

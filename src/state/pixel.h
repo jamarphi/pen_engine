@@ -54,6 +54,20 @@ namespace pen {
 		return pen::State::Get()->pixelBufferHeight;
 	}
 
+	static void ScreenToPixel(float* x, float* y) {
+		/*Converts screen coordinates to pixel buffer coordinates*/
+		pen::State* inst = pen::State::Get();
+		*x = (*x * (float)pen::PixelBufferWidth()) / (float)inst->screenWidth;
+		*y = (*y * (float)pen::PixelBufferHeight()) / (float)inst->screenHeight;
+	}
+
+	static void PixelToScreen(float* x, float* y) {
+		/*Converts pixel buffer coordinates to screen coordinates*/
+		pen::State* inst = pen::State::Get();
+		*x = (*x * (float)inst->screenWidth) / (float)pen::PixelBufferWidth();
+		*y = (*y * (float)inst->screenHeight) / (float)pen::PixelBufferHeight();
+	}
+
 	static void Pan(float panX, float panY, bool reset = false) {
 		/*Pan the pixel buffer based on screen dimensions*/
 
