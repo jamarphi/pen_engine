@@ -56,7 +56,10 @@ under the License.
     - (void)keyDown:(NSEvent *)event;
     - (void)keyUp:(NSEvent *)event;
     - (NSSize)windowWillResize:(NSWindow *)sender
-                    toSize:(NSSize)frameSize;
+        toSize:(NSSize)frameSize;
+    +(void)MakeMouseHidden;
+    +(void)MakeMouseShow;
+    +(BOOL)WindowActive;
 #else
     - (void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
     - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;

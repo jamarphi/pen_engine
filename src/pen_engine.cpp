@@ -279,6 +279,10 @@ namespace pen {
         /*Hides the mouse*/
 #ifndef __PEN_MOBILE__
         glfwSetInputMode(GetWindow(), glfw_CURSOR, glfw_CURSOR_HIDDEN);
+#else
+#if TARGET_OS_OSX
+        MapMacIOSMakeMouseHidden();
+#endif
 #endif
     }
 
@@ -286,6 +290,10 @@ namespace pen {
         /*Shows the mouse*/
 #ifndef __PEN_MOBILE__
         glfwSetInputMode(GetWindow(), glfw_CURSOR, glfw_CURSOR_NORMAL);
+#else
+#if TARGET_OS_OSX
+        MapMacIOSMakeMouseShow();
+#endif
 #endif
     }
 
@@ -293,6 +301,10 @@ namespace pen {
         /*Returns true if the mouse is in the content area of the application window*/
 #ifndef __PEN_MOBILE__
         return glfwGetWindowAttrib(GetWindow(), glfw_HOVERED);
+#else
+#if TARGET_OS_OSX
+        return MapMacIOSWindowActive();
+#endif
 #endif
     }
 

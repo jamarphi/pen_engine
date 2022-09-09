@@ -58,12 +58,6 @@ under the License.
     @property dispatch_semaphore_t dispatchSemaphore;
     @property unsigned int isInstanced;
 
-#if TARGET_OS_OSX
-    @property NSWindow* iosWindow;
-#else
-    @property UIWindow* iosWindow;
-#endif
-
 + (PenMacIOSState*) Get;
 +(id<MTLTexture> __strong*) GetTextures;
 @end

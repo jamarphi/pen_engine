@@ -63,6 +63,9 @@ extern "C" {
 #endif
 
     /*----mac_ios_view_delegate----*/
+    void MapMacIOSMakeMouseHidden();
+    void MapMacIOSMakeMouseShow();
+    bool MapMacIOSWindowActive();
     void MapMacIOSAddUniform(unsigned int layerId, pen::Mat4x4 mvp);
     void MapMacIOSUpdateUniforms();
     void MapMacIOSSubmitBatch(BatchVertexData* data, int size);

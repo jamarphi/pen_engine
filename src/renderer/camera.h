@@ -33,6 +33,10 @@ under the License.
 #include "../ops/operations/operations.h"
 #include "../state/keys.h"
 #include "../state/layer_manager.h"
+#include "../../ext/platforms/mac_ios/mac_ios_cpp_objective_c_mapping.h"
+#ifdef __PEN_MAC_IOS__
+#include <TargetConditionals.h>
+#endif
 
 namespace pen {
 	class Camera {

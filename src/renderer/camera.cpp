@@ -135,6 +135,7 @@ namespace pen {
 		return true;
 	}
 #else
+#if TARGET_OS_OSX
     bool Camera::HandleInput(int key, int action) {
         /*Orient the view based on user input for Mac*/
         if (!pen::State::Get()->handleCameraInput) return false;
@@ -183,6 +184,7 @@ namespace pen {
             || action == pen::in::KEYS::HELD)) {
             /*Change angle of view*/
             firstMove = false;
+			MapMacIOSMakeMouseHidden();
 
             if (firstDrag) {
                 firstDrag = false;
@@ -204,9 +206,11 @@ namespace pen {
             viewOrientation = pen::op::RotateVec(viewOrientation, -1.0f * rotY, at * -1.0f);
         }
         else if (key == pen::in::KEYS::SPACE && action == pen::in::KEYS::RELEASED) {
+			MapMacIOSMakeMouseShow();
             firstDrag = true;
         }
         return true;
     }
+#endif
 #endif
 }

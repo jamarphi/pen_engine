@@ -228,6 +228,21 @@ static long indexCount;
     return frameSize;
 }
 
++(void)MakeMouseHidden {
+    /*Hides the mouse*/
+    [NSCursor hide];
+}
+
++(void)MakeMouseShow {
+    /*Shows the mouse*/
+    [NSCursor show];
+};
+
++(BOOL)WindowActive {
+    /*Returns whether the application window is active*/
+    return [[IOSState Get].iosMtkView window].onActiveSpace;
+}
+
 #else
 - (void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     /*A touch has started*/
@@ -390,6 +405,27 @@ static long indexCount;
     [inst.iosMtkView setClearColor:MTLClearColorMake(r, g, b, a)];
 }
 @end
+
+void MapMacIOSMakeMouseHidden(){
+    /*Hides the mouse*/
+#if TARGET_OS_OSX
+    [PenMacIOSMTKViewDelegate MakeMouseHidden];
+#endif
+}
+
+void MapMacIOSMakeMouseShow(){
+    /*Shows the mouse*/
+#if TARGET_OS_OSX
+    [PenMacIOSMTKViewDelegate MakeMouseShow];
+#endif
+}
+
+bool MapMacIOSWindowActive(){
+    /*Returns whether the application window is active*/
+#if TARGET_OS_OSX
+    return (bool)[PenMacIOSMTKViewDelegate WindowActive];
+#endif
+}
 
 void MapMacIOSAddUniform(unsigned int layerId, pen::Mat4x4 mvp){
     /*Adds a uniform to the uniform dictionary*/

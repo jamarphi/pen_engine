@@ -491,9 +491,12 @@ Functions that are not compatible with mobile:
 - pen::Pen::MouseState
 - pen::Pen::KeyState
 
-These two work for __PEN_MAC_IOS__ if building for Mac:
+These functions for __PEN_MAC_IOS__ if building for Mac:
 - pen::Pen::HandleGUIDragEvents
 - pen::Pen::HandleGUIKeyEvents
+- pen::Pen::MakeMouseHidden
+- pen::Pen::MakeMouseShow
+- pen::Pen::WindowActive
 
 ---------------------------------------------------------------------------
 
