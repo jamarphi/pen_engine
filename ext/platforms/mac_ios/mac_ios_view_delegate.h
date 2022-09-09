@@ -49,6 +49,7 @@ under the License.
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size;
 #if TARGET_OS_OSX
     - (BOOL)acceptsFirstResponder;
+    - (void)mouseMoved:(NSEvent*)event;
     - (void)mouseDown:(NSEvent *)event;
     - (void)mouseDragged:(NSEvent *)event;
     - (void)mouseUp:(NSEvent *)event;

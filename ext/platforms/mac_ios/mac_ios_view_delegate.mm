@@ -98,6 +98,26 @@ static long indexCount;
     return YES;
 }
 
+- (void)mouseMoved:(NSEvent *)event {
+    /*The mouse has moved*/
+    PenMacIOSState* inst = [PenMacIOSState Get];
+    pen::State* coreStateInst = pen::State::Get();
+    coreStateInst->keyableItem = nullptr;
+    NSPoint location = event.locationInWindow;
+    NSPoint localPoint = [inst.iosMtkView convertPoint:location fromView:inst.iosMtkView];
+    
+    double xPos = (double)location.x;
+    double yPos = (double)location.y;
+    /*Flip y position to start from the bottom*/
+    yPos = coreStateInst->actualScreenHeight - yPos;
+
+    /*Scale based on screen width and height*/
+    xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
+    yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
+    coreStateInst->mobileMouseX = xPos;
+    coreStateInst->mobileMouseY = yPos;
+}
+
 - (void)mouseDown:(NSEvent *)event {
     /*A click has started*/
     PenMacIOSState* inst = [PenMacIOSState Get];
@@ -159,8 +179,8 @@ static long indexCount;
     /*Scale based on screen width and height*/
     xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
     yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
-    pen::State::Get()->mobileMouseX = xPos;
-    pen::State::Get()->mobileMouseY = yPos;
+    coreStateInst->mobileMouseX = xPos;
+    coreStateInst->mobileMouseY = yPos;
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
 }
 
