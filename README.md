@@ -421,11 +421,56 @@ The type is the transformation, an example is pen::AnimType::TRANSLATE.
 
 # 1.7 - 3D
 
+# Pixel Buffer 3D
+
+For rendering 3D models in the pixel buffer you need to create a pen::Item3D with a list of triangles:
+
+    pen::_3d::Triangle* triangle1 = new pen::_3d::Triangle{
+        pen::Vec4 point 1, pen::Vec4 point 2, pen::Vec4 point 3},
+        {pen::Vec3 texCoord1, pen::Vec3 texCoord2, pen::Vec3 texCoord3},
+        {pen::Vec4 color1, pen::Vec4 color2, pen::Vec4 color3},
+        std::string texturePath
+    };
+
+    std::vector<pen::_3d::Triangle*>* list = new std::vector<pen::_3d::Triangle*>();
+    list->push_back(triangle1);
+    sprite = new pen::Item3D{list, bool isWireframe = false, pen::Mat4x4 matrix = pen::Mat4x4(1.0f)};
+
+You can load in 3D objects with .obj files also:
+
+    pen::Item3D* item = pen::CreateItem3D(const std::string& path, const pen::Vec4& objectColor, const bool& isWireFrame);
+
+3D items can be transformed with:
+
+    - pen::_3d::Scale(pen::Item3D* item, float sx, float sy, float sz);
+    - pen::_3d::Rotate(pen::Item3D* item, float theta, int axis);
+    - pen::_3d::Translate(pen::Item3D* item, float tx, float ty, float tz);
+
+For rotation, the axis can be chosen using:
+
+    - pen::_3d::AXIS::X
+    - pen::_3d::AXIS::Y
+    - pen::_3d::AXIS::Z
+
+A callback can be used with the camera by doing:
+
+    pen::Pen::HandleCameraInput(true, float speed = 0.1f, void (*CameraCallbackFunction)() = nullptr);
+
+This callback function is used to know when to update the camera by doing:
+
+    void CameraCallbackFunction(){
+        pen::GetPixelCamera()->Update();
+    }
+
+#Graphically Accelerated 3D
+
 Before rendering 3D models using .obj files you have to call:
 
-    pen::ui::Item* = pen::ui::AddItem3D(const uint32_t& id, const std::string& path, const pen::Vec4& objectColor, const bool& isInstanced, const std::vector<pen::Mat2x4*>& dataList, const bool& objectIsFixed, const bool& isWireFrame);
+    pen::ui::Item* = pen::ui::AddGraphicallyAcceleratedItem3D(const uint32_t& id, const std::string& path, const pen::Vec4& objectColor, const bool& isInstanced, const std::vector<pen::Mat2x4*>& dataList, const bool& objectIsFixed, const bool& isWireFrame);
     pen::Pen::EnableDepthTesting(true);
-    pen::Pen::HandleCameraInput(true);
+    pen::Pen::HandleCameraInput(true, float speed = 0.1f, void (*OptionalCameraCallback)() = nullptr);
+
+The camera callback function is optional for graphically accelerated 3D items since the camera gets updated each frame.
 
 If you enable depth testing, 2D textures will not work currently, so if you use 3D rendering you can't do 2D textures.
 
@@ -437,9 +482,9 @@ Click can be used to rotate the camera around on Windows and Linux, the space ba
 
 3D items can be transformed with:
 
-    - pen::_3d::Scale(pen::Item3D* item, float sx, float sy, float sz);
-    - pen::_3d::Rotate(pen::Item3D* item, float theta, int axis);
-    - pen::_3d::Translate(pen::Item3D* item, float tx, float ty, float tz);
+    - pen::_3d::Scale(pen::GraphicallyAcceleratedItem3D* item, float sx, float sy, float sz);
+    - pen::_3d::Rotate(pen::GraphicallyAcceleratedItem3D* item, float theta, int axis);
+    - pen::_3d::Translate(pen::GraphicallyAcceleratedItem3D* item, float tx, float ty, float tz);
 
 For rotation, the axis can be chosen using:
 

@@ -28,24 +28,24 @@ under the License.
 #define GENERAL_MODEL_SOURCE "pen_engine/res/models/"
 
 namespace pen {
-	class Item3D : public pen::ui::Item {
+	class GraphicallyAcceleratedItem3D : public pen::ui::Item {
     public:
-        Item3D();
+        GraphicallyAcceleratedItem3D();
 
-        Item3D(bool childItem, pen::Vec3 objectPositions, unsigned int objectShapeType, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
+        GraphicallyAcceleratedItem3D(bool childItem, pen::Vec3 objectPositions, unsigned int objectShapeType, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
             bool objectIsFixed = false, float* objectBufferPositions = nullptr, const std::string& objectTexture = "");
 
 #ifndef __PEN_MAC_IOS__
-        Item3D(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
+        GraphicallyAcceleratedItem3D(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
             bool objectIsFixed = false, std::string objectTextureName = "",
             float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
 #else
-        Item3D(int* layerIndices, uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
+        GraphicallyAcceleratedItem3D(int* layerIndices, uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
             bool objectIsFixed = false, std::string objectTextureName = "",
             float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
 #endif
 
-        ~Item3D();
+        ~GraphicallyAcceleratedItem3D();
 
         void Push(pen::ui::Item* item);
         void CombineChildBuffers();

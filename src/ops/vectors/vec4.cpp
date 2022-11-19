@@ -48,16 +48,48 @@ namespace pen {
 		return Vec4(x + vecB.x, y + vecB.y, z + vecB.z, w + vecB.w);
 	}
 
+	Vec4 Vec4::operator+(float& val) {
+		return Vec4(x + val, y + val, z + val, w + val);
+	}
+
+	Vec4 Vec4::operator+(float&& val) {
+		return Vec4(x + val, y + val, z + val, w + val);
+	}
+
 	Vec4 Vec4::operator-(Vec4& vecB) {
 		return Vec4(x - vecB.x, y - vecB.y, z - vecB.z, w - vecB.w);
+	}
+
+	Vec4 Vec4::operator-(float& val) {
+		return Vec4(x - val, y - val, z - val, w - val);
+	}
+
+	Vec4 Vec4::operator-(float&& val) {
+		return Vec4(x - val, y - val, z - val, w - val);
 	}
 
 	Vec4 Vec4::operator*(Vec4& vecB) {
 		return Vec4(x * vecB.x, y * vecB.y, z * vecB.z, w * vecB.w);
 	}
 
+	Vec4 Vec4::operator*(float& val) {
+		return Vec4(x * val, y * val, z * val, w * val);
+	}
+
+	Vec4 Vec4::operator*(float&& val) {
+		return Vec4(x * val, y * val, z * val, w * val);
+	}
+
 	Vec4 Vec4::operator/(Vec4& vecB) {
 		return Vec4(x / vecB.x, y / vecB.y, z / vecB.z, w / vecB.w);
+	}
+
+	Vec4 Vec4::operator/(float& val) {
+		return Vec4(x / val, y / val, z / val, w / val);
+	}
+
+	Vec4 Vec4::operator/(float&& val) {
+		return Vec4(x / val, y / val, z / val, w / val);
 	}
 
 	void Vec4::operator+=(Vec4& vecB) {
@@ -67,11 +99,39 @@ namespace pen {
 		w += vecB.w;
 	}
 
+	void Vec4::operator+=(float& val) {
+		x += val;
+		y += val;
+		z += val;
+		w += val;
+	}
+
+	void Vec4::operator+=(float&& val) {
+		x += val;
+		y += val;
+		z += val;
+		w += val;
+	}
+
 	void Vec4::operator-=(Vec4& vecB) {
 		x -= vecB.x;
 		y -= vecB.y;
 		z -= vecB.z;
 		w -= vecB.w;
+	}
+
+	void Vec4::operator-=(float& val) {
+		x -= val;
+		y -= val;
+		z -= val;
+		w -= val;
+	}
+
+	void Vec4::operator-=(float&& val) {
+		x -= val;
+		y -= val;
+		z -= val;
+		w -= val;
 	}
 
 	void Vec4::operator*=(Vec4& vecB) {
@@ -81,10 +141,38 @@ namespace pen {
 		w *= vecB.w;
 	}
 
+	void Vec4::operator*=(float& val) {
+		x *= val;
+		y *= val;
+		z *= val;
+		w *= val;
+	}
+
+	void Vec4::operator*=(float&& val) {
+		x *= val;
+		y *= val;
+		z *= val;
+		w *= val;
+	}
+
 	void Vec4::operator/=(Vec4& vecB) {
 		x /= vecB.x;
 		y /= vecB.y;
 		z /= vecB.z;
 		w /= vecB.w;
+	}
+
+	void Vec4::operator/=(float& val) {
+		x /= val;
+		y /= val;
+		z /= val;
+		w /= val;
+	}
+
+	void Vec4::operator/=(float&& val) {
+		x /= val;
+		y /= val;
+		z /= val;
+		w /= val;
 	}
 }

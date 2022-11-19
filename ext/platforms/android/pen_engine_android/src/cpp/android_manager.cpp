@@ -50,7 +50,7 @@ extern "C" {
             bsd_signal_func = (bsd_signal_func_t)dlsym(RTLD_DEFAULT, "bsd_signal");
 
             if (bsd_signal_func == NULL) {
-                pen::android::AppLog("bad bsd signal...");
+                pen::android::AppLog("Bad bsd signal...");
             }
         }
         return bsd_signal_func(s, f);

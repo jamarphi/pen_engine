@@ -36,12 +36,28 @@ namespace pen {
 		bool operator==(Vec4& vecB);
 		Vec4 operator+(Vec4& vecB);
 		Vec4 operator+(Vec4&& vecB);
+		Vec4 operator+(float& val);
+		Vec4 operator+(float&& val);
 		Vec4 operator-(Vec4& vecB);
+		Vec4 operator-(float& val);
+		Vec4 operator-(float&& val);
 		Vec4 operator*(Vec4& vecB);
+		Vec4 operator*(float& val);
+		Vec4 operator*(float&& val);
 		Vec4 operator/(Vec4& vecB);
+		Vec4 operator/(float& val);
+		Vec4 operator/(float&& val);
 		void operator+=(Vec4& vecB);
+		void operator+=(float& val);
+		void operator+=(float&& val);
 		void operator-=(Vec4& vecB);
+		void operator-=(float& val);
+		void operator-=(float&& val);
 		void operator*=(Vec4& vecB);
+		void operator*=(float& val);
+		void operator*=(float&& val);
 		void operator/=(Vec4& vecB);
+		void operator/=(float& val);
+		void operator/=(float&& val);
 	};
 }

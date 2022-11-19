@@ -50,11 +50,16 @@ namespace pen {
 		pen::Vec3 viewOrientation = pen::Vec3(0.0f, 0.0f, -1.0f);
 		pen::Vec3 at = pen::Vec3(0.0f, 1.0f, 0.0f);
 		float cameraSensitivity = 10.0f;
+		float cameraFov;
+		float cameraZNear;
+		float cameraZFar;
 
 		Camera();
-		Camera(pen::Vec3 viewPosition, int viewWidth, int viewHeight);
+		Camera(pen::Vec3 viewPosition, int viewWidth, int viewHeight, float speed = 0.1f);
 		~Camera();
+		void Update();
 		void Update(float fov, float zNear, float zFar, pen::Mat4x4* view, pen::Mat4x4* proj, pen::Layer* layer);
+		void Update(float fov, float zNear, float zFar, pen::Mat4x4* view, pen::Mat4x4* proj);
 #ifndef __PEN_MAC_IOS__
         bool HandleInput(void* cameraWindow);
 #else

@@ -21,9 +21,9 @@ under the License.
 #include "item_3d.h"
 
 namespace pen {
-    Item3D::Item3D() {}
+    GraphicallyAcceleratedItem3D::GraphicallyAcceleratedItem3D() {}
 
-    Item3D::Item3D(bool childItem, pen::Vec3 objectPositions, unsigned int objectShapeType, pen::Vec4 objectColor,
+    GraphicallyAcceleratedItem3D::GraphicallyAcceleratedItem3D(bool childItem, pen::Vec3 objectPositions, unsigned int objectShapeType, pen::Vec4 objectColor,
         bool objectIsFixed, float* objectBufferPositions, const std::string& objectTexture) {
         /*3D child item constructor*/
         positions = objectPositions;
@@ -43,7 +43,7 @@ namespace pen {
     }
 
 #ifndef __PEN_MAC_IOS__
-    Item3D::Item3D(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor,
+    GraphicallyAcceleratedItem3D::GraphicallyAcceleratedItem3D(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor,
         bool objectIsFixed, std::string objectTextureName,
         float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
         /*Regular constructor*/
@@ -72,7 +72,7 @@ namespace pen {
         CheckActiveStatus();
     }
 #else
-    Item3D::Item3D(int* layerIndices, uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor,
+    GraphicallyAcceleratedItem3D::GraphicallyAcceleratedItem3D(int* layerIndices, uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor,
         bool objectIsFixed, std::string objectTextureName,
         float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
         /*Regular constructor*/
@@ -101,18 +101,18 @@ namespace pen {
     }
 #endif
 
-    Item3D::~Item3D() {
+    GraphicallyAcceleratedItem3D::~GraphicallyAcceleratedItem3D() {
         bufferPositions.clear();
         textureName = "";
     }
 
-    void Item3D::Push(pen::ui::Item* item) {
+    void GraphicallyAcceleratedItem3D::Push(pen::ui::Item* item) {
         /*Adds child items to be rendered after item*/
         childItems.push_back(item);
         itemCount++;
     }
 
-    void Item3D::CombineChildBuffers() {
+    void GraphicallyAcceleratedItem3D::CombineChildBuffers() {
         /*Combines all of the child item buffers after the buffer for this object*/
 
         /*Checks to make sure the item is on the screen to be rendered*/
@@ -134,25 +134,25 @@ namespace pen {
         }
     }
 
-    pen::Vec3 Item3D::GetPosition() {
+    pen::Vec3 GraphicallyAcceleratedItem3D::GetPosition() {
         /*Returns the position of the first triangle*/
         return pen::op::Mat4x4MultVec3(model, childItems[0]->positions, false);
     }
 
-    void Item3D::SetPosition(pen::Vec3 objectPos) {
+    void GraphicallyAcceleratedItem3D::SetPosition(pen::Vec3 objectPos) {
         /*The set position method for 3d items should do nothing*/
     }
 
-    pen::Vec2 Item3D::GetSize() {
+    pen::Vec2 GraphicallyAcceleratedItem3D::GetSize() {
         /*The get size method for 3d items should do nothing*/
         return pen::Vec2(0.0f, 0.0f);
     }
 
-    void Item3D::SetSize(pen::Vec2 objectSize) {
+    void GraphicallyAcceleratedItem3D::SetSize(pen::Vec2 objectSize) {
         /*The set size method for 3d items should do nothing*/
     }
 
-    void Item3D::SetColor(pen::Vec4 objectColor) {
+    void GraphicallyAcceleratedItem3D::SetColor(pen::Vec4 objectColor) {
         /*Updates the color of the 3d item and its children*/
         color = objectColor;
         for (int i = 0; i < childItems.size(); i++) {
@@ -160,7 +160,7 @@ namespace pen {
         }
     }
 
-    void Item3D::UpdateTexture(const std::string& path) {
+    void GraphicallyAcceleratedItem3D::UpdateTexture(const std::string& path) {
         /*The update texture method for 3d items should do nothing*/
     }
 }

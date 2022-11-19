@@ -23,6 +23,7 @@ under the License.
 
 #ifdef __PEN_MAC_IOS__
 #import "../../../src/state/state.h"
+#import "../../../src/state/pixel_3d.h"
 #import "mac_ios_state.h"
 #import "mac_ios_vertex_buffer.h"
 #import "mac_ios_index_buffer.h"

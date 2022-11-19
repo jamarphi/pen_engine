@@ -22,6 +22,8 @@ under the License.
 
 namespace pen {
     namespace ui {
+        std::vector<MtlData*>* mtlList = new std::vector<MtlData*>();
+
         Item::Item() {}
 
         Item::Item(uint32_t objectId, float* positions, unsigned int objectVertexCount, int* indices, unsigned int objectIndexCount, pen::Vec4 objectColor, bool objectIsFixed,

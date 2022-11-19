@@ -107,6 +107,11 @@ namespace pen {
 			return (a.x * b.x + a.y * b.y + a.z * b.z);
 		}
 
+		static float DotProductVec4(pen::Vec4 a, pen::Vec4 b) {
+			/*Dot product for two given vectors*/
+			return (a.x * b.x + a.y * b.y + a.z * b.z);
+		}
+
 		static pen::Mat4x4 Look(pen::Vec3 viewOrigin, pen::Vec3 center, pen::Vec3 at) {
 			pen::Vec3 f = (center - viewOrigin).Normalize();
 			pen::Vec3 s = CrossProduct(f, at).Normalize();
@@ -143,6 +148,19 @@ namespace pen {
 			result.x = (mat.matrix[0][0] * vec.x) + (mat.matrix[1][0] * vec.y) + (mat.matrix[2][0] * vec.z) + (mat.matrix[3][0] * w);
 			result.y = (mat.matrix[0][1] * vec.x) + (mat.matrix[1][1] * vec.y) + (mat.matrix[2][1] * vec.z) + (mat.matrix[3][1] * w);
 			result.z = (mat.matrix[0][2] * vec.x) + (mat.matrix[1][2] * vec.y) + (mat.matrix[2][2] * vec.z) + (mat.matrix[3][2] * w);
+
+			return result;
+		}
+
+		static pen::Vec4 Mat4x4MultVec4(pen::Mat4x4 mat, pen::Vec4 vec, bool rotation) {
+			/*Multiply a 4 x 4 matrix with a 4 x 4 vector*/
+			pen::Vec4 result = pen::Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+			if (!rotation) vec.w = 1.0f;
+
+			result.x = (mat.matrix[0][0] * vec.x) + (mat.matrix[1][0] * vec.y) + (mat.matrix[2][0] * vec.z) + (mat.matrix[3][0] * vec.w);
+			result.y = (mat.matrix[0][1] * vec.x) + (mat.matrix[1][1] * vec.y) + (mat.matrix[2][1] * vec.z) + (mat.matrix[3][1] * vec.w);
+			result.z = (mat.matrix[0][2] * vec.x) + (mat.matrix[1][2] * vec.y) + (mat.matrix[2][2] * vec.z) + (mat.matrix[3][2] * vec.w);
+			result.w = (mat.matrix[0][3] * vec.x) + (mat.matrix[1][3] * vec.y) + (mat.matrix[2][3] * vec.z) + (mat.matrix[3][3] * vec.w);
 
 			return result;
 		}

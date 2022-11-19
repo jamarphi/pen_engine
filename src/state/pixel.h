@@ -428,7 +428,7 @@ namespace pen {
 		return new pen::Item{ line, width, height, startX, startY };
 	}
 
-	static pen::Item* DrawTri(int aX, int aY, int bX, int bY, int cX, int cY, pen::Vec4 color, bool fill = true) {
+	static pen::Item* DrawTri(int aX, int aY, int bX, int bY, int cX, int cY, pen::Vec4 color, bool fill = true, bool is3DRender = false) {
 		/*Create a triangle to be loaded in as a sprite*/
 		int startX = aX;
 		int startY = aY;
@@ -473,7 +473,7 @@ namespace pen {
 			}
 		}	
 
-		int leftBound = (aX < bX&& aX < cX) ? aX : ((bX < aX&& bX < cX) ? bX : cX);
+		int leftBound = (aX < bX && aX < cX) ? aX : ((bX < aX && bX < cX) ? bX : cX);
 		int rightBound = (aX > bX && aX > cX) ? aX : ((bX > aX && bX > cX) ? bX : cX);
 		int width = (rightBound - leftBound + 1);
 
@@ -589,7 +589,13 @@ namespace pen {
 				}
 			}
 		}
-		return new pen::Item{ tri, width, height, startX, startY };
+		if (!is3DRender) return new pen::Item{ tri, width, height, startX, startY };
+
+		/*If this is part of a 3D render then it should be drawn right away*/
+		pen::Item* item3D = new pen::Item{ tri, width, height, startX, startY };
+		item3D->Draw();
+		pen::DeleteItem(item3D);
+		return nullptr;
 	}
 
 	static pen::Item* DrawRect(int startX, int startY, int length, int height, pen::Vec4 color, bool fill = true) {
@@ -618,21 +624,16 @@ namespace pen {
 		return new pen::Item{ rect, length, height, startX, startY };
 	}
 
-	static pen::Item* CreateSprite(int startX, int startY, int width, int height, const std::string& path,
-		float spriteTexCoordStartX = 0.0f, float spriteTexCoordStartY = 0.0f, float spriteTexCoordEndX = 1.0f, float spriteTexCoordEndY = 1.0f,
-		bool compress = false, float (*userDisplayFunction)(int, int, float) = nullptr) {
-		/*Create a sprite for the pixel buffer*/
-		unsigned char* spriteData = nullptr;
-		int texWidth = 0, texHeight = 0, texBPP = 0;
-		pen::State* inst = pen::State::Get();
-
+	static void LoadSprite(const std::string& path, unsigned char* spriteData, int* texWidth, int* texHeight, int* texBPP) {
+		/*Loads a pixel sprite*/
 		pen::Pair<std::string, pen::Sprite>* data = pen::State::Get()->pixelSprites.Find(path);
 		if (data != nullptr) {
 			spriteData = data->second.data;
-			texWidth = data->second.width;
-			texHeight = data->second.height;
+			*texWidth = data->second.width;
+			*texHeight = data->second.height;
 		}
 		else {
+
 #ifndef __PEN_MOBILE__
 			stbi_set_flip_vertically_on_load(1);
 			bool defaultPath = false;
@@ -645,32 +646,43 @@ namespace pen {
 			/*This adds the cmake absolute path for resources*/
 			if (tempPath == "") tempPath = tempPath + ROOT_DIR + "res/textures/" + path;
 
-			unsigned char* localBuffer = stbi_load(tempPath.c_str(), &texWidth, &texHeight, &texBPP, 4);
+			unsigned char* localBuffer = stbi_load(tempPath.c_str(), texWidth, texHeight, texBPP, 4);
 			spriteData = localBuffer;
 #else
-            std::string mobileFilePath = path;
-            if (mobileFilePath[2] == '/' && mobileFilePath[3] == '/') {
-                mobileFilePath = mobileFilePath.substr(4);
-            }
-            else if (mobileFilePath[0] == '/') {
-                mobileFilePath = mobileFilePath.substr(1);
-            }
-            std::string mobileFileName = Asset::ParsePath(mobileFilePath);
-	#ifdef __PEN_ANDROID__
+			std::string mobileFilePath = path;
+			if (mobileFilePath[2] == '/' && mobileFilePath[3] == '/') {
+				mobileFilePath = mobileFilePath.substr(4);
+			}
+			else if (mobileFilePath[0] == '/') {
+				mobileFilePath = mobileFilePath.substr(1);
+			}
+			std::string mobileFileName = Asset::ParsePath(mobileFilePath);
+#ifdef __PEN_ANDROID__
 			/*When loading from res/drawable mimetypes have to be removed*/
 			mobileFileName = mobileFileName.substr(0, mobileFileName.find("."));
-			spriteData = AndroidLoadSprite(mobileFileName.c_str(), texWidth, texHeight);
-    #else
-            /*
-             MapMacIOSLoadAsset is called directly so a pen::Asset is not created since the pixel
-             buffer uses sprites loaded in memory rather than on the GPU as textures
-             */
-            spriteData = (unsigned char*) MapMacIOSLoadAsset(mobileFileName.substr(0, mobileFileName.find(".")).c_str(), mobileFileName.substr(mobileFileName.find(".") + 1).c_str());
-	#endif
-            texBPP = 4;
+			spriteData = AndroidLoadSprite(mobileFileName.c_str(), *texWidth, *texHeight);
+#else
+			/*
+			 MapMacIOSLoadAsset is called directly so a pen::Asset is not created since the pixel
+			 buffer uses sprites loaded in memory rather than on the GPU as textures
+			 */
+			spriteData = (unsigned char*)MapMacIOSLoadAsset(mobileFileName.substr(0, mobileFileName.find(".")).c_str(), mobileFileName.substr(mobileFileName.find(".") + 1).c_str());
 #endif
-			pen::State::Get()->pixelSprites.Insert(path, { path, spriteData, texWidth, texHeight });
+			*texBPP = 4;
+#endif
+			pen::State::Get()->pixelSprites.Insert(path, { path, spriteData, *texWidth, *texHeight });
 		}
+	}
+
+	static pen::Item* CreateSprite(int startX, int startY, int width, int height, const std::string& path,
+		float spriteTexCoordStartX = 0.0f, float spriteTexCoordStartY = 0.0f, float spriteTexCoordEndX = 1.0f, float spriteTexCoordEndY = 1.0f,
+		bool compress = false, float (*userDisplayFunction)(int, int, float) = nullptr) {
+		/*Create a sprite for the pixel buffer*/
+		unsigned char* spriteData = nullptr;
+		int texWidth = 0, texHeight = 0, texBPP = 0;
+		pen::State* inst = pen::State::Get();
+
+		pen::LoadSprite(path, spriteData, &texWidth, &texHeight, &texBPP);
 
 		pen::Item* item = nullptr;
 		int widthBound = 0;

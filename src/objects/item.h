@@ -133,7 +133,7 @@ namespace pen {
             /*----For 3D items----*/
             int* indices3D = nullptr;
             unsigned int indexCount3D = 0;
-            static std::vector<MtlData*> mtlList;
+            static std::vector<MtlData*>* mtlList;
             /*----For 3D items----*/
 
             /*----For complex shape items----*/

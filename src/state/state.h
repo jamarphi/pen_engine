@@ -30,6 +30,8 @@ under the License.
 #include "../core/character.h"
 #include "../objects/containers/map.h"
 #include "../ops/operations/trig.h"
+#include "../ops/vectors/vec4.h"
+#include "../ops/matrices/mat4x4.h"
 
 #define DEBUG_ID 456789
 #define PIXEL_DRAWING_ID 123456
@@ -42,6 +44,15 @@ namespace pen {
 		int width;
 		int height;
 	};
+
+	namespace _3d {
+		struct Pixel3DMtlData {
+			std::string file;
+			std::string name;
+			pen::Vec4 color;
+			std::string texture;
+		};
+	}
 
 	class State {
 		static State* instance;
@@ -64,6 +75,7 @@ namespace pen {
 		bool handleCameraInput = false;
 		void* draggableItem = nullptr;
 		void* keyableItem = nullptr;
+		void(*onCameraEvent)() = nullptr;
 
 		/*----For pixel-by-pixel drawing----*/
 		bool usingBuffer = false;
@@ -72,6 +84,10 @@ namespace pen {
 		int pixelBufferWidth = 1280;
 		int pixelBufferHeight = 720;
 		pen::Map <std::string, pen::Sprite> pixelSprites;
+		float* depthBuffer;
+		pen::Mat4x4 pixel3DProjection;
+		pen::Mat4x4 pixel3DView;
+		std::vector<pen::_3d::Pixel3DMtlData*>* pixel3DMtlList;
 		/*----For pixel-by-pixel drawing----*/
 		
 		/*This map is used for text character to unsigned char conversion*/

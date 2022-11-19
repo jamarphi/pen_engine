@@ -64,7 +64,7 @@ namespace pen {
         pen::op::Translate(&layer->model, pen::Vec3(layer->translation.x, layer->translation.y, layer->translation.z));
 
         /*Update camera*/
-        inst->camera.Update(45, 0.1f, 100.0f, &inst->appPerspectiveView, &inst->appPerspectiveProj, layer);
+        inst->camera.Update(90, 0.1f, 1000.0f, &inst->appPerspectiveView, &inst->appPerspectiveProj, layer);
 
         /*This model view projection matrix is used for transformations of a given layer*/
         pen::Mat4x4 mvp = (layer->model * (layer->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (layer->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
@@ -104,7 +104,7 @@ namespace pen {
             pen::op::Translate(&pen::ui::LM::layers[i]->model, pen::Vec3(pen::ui::LM::layers[i]->translation.x, pen::ui::LM::layers[i]->translation.y, pen::ui::LM::layers[i]->translation.z));
 
             /*Update camera*/
-            inst->camera.Update(45, 0.1f, 100.0f, &inst->appPerspectiveView, &inst->appPerspectiveProj, pen::ui::LM::layers[i]);
+            inst->camera.Update(90, 0.1f, 1000.0f, &inst->appPerspectiveView, &inst->appPerspectiveProj, pen::ui::LM::layers[i]);
 
             /*This model view projection matrix is used for transformations of a given layer*/
             pen::Mat4x4 mvp = (pen::ui::LM::layers[i]->model * (pen::ui::LM::layers[i]->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (pen::ui::LM::layers[i]->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);

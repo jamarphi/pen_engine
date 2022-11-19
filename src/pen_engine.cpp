@@ -24,6 +24,7 @@ namespace pen {
     std::vector<pen::Layer*> pen::ui::LM::layers = {};
     pen::Layer* pen::ui::LM::pixelLayer = nullptr;
     uint16_t pen::ui::LM::generalLayerId = 0;
+    pen::Camera pen::Item3D::camera = pen::Camera();
     #ifdef __PEN_MAC_IOS__
     BatchVertexData* pen::Layer::batchVertices = new BatchVertexData[MAX_OBJECTS];
     int* pen::Layer::batchIndices = new int[RENDERER_INDICES_SIZE];
@@ -126,14 +127,17 @@ namespace pen {
             inst->appOrthoCoord[3], inst->appOrthoCoord[4], inst->appOrthoCoord[5]);
         inst->appOrthoProj = proj;
 
-        pen::Mat4x4 persProj = pen::op::Perspective(45, ((float)SCR_HEIGHT / (float)SCR_WIDTH), 0.1f, 100.0f);
-        inst->appPerspectiveProj = persProj;
+        inst->appPerspectiveProj = pen::op::Perspective(90, ((float)SCR_HEIGHT / (float)SCR_WIDTH), 0.1f, 1000.0f);
+        stateInst->pixel3DProjection = pen::op::Perspective(90, ((float)pen::PixelBufferHeight() / (float)pen::PixelBufferWidth()), 0.1f, 1000.0f);;
 
         inst->appOrthoView = pen::Mat4x4(1.0f, false);
         inst->appPerspectiveView = pen::Mat4x4(1.0f, true);
+        stateInst->pixel3DView = pen::Mat4x4(1.0f, true);
 
         pen::Camera camera(pen::Vec3(0.0f, 0.0f, 0.0f), SCR_WIDTH, SCR_HEIGHT);
+        pen::Camera pixel3DCamera(pen::Vec3(0.0f, 0.0f, 0.0f), pen::PixelBufferWidth(), pen::PixelBufferHeight());
         inst->camera = camera;
+        pen::Item3D::camera = pixel3DCamera;
 
         /*
         Load text characters for rendering.
@@ -358,10 +362,13 @@ namespace pen {
 #endif
     }
 
-    void Pen::HandleCameraInput(bool choice) {
+    void Pen::HandleCameraInput(bool choice, float speed, void (*onCameraEvent)()) {
         /*Toggles camera input*/
 #ifndef __PEN_MOBILE__
         pen::State::Get()->handleCameraInput = choice;
+        pen::Render::Get()->camera.cameraSpeed = speed;
+        pen::Item3D::camera.cameraSpeed = speed;
+        pen::State::Get()->onCameraEvent = onCameraEvent;
 #endif
     }
 
@@ -515,6 +522,7 @@ namespace pen {
             Pen::GetMousePos(xPos, yPos);
 
             bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::Pen::GetWindow());
+            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::Pen::GetWindow());
             if (!cameraHandled) {
                 int layerCounter = pen::ui::LM::layers.size() - 1;
                 for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
@@ -548,9 +556,10 @@ namespace pen {
             yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
 
             bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::Pen::GetWindow());
+            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::Pen::GetWindow());
             if (!cameraHandled) {
                 pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->draggableItem;
-                item->OnDrag(item, &xPos, &yPos);
+                if (item != nullptr) item->OnDrag(item, &xPos, &yPos);
             }
         }
     }
@@ -560,9 +569,10 @@ namespace pen {
         pen::State* inst = pen::State::Get();
         if ((inst->handleGUIKeyEvents && inst->keyableItem != nullptr) || inst->handleCameraInput) {
             bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::Pen::GetWindow());
+            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::Pen::GetWindow());
             if (!cameraHandled) {
                 pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->keyableItem;
-                item->OnKey(item, key, action);
+                if (item != nullptr) item->OnKey(item, key, action);
             }
         }
     }
@@ -585,6 +595,7 @@ namespace pen {
 #if TARGET_OS_OSX
             /*Handles camera input for Mac*/
             cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::SPACE, action);
+            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::in::KEYS::SPACE, action);
 #endif
 #endif
             if (!cameraHandled){

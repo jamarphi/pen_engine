@@ -50,11 +50,11 @@ namespace pen {
 	}
 
 	Mat4x4 Mat4x4::operator*(const Mat4x4& b) {
-		Mat4x4 mat = Mat4x4(1.0f);
+		Mat4x4 mat = Mat4x4(0.0f);
 
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				mat.matrix[i][j] = matrix[i][j] *= b.matrix[i][j];
+				mat.matrix[i][j] = matrix[i][j] * b.matrix[i][j];
 			}
 		}
 

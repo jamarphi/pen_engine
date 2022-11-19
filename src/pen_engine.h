@@ -43,6 +43,7 @@ under the License.
 #include "renderer/render.h"
 #include "state/state.h"
 #include "state/pixel.h"
+#include "state/pixel_3d.h"
 #include "state/layer_manager.h"
 #include "state/keys.h"
 #include "ui/animation.h"
@@ -204,7 +205,7 @@ namespace pen {
         static void HandleGUIKeyEvents(bool choice);
         static bool HandleClick(pen::ui::Item* item, double* xPos, double* yPos, const int& button, const int& action);
         static void EnableDepthTesting(bool choice);
-        static void HandleCameraInput(bool choice);
+        static void HandleCameraInput(bool choice, float speed = 0.1f, void (*onCameraEvent)() = nullptr);
 
 #ifdef __PEN_MOBILE__
         static void mobile_click_callback(int button, int action, int mods);
