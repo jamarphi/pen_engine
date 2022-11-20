@@ -66,4 +66,42 @@ namespace pen {
 		static void TextureSet();
 		static void UpdatedInstancedUniforms(pen::Layer* layer);
 	};
+
+	static void PanLayerCamera(float x, float y, float z) {
+		/*Pans the layer camera*/
+		pen::Render* inst = pen::Render::Get();
+		if (x != 0.0f) inst->camera.cameraPosition += ((pen::op::CrossProduct(inst->camera.viewOrientation, inst->camera.at).Normalize()) * inst->camera.cameraSpeed * x);
+		if (y != 0.0f) inst->camera.cameraPosition += (inst->camera.at * inst->camera.cameraSpeed * y);
+		if (z != 0.0f) inst->camera.cameraPosition += (inst->camera.viewOrientation * inst->camera.cameraSpeed * z);
+	}
+
+	static void LookLayerCamera(pen::Vec3 direction) {
+		/*Aims the layer camera*/
+		pen::Render* inst = pen::Render::Get();
+		float angleX = pen::op::ACos(pen::op::DotProduct(pen::Vec3(inst->camera.viewOrientation.x, 0.0f, 0.0f), pen::Vec3(direction.x, 0.0f, 0.0f)) / (inst->camera.viewOrientation.x * direction.x));
+		float angleY = pen::op::ACos(pen::op::DotProduct(pen::Vec3(inst->camera.viewOrientation.y, 0.0f, 0.0f), pen::Vec3(direction.y, 0.0f, 0.0f)) / (inst->camera.viewOrientation.y * direction.y));
+		float angleZ = pen::op::ACos(pen::op::DotProduct(pen::Vec3(inst->camera.viewOrientation.z, 0.0f, 0.0f), pen::Vec3(direction.z, 0.0f, 0.0f)) / (inst->camera.viewOrientation.z * direction.z));
+		pen::Vec3 axisX = pen::Vec3(inst->camera.at.x, 0.0f, 0.0f);
+		pen::Vec3 axisY = pen::Vec3(inst->camera.at.y, 0.0f, 0.0f);
+		pen::Vec3 axisZ = pen::Vec3(inst->camera.at.z, 0.0f, 0.0f);
+
+		pen::Vec3 newOrientation = pen::op::RotateVec(inst->camera.viewOrientation, -1.0f * angleX,
+			(pen::op::CrossProduct(inst->camera.viewOrientation, axisX).Normalize()));
+
+		if (!(pen::op::AngleBetween(newOrientation, axisX) <= 5.0f * 3.14159f / 180.0f
+			|| pen::op::AngleBetween(newOrientation, axisX * -1.0f) <= 5.0f * 3.14159f / 180.0f)) {
+			inst->camera.viewOrientation = newOrientation;
+		}
+
+		newOrientation = pen::op::RotateVec(inst->camera.viewOrientation, -1.0f * angleY,
+			(pen::op::CrossProduct(inst->camera.viewOrientation, axisY).Normalize()));
+
+		if (!(pen::op::AngleBetween(newOrientation, axisY) <= 5.0f * 3.14159f / 180.0f
+			|| pen::op::AngleBetween(newOrientation, axisY * -1.0f) <= 5.0f * 3.14159f / 180.0f)) {
+			inst->camera.viewOrientation = newOrientation;
+		}
+
+		inst->camera.viewOrientation = pen::op::RotateVec(inst->camera.viewOrientation, -1.0f * angleZ,
+			(pen::op::CrossProduct(inst->camera.viewOrientation, axisZ).Normalize()));
+	}
 }

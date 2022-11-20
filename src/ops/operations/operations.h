@@ -113,6 +113,7 @@ namespace pen {
 		}
 
 		static pen::Mat4x4 Look(pen::Vec3 viewOrigin, pen::Vec3 center, pen::Vec3 at) {
+			/*Aim at a given direction*/
 			pen::Vec3 f = (center - viewOrigin).Normalize();
 			pen::Vec3 s = CrossProduct(f, at).Normalize();
 			pen::Vec3 u = CrossProduct(s, f);

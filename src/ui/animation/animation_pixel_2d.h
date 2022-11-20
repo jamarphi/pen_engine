@@ -19,18 +19,12 @@ specific language governing permissions and limitations
 under the License.
 *************************************************************************************************/
 #pragma once
-#include "../state/layer_manager.h"
-#include "../ui/position.h"
-#include "pixel.h"
+#include "../../state/layer_manager.h"
+#include "../position.h"
+#include "../../state/pixel.h"
 
 namespace pen {
-		enum AnimType {
-			TRANSLATE = 0,
-			ROTATE = 1,
-			SCALE = 2
-		};
-
-		struct AnimItem {
+		struct AnimationPixelItem {
 			pen::Item* item;
 			unsigned int type;
 			bool infinite;
@@ -41,14 +35,14 @@ namespace pen {
 			float unitC;
 		};
 
-		class Anim {
+		class AnimationPixel {
 		public:
-		static std::vector<pen::AnimItem> animList;
+		static std::vector<pen::AnimationPixelItem> animList;
 
 		public:
 		static void Add(pen::Item* item, const unsigned int& type, const long& ms, const bool& infinite, const float& unitA, const float& unitB = 0, const float& unitC = 0);
-		static bool CheckStatus(const pen::AnimItem& item);
-		static void Animate(pen::AnimItem item);
+		static bool CheckStatus(const pen::AnimationPixelItem& item);
+		static void Animate(pen::AnimationPixelItem item);
 		static void Run();
 	};
 }

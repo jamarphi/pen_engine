@@ -156,8 +156,8 @@ static long indexCount;
         inst->mobileMouseX = xPos;
         inst->mobileMouseY = yPos;
 
-        bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::SPACE, pen::in::KEYS::HELD);
-        cameraHandled = pen::GetPixelCamera()->HandleInput(pen::in::KEYS::SPACE, pen::in::KEYS::HELD);
+        bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::SPACE, pen::in::KEYS::HELD, true);
+        cameraHandled = pen::GetPixelCamera()->HandleInput(pen::in::KEYS::SPACE, pen::in::KEYS::HELD, false);
         if (!cameraHandled) {
             pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->draggableItem;
             item->OnDrag(item, &xPos, &yPos);
@@ -191,8 +191,8 @@ static long indexCount;
     const char* keys = [characters UTF8String];
     pen::State* inst = pen::State::Get();
     if ((inst->handleGUIKeyEvents && inst->keyableItem != nullptr) || inst->handleCameraInput) {
-        bool cameraHandled = pen::Render::Get()->camera.HandleInput((int)keys[0], pen::in::KEYS::PRESSED);
-        cameraHandled = pen::GetPixelCamera()->HandleInput((int)keys[0], pen::in::KEYS::PRESSED);
+        bool cameraHandled = pen::Render::Get()->camera.HandleInput((int)keys[0], pen::in::KEYS::PRESSED, true);
+        cameraHandled = pen::GetPixelCamera()->HandleInput((int)keys[0], pen::in::KEYS::PRESSED, false);
         if (!cameraHandled) {
             pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->keyableItem;
             item->OnKey(item, (int)keys[0], pen::in::KEYS::PRESSED);
@@ -206,8 +206,8 @@ static long indexCount;
     const char* keys = [characters UTF8String];
     pen::State* inst = pen::State::Get();
     if ((inst->handleGUIKeyEvents && inst->keyableItem != nullptr) || inst->handleCameraInput) {
-        bool cameraHandled = pen::Render::Get()->camera.HandleInput((int)keys[0], pen::in::KEYS::RELEASED);
-        cameraHandled = pen::GetPixelCamera()->HandleInput((int)keys[0], pen::in::KEYS::PRESSED);
+        bool cameraHandled = pen::Render::Get()->camera.HandleInput((int)keys[0], pen::in::KEYS::RELEASED, true);
+        cameraHandled = pen::GetPixelCamera()->HandleInput((int)keys[0], pen::in::KEYS::PRESSED, false);
         if (!cameraHandled) {
             pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->keyableItem;
             item->OnKey(item, (int)keys[0], pen::in::KEYS::RELEASED);

@@ -521,8 +521,8 @@ namespace pen {
             double* yPos = &y;
             Pen::GetMousePos(xPos, yPos);
 
-            bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::Pen::GetWindow());
-            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::Pen::GetWindow());
+            bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::Pen::GetWindow(), true);
+            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::Pen::GetWindow(), false);
             if (!cameraHandled) {
                 int layerCounter = pen::ui::LM::layers.size() - 1;
                 for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
@@ -555,8 +555,8 @@ namespace pen {
             xPos = xPos * inst->screenWidth / inst->actualScreenWidth;
             yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
 
-            bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::Pen::GetWindow());
-            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::Pen::GetWindow());
+            bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::Pen::GetWindow(), true);
+            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::Pen::GetWindow(), false);
             if (!cameraHandled) {
                 pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->draggableItem;
                 if (item != nullptr) item->OnDrag(item, &xPos, &yPos);
@@ -568,8 +568,8 @@ namespace pen {
     {
         pen::State* inst = pen::State::Get();
         if ((inst->handleGUIKeyEvents && inst->keyableItem != nullptr) || inst->handleCameraInput) {
-            bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::Pen::GetWindow());
-            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::Pen::GetWindow());
+            bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::Pen::GetWindow(), true);
+            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::Pen::GetWindow(), false);
             if (!cameraHandled) {
                 pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->keyableItem;
                 if (item != nullptr) item->OnKey(item, key, action);
@@ -594,8 +594,8 @@ namespace pen {
 #ifndef __PEN_ANDROID__
 #if TARGET_OS_OSX
             /*Handles camera input for Mac*/
-            cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::SPACE, action);
-            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::in::KEYS::SPACE, action);
+            cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::SPACE, action, true);
+            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::in::KEYS::SPACE, action, false);
 #endif
 #endif
             if (!cameraHandled){

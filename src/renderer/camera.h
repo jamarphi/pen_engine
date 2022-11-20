@@ -61,9 +61,9 @@ namespace pen {
 		void Update(float fov, float zNear, float zFar, pen::Mat4x4* view, pen::Mat4x4* proj, pen::Layer* layer);
 		void Update(float fov, float zNear, float zFar, pen::Mat4x4* view, pen::Mat4x4* proj);
 #ifndef __PEN_MAC_IOS__
-        bool HandleInput(void* cameraWindow);
+        bool HandleInput(void* cameraWindow, bool isLayerCamera);
 #else
-        bool HandleInput(int key, int action);
+        bool HandleInput(int key, int action, bool isLayerCamera);
 #endif
 	};
 }

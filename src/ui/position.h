@@ -31,6 +31,14 @@ namespace pen {
             Z = 2
         };
 
+        enum AnimationType {
+            ROTATE_X = 0,
+            ROTATE_Y = 1,
+            ROTATE_Z = 2,
+            TRANSLATE = 3,
+            SCALE = 4
+        };
+
         static void Translate(pen::ui::Item* object, const pen::Vec3& translationCoord, const bool& staticTransform = false, const bool& nested = true, const bool& firstIter = true) {
             /*param translationCoord: {x, y, z} units from current position*/
             if (object->shapeType != 5) {

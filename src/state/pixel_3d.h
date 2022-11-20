@@ -343,6 +343,9 @@ namespace pen {
 			for (int tx = 0; tx < triangles->size(); tx++)
 			{
 				pen::_3d::Triangle* tri = triangles->at(tx);
+				tri->point[0].w = 1.0f;
+				tri->point[1].w = 1.0f;
+				tri->point[2].w = 1.0f;
 				pen::_3d::Triangle triTransformed;
 
 				triTransformed.textureCoord[0] = pen::Vec3(tri->textureCoord[0].x, tri->textureCoord[0].y, tri->textureCoord[0].z);
@@ -371,9 +374,9 @@ namespace pen {
 				float light = pen::op::DotProductVec4(normal, lightDirection);
 				light = pen::op::Abs(light);
 				pen::Vec4 lightVector = pen::Vec4(light * pen::PEN_WHITE.x, light * pen::PEN_WHITE.y, light * pen::PEN_WHITE.z, light * pen::PEN_WHITE.w);
-				triTransformed.color[0] = lightVector * triTransformed.color[0];
-				triTransformed.color[1] = lightVector * triTransformed.color[1];
-				triTransformed.color[2] = lightVector * triTransformed.color[2];
+				triTransformed.color[0] = lightVector * pen::op::Min(1.0f / triTransformed.point[0].z, 1.0f) * triTransformed.color[0];
+				triTransformed.color[1] = lightVector * pen::op::Min(1.0f / triTransformed.point[1].z, 1.0f) * triTransformed.color[1];
+				triTransformed.color[2] = lightVector * pen::op::Min(1.0f / triTransformed.point[2].z, 1.0f) * triTransformed.color[2];
 
 				int clippedTriangles = 0;
 				pen::_3d::Triangle clipped[2];
@@ -479,6 +482,42 @@ namespace pen {
 	static pen::Mat4x4* GetPixelProjection() {
 		/*Returns the projection matrix for 3D pixel items*/
 		return &pen::State::Get()->pixel3DProjection;
+	}
+
+	static void Pan(float x, float y, float z) {
+		/*Pans the pixel camera*/
+		if (x != 0.0f) pen::Item3D::camera.cameraPosition += ((pen::op::CrossProduct(pen::Item3D::camera.viewOrientation, pen::Item3D::camera.at).Normalize()) * pen::Item3D::camera.cameraSpeed * x);
+		if (y != 0.0f) pen::Item3D::camera.cameraPosition += (pen::Item3D::camera.at * pen::Item3D::camera.cameraSpeed * y);
+		if (z != 0.0f) pen::Item3D::camera.cameraPosition += (pen::Item3D::camera.viewOrientation * pen::Item3D::camera.cameraSpeed * z);
+	}
+
+	static void Look(pen::Vec3 direction) {
+		/*Aims the pixel camera*/
+		float angleX = pen::op::ACos(pen::op::DotProduct(pen::Vec3(pen::Item3D::camera.viewOrientation.x, 0.0f, 0.0f), pen::Vec3(direction.x, 0.0f, 0.0f)) / (pen::Item3D::camera.viewOrientation.x * direction.x));
+		float angleY = pen::op::ACos(pen::op::DotProduct(pen::Vec3(pen::Item3D::camera.viewOrientation.y, 0.0f, 0.0f), pen::Vec3(direction.y, 0.0f, 0.0f)) / (pen::Item3D::camera.viewOrientation.y * direction.y));
+		float angleZ = pen::op::ACos(pen::op::DotProduct(pen::Vec3(pen::Item3D::camera.viewOrientation.z, 0.0f, 0.0f), pen::Vec3(direction.z, 0.0f, 0.0f)) / (pen::Item3D::camera.viewOrientation.z * direction.z));
+		pen::Vec3 axisX = pen::Vec3(pen::Item3D::camera.at.x, 0.0f, 0.0f);
+		pen::Vec3 axisY = pen::Vec3(pen::Item3D::camera.at.y, 0.0f, 0.0f);
+		pen::Vec3 axisZ = pen::Vec3(pen::Item3D::camera.at.z, 0.0f, 0.0f);
+
+		pen::Vec3 newOrientation = pen::op::RotateVec(pen::Item3D::camera.viewOrientation, -1.0f * angleX,
+			(pen::op::CrossProduct(pen::Item3D::camera.viewOrientation, axisX).Normalize()));
+
+		if (!(pen::op::AngleBetween(newOrientation, axisX) <= 5.0f * 3.14159f / 180.0f
+			|| pen::op::AngleBetween(newOrientation, axisX * -1.0f) <= 5.0f * 3.14159f / 180.0f)) {
+			pen::Item3D::camera.viewOrientation = newOrientation;
+		}
+
+		newOrientation = pen::op::RotateVec(pen::Item3D::camera.viewOrientation, -1.0f * angleY,
+			(pen::op::CrossProduct(pen::Item3D::camera.viewOrientation, axisY).Normalize()));
+
+		if (!(pen::op::AngleBetween(newOrientation, axisY) <= 5.0f * 3.14159f / 180.0f
+			|| pen::op::AngleBetween(newOrientation, axisY * -1.0f) <= 5.0f * 3.14159f / 180.0f)) {
+			pen::Item3D::camera.viewOrientation = newOrientation;
+		}
+
+		pen::Item3D::camera.viewOrientation = pen::op::RotateVec(pen::Item3D::camera.viewOrientation, -1.0f * angleZ,
+			(pen::op::CrossProduct(pen::Item3D::camera.viewOrientation, axisZ).Normalize()));
 	}
 
 	namespace _3d {
