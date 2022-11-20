@@ -112,9 +112,9 @@ namespace pen {
 			return (a.x * b.x + a.y * b.y + a.z * b.z);
 		}
 
-		static pen::Mat4x4 Look(pen::Vec3 viewOrigin, pen::Vec3 center, pen::Vec3 at) {
+		static pen::Mat4x4 Look(pen::Vec3 radiusPosition, pen::Vec3 center, pen::Vec3 at) {
 			/*Aim at a given direction*/
-			pen::Vec3 f = (center - viewOrigin).Normalize();
+			pen::Vec3 f = (center - radiusPosition).Normalize();
 			pen::Vec3 s = CrossProduct(f, at).Normalize();
 			pen::Vec3 u = CrossProduct(s, f);
 
@@ -134,9 +134,9 @@ namespace pen {
 			result.matrix[0][2] = -f.x;
 			result.matrix[1][2] = -f.y;
 			result.matrix[2][2] = -f.z;
-			result.matrix[3][0] = -DotProduct(s, viewOrigin);
-			result.matrix[3][1] = -DotProduct(u, viewOrigin);
-			result.matrix[3][2] = DotProduct(f, viewOrigin);
+			result.matrix[3][0] = -DotProduct(s, radiusPosition);
+			result.matrix[3][1] = -DotProduct(u, radiusPosition);
+			result.matrix[3][2] = DotProduct(f, radiusPosition);
 			return result;
 		}
 
@@ -273,7 +273,7 @@ namespace pen {
 			return result;
 		}
 
-		static pen::Vec3 RotateVec(const pen::Vec3& initVec, int angle, pen::Vec3 axis) {
+		static pen::Vec3 RotateVec(const pen::Vec3& initVec, float degrees, pen::Vec3 axis) {
 			/*Rotate a vector*/
 			pen::Mat4x4 mat = pen::Mat4x4(0.0f);
 			mat.matrix[0][0] = 1.0f;
@@ -281,7 +281,7 @@ namespace pen {
 			mat.matrix[2][2] = 1.0f;
 			mat.matrix[3][3] = 1.0f;
 
-			pen::Mat4x4 rotationMatrix = RotateMatrix(mat, angle, axis);
+			pen::Mat4x4 rotationMatrix = RotateMatrix(mat, degrees, axis);
 
 			return Mat4x4MultVec3(rotationMatrix, initVec, true);
 		}

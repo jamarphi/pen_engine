@@ -64,7 +64,7 @@ namespace pen {
         pen::op::Translate(&layer->model, pen::Vec3(layer->translation.x, layer->translation.y, layer->translation.z));
 
         /*Update camera*/
-        inst->camera.Update(90, 0.1f, 1000.0f, &inst->appPerspectiveView, &inst->appPerspectiveProj, layer);
+        inst->camera.Update(0.1f, 1000.0f, &inst->appPerspectiveView, &inst->appPerspectiveProj, layer);
 
         /*This model view projection matrix is used for transformations of a given layer*/
         pen::Mat4x4 mvp = (layer->model * (layer->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (layer->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);

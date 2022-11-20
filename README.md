@@ -456,15 +456,23 @@ A callback can be used with the camera by doing:
 
     pen::Pen::HandleCameraInput(true, float speed = 0.1f, void (*CameraCallbackFunction)() = nullptr);
 
-This callback function is used to know when to update pixel buffer and redraw sprites.
+This callback function is used to know when to update the pixel buffer and redraw sprites.
+
+If you want to use your own input keys then pen::Pen::HandleCameraInput() should be false which is the default otherwise it should be true.
 
 You can use left arrow to pan the camera left, right arrow to pan right, up arrow to pan up and down arrow to pan down.
 
 The W key is used to pan the camera forward and the S key is used to pan the camera backwards.
 
+The A key is used to rotate the camera left and the D key is used to rotate the camera right.
+
+The Q key is used to rotate the camera down and the E key is used to rotate the camera up.
+
+Click can be used to rotate the camera around on Windows and Linux, the space bar is used for Mac.
+
 The camera can also be moved using pen::Pan(float x, float y, float z);
 
-The camera cam aimed using pen::Look(pen::Vec3 direction);
+The camera cam be aimed using pen::Look(float xDegrees, float yDegrees);
 
 Both of these functions do not require the camera to be enabled for automatic input using pen::Pen::HandleCameraInput() so if you want to
 use your own input keys then pen::Pen::HandleCameraInput() should be false.
@@ -477,7 +485,7 @@ Before rendering 3D models using .obj files you have to call:
     pen::Pen::EnableDepthTesting(true);
     pen::Pen::HandleCameraInput(true, float speed = 0.1f, void (*OptionalCameraCallback)() = nullptr);
 
-The camera callback function is optional for graphically accelerated 3D items since the camera gets updated each frame.
+If you want to use your own input keys then pen::Pen::HandleCameraInput() should be false which is the default otherwise it should be true.
 
 If you enable depth testing, 2D textures will not work currently, so if you use 3D rendering you can't do 2D textures.
 
@@ -485,14 +493,15 @@ You can use left arrow to pan the camera left, right arrow to pan right, up arro
 
 The W key is used to pan the camera forward and the S key is used to pan the camera backwards.
 
+The A key is used to rotate the camera left and the D key is used to rotate the camera right.
+
+The Q key is used to rotate the camera down and the E key is used to rotate the camera up.
+
 Click can be used to rotate the camera around on Windows and Linux, the space bar is used for Mac.
 
 The camera can also be moved using pen::PanLayerCamera(float x, float y, float z);
 
-The camera cam aimed using pen::LookLayerCamera(pen::Vec3 direction);
-
-Both of these functions do not require the camera to be enabled for automatic input using pen::Pen::HandleCameraInput() so if you want to
-use your own input keys then pen::Pen::HandleCameraInput() should be false.
+The camera cam be aimed using pen::Look(float xDegrees, float yDegrees);
 
 3D items can be transformed with:
 

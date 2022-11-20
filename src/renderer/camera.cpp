@@ -31,6 +31,7 @@ namespace pen {
 		cameraFov = 90.0f;
 		cameraZNear = 0.1f;
 		cameraZFar = 1000.0f;
+		UpdateViewOrientation();
 	}
 
 	Camera::~Camera(){}
@@ -38,18 +39,19 @@ namespace pen {
 	void Camera::Update() {
 		/*Update world view and projection matrices for 3D pixel items*/
 		pen::State* inst = pen::State::Get();
+		UpdateViewOrientation();
 		pen::State::Get()->pixel3DView = pen::op::Look(cameraPosition, cameraPosition + viewOrientation, at);
 		pen::State::Get()->pixel3DProjection = pen::op::Perspective(cameraFov, (1280.0f / 720.0f), cameraZNear, cameraZFar);
 	}
 
-	void Camera::Update(float fov, float zNear, float zFar, pen::Mat4x4* view, pen::Mat4x4* proj, pen::Layer* layer) {
+	void Camera::Update(float zNear, float zFar, pen::Mat4x4* view, pen::Mat4x4* proj, pen::Layer* layer) {
 		/*Update world view and projection matrices*/
 		pen::State* inst = pen::State::Get();
-		cameraFov = fov;
 		cameraZNear = zNear;
 		cameraZFar = zFar;
+		UpdateViewOrientation();
 		*view = pen::op::Look(cameraPosition, cameraPosition + viewOrientation, at);
-		*proj = pen::op::Perspective(fov, ((float)inst->screenHeight / (float)inst->screenWidth), zNear, zFar);
+		*proj = pen::op::Perspective(cameraFov, ((float)inst->screenHeight / (float)inst->screenWidth), zNear, zFar);
 		if (firstMove && !layer->is3D) {
 			/*Set the initial position correctly for 2D objects*/
 			pen::Mat4x4 mat = *view;
@@ -59,14 +61,14 @@ namespace pen {
 		}
 	}
 
-	void Camera::Update(float fov, float zNear, float zFar, pen::Mat4x4* view, pen::Mat4x4* proj) {
+	void Camera::Update(float zNear, float zFar, pen::Mat4x4* view, pen::Mat4x4* proj) {
 		/*Update world view and projection matrices for 3D pixel items*/
 		pen::State* inst = pen::State::Get();
-		cameraFov = fov;
 		cameraZNear = zNear;
 		cameraZFar = zFar;
+		UpdateViewOrientation();
 		*view = pen::op::Look(cameraPosition, cameraPosition + viewOrientation, at);
-		*proj = pen::op::Perspective(fov, (1280.0f / 720.0f), zNear, zFar);
+		*proj = pen::op::Perspective(cameraFov, (1280.0f / 720.0f), zNear, zFar);
 	}
 
 #ifndef __PEN_MOBILE__
@@ -87,7 +89,7 @@ namespace pen {
 		if (glfwGetKey(window, pen::in::KEYS::DOWN) == pen::in::PRESSED
 			|| glfwGetKey(window, pen::in::KEYS::DOWN) == pen::in::HELD) {
 			/*Down*/
-			cameraPosition += (at * -1.0f * cameraSpeed);
+			cameraPosition -= (at * cameraSpeed);
 			firstMove = false;
 			isInput = true;
 		}
@@ -95,7 +97,9 @@ namespace pen {
 		if (glfwGetKey(window, pen::in::KEYS::W) == pen::in::PRESSED
 			|| glfwGetKey(window, pen::in::KEYS::W) == pen::in::HELD) {
 			/*Forward*/
-			cameraPosition += (viewOrientation * cameraSpeed);
+			cameraPosition -= (viewOrientation * cameraSpeed);
+			cameraFov -= cameraSpeed;
+			if (cameraFov < 1.0f) cameraFov = 1.0f;
 			firstMove = false;
 			isInput = true;
 		}
@@ -103,7 +107,9 @@ namespace pen {
 		if (glfwGetKey(window, pen::in::KEYS::S) == pen::in::PRESSED
 			|| glfwGetKey(window, pen::in::KEYS::S) == pen::in::HELD) {
 			/*Backward*/
-			cameraPosition += (viewOrientation * -1.0f * cameraSpeed);
+			cameraPosition += (viewOrientation * cameraSpeed);
+			cameraFov += cameraSpeed;
+			if (cameraFov > 90.0f) cameraFov = 90.0f;
 			firstMove = false;
 			isInput = true;
 		}
@@ -124,6 +130,42 @@ namespace pen {
 			isInput = true;
 		}
 
+		if (glfwGetKey(window, pen::in::KEYS::A) == pen::in::PRESSED
+			|| glfwGetKey(window, pen::in::KEYS::A) == pen::in::HELD) {
+			/*Rotate left*/
+			pitchX -= cameraSpeed;
+			if (pitchX < -365.0f) pitchX = 0.0f;
+			firstMove = false;
+			isInput = true;
+		}
+
+		if (glfwGetKey(window, pen::in::KEYS::D) == pen::in::PRESSED
+			|| glfwGetKey(window, pen::in::KEYS::D) == pen::in::HELD) {
+			/*Rotate right*/
+			pitchX += cameraSpeed;
+			if (pitchX > 365.0f) pitchX = 0.0f;
+			firstMove = false;
+			isInput = true;
+		}
+
+		if (glfwGetKey(window, pen::in::KEYS::Q) == pen::in::PRESSED
+			|| glfwGetKey(window, pen::in::KEYS::Q) == pen::in::HELD) {
+			/*Rotate down*/
+			pitchY -= cameraSpeed;
+			if (pitchY < -89.0f) pitchY = -89.0f;
+			firstMove = false;
+			isInput = true;
+		}
+
+		if (glfwGetKey(window, pen::in::KEYS::E) == pen::in::PRESSED
+			|| glfwGetKey(window, pen::in::KEYS::E) == pen::in::HELD) {
+			/*Rotate up*/
+			pitchY += cameraSpeed;
+			if (pitchY > 89.0f) pitchY = 89.0f;
+			firstMove = false;
+			isInput = true;
+		}
+
 		if (glfwGetMouseButton(window, pen::in::KEYS::MOUSE_LEFT) == pen::in::PRESSED
 			|| glfwGetMouseButton(window, pen::in::KEYS::MOUSE_LEFT) == pen::in::HELD) {
 			/*Change angle of view*/
@@ -138,21 +180,17 @@ namespace pen {
 			double x = 0.0f, y = 0.0f;
 			glfwGetCursorPos(window, &x, &y);
 
-			float rotX = cameraSensitivity * (float)(y - (screenHeight / 2)) / screenHeight;
-			float rotY = cameraSensitivity * (float)(x - (screenHeight / 2)) / screenHeight;
-			pen::Vec3 axisX = pen::Vec3(at.x, 0.0f, 0.0f);
-			pen::Vec3 axisY = pen::Vec3(at.y, 0.0f, 0.0f);
+			float updateX = (float)(y - (screenHeight / 2)) / screenHeight;
+			float updateY = (float)(x - (screenHeight / 2)) / screenHeight;
+			if (x < screenWidth / 2) updateX *= -1.0f;
+			if (y < screenHeight / 2) updateY *= -1.0f;
+			pitchX += updateX;
+			pitchY += updateY;
 
-			pen::Vec3 newOrientation = pen::op::RotateVec(viewOrientation, -1.0f * rotX,
-				(pen::op::CrossProduct(viewOrientation, axisX).Normalize()));
-
-			if (!(pen::op::AngleBetween(newOrientation, axisX) <= 5.0f * 3.14159f / 180.0f
-				|| pen::op::AngleBetween(newOrientation, axisX * -1.0f) <= 5.0f * 3.14159f / 180.0f)) {
-				viewOrientation = newOrientation;
-			}
-
-			viewOrientation = pen::op::RotateVec(viewOrientation, -1.0f * rotY,
-				(pen::op::CrossProduct(viewOrientation, axisY).Normalize()));
+			if (pitchX > 365.0f) pitchX = 0.0f;
+			if (pitchX < -365.0f) pitchX = 0.0f;
+			if (pitchY > 89.0f) pitchY = 89.0f;
+			if (pitchY < -89.0f) pitchY = -89.0f;
 
 			/*Prevent mouse from escaping the screen*/
 			glfwSetCursorPos(window, (screenWidth / 2), (screenHeight / 2));
@@ -191,15 +229,19 @@ namespace pen {
 
         if (key == pen::in::KEYS::W && action == pen::in::KEYS::PRESSED) {
             /*Forward*/
-			cameraPosition += (viewOrientation * cameraSpeed);
-            firstMove = false;
+			cameraPosition -= (viewOrientation * cameraSpeed);
+			cameraFov -= cameraSpeed;
+			if (cameraFov < 1.0f) cameraFov = 1.0f;
+			firstMove = false;
 			isInput = true;
         }
 
         if (key == pen::in::KEYS::S && action == pen::in::KEYS::PRESSED) {
             /*Backward*/
-			cameraPosition += (viewOrientation * -1.0f * cameraSpeed);
-            firstMove = false;
+			cameraPosition += (viewOrientation * cameraSpeed);
+			cameraFov += cameraSpeed;
+			if (cameraFov > 90.0f) cameraFov = 90.0f;
+			firstMove = false;
 			isInput = true;
         }
 
@@ -217,6 +259,37 @@ namespace pen {
 			isInput = true;
         }
 
+		if (key == pen::in::KEYS::A && action == pen::in::KEYS::PRESSED) {
+			/*Rotate left*/
+			pitchX -= cameraSpeed;
+			if (pitchX < -365.0f) pitchX = 0.0f;
+			firstMove = false;
+			isInput = true;
+
+		if (key == pen::in::KEYS::D && action == pen::in::KEYS::PRESSED) {
+			/*Rotate right*/
+			pitchX += cameraSpeed;
+			if (pitchX > 365.0f) pitchX = 0.0f;
+			firstMove = false;
+			isInput = true;
+		}
+
+		if (key == pen::in::KEYS::Q && action == pen::in::KEYS::PRESSED) {
+			/*Rotate down*/
+			pitchY -= cameraSpeed;
+			if (pitchY < -89.0f) pitchY = -89.0f;
+			firstMove = false;
+			isInput = true;
+		}
+
+		if (key == pen::in::KEYS::E && action == pen::in::KEYS::PRESSED) {
+			/*Rotate up*/
+			pitchY += cameraSpeed;
+			if (pitchY > 89.0f) pitchY = 89.0f;
+			firstMove = false;
+			isInput = true;
+		}
+
         if (key == pen::in::KEYS::SPACE && (action == pen::in::KEYS::PRESSED
             || action == pen::in::KEYS::HELD)) {
             /*Change angle of view*/
@@ -227,23 +300,9 @@ namespace pen {
                 firstDrag = false;
             }
 
-            double x = 0.0f, y = 0.0f;
+			pitchX += cameraSpeed;
 
-            float rotX = cameraSensitivity * (float)(y - (screenHeight / 2)) / screenHeight;
-            float rotY = cameraSensitivity * (float)(x - (screenHeight / 2)) / screenHeight;
-			pen::Vec3 axisX = pen::Vec3(at.x, 0.0f, 0.0f);
-			pen::Vec3 axisY = pen::Vec3(at.y, 0.0f, 0.0f);
-
-            pen::Vec3 newOrientation = pen::op::RotateVec(viewOrientation, -1.0f * rotX,
-                (pen::op::CrossProduct(viewOrientation, axisX).Normalize()));
-
-			if (!(pen::op::AngleBetween(newOrientation, axisX) <= 5.0f * 3.14159f / 180.0f
-				|| pen::op::AngleBetween(newOrientation, axisX * -1.0f) <= 5.0f * 3.14159f / 180.0f)) {
-				viewOrientation = newOrientation;
-			}
-
-			viewOrientation = pen::op::RotateVec(viewOrientation, -1.0f * rotY,
-				(pen::op::CrossProduct(viewOrientation, axisY).Normalize()));
+			if (pitchX > 365.0f) pitchX = 0.0f;
 			isInput = true;
         }
         else if (key == pen::in::KEYS::SPACE && action == pen::in::KEYS::RELEASED) {
@@ -257,4 +316,16 @@ namespace pen {
     }
 #endif
 #endif
+
+	void Camera::UpdateViewOrientation() {
+		/*Updates the view orientation*/
+		float yawRad = pitchX * 3.14159f / 180.0f;
+		float pitchRad = pitchY * 3.14159f / 180.0f;
+		viewOrientation.x = pen::op::Cos(yawRad) * pen::op::Cos(pitchRad);
+		viewOrientation.y = pen::op::Sin(pitchRad);
+		viewOrientation.z = pen::op::Sin(yawRad) * cos(pitchRad);
+		viewOrientation = viewOrientation.Normalize();
+		right = pen::op::CrossProduct(viewOrientation, up).Normalize();
+		at = pen::op::CrossProduct(right, viewOrientation).Normalize();
+	}
 }

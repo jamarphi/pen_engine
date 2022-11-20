@@ -488,36 +488,22 @@ namespace pen {
 		/*Pans the pixel camera*/
 		if (x != 0.0f) pen::Item3D::camera.cameraPosition += ((pen::op::CrossProduct(pen::Item3D::camera.viewOrientation, pen::Item3D::camera.at).Normalize()) * pen::Item3D::camera.cameraSpeed * x);
 		if (y != 0.0f) pen::Item3D::camera.cameraPosition += (pen::Item3D::camera.at * pen::Item3D::camera.cameraSpeed * y);
-		if (z != 0.0f) pen::Item3D::camera.cameraPosition += (pen::Item3D::camera.viewOrientation * pen::Item3D::camera.cameraSpeed * z);
+		if (z != 0.0f) {
+			pen::Item3D::camera.cameraPosition += (pen::Item3D::camera.viewOrientation * -1.0f * pen::Item3D::camera.cameraSpeed);
+			pen::Item3D::camera.cameraFov += -1.0f * pen::Item3D::camera.cameraSpeed;
+			if (pen::Item3D::camera.cameraFov < 1.0f) pen::Item3D::camera.cameraFov = 1.0f;
+			if (pen::Item3D::camera.cameraFov > 90.0f) pen::Item3D::camera.cameraFov = 90.0f;
+		}
 	}
 
-	static void Look(pen::Vec3 direction) {
+	static void Look(float xDegrees, float yDegrees) {
 		/*Aims the pixel camera*/
-		float angleX = pen::op::ACos(pen::op::DotProduct(pen::Vec3(pen::Item3D::camera.viewOrientation.x, 0.0f, 0.0f), pen::Vec3(direction.x, 0.0f, 0.0f)) / (pen::Item3D::camera.viewOrientation.x * direction.x));
-		float angleY = pen::op::ACos(pen::op::DotProduct(pen::Vec3(pen::Item3D::camera.viewOrientation.y, 0.0f, 0.0f), pen::Vec3(direction.y, 0.0f, 0.0f)) / (pen::Item3D::camera.viewOrientation.y * direction.y));
-		float angleZ = pen::op::ACos(pen::op::DotProduct(pen::Vec3(pen::Item3D::camera.viewOrientation.z, 0.0f, 0.0f), pen::Vec3(direction.z, 0.0f, 0.0f)) / (pen::Item3D::camera.viewOrientation.z * direction.z));
-		pen::Vec3 axisX = pen::Vec3(pen::Item3D::camera.at.x, 0.0f, 0.0f);
-		pen::Vec3 axisY = pen::Vec3(pen::Item3D::camera.at.y, 0.0f, 0.0f);
-		pen::Vec3 axisZ = pen::Vec3(pen::Item3D::camera.at.z, 0.0f, 0.0f);
-
-		pen::Vec3 newOrientation = pen::op::RotateVec(pen::Item3D::camera.viewOrientation, -1.0f * angleX,
-			(pen::op::CrossProduct(pen::Item3D::camera.viewOrientation, axisX).Normalize()));
-
-		if (!(pen::op::AngleBetween(newOrientation, axisX) <= 5.0f * 3.14159f / 180.0f
-			|| pen::op::AngleBetween(newOrientation, axisX * -1.0f) <= 5.0f * 3.14159f / 180.0f)) {
-			pen::Item3D::camera.viewOrientation = newOrientation;
-		}
-
-		newOrientation = pen::op::RotateVec(pen::Item3D::camera.viewOrientation, -1.0f * angleY,
-			(pen::op::CrossProduct(pen::Item3D::camera.viewOrientation, axisY).Normalize()));
-
-		if (!(pen::op::AngleBetween(newOrientation, axisY) <= 5.0f * 3.14159f / 180.0f
-			|| pen::op::AngleBetween(newOrientation, axisY * -1.0f) <= 5.0f * 3.14159f / 180.0f)) {
-			pen::Item3D::camera.viewOrientation = newOrientation;
-		}
-
-		pen::Item3D::camera.viewOrientation = pen::op::RotateVec(pen::Item3D::camera.viewOrientation, -1.0f * angleZ,
-			(pen::op::CrossProduct(pen::Item3D::camera.viewOrientation, axisZ).Normalize()));
+		pen::Item3D::camera.pitchX += xDegrees;
+		pen::Item3D::camera.pitchY += yDegrees;
+		if (pen::Item3D::camera.pitchX > 365.0f) pen::Item3D::camera.pitchX = 0.0f;
+		if (pen::Item3D::camera.pitchX < -365.0f) pen::Item3D::camera.pitchX = 0.0f;
+		if (pen::Item3D::camera.pitchY > 89.0f) pen::Item3D::camera.pitchY = 89.0f;
+		if (pen::Item3D::camera.pitchY < -89.0f) pen::Item3D::camera.pitchY = -89.0f;
 	}
 
 	namespace _3d {
