@@ -294,7 +294,13 @@ namespace pen {
 #endif
 		}
 
-		static bool InitializePixelBuffer() {
+		static pen::ui::Item* GetPixelBuffer() {
+			/*Returns the pixel buffer*/
+			if(pen::ui::LM::pixelLayer != nullptr) return pen::ui::LM::pixelLayer->layerItems[0];
+			return nullptr;
+		}
+
+		static bool InitializePixelBuffer(bool (*onKeyCallback)(pen::ui::Item*, int, int), bool (*onClickCallback)(pen::ui::Item*, int, int), bool (*onDragCallback)(pen::ui::Item*, double*, double*)) {
 			/*Create a layer specifically for pixel-by-pixel drawing*/
 			pen::State* inst = pen::State::Get();
 			if (pen::ui::LM::pixelLayer != nullptr) return true;
@@ -304,12 +310,15 @@ namespace pen {
 			pen::ui::LM::layers.push_back(pen::ui::LM::pixelLayer);
 			pen::ui::Sort();
 			pen::ui::LM::generalLayerId++;
-
+			
 			/*Allocates an array of points for dealing with pixel drawing*/
 			pen::ui::LM::pixelLayer->Push(new pen::ui::Item(PIXEL_DRAWING_ID,
 				pen::Vec3(0.0f, 0.0f, 0.0f),
 				pen::Vec2(inst->screenWidth, inst->screenHeight),
 				pen::ui::Shape::BUFFER, pen::PEN_WHITE, nullptr, nullptr, true, "pixel"));
+			if (onKeyCallback != nullptr) pen::ui::LM::pixelLayer->layerItems[0]->userOnKeyCallback = onKeyCallback;
+			if (onClickCallback != nullptr) pen::ui::LM::pixelLayer->layerItems[0]->userOnClickCallback = onClickCallback;
+			if (onDragCallback != nullptr) pen::ui::LM::pixelLayer->layerItems[0]->userOnDragCallback = onDragCallback;	
 			pen::ui::PixelLayerAlloc();
 #ifndef __PEN_MAC_IOS__
 			pen::ui::LM::pixelLayer->Initialize();

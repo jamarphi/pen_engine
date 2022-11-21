@@ -30,9 +30,9 @@ under the License.
 #endif
 
 namespace pen {
-
-	static void InitializePixels() {
-		pen::ui::InitializePixelBuffer();
+	
+	static void InitializePixels(bool (*onKeyCallback)(pen::ui::Item*, int, int) = nullptr, bool (*onClickCallback)(pen::ui::Item*, int, int) = nullptr, bool (*onDragCallback)(pen::ui::Item*, double*, double*) = nullptr) {
+		pen::ui::InitializePixelBuffer(onKeyCallback, onClickCallback, onDragCallback);
 	}
 
 	static unsigned char* PixelBuffer() {

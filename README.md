@@ -198,9 +198,13 @@ To add your own vertex and index data for gui items, pass in pointers to that da
 
 To draw pixels first call:
     
-    pen::InitializePixels();
+    pen::InitializePixels(bool (*onKeyCallback)(pen::ui::Item*, int, int) = nullptr, bool (*onClickCallback)(pen::ui::Item*, int, int) = nullptr, bool (*onDragCallback)(pen::ui::Item*, double*, double*) = nullptr);
     
-This will let Pen Engine know that you want to use pixels to draw.
+This will let Pen Engine know that you want to use pixels to draw.  The callback functions are optional for handling user input in the pixel buffer.  Read the input section to know how to handle input.
+
+To grab a pointer to the pixel buffer use:
+
+    pen::ui::Item* pixelBuffer = pen::GetPixelBuffer();
 
 Then in order to draw something, for example a line, you would do this inside the render loop: 
 
