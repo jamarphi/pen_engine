@@ -114,8 +114,12 @@ static long indexCount;
     /*Scale based on screen width and height*/
     xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
     yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
-    coreStateInst->mobileMouseX = xPos;
-    coreStateInst->mobileMouseY = yPos;
+    if(coreStateInst->mobileMouse->size() > 0) {
+        coreStateInst->mobileMouse->at(0)->x = xPos;
+        coreStateInst->mobileMouse->at(0)->y = yPos;
+    }else{
+        coreStateInst->mobileMouse->push_back(new pen::Tap{0, xPos, yPos});
+    }
 }
 
 - (void)mouseDown:(NSEvent *)event {
@@ -134,8 +138,13 @@ static long indexCount;
     /*Scale based on screen width and height*/
     xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
     yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
-    coreStateInst->mobileMouseX = xPos;
-    coreStateInst->mobileMouseY = yPos;
+
+    if(coreStateInst->mobileMouse->size() > 0) {
+        coreStateInst->mobileMouse->at(0)->x = xPos;
+        coreStateInst->mobileMouse->at(0)->y = yPos;
+    }else{
+        coreStateInst->mobileMouse->push_back(new pen::Tap{0, xPos, yPos});
+    }
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
 }
 
@@ -153,11 +162,15 @@ static long indexCount;
         /*Scale based on screen width and height*/
         xPos = xPos * inst->screenWidth / inst->actualScreenWidth;
         yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
-        inst->mobileMouseX = xPos;
-        inst->mobileMouseY = yPos;
+        if(coreStateInst->mobileMouse->size() > 0) {
+            coreStateInst->mobileMouse->at(0)->x = xPos;
+            coreStateInst->mobileMouse->at(0)->y = yPos;
+        }else{
+            coreStateInst->mobileMouse->push_back(new pen::Tap{0, xPos, yPos});
+        }
 
-        bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::SPACE, pen::in::KEYS::HELD, true);
-        cameraHandled = pen::GetPixelCamera()->HandleInput(pen::in::KEYS::SPACE, pen::in::KEYS::HELD, false);
+        bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::HELD, true);
+        cameraHandled = pen::GetPixelCamera()->HandleInput(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::HELD, false);
         if (!cameraHandled) {
             pen::ui::Item* item = (pen::ui::Item*)pen::State::Get()->draggableItem;
             item->OnDrag(item, &xPos, &yPos);
@@ -180,8 +193,12 @@ static long indexCount;
     /*Scale based on screen width and height*/
     xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
     yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
-    coreStateInst->mobileMouseX = xPos;
-    coreStateInst->mobileMouseY = yPos;
+    if(coreStateInst->mobileMouse->size() > 0) {
+        coreStateInst->mobileMouse->at(0)->x = xPos;
+        coreStateInst->mobileMouse->at(0)->y = yPos;
+    }else{
+        coreStateInst->mobileMouse->push_back(new pen::Tap{0, xPos, yPos});
+    }
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
 }
 
@@ -250,33 +267,68 @@ static long indexCount;
 - (void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     /*A touch has started*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-    pen::State* stateInst = pen::State::Get();
-    UITouch* touch = [[touches allObjects] objectAtIndex:0];
-    CGPoint location = [touch locationInView:inst.iosMtkView];
-    pen::State::Get()->mobileMouseX = (double)location.x;
-    pen::State::Get()->mobileMouseY = (double)stateInst->actualScreenHeight - (double)location.y;
+    pen::State* coreStateInst = pen::State::Get();
+    NSArray<UITouch*>* touchArray = [touches allObjects];
+    for (int i = 0; i < touches.count; i++){
+        UITouch* touch = [touchArray objectAtIndex:i];
+        CGPoint location = [touch locationInView:inst.iosMtkView];
+        coreStateInst->mobileMouse->push_back(new pen::Tap{(int) touch, (double)location.x, (double)coreStateInst->actualScreenHeight - (double)location.y});
+    }
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     /*A touch is moving*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-    pen::State* stateInst = pen::State::Get();
-    UITouch* touch = [[touches allObjects] objectAtIndex:0];
-    CGPoint location = [touch locationInView:inst.iosMtkView];
-    pen::State::Get()->mobileMouseX = (double)location.x;
-    pen::State::Get()->mobileMouseY = (double)stateInst->actualScreenHeight - (double)location.y;
+    pen::State* coreStateInst = pen::State::Get();
+    NSArray<UITouch*>* touchArray = [touches allObjects];
+    for (int i = 0; i < touches.count; i++){
+        UITouch* touch = [touchArray] objectAtIndex:i];
+        CGPoint location = [touch locationInView:inst.iosMtkView];
+        for (int j = 0; j < inst->mobileMouse->size(); j++) {
+            if (inst->mobileMouse->at(j)->id == (int)touch) {
+                inst->mobileMouse->at(j)->x = (double)location.x;
+                inst->mobileMouse->at(j)->y = (double)coreStateInst->actualScreenHeight - (double)location.y;
+                break;
+            }
+        }
+    }
 }
 
 - (void) touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     /*A touch has ended*/
     PenMacIOSState* inst = [PenMacIOSState Get];
-    pen::State* stateInst = pen::State::Get();
-    UITouch* touch = [[touches allObjects] objectAtIndex:0];
-    CGPoint location = [touch locationInView:inst.iosMtkView];
-    pen::State::Get()->mobileMouseX = (double)location.x;
-    pen::State::Get()->mobileMouseY = (double)stateInst->actualScreenHeight - (double)location.y;
+    pen::State* coreStateInst = pen::State::Get();
+    NSArray<UITouch*>* touchArray = [touches allObjects];
+    std::vector<pen::Tap*>* tempTaps = new std::vector<pen::Tap*>();
+    std::vector<int> ids;
+    for (int i = 0; i < touches.count; i++){
+        UITouch* touch = [touchArray objectAtIndex:i];
+        CGPoint location = [touch locationInView:inst.iosMtkView];
+        for (int j = 0; j < inst->mobileMouse->size(); j++) {
+            if (inst->mobileMouse->at(j)->id == (int)touch) {
+                /*Updates the mobileMouse vector with the released point for handling in mobile_click_callback before removing it*/
+                inst->mobileMouse->at(j)->x = (double)location.x;
+                inst->mobileMouse->at(j)->y = (double)coreStateInst->actualScreenHeight - (double)location.y;
+                id.push_back((int)touch);
+                break;
+            }
+        }
+    }
+    
+
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
+    for(int k = 0; k < inst->mobileMouse->size(); k++){
+        for(int l = 0; l < ids.size(); l++){
+            if((int)inst->mobileMouse->at(k)->id == ids[l]){
+                break;
+            }else if(l == ids.size() - 1 && (int)inst->mobileMouse->at(k)->id != ids[l]){
+                tempTaps->push_back(inst->mobileMouse->at(k));
+            }
+        }
+    }
+    delete inst->mobileMouse;
+    inst->mobileMouse = tempTaps;
 }
 #endif
 

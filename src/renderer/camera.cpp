@@ -290,7 +290,7 @@ namespace pen {
 			isInput = true;
 		}
 
-        if (key == pen::in::KEYS::SPACE && (action == pen::in::KEYS::PRESSED
+        if (key == pen::in::KEYS::MOUSE_LEFT && (action == pen::in::KEYS::PRESSED
             || action == pen::in::KEYS::HELD)) {
             /*Change angle of view*/
             firstMove = false;
@@ -300,12 +300,23 @@ namespace pen {
                 firstDrag = false;
             }
 
-			pitchX += cameraSpeed;
+			double x = pen::State::Get()->mobileMouse->at(0)->x;
+			double y = pen::State::Get()->mobileMouse->at(0)->y;
+
+			float updateX = (float)(y - (screenHeight / 2)) / screenHeight;
+			float updateY = (float)(x - (screenHeight / 2)) / screenHeight;
+			if (x < screenWidth / 2) updateX *= -1.0f;
+			if (y < screenHeight / 2) updateY *= -1.0f;
+			pitchX += updateX;
+			pitchY += updateY;
 
 			if (pitchX > 365.0f) pitchX = 0.0f;
+			if (pitchX < -365.0f) pitchX = 0.0f;
+			if (pitchY > 89.0f) pitchY = 89.0f;
+			if (pitchY < -89.0f) pitchY = -89.0f;
 			isInput = true;
         }
-        else if (key == pen::in::KEYS::SPACE && action == pen::in::KEYS::RELEASED) {
+        else if (key == pen::in::KEYS::MOUSE_LEFT && action == pen::in::KEYS::RELEASED) {
 			MapMacIOSMakeMouseShow();
             firstDrag = true;
 			isInput = true;

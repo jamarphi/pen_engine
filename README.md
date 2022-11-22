@@ -219,7 +219,7 @@ If you want to access the pixel buffer directly you can do:
 
     unsigned char* pixels = pen::PixelBuffer();   
 
-The pixel buffer will return a nullptr if accessed directly for mobile builds, this is because the pixel buffer happens on the mobile side.
+The pixel buffer will return a nullptr if accessed directly for Android builds, this is because the pixel buffer happens on the mobile side.
 
 pen::PixelBufferWidth() and pen::PixelBufferHeight() are used since the texels on the screen are in a different space, this way all of the pixels can be
 covered properly.
@@ -284,7 +284,9 @@ For mouse input, the mouse position can be called using:
 double x = 0.0, y = 0.0;
 pen::Pen::GetMousePos(&x, &y);
 
-The cursor can be hidden or shown using pen::Pen::MakeMouseHidden or pen::Pen::MakeMouseShow respectively.
+When using pen::Pen::GetMousePos for mobile a vector of type std::vector<pen::Tap*>* is returned.  If multi touch is used this vector could have more than one touch that may need to be handled.
+
+The cursor can be hidden using pen::Pen::MakeMouseHidden or shown using pen::Pen::MakeMouseShow.
 
 The cursor position can be checked to see if it is still within your application window using pen::Pen::WindowActive.
 
@@ -563,7 +565,7 @@ Functions that are not compatible with mobile:
 - pen::Pen::MouseState
 - pen::Pen::KeyState
 
-These functions for __PEN_MAC_IOS__ if building for Mac:
+These functions are available for __PEN_MAC_IOS__ if building for Mac:
 - pen::Pen::HandleGUIDragEvents
 - pen::Pen::HandleGUIKeyEvents
 - pen::Pen::MakeMouseHidden

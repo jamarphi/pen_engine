@@ -54,6 +54,12 @@ namespace pen {
 		};
 	}
 
+	struct Tap {
+		int id;
+		double x;
+		double y;
+	};
+
 	class State {
 		static State* instance;
 	public:
@@ -99,8 +105,7 @@ namespace pen {
 		/*----Mobile----*/
 		bool mobileActive = false;
 		bool mobileHorizontal = false;
-		double mobileMouseX = 0.0;
-		double mobileMouseY = 0.0;
+		std::vector<Tap*>* mobileMouse;
 		void (*mobileOnKeyCallback)(char) = nullptr;
 		void (*mobileOnClickCallback)(double, double) = nullptr;
 		void (*mobileOnRenderCallback)() = nullptr;

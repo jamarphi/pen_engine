@@ -25,12 +25,12 @@ namespace pen {
     pen::Layer* pen::ui::LM::pixelLayer = nullptr;
     uint16_t pen::ui::LM::generalLayerId = 0;
     pen::Camera pen::Item3D::camera = pen::Camera();
-    #ifdef __PEN_MAC_IOS__
+#ifdef __PEN_MAC_IOS__
     BatchVertexData* pen::Layer::batchVertices = new BatchVertexData[MAX_OBJECTS];
     int* pen::Layer::batchIndices = new int[RENDERER_INDICES_SIZE];
     bool pen::Layer::buffersInitialized = false;
     int pen::Layer::indexCount = 0;
-    #endif
+#endif
 
 #ifndef __PEN_MOBILE__
     void framebuffer_size_callback(glfwwindow* window, int width, int height);
@@ -261,10 +261,11 @@ namespace pen {
         return pen::State::Get()->screenHeight;
     }
 
+#ifndef __PEN_MOBILE__
     void Pen::GetMousePos(double* x, double* y) {
         /*Returns the mouse position*/
         pen::State* inst = pen::State::Get();
-#ifndef __PEN_MOBILE__
+
         glfwGetCursorPos(GetWindow(), x, y);
 
         /*Flip y position to start from the bottom*/
@@ -273,11 +274,12 @@ namespace pen {
         /*Scale based on screen width and height*/
         *x = *x * inst->screenWidth / inst->actualScreenWidth;
         *y = *y * inst->screenHeight / inst->actualScreenHeight;
-#else
-        *x = inst->mobileMouseX;
-        *y = inst->mobileMouseY;
-#endif
     }
+#else
+    std::vector<pen::Tap*>* Pen::GetMousePos() {
+        return pen::State::Get()->mobileMouse;
+    }
+#endif
 
     void Pen::MakeMouseHidden() {
         /*Hides the mouse*/
@@ -582,10 +584,12 @@ namespace pen {
     void Pen::mobile_click_callback(int button, int action, int mods)
     {
         /*Handles touch events for mobile devices*/
-        double x = 0.0f, y = 0.0f;
-        double* xPos = &x;
-        double* yPos = &y;
-        Pen::GetMousePos(xPos, yPos);
+        double* xPos;
+        double* yPos;
+        std::vector<pen::Tap>* taps = Pen::GetMousePos();
+        xPos = &taps->at(taps->size() - 1).x;
+        yPos = &taps->at(taps->size() - 1).y;
+        
         bool eventHandled = false;
 
         pen::State* inst = pen::State::Get();
@@ -593,9 +597,9 @@ namespace pen {
             bool cameraHandled = false;
 #ifndef __PEN_ANDROID__
 #if TARGET_OS_OSX
-            /*Handles camera input for Mac*/
-            cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::SPACE, action, true);
-            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::in::KEYS::SPACE, action, false);
+            /*Handles camera input for Mac, the space button is used since mouse coordinates can't be polled on Mac*/
+            cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::MOUSE_LEFT, action, true);
+            cameraHandled = pen::GetPixelCamera()->HandleInput(pen::in::KEYS::MOUSE_LEFT, action, false);
 #endif
 #endif
             if (!cameraHandled){

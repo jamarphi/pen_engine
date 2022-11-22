@@ -193,7 +193,11 @@ namespace pen {
         static unsigned int ScreenHeight();
 
         /*----Mouse functions----*/
+#ifndef __PEN_MOBILE__
         static void GetMousePos(double* x, double* y);
+#else
+        static std::vector<pen::Tap*>* GetMousePos();
+#endif
         static void MakeMouseHidden();
         static void MakeMouseShow();
         static bool WindowActive();

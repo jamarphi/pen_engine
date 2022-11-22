@@ -27,20 +27,32 @@ under the License.
 extern "C" {
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesBegin(JNIEnv* env, jclass obj, jint id, jfloat x, jfloat y) {
         /*A touch has started*/
-        pen::State::Get()->mobileMouseX = (double)x;
-        pen::State::Get()->mobileMouseY = (double)pen::State::Get()->actualScreenHeight - (double)y;
+        pen::State::Get()->mobileMouse->push_back(new pen::Tap{ id, (double)x, (double)pen::State::Get()->actualScreenHeight - (double)y });
         pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
     }
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesEnd(JNIEnv* env, jclass obj, jint id, jfloat x, jfloat y) {
         /*A touch has ended*/
-        pen::State::Get()->mobileMouseX = (double)x;
-        pen::State::Get()->mobileMouseY = (double)pen::State::Get()->actualScreenHeight - (double)y;
+        pen::State* inst = pen::State::Get();
+        std::vector<pen::Tap*>* tempTaps = new std::vector<pen::Tap*>();
+        for (int i = 0; i < inst->mobileMouse->size(); i++) {
+            if (inst->mobileMouse->at(i)->id != id) {
+                tempTaps->push_back(inst->mobileMouse->at(i));
+            }
+            else {
+                /*Updates the mobileMouse vector with the released point for handling in mobile_click_callback before removing it*/
+                inst->mobileMouse->at(i)->x = (double)x;
+                inst->mobileMouse->at(i)->y = (double)inst->actualScreenHeight - (double)y;
+            }
+        }
         pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
+        delete inst->mobileMouse;
+        inst->mobileMouse = tempTaps;
     }
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesMove(JNIEnv* env, jclass obj, jintArray ids, jfloatArray xs, jfloatArray ys) {
         /*A touch is moving*/
+        pen::State* inst = pen::State::Get();
         const int size = env->GetArrayLength(ids);
         jint* id = new jint[size];
         jfloat* x = new jfloat[size];
@@ -49,9 +61,16 @@ extern "C" {
         env->GetIntArrayRegion(ids, 0, size, id);
         env->GetFloatArrayRegion(xs, 0, size, x);
         env->GetFloatArrayRegion(ys, 0, size, y);
-        
-        pen::State::Get()->mobileMouseX = (double)x[size - 1];
-        pen::State::Get()->mobileMouseY = (double)pen::State::Get()->actualScreenHeight - (double)y[size - 1];
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < inst->mobileMouse->size(); j++) {
+                if (inst->mobileMouse->at(j)->id == id[i]) {
+                    inst->mobileMouse->at(j)->x = (double)x[i];
+                    inst->mobileMouse->at(j)->y = (double)inst->actualScreenHeight - (double)y[i];
+                    break;
+                }
+            }
+        }
     }
 
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenAccelerometer_onSensorChanged(JNIEnv* env, jclass obj, jfloat x, jfloat y, jfloat z, jlong timeStamp) {
