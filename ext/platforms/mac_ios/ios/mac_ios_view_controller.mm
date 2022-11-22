@@ -38,6 +38,9 @@ under the License.
     _view.preferredFramesPerSecond = 30;
     [[_view.window rootViewController] prefersStatusBarHidden];
     [_view setColorPixelFormat: MTLPixelFormatBGRA8Unorm_sRGB];
+
+    /*Initializes the mobile mouse coordinate vector before any events occur*/
+    pen::State::Get()->mobileMouse = new std::vector<pen::Tap*>();
     
     NSAssert(_view.device, @"Metal is not supported on this device");
 

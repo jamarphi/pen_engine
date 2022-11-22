@@ -81,6 +81,7 @@ extern "C" {
             pen::android::AppLog("Native initialization starting...");
             App* app = new App();
             std::string rootDir = ROOT_DIR;
+	    pen::State::Get()->mobileMouse = new std::vector<pen::Tap*>();
 
             /*"pen_engine/" is removed at the end since it will be added on later*/
             app->CreateApplication("App", w, h, rootDir != "" ? rootDir.substr(0, rootDir.length() - 11) : "");

@@ -105,7 +105,7 @@ namespace pen {
 		/*----Mobile----*/
 		bool mobileActive = false;
 		bool mobileHorizontal = false;
-		std::vector<Tap*>* mobileMouse;
+		std::vector<Tap*>* mobileMouse = nullptr;
 		void (*mobileOnKeyCallback)(char) = nullptr;
 		void (*mobileOnClickCallback)(double, double) = nullptr;
 		void (*mobileOnRenderCallback)() = nullptr;

@@ -40,6 +40,9 @@ under the License.
     [_view setColorPixelFormat: MTLPixelFormatBGRA8Unorm_sRGB];
     [_view setFramebufferOnly:NO];
 
+    /*Initializes the mobile mouse coordinate vector before any events occur*/
+    pen::State::Get()->mobileMouse = new std::vector<pen::Tap*>();
+
     NSAssert(_view.device, @"Metal is not supported on this device");
 
     dispatch_queue_t q = dispatch_get_global_queue( QOS_CLASS_USER_INITIATED, 0 );
