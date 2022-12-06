@@ -211,7 +211,7 @@ namespace pen {
         static void HandleGUIKeyEvents(bool choice);
         static bool HandleClick(pen::ui::Item* item, double* xPos, double* yPos, const int& button, const int& action);
         static void EnableDepthTesting(bool choice);
-        static void HandleCameraInput(bool choice, float speed = 0.1f, void (*onCameraEvent)() = nullptr);
+        static void HandleCameraInput(bool choice, float speed = 1.0f, void (*onCameraEvent)() = nullptr);
 
 #ifdef __PEN_MOBILE__
         static void mobile_click_callback(int button, int action, int mods);

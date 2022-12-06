@@ -127,8 +127,8 @@ namespace pen {
             inst->appOrthoCoord[3], inst->appOrthoCoord[4], inst->appOrthoCoord[5]);
         inst->appOrthoProj = proj;
 
-        inst->appPerspectiveProj = pen::op::Perspective(90, ((float)SCR_HEIGHT / (float)SCR_WIDTH), 0.1f, 1000.0f);
-        stateInst->pixel3DProjection = pen::op::Perspective(90, ((float)pen::PixelBufferHeight() / (float)pen::PixelBufferWidth()), 0.1f, 1000.0f);;
+        inst->appPerspectiveProj = pen::op::Perspective(90, (float)SCR_HEIGHT / (float)SCR_WIDTH, 0.1f, 1000.0f);
+        stateInst->pixel3DProjection = pen::op::Perspective(90, (float)pen::PixelBufferHeight() / (float)pen::PixelBufferWidth(), 0.1f, 1000.0f);;
 
         inst->appOrthoView = pen::Mat4x4(1.0f, false);
         inst->appPerspectiveView = pen::Mat4x4(1.0f, true);

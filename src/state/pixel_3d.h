@@ -352,15 +352,14 @@ namespace pen {
 				triTransformed.textureCoord[1] = pen::Vec3(tri->textureCoord[1].x, tri->textureCoord[1].y, tri->textureCoord[1].z);
 				triTransformed.textureCoord[2] = pen::Vec3(tri->textureCoord[2].x, tri->textureCoord[2].y, tri->textureCoord[2].z);
 
-				triTransformed.color[0] = tri->color[0];
-				triTransformed.color[1] = tri->color[1];
-				triTransformed.color[2] = tri->color[2];
-
 				pen::Mat4x4 mv = matrix * inst->pixel3DView;
+				float point0W = triTransformed.point[0].w;
+				float point1W = triTransformed.point[1].w;
+				float point2W = triTransformed.point[2].w;
 				triTransformed.point[0] = pen::op::Mat4x4MultVec4(mv, tri->point[0], false);
 				triTransformed.point[1] = pen::op::Mat4x4MultVec4(mv, tri->point[1], false);
 				triTransformed.point[2] = pen::op::Mat4x4MultVec4(mv, tri->point[2], false);
-				
+
 				pen::Vec4 normal;
 				pen::Vec4 line1;
 				pen::Vec4 line2;
@@ -370,27 +369,50 @@ namespace pen {
 				normal = pen::Vec4(normalRes.x, normalRes.y, normalRes.z, 1.0f);
 				if (pen::op::DotProductVec4(normal, triTransformed.point[0]) < 0.0f) continue;
 
+				/*The light is determined by the distance from the end of the z range*/
 				pen::Vec4 lightDirection = pen::Vec4(0.0f, 0.0f, -1.0f, 1.0f);
 				float light = pen::op::DotProductVec4(normal, lightDirection);
 				light = pen::op::Abs(light);
 				pen::Vec4 lightVector = pen::Vec4(light * pen::PEN_WHITE.x, light * pen::PEN_WHITE.y, light * pen::PEN_WHITE.z, light * pen::PEN_WHITE.w);
-				triTransformed.color[0] = lightVector * pen::op::Min(1.0f / triTransformed.point[0].z, 1.0f) * triTransformed.color[0];
-				triTransformed.color[1] = lightVector * pen::op::Min(1.0f / triTransformed.point[1].z, 1.0f) * triTransformed.color[1];
-				triTransformed.color[2] = lightVector * pen::op::Min(1.0f / triTransformed.point[2].z, 1.0f) * triTransformed.color[2];
+				triTransformed.color[0] = lightVector * pen::op::Min((1000.0f - triTransformed.point[0].z) / 1000.0f, 1.0f) * tri->color[0];
+				triTransformed.color[1] = lightVector * pen::op::Min((1000.0f - triTransformed.point[1].z) / 1000.0f, 1.0f) * tri->color[1];
+				triTransformed.color[2] = lightVector * pen::op::Min((1000.0f - triTransformed.point[2].z) / 1000.0f, 1.0f) * tri->color[2];
 
+				/*Normalize the points for calculation*/
+				triTransformed.point[0] /= pen::PixelBufferWidth();
+				triTransformed.point[0].w = point0W;
+				triTransformed.point[1] /= pen::PixelBufferWidth();
+				triTransformed.point[1].w = point1W;
+				triTransformed.point[2] /= pen::PixelBufferWidth();
+				triTransformed.point[2].w = point2W;
+				
 				int clippedTriangles = 0;
 				pen::_3d::Triangle clipped[2];
-				pen::Vec4 nearPlane = pen::Vec4(0.0f, 0.0f, 0.1f, 1.0f);
-				pen::Vec4 farPlane = pen::Vec4(0.0f, 0.0f, 1000.0f, 1.0f);
+
+				/*Z range from 0 to 1000 normalized by a magnitude of 1000*/
+				pen::Vec4 nearPlane = pen::Vec4(0.0f, 0.0f, 0.0001f, 1.0f);
+				pen::Vec4 farPlane = pen::Vec4(0.0f, 0.0f, 1.0f, 1.0f);
 				clippedTriangles = pen::op::ClipAgainstPlane(nearPlane, farPlane, triTransformed, clipped[0], clipped[1]);
 
 				for (int n = 0; n < clippedTriangles; n++)
 				{
 					pen::_3d::Triangle triProjected = clipped[n];
 
-					triProjected.point[0] = pen::op::Mat4x4MultVec4(inst->pixel3DProjection, clipped[n].point[0], false);
-					triProjected.point[1] = pen::op::Mat4x4MultVec4(inst->pixel3DProjection, clipped[n].point[1], false);
-					triProjected.point[2] = pen::op::Mat4x4MultVec4(inst->pixel3DProjection, clipped[n].point[2], false);
+					triProjected.point[0] = pen::op::Mat4x4MultVec4(inst->pixel3DProjection, triProjected.point[0], false);
+					triProjected.point[0].x -= 1.0f;
+					triProjected.point[0].y -= 1.0f;
+					triProjected.point[0].z *= -1.0f;
+					triProjected.point[0].w = 1.0f;
+					triProjected.point[1] = pen::op::Mat4x4MultVec4(inst->pixel3DProjection, triProjected.point[1], false);
+					triProjected.point[1].x -= 1.0f;
+					triProjected.point[1].y -= 1.0f;
+					triProjected.point[1].z *= -1.0f;
+					triProjected.point[1].w = 1.0f;
+					triProjected.point[2] = pen::op::Mat4x4MultVec4(inst->pixel3DProjection, triProjected.point[2], false);
+					triProjected.point[2].x -= 1.0f;
+					triProjected.point[2].y -= 1.0f;
+					triProjected.point[2].z *= -1.0f;
+					triProjected.point[2].w = 1.0f;
 
 					pen::_3d::Triangle sClipped[2];
 					std::list<pen::_3d::Triangle> listTriangles;
@@ -413,21 +435,21 @@ namespace pen {
 							{
 							case 0:	
 								nearPlane = pen::Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-								farPlane = pen::Vec4(0.0f, pen::PixelBufferHeight(), 0.0f, 1.0f);
+								farPlane = pen::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
 								trisToAdd = pen::op::ClipAgainstPlane(nearPlane, farPlane, test, sClipped[0], sClipped[1]); 
 								break;
 							case 1:	
-								nearPlane = pen::Vec4(0.0f, pen::PixelBufferHeight(), 0.0f, 1.0f);
+								nearPlane = pen::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
 								farPlane = pen::Vec4(0.0f, 0.0f, 0.0f, 1.0f);
 								trisToAdd = pen::op::ClipAgainstPlane(nearPlane, farPlane, test, sClipped[0], sClipped[1]); 
 								break;
 							case 2:	
 								nearPlane = pen::Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-								farPlane = pen::Vec4(pen::PixelBufferWidth(), 0.0f, 0.0f, 1.0f);
+								farPlane = pen::Vec4(1.0f, 0.0f, 0.0f, 1.0f);
 								trisToAdd = pen::op::ClipAgainstPlane(nearPlane, farPlane, test, sClipped[0], sClipped[1]); 
 								break;
 							case 3:	
-								nearPlane = pen::Vec4(pen::PixelBufferWidth(), 0.0f, 0.0f, 1.0f);
+								nearPlane = pen::Vec4(1.0f, 0.0f, 0.0f, 1.0f);
 								farPlane = pen::Vec4(0.0f, 0.0f, 0.0f, 1.0f);
 								trisToAdd = pen::op::ClipAgainstPlane(nearPlane, farPlane, test, sClipped[0], sClipped[1]); 
 								break;
@@ -444,12 +466,19 @@ namespace pen {
 
 					for (int i = 0; i < listTriangles.size(); i++)
 					{
-						pen::Vec4 offsetView = pen::Vec4(1.0f, 1.0f, 0.0f, 1.0f);
 						pen::_3d::Triangle triRaster = listTriangles.front();
 						listTriangles.pop_front();
-						triRaster.point[0] = triRaster.point[0] + offsetView;
-						triRaster.point[1] = triRaster.point[1] + offsetView;
-						triRaster.point[2] = triRaster.point[2] + offsetView;
+						point0W = triRaster.point[0].w;
+
+						/*Enlarge the points to pixel buffer space*/
+						triRaster.point[0] *= pen::PixelBufferWidth();
+						triRaster.point[0].w = point0W;
+						point1W = triRaster.point[1].w;
+						triRaster.point[1] *= pen::PixelBufferWidth();
+						triRaster.point[1].w = point1W;
+						point2W = triRaster.point[2].w;
+						triRaster.point[2] *= pen::PixelBufferWidth();
+						triRaster.point[2].w = point2W;
 
 						if (isWireframe)
 						{
@@ -490,7 +519,7 @@ namespace pen {
 		if (y != 0.0f) pen::Item3D::camera.cameraPosition += (pen::Item3D::camera.at * pen::Item3D::camera.cameraSpeed * y);
 		if (z != 0.0f) {
 			pen::Item3D::camera.cameraPosition += (pen::Item3D::camera.viewOrientation * -1.0f * pen::Item3D::camera.cameraSpeed);
-			pen::Item3D::camera.cameraFov += -1.0f * pen::Item3D::camera.cameraSpeed;
+			pen::Item3D::camera.cameraFov += -0.1f * pen::Item3D::camera.cameraSpeed;
 			if (pen::Item3D::camera.cameraFov < 1.0f) pen::Item3D::camera.cameraFov = 1.0f;
 			if (pen::Item3D::camera.cameraFov > 90.0f) pen::Item3D::camera.cameraFov = 90.0f;
 		}

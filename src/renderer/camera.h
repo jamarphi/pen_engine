@@ -45,7 +45,7 @@ namespace pen {
 		unsigned int screenHeight;
 		bool firstDrag = true;
 		bool firstMove = true;
-		float cameraSpeed = 0.1f;
+		float cameraSpeed = 1.0f;
 		pen::Vec3 cameraPosition;
 		pen::Vec3 viewOrientation = pen::Vec3(0.0f, 0.0f, -1.0f);
 		pen::Vec3 up = pen::Vec3(0.0f, 1.0f, 0.0f);

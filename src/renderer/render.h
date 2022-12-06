@@ -74,7 +74,7 @@ namespace pen {
 		if (y != 0.0f) inst->camera.cameraPosition += (inst->camera.at * inst->camera.cameraSpeed * y);
 		if (z != 0.0f) {
 			inst->camera.cameraPosition += (inst->camera.viewOrientation * -1.0f * inst->camera.cameraSpeed);
-			inst->camera.cameraFov += -1.0f * inst->camera.cameraSpeed;
+			inst->camera.cameraFov += -0.1f * inst->camera.cameraSpeed;
 			if (inst->camera.cameraFov < 1.0f) inst->camera.cameraFov = 1.0f;
 			if (inst->camera.cameraFov > 90.0f) inst->camera.cameraFov = 90.0f;
 		}

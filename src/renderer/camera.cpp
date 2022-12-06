@@ -98,7 +98,7 @@ namespace pen {
 			|| glfwGetKey(window, pen::in::KEYS::W) == pen::in::HELD) {
 			/*Forward*/
 			cameraPosition -= (viewOrientation * cameraSpeed);
-			cameraFov -= cameraSpeed;
+			cameraFov -= 0.1f * cameraSpeed;
 			if (cameraFov < 1.0f) cameraFov = 1.0f;
 			firstMove = false;
 			isInput = true;
@@ -108,7 +108,7 @@ namespace pen {
 			|| glfwGetKey(window, pen::in::KEYS::S) == pen::in::HELD) {
 			/*Backward*/
 			cameraPosition += (viewOrientation * cameraSpeed);
-			cameraFov += cameraSpeed;
+			cameraFov += 0.1f * cameraSpeed;
 			if (cameraFov > 90.0f) cameraFov = 90.0f;
 			firstMove = false;
 			isInput = true;
