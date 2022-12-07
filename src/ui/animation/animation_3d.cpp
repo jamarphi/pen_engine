@@ -71,6 +71,17 @@ namespace pen {
 			/*Scale, all units are used since there are three values*/
 			pen::ui::_3d::Scale(item.item, item.unitA, item.unitB, item.unitC);
 			break;
+        case 5:
+            /*Pan the layer camera, all units are used since there are three values*/
+            pen::PanLayerCamera(item.unitA, item.unitB, item.unitC);
+            break;
+        case 6:
+            /*Aim the layer camera, two units are used since there are two values*/
+            pen::LookLayerCamera(item.unitA, item.unitB);
+            break;
+        case 7:
+            /*Zoom is already handled with camera panning*/
+            break;
 		default:
 			break;
 		}

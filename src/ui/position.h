@@ -36,7 +36,10 @@ namespace pen {
             ROTATE_Y = 1,
             ROTATE_Z = 2,
             TRANSLATE = 3,
-            SCALE = 4
+            SCALE = 4,
+            PAN = 5,
+            LOOK = 6,
+            ZOOM = 7
         };
 
         static void Translate(pen::ui::Item* object, const pen::Vec3& translationCoord, const bool& staticTransform = false, const bool& nested = true, const bool& firstIter = true) {

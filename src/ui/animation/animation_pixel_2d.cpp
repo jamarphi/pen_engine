@@ -71,6 +71,17 @@ namespace pen {
 			/*Scale, two units are used since there are only two values*/
 			pen::Scale(item.item, item.unitA, item.unitB > 0 ? item.unitB : item.unitA);
 			break;
+        case 5:
+            /*Pan the pixel buffer, all three units are used since there are three values*/
+            pen::Pan(item.unitA, item.unitB, (item.unitC > 0.0f) ? true : false);
+            break;
+        case 6:
+            /*Case 6 is ignored since this is 2D so there is no camera aiming*/
+            break;
+        case 7:
+            /*Zoom the pixel buffer, only one unit is used since there is one value*/
+            pen::Zoom(item.unitA);
+            break;
 		default:
 			break;
 		}

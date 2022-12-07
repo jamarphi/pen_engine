@@ -398,7 +398,7 @@ This way Pen Engine can handle this item.
 
 # 1.6 - Animations
 
-To animate a gui item, simply add an item to the animation manager:
+To animate a gui item or a camera, simply add an item to the animation manager:
 
     pen::ui::Animation::Add(item, type, ms, infinite, unitA, unitB, unitC);
 
@@ -421,7 +421,25 @@ To animate sprites the same thing applies:
     pen::Anim::Add(item, type, ms, infinite, unitA, unitB, unitC);
     pen::Anim::Run();
 
-The type is the transformation, an example is pen::AnimType::TRANSLATE.
+The types of animations listed are:
+
+    - pen::ui::AnimationType::ROTATE_X
+    - pen::ui::AnimationType::ROTATE_Y
+    - pen::ui::AnimationType::ROTATE_Z
+    - pen::ui::AnimationType::TRANSLATE
+    - pen::ui::AnimationType::SCALE
+    - pen::ui::AnimationType::PAN
+    - pen::ui::AnimationType::LOOK
+    - pen::ui::AnimationType::ZOOM
+
+There are four types of items that can be animated:
+
+    - pen::ui::Animation for gui items
+    - pen::ui::AnimationPixel for 2D pixel items
+    - pen::AnimationPixel3D for 3D pixel items
+    - pen::Animation3D for 3D graphically accelerated items
+    
+The pen::ui::AnimationType::ZOOM type is only used for panning the pixel buffer for 2D applications.
 
 ---------------------------------------------------------------------------
 

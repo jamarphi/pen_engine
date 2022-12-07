@@ -23,6 +23,7 @@ under the License.
 #include "../position.h"
 #include "../../objects/item_3d.h"
 #include "../../ops/operations/3d.h"
+#include "../../renderer/render.h"
 
 namespace pen {
 	struct Animation3DItem {

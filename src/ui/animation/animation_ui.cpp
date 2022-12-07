@@ -112,6 +112,11 @@ namespace pen {
 				/*Scale, two units are used since there are only two values*/
 				pen::ui::Scale(item.item, pen::Vec2(item.unitA, item.unitB > 0 ? item.unitB : item.unitA), true, true, false);
 				break;
+            case 5:
+            case 6:
+            case 7:
+                /*These cases are ignored since panning, looking, and zooming don't apply for gui items*/
+                break;
 			default:
 				break;
 			}
