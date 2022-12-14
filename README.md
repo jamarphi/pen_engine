@@ -441,6 +441,8 @@ The types of animations listed are:
     
 The pen::AnimationType::ZOOM type is only used for panning the pixel buffer for 2D applications.
 
+For pen::AnimationType::COLOR the units passed in are the final resulting color.
+
 ---------------------------------------------------------------------------
 
 # 1.7 - 3D
