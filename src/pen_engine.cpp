@@ -374,6 +374,14 @@ namespace pen {
 #endif
     }
 
+    static void RunAnimations() {
+        /*Runs animations for the different item types*/
+        pen::AnimationUI::Run();
+        pen::AnimationPixel::Run();
+        pen::AnimationPixel3D::Run();
+        pen::Animation3D::Run();
+    }
+
     void Pen::InitializeAsciiMap() {
         /*Initializes the map that is used for text character to unsigned char conversion*/
         pen::State* inst = pen::State::Get();

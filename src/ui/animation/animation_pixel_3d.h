@@ -30,17 +30,19 @@ namespace pen {
 		bool infinite;
 		int frames;
 		bool ran;
+		void (*onAnimationEnd)(pen::Item3D*, unsigned int);
 		float unitA;
 		float unitB;
 		float unitC;
+		float unitD;
 	};
 
 	class AnimationPixel3D {
 	public:
-		static std::vector<pen::AnimationPixel3DItem> animList;
+		static std::vector<pen::AnimationPixel3DItem> animationList;
 
 	public:
-		static void Add(pen::Item3D* item, const unsigned int& type, const long& ms, const bool& infinite, const float& unitA, const float& unitB = 0, const float& unitC = 0);
+		static void Add(pen::Item3D* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::Item3D*, unsigned int), const float& unitA, const float& unitB = 0.0f, const float& unitC = 0.0f, const float& unitD = 0.0f);
 		static bool CheckStatus(const pen::AnimationPixel3DItem& item);
 		static void Animate(pen::AnimationPixel3DItem item);
 		static void Run();

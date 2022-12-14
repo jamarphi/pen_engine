@@ -24,28 +24,28 @@ under the License.
 #include "../position.h"
 
 namespace pen {
-	namespace ui {
-		struct AnimationUIItem {
-			pen::ui::Item* item;
-			unsigned int type;
-			bool infinite;
-			int frames;
-			bool ran;
-			float unitA;
-			float unitB;
-			float unitC;
-		};
+	struct AnimationUIItem {
+		pen::ui::Item* item;
+		unsigned int type;
+		bool infinite;
+		int frames;
+		bool ran;
+		void (*onAnimationEnd)(pen::ui::Item*, unsigned int);
+		float unitA;
+		float unitB;
+		float unitC;
+		float unitD;
+	};
 
-		class AnimationUI {
-		private:
-			static std::vector<pen::ui::AnimationUIItem> animationList;
+	class AnimationUI {
+	private:
+		static std::vector<pen::AnimationUIItem> animationList;
 
-		public:
-			static void Add(pen::ui::Item* item, const unsigned int& type, const long& ms, const bool& infinite, const float& unitA, const float& unitB = 0, const float& unitC = 0);
-			static void Run();
-		private:
-			static bool CheckStatus(const pen::ui::AnimationUIItem& item);
-			static void Animate(pen::ui::AnimationUIItem item);
-		};
-	}
+	public:
+		static void Add(pen::ui::Item* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::ui::Item*, unsigned int), const float& unitA, const float& unitB = 0.0f, const float& unitC = 0.0f, const float& unitD = 0.0f);
+		static void Run();
+	private:
+		static bool CheckStatus(const pen::AnimationUIItem& item);
+		static void Animate(pen::AnimationUIItem item);
+	};
 }

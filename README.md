@@ -398,48 +398,48 @@ This way Pen Engine can handle this item.
 
 # 1.6 - Animations
 
-To animate a gui item or a camera, simply add an item to the animation manager:
+There are four types of items that can be animated:
 
-    pen::ui::Animation::Add(item, type, ms, infinite, unitA, unitB, unitC);
+    - pen::AnimationUI for gui items
+    - pen::AnimationPixel for 2D pixel items
+    - pen::AnimationPixel3D for 3D pixel items
+    - pen::Animation3D for 3D graphically accelerated items
 
-1. The item is a pointer to an item you already created.
-2. The type is the transformation, an example is pen::ui::AnimationType::TRANSLATE.
-3. The ms is the amount of milliseconds for the duration.
-4. The infinite boolean is for if you want to run this animation forever, this means that any other animation
-   with the same item and type will not run.
-5. The three units unitA, unitB, and unitC, are used to pass in values for the transformations.  If you are doing
-   rotation for instance, then you only need to use unitA, this means unitB and unitC will be ignored.
+To animate an item or a camera, simply add an item to the animation manager:
+
+    - For gui items: pen::AnimationUI::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::ui::Item*, unsigned int), unitA, unitB, unitC, unitD);
+    - For 2D pixel items: pen::AnimationPixel::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::Item*, unsigned int), unitA, unitB, unitC, unitD);
+    - For 3D pixel items: pen::AnimationPixel3D::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::Item3D*, unsigned int), unitA, unitB, unitC, unitD);
+    - For 3D graphically accelerated items: pen::Animation3D::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::GraphicallyAcceleratedItem3D*, unsigned int), unitA, unitB, unitC, unitD);
+
+    1. The item is a pointer to an item you already created.
+    2. The type is the transformation, an example is pen::AnimationType::TRANSLATE.
+    3. The ms is the amount of milliseconds for the duration.
+    4. The infinite boolean is for if you want to run this animation forever, this means that any other animation
+       with the same item and type will not run.
+    5. An optional callback that happens when the animation added is ended, it takes the type of item as a pointer and the unsigned int used for the animation type.
+    6. The four units unitA, unitB, unitC, and unitD, are used to pass in values for the transformations.  If you are doing
+       rotation for instance, then you only need to use unitA, this means unitB , unitC, and unitD will be ignored.
 
 To run the animation manager after adding items do:
 
-    pen::ui::Animation::Run();
+    pen::Pen::RunAnimations();
 
-This will run in OnRender do all animations for each item consecutively until they are all complete.
-
-To animate sprites the same thing applies:
-
-    pen::Anim::Add(item, type, ms, infinite, unitA, unitB, unitC);
-    pen::Anim::Run();
+Call this insideof OnRender to run all animations for each item consecutively until they are complete.
 
 The types of animations listed are:
 
-    - pen::ui::AnimationType::ROTATE_X
-    - pen::ui::AnimationType::ROTATE_Y
-    - pen::ui::AnimationType::ROTATE_Z
-    - pen::ui::AnimationType::TRANSLATE
-    - pen::ui::AnimationType::SCALE
-    - pen::ui::AnimationType::PAN
-    - pen::ui::AnimationType::LOOK
-    - pen::ui::AnimationType::ZOOM
-
-There are four types of items that can be animated:
-
-    - pen::ui::Animation for gui items
-    - pen::ui::AnimationPixel for 2D pixel items
-    - pen::AnimationPixel3D for 3D pixel items
-    - pen::Animation3D for 3D graphically accelerated items
+    - pen::AnimationType::ROTATE_X
+    - pen::AnimationType::ROTATE_Y
+    - pen::AnimationType::ROTATE_Z
+    - pen::AnimationType::TRANSLATE
+    - pen::AnimationType::SCALE
+    - pen::AnimationType::PAN
+    - pen::AnimationType::LOOK
+    - pen::AnimationType::ZOOM
+    - pen::AnimationType::COLOR
     
-The pen::ui::AnimationType::ZOOM type is only used for panning the pixel buffer for 2D applications.
+The pen::AnimationType::ZOOM type is only used for panning the pixel buffer for 2D applications.
 
 ---------------------------------------------------------------------------
 

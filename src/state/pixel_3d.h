@@ -332,6 +332,7 @@ namespace pen {
 	struct Item3D {
 		/*3D pixel buffer item*/
 		std::vector<pen::_3d::Triangle*>* triangles;
+		pen::Vec4 color = pen::PEN_WHITE;
 		bool isWireframe = false;
 		pen::Mat4x4 matrix = pen::Mat4x4(1.0f);
 		static pen::Camera camera;
@@ -374,9 +375,9 @@ namespace pen {
 				float light = pen::op::DotProductVec4(normal, lightDirection);
 				light = pen::op::Abs(light);
 				pen::Vec4 lightVector = pen::Vec4(light * pen::PEN_WHITE.x, light * pen::PEN_WHITE.y, light * pen::PEN_WHITE.z, light * pen::PEN_WHITE.w);
-				triTransformed.color[0] = lightVector * pen::op::Min((1000.0f - triTransformed.point[0].z) / 1000.0f, 1.0f) * tri->color[0];
-				triTransformed.color[1] = lightVector * pen::op::Min((1000.0f - triTransformed.point[1].z) / 1000.0f, 1.0f) * tri->color[1];
-				triTransformed.color[2] = lightVector * pen::op::Min((1000.0f - triTransformed.point[2].z) / 1000.0f, 1.0f) * tri->color[2];
+				triTransformed.color[0] = lightVector * pen::op::Min((1000.0f - triTransformed.point[0].z) / 1000.0f, 1.0f) * tri->color[0] * color;
+				triTransformed.color[1] = lightVector * pen::op::Min((1000.0f - triTransformed.point[1].z) / 1000.0f, 1.0f) * tri->color[1] * color;
+				triTransformed.color[2] = lightVector * pen::op::Min((1000.0f - triTransformed.point[2].z) / 1000.0f, 1.0f) * tri->color[2] * color;
 
 				/*Normalize the points for calculation*/
 				triTransformed.point[0] /= pen::PixelBufferWidth();
@@ -785,7 +786,7 @@ namespace pen {
 #ifndef __PEN_MOBILE__
 				modelFile.close();
 #endif
-				if (triangles->size() > 0) return new pen::Item3D {triangles, isWireFrame};
+				if (triangles->size() > 0) return new pen::Item3D {triangles, pen::PEN_WHITE, isWireFrame};
 			}
 			return nullptr;
 		}

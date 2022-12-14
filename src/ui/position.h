@@ -24,22 +24,24 @@ under the License.
 #include "../state/state.h"
 
 namespace pen {
+
+    enum AnimationType {
+        ROTATE_X = 0,
+        ROTATE_Y = 1,
+        ROTATE_Z = 2,
+        TRANSLATE = 3,
+        SCALE = 4,
+        PAN = 5,
+        LOOK = 6,
+        ZOOM = 7,
+        COLOR = 8
+    };
+
     namespace ui{
         enum AXIS {
             X = 0,
             Y = 1,
             Z = 2
-        };
-
-        enum AnimationType {
-            ROTATE_X = 0,
-            ROTATE_Y = 1,
-            ROTATE_Z = 2,
-            TRANSLATE = 3,
-            SCALE = 4,
-            PAN = 5,
-            LOOK = 6,
-            ZOOM = 7
         };
 
         static void Translate(pen::ui::Item* object, const pen::Vec3& translationCoord, const bool& staticTransform = false, const bool& nested = true, const bool& firstIter = true) {

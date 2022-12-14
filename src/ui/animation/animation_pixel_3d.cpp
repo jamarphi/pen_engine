@@ -21,9 +21,9 @@ under the License.
 #include "animation_pixel_3d.h"
 
 namespace pen {
-	std::vector<pen::AnimationPixel3DItem> AnimationPixel3D::animList = {};
+	std::vector<pen::AnimationPixel3DItem> AnimationPixel3D::animationList = {};
 
-	void AnimationPixel3D::Add(pen::Item3D* item, const unsigned int& type, const long& ms, const bool& infinite, const float& unitA, const float& unitB, const float& unitC) {
+	void AnimationPixel3D::Add(pen::Item3D* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::Item3D*, unsigned int), const float& unitA, const float& unitB, const float& unitC, const float& unitD) {
 		/*Add animation to the queue*/
 		int frames = 0;
 		float deltaTime = 0.0035f;
@@ -35,16 +35,26 @@ namespace pen {
 		newItem.infinite = infinite;
 		newItem.frames = frames;
 		newItem.ran = false;
-		newItem.unitA = unitA * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
-		newItem.unitB = unitB * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
-		newItem.unitC = unitC * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
-		animList.push_back(newItem);
+		newItem.onAnimationEnd = onAnimationEndEvent;
+		if (type == pen::AnimationType::COLOR) {
+			newItem.unitA = (unitA - item->color.x) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitB = (unitB - item->color.y) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitC = (unitC - item->color.z) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitD = (unitD - item->color.w) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+		}
+		else {
+			newItem.unitA = unitA * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitB = unitB * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitC = unitC * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitD = unitD * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+		}
+		pen::AnimationPixel3D::animationList.push_back(newItem);
 	}
 
 	bool AnimationPixel3D::CheckStatus(const pen::AnimationPixel3DItem& item) {
 		/*If the item is already transformed from another animation that is not done then return true*/
-		for (int i = 0; animList.size(); i++) {
-			if (animList[i].ran && animList[i].item == item.item && animList[i].type == item.type) {
+		for (int i = 0; pen::AnimationPixel3D::animationList.size(); i++) {
+			if (pen::AnimationPixel3D::animationList[i].ran && pen::AnimationPixel3D::animationList[i].item == item.item && pen::AnimationPixel3D::animationList[i].type == item.type) {
 				return true;
 			}
 			else {
@@ -64,15 +74,15 @@ namespace pen {
 			pen::_3d::Rotate(item.item, item.unitA, item.type);
 			break;
 		case 3:
-			/*Translation, all units are used since there are three values*/
+			/*Translation, three units are used since there are three values*/
 			pen::_3d::Translate(item.item, item.unitA, item.unitB, item.unitC);
 			break;
 		case 4:
-			/*Scale, all units are used since there are three values*/
+			/*Scale, three units are used since there are three values*/
 			pen::_3d::Scale(item.item, item.unitA, item.unitB, item.unitC);
 			break;
         case 5:
-            /*Pan the pixel camera, all units are used since there are three values*/
+            /*Pan the pixel camera, three units are used since there are three values*/
             pen::Pan(item.unitA, item.unitB, item.unitC);
             break;
         case 6:
@@ -82,6 +92,13 @@ namespace pen {
         case 7:
             /*Zoom is already handled with camera panning*/
             break;
+		case 8:
+			/*Updates the color, all four units are used since there are four values*/
+			item.item->color.x += item.unitA;
+			item.item->color.y += item.unitB;
+			item.item->color.z += item.unitC;
+			item.item->color.w += item.unitD;
+			break;
 		default:
 			break;
 		}
@@ -89,8 +106,8 @@ namespace pen {
 
 	void AnimationPixel3D::Run() {
 		/*Runs the animations for each item*/
-		if (!animList.empty()) {
-			for (auto& item : animList) {
+		if (!pen::AnimationPixel3D::animationList.empty()) {
+			for (auto& item : pen::AnimationPixel3D::animationList) {
 				if (!CheckStatus(item)) {
 					/*Call animation on item*/
 					Animate(item);
@@ -108,20 +125,21 @@ namespace pen {
 			while (keepGoing) {
 				tempItems.clear();
 				keepGoing = false;
-				for (int i = 0; i < animList.size(); i++) {
-					if (animList[i].ran && animList[i].frames == 0 && !animList[i].infinite) {
+				for (int i = 0; i < pen::AnimationPixel3D::animationList.size(); i++) {
+					if (pen::AnimationPixel3D::animationList[i].ran && pen::AnimationPixel3D::animationList[i].frames == 0 && !pen::AnimationPixel3D::animationList[i].infinite) {
 						keepGoing = true;
-						for (int j = 0; j < animList.size(); j++) {
-							if (i != j) tempItems.push_back(animList[j]);
+						if (pen::AnimationPixel3D::animationList[i].onAnimationEnd != nullptr) (*pen::AnimationPixel3D::animationList[i].onAnimationEnd)(pen::AnimationPixel3D::animationList[i].item, pen::AnimationPixel3D::animationList[i].type);
+						for (int j = 0; j < pen::AnimationPixel3D::animationList.size(); j++) {
+							if (i != j) tempItems.push_back(pen::AnimationPixel3D::animationList[j]);
 						}
-						animList.clear();
+						pen::AnimationPixel3D::animationList.clear();
 						break;
 					}
 				}
-				if (tempItems.size() > 0) animList = tempItems;
+				if (tempItems.size() > 0) pen::AnimationPixel3D::animationList = tempItems;
 			}
 
-			for (int k = 0; k < animList.size(); k++) animList[k].ran = false;
+			for (int k = 0; k < pen::AnimationPixel3D::animationList.size(); k++) pen::AnimationPixel3D::animationList[k].ran = false;
 		}
 	}
 }
