@@ -33,15 +33,15 @@ namespace pen {
         GraphicallyAcceleratedItem3D();
 
         GraphicallyAcceleratedItem3D(bool childItem, pen::Vec3 objectPositions, unsigned int objectShapeType, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
-            bool objectIsFixed = false, float* objectBufferPositions = nullptr, const std::string& objectTexture = "");
+           float* objectBufferPositions = nullptr, const std::string& objectTexture = "");
 
 #ifndef __PEN_MAC_IOS__
         GraphicallyAcceleratedItem3D(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
-            bool objectIsFixed = false, std::string objectTextureName = "",
+            std::string objectTextureName = "",
             float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
 #else
         GraphicallyAcceleratedItem3D(int* layerIndices, uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
-            bool objectIsFixed = false, std::string objectTextureName = "",
+            std::string objectTextureName = "",
             float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
 #endif
 
@@ -49,9 +49,9 @@ namespace pen {
 
         void Push(pen::ui::Item* item);
         void CombineChildBuffers();
-        pen::Vec3 GetPosition();
+        pen::Vec3* GetPosition();
         void SetPosition(pen::Vec3 objectPos);
-        pen::Vec2 GetSize();
+        pen::Vec2* GetSize();
         void SetSize(pen::Vec2 objectSize);
         void SetColor(pen::Vec4 objectColor);
         void UpdateTexture(const std::string& path);

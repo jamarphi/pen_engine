@@ -25,17 +25,15 @@ namespace pen {
         TextCharacterItem::TextCharacterItem() {}
 
         TextCharacterItem::TextCharacterItem(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::ui::Item* objectParent, 
-            bool (*onClickCallback)(pen::ui::Item*, int, int), pen::Vec4 objectColor, bool objectIsFixed, std::string objectTextureName,
+            bool (*onClickCallback)(pen::ui::Item*, int, int), pen::Vec4 objectColor, std::string objectTextureName,
             unsigned int row, unsigned int column) {
             /*Bitmap font objects constructor*/
+            data = pen::DrawRect(objectPositions.x, objectPositions.y, objectSize.x, objectSize.y, objectColor);
             id = objectId;
-            positions = objectPositions;
-            size = objectSize;
-            isFixed = objectIsFixed;
-            angles = pen::Vec3(0.0f, 0.0f, 0.0f);
+            SetPosition(objectPositions);
+            SetSize(objectSize);
 
             shapeType = pen::ui::Shape::QUAD;
-            color = objectColor;
             parent = objectParent;
             userOnClickCallback = onClickCallback;
 
@@ -47,13 +45,11 @@ namespace pen {
             charRowIdx = row;
             charColumnIdx = column;
 
-            bufferPositions = pen::ui::Shape::BitmapFontPosition(positions, size, color, pen::State::Get()->asciiMap.Find(textureName)->second, nullptr, 0.0f, 0.0f, 0.0f);
+            UpdateTextCharacter(pen::State::Get()->asciiMap.Find(textureName)->second);
 
             /*Checks to make sure the item is on the screen to be rendered*/
             CheckActiveStatus();
         }
-
-        TextCharacterItem::~TextCharacterItem() {}
 
         bool TextCharacterItem::OnClick(pen::ui::Item* item, const int& button, const int& action) {
             if (userOnClickCallback != nullptr) {
@@ -85,6 +81,12 @@ namespace pen {
                 }
                 return true;
             }
+        }
+
+        void TextCharacterItem::UpdateTextCharacter(unsigned char characterIndex) {
+            /*Replaces the text character*/
+            std::vector<float> texCoordVector = pen::ui::Shape::UpdateBitmapFontPosition(characterIndex);
+            pen::Animate(data, "fonts/bitmap.png", texCoordVector[0], texCoordVector[1], texCoordVector[2], texCoordVector[3]);
         }
 	}
 }

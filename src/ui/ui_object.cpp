@@ -24,17 +24,23 @@ namespace pen {
     namespace ui {
         UIObject::UIObject() { isUI = true; }
 
-        UIObject::UIObject(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, unsigned int objectShapeType, pen::Vec4 objectColor,
-            pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), bool objectIsFixed, std::string objectTextureName,
+        UIObject::UIObject(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor,
+            pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), std::string objectTextureName,
             float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
+            if (objectTextureName != "") {
+                data = pen::CreateSprite(objectPositions.x, objectPositions.y, objectSize.x, objectSize.y, objectTextureName, itemTexCoordStartX,
+                    itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
+                data->color = objectColor;
+            }
+            else {
+                data = pen::DrawRect(objectPositions.x, objectPositions.y, objectSize.x, objectSize.y, objectColor);
+            }
             id = objectId;
             isUI = true;
-            positions = objectPositions;
-            size = objectSize;
+            SetPosition(objectPositions);
+            SetSize(objectSize);
             parent = objectParent;
             userOnClickCallback = onClickCallback;
-            isFixed = objectIsFixed;
-            angles = pen::Vec3(0.0f, 0.0f, 0.0f);
             isClickable = true;
 
             textureName = objectTextureName;
@@ -44,20 +50,8 @@ namespace pen {
             texCoordEndX = itemTexCoordEndX;
             texCoordEndY = itemTexCoordEndY;
 
-            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, objectShapeType, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
-                itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
-
-            shapeType = objectShapeType;
-
-            color = objectColor;
-
             /*Checks to make sure the item is on the screen to be rendered*/
             CheckActiveStatus();
-        }
-
-        UIObject::~UIObject() {
-            bufferPositions.clear();
-            textureName = "";
         }
 
         void UIObject::GetTextCyclesNum(const std::string& userText) {
@@ -88,7 +82,7 @@ namespace pen {
                 float h = ch.size.y * scale;
 
                 /*Set the width of the text box*/
-                if (firstLine) size.x += (w + (itemScaling * ch.bearing.x) + 0.5f);
+                if (firstLine) SetSize(pen::Vec2(GetSize()->x + (w + (itemScaling * ch.bearing.x) + 0.5f), GetSize()->y));
 
                 ch.advance *= itemScaling;
                 startPos += (ch.advance >> 6) * scale;
@@ -96,13 +90,12 @@ namespace pen {
                 if (!(itemCount == 9999 || (itemCount >= 9980 && isTextEditor))) {
                     if (isTextEditor) {
                         childItems.push_back(new pen::ui::Item(ID_ANY, pen::Vec3(xpos, ypos, zpos),
-                            pen::Vec2(w + (5.0f * itemScaling), inst->textScaling), pen::ui::Shape::QUAD, pen::PEN_BLUE, this, nullptr, isFixed));
+                            pen::Vec2(w + (5.0f * itemScaling), inst->textScaling), pen::PEN_BLUE, this, nullptr));
                         childItems[childItems.size() - 1]->isListItem = isListItem ? true : false;
                         childItems[childItems.size() - 1]->AllowActive(false);
                     }
-                        childItems.push_back(new pen::ui::TextCharacterItem(ID_ANY, pen::Vec3(xpos, ypos, zpos), pen::Vec2(w, h), this, userOnClickCallback, textColor, isFixed, tempStr, rowPos, counter));
+                        childItems.push_back(new pen::ui::TextCharacterItem(ID_ANY, pen::Vec3(xpos, ypos, zpos), pen::Vec2(w, h), this, userOnClickCallback, textColor, tempStr, rowPos, counter));
                         childItems[childItems.size() - 1]->isListItem = isListItem ? true : false;
-                        itemCount++;
 
                         /*Scale text if necessary*/
                         pen::ui::Scale(childItems[childItems.size() - 1], pen::Vec2(itemScaling, itemScaling), true);
@@ -126,8 +119,8 @@ namespace pen {
 
             while (startingPoint < userTextSize) {
                 /*Grabs the position for a given line of text based on the previous line position and the text box container positions*/
-                pen::Vec3 position = Vec3(positions.x,
-                    positions.y + size.y - (2.4f * textPadding) - (counter * stateInst->textScaling * 1.3f * itemScaling), positions.z);
+                pen::Vec3 position = Vec3(GetPosition()->x,
+                    GetPosition()->y + GetSize()->y - (2.4f * textPadding) - (counter * stateInst->textScaling * 1.3f * itemScaling), GetPosition()->z);
 
                 if (userTextSize <= textLength) { 
                     /*If there is only one text line for this text box, it generates it right away*/

@@ -28,82 +28,54 @@ namespace pen {
         unsigned int Shape::QUAD = 3;
         unsigned int Shape::BUFFER = 4;
         unsigned int Shape::OBJ_3D = 5;
-        unsigned int Shape::COMPLEX = 6;
 
-        std::vector<float> Shape::GetItemBatchData(pen::Vec3 pos, pen::Vec2 size, unsigned int shapeType, pen::Vec4 color, float* oldPositions, const float& angleX, const float& angleY, const float& angleZ, float texId,
+        std::vector<float> Shape::GetItemBatchData(pen::Vec3 position, pen::Vec2 size, unsigned int shapeType, pen::Vec4 color, float* oldPositions, float texId,
             float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
             /*
-            Pos position is for the bottom left corner of your sprite.
-            Size is essentially the length and width, or base and height of your shapes.
-            If the angle in radians is not 0, the original buffer position attribute will be copied since it was rotated.
+            Position is for the bottom left corner of the sprite.
+            Size is the length and width of the shapes.
+            This is for the pixel buffer creation and the graphically accelerated 3d items.
 
             Currently the attributes go:
                 Position (x, y, z)
                 Color (r, g, b, a)
                 Texture Coordinates (coefficients from 0 to 1 starting from the bottom left of the texture)
-                Texture Id (this is determined based on which asset you decide to use for a given object)
+                Texture Id (this is determined based on which asset is chosen for a given object)
             */
-            std::vector<float> positionsVect;
+            std::vector<float> positionsVector;
             switch (shapeType) {
             case 0:
                 //Point
-                positionsVect = { pos.x, pos.y, pos.z, color.x, color.y, color.z, color.w,0.0f, 0.0f,0.0f };
+                positionsVector = { position.x, position.y, position.z, color.x, color.y, color.z, color.w,0.0f, 0.0f,0.0f };
                 break;
             case 1:
                 //Line
-                if (angleX != 0.0f || angleY != 0.0f || angleZ != 0.0) {
-                    positionsVect = {
-                        oldPositions[0], oldPositions[1], oldPositions[2], color.x, color.y, color.z, color.w,0.0f, 0.0f,0.0f,
-                        oldPositions[SHAPE_BATCH_VERTEX_SIZE], oldPositions[SHAPE_BATCH_VERTEX_SIZE + 1], oldPositions[SHAPE_BATCH_VERTEX_SIZE + 2], color.x, color.y, color.z, color.w,0.0f, 0.0f,0.0f
-                    };
-                }
-                else {
-                    positionsVect = {
-                        pos.x, pos.y, pos.z, color.x, color.y, color.z, color.w,0.0f, 0.0f,0.0f,
-                        pos.x + size.x, pos.y, pos.z, color.x, color.y, color.z, color.w,0.0f, 0.0f,0.0f
-                    };
-                }
+                positionsVector = {
+                        position.x, position.y, position.z, color.x, color.y, color.z, color.w,0.0f, 0.0f,0.0f,
+                        position.x + size.x, position.y, position.z, color.x, color.y, color.z, color.w,0.0f, 0.0f,0.0f
+                };
                 break;
             case 2:
                 //Triangle
-                if (angleX != 0.0f || angleY != 0.0f || angleZ != 0.0) {
-                    positionsVect = {
-                            oldPositions[0], oldPositions[1], oldPositions[2], color.x, color.y, color.z, color.w,0.0f + itemTexCoordStartX, 0.0f + itemTexCoordStartY,texId,
-                            oldPositions[SHAPE_BATCH_VERTEX_SIZE], oldPositions[SHAPE_BATCH_VERTEX_SIZE + 1], oldPositions[SHAPE_BATCH_VERTEX_SIZE + 2], color.x, color.y, color.z, color.w,1.0f * itemTexCoordEndX, 0.0f + itemTexCoordStartY,texId,
-                            oldPositions[2 * SHAPE_BATCH_VERTEX_SIZE], oldPositions[2 * SHAPE_BATCH_VERTEX_SIZE + 1], oldPositions[2 * SHAPE_BATCH_VERTEX_SIZE + 2], color.x, color.y, color.z, color.w, 0.5f, 1.0f * itemTexCoordEndY,texId
-                    };
-                }
-                else {
-                    positionsVect = {
-                            pos.x, pos.y, pos.z, color.x, color.y, color.z, color.w,0.0f + itemTexCoordStartX, 0.0f + itemTexCoordStartY,texId,
-                            pos.x + size.x, pos.y, pos.z, color.x, color.y, color.z, color.w,1.0f * itemTexCoordEndX, 0.0f + itemTexCoordStartY,texId,
-                            (pos.x + (size.x / 2.0f)), pos.y + size.x, pos.z, color.x, color.y, color.z, color.w, 0.5f, 1.0f * itemTexCoordEndY,texId
-                    };
-                }
+                positionsVector = {
+                            position.x, position.y, position.z, color.x, color.y, color.z, color.w,0.0f + itemTexCoordStartX, 0.0f + itemTexCoordStartY,texId,
+                            position.x + size.x, position.y, position.z, color.x, color.y, color.z, color.w,1.0f * itemTexCoordEndX, 0.0f + itemTexCoordStartY,texId,
+                            (position.x + (size.x / 2.0f)), position.y + size.x, position.z, color.x, color.y, color.z, color.w, 0.5f, 1.0f * itemTexCoordEndY,texId
+                };
                 break;
             case 3:
             case 4:
                 //Quad    
-                if (angleX != 0.0f || angleY != 0.0f || angleZ != 0.0) {
-                    positionsVect = {
-                            oldPositions[0], oldPositions[1], oldPositions[2], color.x, color.y, color.z, color.w,0.0f + itemTexCoordStartX, 0.0f + itemTexCoordStartY,texId,
-                            oldPositions[SHAPE_BATCH_VERTEX_SIZE], oldPositions[SHAPE_BATCH_VERTEX_SIZE + 1], oldPositions[SHAPE_BATCH_VERTEX_SIZE + 2], color.x, color.y, color.z, color.w,1.0f * itemTexCoordEndX, 0.0f + itemTexCoordStartY,texId,
-                            oldPositions[2 * SHAPE_BATCH_VERTEX_SIZE], oldPositions[2 * SHAPE_BATCH_VERTEX_SIZE + 1], oldPositions[2 * SHAPE_BATCH_VERTEX_SIZE + 2], color.x, color.y, color.z, color.w,1.0f * itemTexCoordEndX, 1.0f * itemTexCoordEndY,texId,
-                            oldPositions[3 * SHAPE_BATCH_VERTEX_SIZE], oldPositions[3 * SHAPE_BATCH_VERTEX_SIZE + 1], oldPositions[3 * SHAPE_BATCH_VERTEX_SIZE + 2], color.x, color.y, color.z, color.w,0.0f + itemTexCoordStartX, 1.0f * itemTexCoordEndY,texId
-                    };
-                }
-                else {
-                    positionsVect = {
-                            pos.x, pos.y, pos.z, color.x, color.y, color.z, color.w,0.0f + itemTexCoordStartX, 0.0f + itemTexCoordStartY,texId,
-                            pos.x + size.x, pos.y, pos.z, color.x, color.y, color.z, color.w,1.0f * itemTexCoordEndX, 0.0f + itemTexCoordStartY,texId,
-                            pos.x + size.x, pos.y + size.y, pos.z, color.x, color.y, color.z, color.w,1.0f * itemTexCoordEndX, 1.0f * itemTexCoordEndY,texId,
-                            pos.x, pos.y + size.y, pos.z, color.x, color.y, color.z, color.w,0.0f + itemTexCoordStartX, 1.0f * itemTexCoordEndY,texId
-                    };
-                }
+                positionsVector = {
+                            position.x, position.y, position.z, color.x, color.y, color.z, color.w,0.0f + itemTexCoordStartX, 0.0f + itemTexCoordStartY,texId,
+                            position.x + size.x, position.y, position.z, color.x, color.y, color.z, color.w,1.0f * itemTexCoordEndX, 0.0f + itemTexCoordStartY,texId,
+                            position.x + size.x, position.y + size.y, position.z, color.x, color.y, color.z, color.w,1.0f * itemTexCoordEndX, 1.0f * itemTexCoordEndY,texId,
+                            position.x, position.y + size.y, position.z, color.x, color.y, color.z, color.w,0.0f + itemTexCoordStartX, 1.0f * itemTexCoordEndY,texId
+                };
                 break;
             case 5:
-                //Obj file 3D model triangle/quad primitives
-                positionsVect = {
+                /*Obj file 3D model triangle / quad primitives*/
+                positionsVector = {
                             oldPositions[0], oldPositions[1], oldPositions[2], color.x, color.y, color.z, color.w,0.0f + itemTexCoordStartX, 0.0f + itemTexCoordStartY,texId
                 };
                 break;
@@ -111,10 +83,10 @@ namespace pen {
                 break;
             }
 
-            return positionsVect;
+            return positionsVector;
         }
 
-        std::vector<float> Shape::BitmapFontPosition(pen::Vec3 pos, pen::Vec2 size, pen::Vec4 color, unsigned char characterIndex, float* oldPositions, const float& angleX, const float& angleY, const float& angleZ) {
+        std::vector<float> Shape::UpdateBitmapFontPosition(unsigned char characterIndex) {
             /*Returns buffer positions for objects using the bitmap font*/
 
             /*
@@ -131,31 +103,16 @@ namespace pen {
             float charUnit = 1.0f / 18.0f;
             float rowHeight = 1.0f / 7.0f;
 
-            float xPos = (characterIndex % 18) * charUnit - (charUnit / 6.0f);
-            float yPos = (6 - characterIndex / 18) * rowHeight;
+            float xPos = ((int)characterIndex % 18) * charUnit - (charUnit / 6.0f);
+            float yPos = (6 - (int)characterIndex / 18) * rowHeight;
 
             if (xPos < 0.0f) xPos = 0.0f;
 
-            std::vector<float> positionsVect;
+            std::vector<float> texCoordVector;
 
-            if (angleX != 0.0f || angleY != 0.0f || angleZ != 0.0) {
-                positionsVect = {
-                            oldPositions[0], oldPositions[1], oldPositions[2], color.y, color.z, color.w,xPos, yPos,BITMAP_FONT_ID,
-                            oldPositions[SHAPE_BATCH_VERTEX_SIZE], oldPositions[SHAPE_BATCH_VERTEX_SIZE + 1], oldPositions[SHAPE_BATCH_VERTEX_SIZE + 2], color.x, color.y, color.z, color.w,xPos + charUnit, yPos,BITMAP_FONT_ID,
-                            oldPositions[2 * SHAPE_BATCH_VERTEX_SIZE], oldPositions[2 * SHAPE_BATCH_VERTEX_SIZE + 1], oldPositions[2 * SHAPE_BATCH_VERTEX_SIZE + 2], color.x, color.y, color.z, color.w,xPos + charUnit, yPos + rowHeight,BITMAP_FONT_ID,
-                            oldPositions[3 * SHAPE_BATCH_VERTEX_SIZE], oldPositions[3 * SHAPE_BATCH_VERTEX_SIZE + 1], oldPositions[3 * SHAPE_BATCH_VERTEX_SIZE + 2], color.x, color.y, color.z, color.w,xPos, yPos + rowHeight,BITMAP_FONT_ID
-                };
-            }
-            else {
-                positionsVect = {
-                            pos.x, pos.y, pos.z, color.x, color.y, color.z, color.w,xPos, yPos,BITMAP_FONT_ID,
-                            pos.x + size.x, pos.y, pos.z, color.x, color.y, color.z, color.w,xPos + charUnit, yPos,BITMAP_FONT_ID,
-                            pos.x + size.x, pos.y + size.y, pos.z, color.x, color.y, color.z, color.w,xPos + charUnit, yPos + rowHeight,BITMAP_FONT_ID,
-                            pos.x, pos.y + size.y, pos.z, color.x, color.y, color.z, color.w,xPos, yPos + rowHeight,BITMAP_FONT_ID
-                };
-            }
+            texCoordVector = { xPos, yPos, xPos + charUnit, yPos + rowHeight };
 
-            return positionsVect;
+            return texCoordVector;
         }
     }
 }

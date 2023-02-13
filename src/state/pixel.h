@@ -20,7 +20,6 @@ under the License.
 *************************************************************************************************/
 #pragma once
 #include "state.h"
-#include "layer_manager.h"
 #include "../ops/matrices/mat3x3.h"
 #include "../ops/operations/operations.h"
 #include "../../ext/platforms/mac_ios/mac_ios_cpp_objective_c_mapping.h"
@@ -30,10 +29,6 @@ under the License.
 #endif
 
 namespace pen {
-	
-	static void InitializePixels(bool (*onKeyCallback)(pen::ui::Item*, int, int) = nullptr, bool (*onClickCallback)(pen::ui::Item*, int, int) = nullptr, bool (*onDragCallback)(pen::ui::Item*, double*, double*) = nullptr) {
-		pen::ui::InitializePixelBuffer(onKeyCallback, onClickCallback, onDragCallback);
-	}
 
 	static unsigned char* PixelBuffer() {
 		/*Returns a pointer to the pixel buffer*/
@@ -66,31 +61,6 @@ namespace pen {
 		pen::State* inst = pen::State::Get();
 		*x = (*x * (float)inst->screenWidth) / (float)pen::PixelBufferWidth();
 		*y = (*y * (float)inst->screenHeight) / (float)pen::PixelBufferHeight();
-	}
-
-	static void Pan(float panX, float panY, bool reset = false) {
-		/*Pan the pixel buffer based on screen dimensions*/
-
-		/*The distance is normalized and then scaled to be in the range of -1 to 1*/
-		pen::ui::LM::pixelLayer->translation.x += panX / pen::State::Get()->screenWidth * -2.0f;
-		pen::ui::LM::pixelLayer->translation.y += panY / pen::State::Get()->screenHeight * -2.0f;
-
-		if (reset) {
-			pen::ui::LM::pixelLayer->translation.x = 1.0f;
-			pen::ui::LM::pixelLayer->translation.y = 1.0f;
-		}
-	}
-
-	static void Zoom(float mag) {
-		/*Zoom in or out on the pixel buffer based on screen dimensions*/
-		if (mag >= 0.0f) {
-			pen::ui::Item* item = pen::ui::LM::pixelLayer->layerItems[0];
-			float newWidth = pen::State::Get()->screenWidth * mag;
-			float newHeight = pen::State::Get()->screenHeight * mag;
-			item->size.x = newWidth;
-			item->size.y = newHeight;
-			pen::ui::Submit();
-		}
 	}
 
 	static void Draw(int x, int y, pen::Vec4 color, bool mask = true) {
@@ -251,6 +221,8 @@ namespace pen {
 					}
 
 					/*This 0.5 is added on for the correct pixel to be selected*/
+					auto t = (int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4));
+					auto b = width * height * 4;
 					pen::Draw(x + (int)i, y + (int)outY, pen::Vec4((float)(data[(int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4))] / 255.0f) * color.x,
 						(float)(data[(int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4) + 1)] / 255.0f) * color.y,
 						(float)(data[(int)(((int)(oy + 0.5f)) * (width * 4) + (((int)(ox + 0.5f)) * 4) + 2)] / 255.0f) * color.z,
@@ -624,7 +596,7 @@ namespace pen {
 		return new pen::Item{ rect, length, height, startX, startY };
 	}
 
-	static void LoadSprite(const std::string& path, unsigned char* spriteData, int* texWidth, int* texHeight, int* texBPP) {
+	static void LoadSprite(const std::string& path, unsigned char*& spriteData, int* texWidth, int* texHeight, int* texBPP) {
 		/*Loads a pixel sprite*/
 		pen::Pair<std::string, pen::Sprite>* data = pen::State::Get()->pixelSprites.Find(path);
 		if (data != nullptr) {
@@ -782,7 +754,7 @@ namespace pen {
 		return item;
 	}
 
-	static void Animate(pen::Item* item, const std::string& path,
+	static void Animate(pen::Item*& item, const std::string& path,
 		float spriteTexCoordStartX = 0.0f, float spriteTexCoordStartY = 0.0f, float spriteTexCoordEndX = 1.0f, float spriteTexCoordEndY = 1.0f) {
 		/*Swaps animations for an item*/
 		pen::Item* newItem = pen::CreateSprite(item->x, item->y, item->width, item->height, path, spriteTexCoordStartX, spriteTexCoordStartY, spriteTexCoordEndX, spriteTexCoordEndY);

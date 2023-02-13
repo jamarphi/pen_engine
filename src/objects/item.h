@@ -29,6 +29,7 @@ under the License.
 #include "../state/state.h"
 #include "../state/asset.h"
 #include "../state/keys.h"
+#include "../state/pixel.h"
 #include <iostream>
 
 #define ITEM_BATCH_VERTEX_ELEMENTS 10
@@ -44,13 +45,11 @@ namespace pen {
 
         class Item {
         public:
-            Texture texture;
-            pen::Vec3 positions;
-            pen::Vec2 size;
-            pen::Vec3 angles;
-            std::vector<float> bufferPositions;
-            unsigned int shapeType;
+            pen::Item* data = nullptr;
             pen::Vec4 color;
+            Texture texture;
+            std::vector<float> bufferPositions;
+            unsigned int shapeType = pen::ui::Shape::QUAD;
             std::vector<pen::ui::Item*> childItems;
             float itemScaling = 1.0f;
            pen::ui::Item* parent;
@@ -60,12 +59,15 @@ namespace pen {
             bool isWireFrame = false;
             pen::Mat4x4 model;
 
+            /*Used for the pixel buffer static 2D background quads*/
+            bool isBackground = false;
+            unsigned int itemCount = 0;
+
             /*Used mainly for the text editor ui component*/
             bool isSingular = false;
 
             /*Used for if an item is a text character*/
-            bool isText = false;
-            unsigned int itemCount = 0;
+            bool isText = false;           
 
             /*Optional for user passing in a texture*/
             std::string textureName;
@@ -136,19 +138,19 @@ namespace pen {
             static std::vector<MtlData*>* mtlList;
             /*----For 3D items----*/
 
-            /*----For complex shape items----*/
-            unsigned int complexIndexCount = 0;
-            unsigned int originalComplexIndexCount = 0;
-            std::vector<int> complexIndices;
-            /*----For complex shape items----*/
+        private:
+            /*These are private since the getters and setters should be used to link data from the pixel item to the gui item*/
+            pen::Vec3 positions = pen::Vec3(0.0f, 0.0f, 0.0f);
+            pen::Vec2 size = pen::Vec2(0.0f, 0.0f);
 
+        public:
             Item();
 
-            Item(uint32_t objectId, float* positions, unsigned int objectVertexCount, int* indices, unsigned int objectIndexCount, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f), bool objectIsFixed = false,
-                bool objectIsWireFrame = false);
+            Item(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f), pen::ui::Item* objectParent = nullptr, bool (*onClickCallback)(Item*, int, int) = nullptr,
+                std::string objectTextureName = "", float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
 
             Item(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, unsigned int objectShapeType, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
-               pen::ui::Item* objectParent = nullptr, bool (*onClickCallback)(Item*, int, int) = nullptr, bool objectIsFixed = false, std::string objectTextureName = "",
+               pen::ui::Item* objectParent = nullptr, bool (*onClickCallback)(Item*, int, int) = nullptr, bool objectIsBackground = false, std::string objectTextureName = "",
                 float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
 
             ~Item();
@@ -157,6 +159,8 @@ namespace pen {
 
             virtual void Pop();
 
+            virtual void Draw();
+            virtual void UpdateDisplayFunction(float (*displayFunction)(int, int, float));
            pen::ui::Item* FindItem(uint32_t id);
             void RemoveItemById(uint32_t id);
             bool RemoveItem(Item* id);
@@ -164,16 +168,13 @@ namespace pen {
 
             /*----For updating child item offsets after scaling----*/
             void UpdateChildOffsets(const pen::Vec2& scaling);
-            pen::Vec2 ItemGetPointOfOrigin(float* positions, const int& axis);
-            void ItemRotate(const float& objectAngle, const int& axis, bool staticTransform = false,
-                const pen::Vec2& objectPointOfOrigin = pen::Vec2(0.0f, 0.0f), const bool& calculatePointOfOrigin = true);
             /*----For updating child item offsets after scaling----*/
 
-            virtual pen::Vec3 GetPosition();
+            virtual pen::Vec3* GetPosition();
             virtual void SetPosition(pen::Vec3 objectPos);
-            virtual pen::Vec2 GetSize();
+            virtual pen::Vec2* GetSize();
             virtual void SetSize(pen::Vec2 objectSize);
-            pen::Vec4 GetColor();
+            pen::Vec4* GetColor();
             virtual void SetColor(pen::Vec4 objectColor);
             bool GetActiveStatus();
             void AllowActive(bool status);
@@ -185,6 +186,10 @@ namespace pen {
             virtual void SetTextColor(pen::Vec4 itemTextColor, int pos = -1) {}
             virtual void UpdateText(const std::string& userText) {}
             /*----For textboxes----*/
+
+            /*----For text character items----*/
+            virtual void UpdateTextCharacter(unsigned char characterIndex) {}
+            /*----For text character items----*/
 
             /*----For sliders----*/
             virtual void UpdateSliderOrientation() {}

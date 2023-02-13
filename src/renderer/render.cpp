@@ -67,7 +67,7 @@ namespace pen {
         inst->camera.Update(0.1f, 1000.0f, &inst->appPerspectiveView, &inst->appPerspectiveProj, layer);
 
         /*This model view projection matrix is used for transformations of a given layer*/
-        pen::Mat4x4 mvp = (layer->model * (layer->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (layer->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
+        pen::Mat4x4 mvp = (layer->model * (layer->isUI ? inst->appOrthoView : inst->appPerspectiveView)) * (layer->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
 
         shader.SetUniformMat4x4f("uMVP", mvp);
 
@@ -107,7 +107,7 @@ namespace pen {
             inst->camera.Update(90, 0.1f, 1000.0f, &inst->appPerspectiveView, &inst->appPerspectiveProj, pen::ui::LM::layers[i]);
 
             /*This model view projection matrix is used for transformations of a given layer*/
-            pen::Mat4x4 mvp = (pen::ui::LM::layers[i]->model * (pen::ui::LM::layers[i]->isFixed ? inst->appOrthoView : inst->appPerspectiveView)) * (pen::ui::LM::layers[i]->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
+            pen::Mat4x4 mvp = (pen::ui::LM::layers[i]->model * (pen::ui::LM::layers[i]->isUI ? inst->appOrthoView : inst->appPerspectiveView)) * (pen::ui::LM::layers[i]->is3D ? inst->appPerspectiveProj : inst->appOrthoProj);
 
             MapMacIOSAddUniform(pen::ui::LM::layers[i]->id, mvp);
             

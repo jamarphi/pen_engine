@@ -23,7 +23,7 @@ under the License.
 namespace pen {
 	std::vector<pen::AnimationPixelItem> AnimationPixel::animationList = {};
 	
-	void AnimationPixel::Add(pen::Item* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::Item*, unsigned int), const float& unitA, const float& unitB, const float& unitC, const float& unitD) {
+	void AnimationPixel::Add(pen::Item* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::Item*, unsigned int), void (*onCustomAnimationCallback)(pen::Item*), const float& unitA, const float& unitB, const float& unitC, const float& unitD) {
 		/*Add animation to the queue*/
 		int frames = 0;
 		float deltaTime = 0.0035f;
@@ -36,6 +36,7 @@ namespace pen {
 		newItem.frames = frames;
 		newItem.ran = false;
 		newItem.onAnimationEnd = onAnimationEndEvent;
+		newItem.customAnimationCallback = onCustomAnimationCallback;
 		if (type == pen::AnimationType::COLOR) {
 			newItem.unitA = (unitA - item->color.x) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
 			newItem.unitB = (unitB - item->color.y) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
@@ -82,15 +83,15 @@ namespace pen {
 			pen::Scale(item.item, item.unitA, item.unitB > 0 ? item.unitB : item.unitA);
 			break;
         case 5:
-            /*Pan the pixel buffer, all three units are used since there are three values*/
-            pen::Pan(item.unitA, item.unitB, (item.unitC > 0.0f) ? true : false);
+            /*Pan the pixel buffer, two units are used since there are two values*/
+			pen::PanLayerCamera(item.unitA, item.unitB, 0.0f);
             break;
         case 6:
             /*Case 6 is ignored since this is 2D so there is no camera aiming*/
             break;
         case 7:
             /*Zoom the pixel buffer, only one unit is used since there is one value*/
-            pen::Zoom(item.unitA);
+			pen::PanLayerCamera(0.0f, 0.0f, item.unitA);
             break;
 		case 8:
 			/*Updates the color, all four units are used since there are four values*/
@@ -98,6 +99,9 @@ namespace pen {
 			item.item->color.y += item.unitB;
 			item.item->color.z += item.unitC;
 			item.item->color.w += item.unitD;
+			break;
+		case 9:
+			if (item.customAnimationCallback != nullptr) (*item.customAnimationCallback)(item.item);
 			break;
 		default:
 			break;

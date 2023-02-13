@@ -27,7 +27,18 @@ under the License.
 extern "C" {
     JNIEXPORT void JNICALL Java_com_jamar_penengine_PenSurfaceRenderer_nativeTouchesBegin(JNIEnv* env, jclass obj, jint id, jfloat x, jfloat y) {
         /*A touch has started*/
-        pen::State::Get()->mobileMouse->push_back(new pen::Tap{ id, (double)x, (double)pen::State::Get()->actualScreenHeight - (double)y });
+        pen::State* inst = pen::State::Get();
+
+        /*Flip y position to start from the bottom*/
+        float xPos;
+        float yPos = inst->actualScreenHeight - (float)y;
+
+        /*Scale based on screen width and height and convert to pixel buffer coordinates*/
+        xPos = (float)x * inst->screenWidth / inst->actualScreenWidth;
+        yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
+        xPos = xPos * pen::PixelBufferWidth() / inst->actualScreenWidth;
+        yPos = yPos * pen::PixelBufferHeight() / inst->actualScreenHeight;
+        pen::State::Get()->mobileMouse->push_back(new pen::Tap{ id, (int)xPos, (int)yPos });
         pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
     }
 
@@ -41,8 +52,19 @@ extern "C" {
             }
             else {
                 /*Updates the mobileMouse vector with the released point for handling in mobile_click_callback before removing it*/
-                inst->mobileMouse->at(i)->x = (double)x;
-                inst->mobileMouse->at(i)->y = (double)inst->actualScreenHeight - (double)y;
+
+                /*Flip y position to start from the bottom*/
+                float xPos;
+                float yPos = inst->actualScreenHeight - (float)y;
+
+                /*Scale based on screen width and height and convert to pixel buffer coordinates*/
+                xPos = (float)x * inst->screenWidth / inst->actualScreenWidth;
+                yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
+                xPos = xPos * pen::PixelBufferWidth() / inst->actualScreenWidth;
+                yPos = yPos * pen::PixelBufferHeight() / inst->actualScreenHeight;
+
+                inst->mobileMouse->at(i)->x = (int)xPos;
+                inst->mobileMouse->at(i)->y = (int)yPos;
             }
         }
         pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
@@ -65,8 +87,18 @@ extern "C" {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < inst->mobileMouse->size(); j++) {
                 if (inst->mobileMouse->at(j)->id == id[i]) {
-                    inst->mobileMouse->at(j)->x = (double)x[i];
-                    inst->mobileMouse->at(j)->y = (double)inst->actualScreenHeight - (double)y[i];
+                    /*Flip y position to start from the bottom*/
+                    float xPos;
+                    float yPos = inst->actualScreenHeight - (float)y[i];
+
+                    /*Scale based on screen width and height and convert to pixel buffer coordinates*/
+                    xPos = (float)x[i] * inst->screenWidth / inst->actualScreenWidth;
+                    yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
+                    xPos = xPos * pen::PixelBufferWidth() / inst->actualScreenWidth;
+                    yPos = yPos * pen::PixelBufferHeight() / inst->actualScreenHeight;
+
+                    inst->mobileMouse->at(j)->x = (int)xPos;
+                    inst->mobileMouse->at(j)->y = (int)yPos;
                     break;
                 }
             }

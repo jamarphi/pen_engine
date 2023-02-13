@@ -24,7 +24,7 @@ under the License.
 namespace pen {
     /*Draw types based on which primitive shape is being used for a given layer*/
 #ifndef __PEN_MAC_IOS__
-    int Renderer::drawType[7] = { GL_POINTS,GL_LINES,GL_TRIANGLES,GL_TRIANGLES,GL_TRIANGLES, GL_TRIANGLES, GL_TRIANGLES };
+    int Renderer::drawType[6] = { GL_POINTS,GL_LINES,GL_TRIANGLES,GL_TRIANGLES,GL_TRIANGLES, GL_TRIANGLES };
 #endif
 
     void Renderer::Clear() {

@@ -35,9 +35,9 @@ public:
 
     void InitializeObjects() {
         pen::Vec3 positions = pen::Vec3(100.0f, 100.0f, 0.0f);
-        pen::Vec2 size = pen::Vec2((pen::Pen::ScreenWidth() / 4.0f * 3.0f) - (pen::Pen::ScreenWidth() / 4.0f), (pen::Pen::ScreenHeight() / 4.0f * 3.0f) - (pen::Pen::ScreenHeight() / 4.0f));
+        pen::Vec2 size = pen::Vec2((pen::PixelBufferWidth() / 4.0f * 3.0f) - (pen::PixelBufferWidth() / 4.0f), (pen::PixelBufferWidth() / 4.0f * 3.0f) - (pen::PixelBufferWidth() / 4.0f));
         pen::ui::AddItem(new pen::ui::TextBox(0, "C++", positions, size.x, pen::PEN_RED));
-        //pen::ui::AddItem(new pen::ui::Item(0, positions, size, pen::ui::Shape::QUAD, pen::PEN_WHITE));
+        //pen::ui::AddItem(new pen::ui::Item(0, positions, size, pen::PEN_WHITE));
     }
 
     void OnCreate() override {

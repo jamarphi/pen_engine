@@ -33,6 +33,7 @@ namespace pen {
 		int frames;
 		bool ran;
 		void (*onAnimationEnd)(pen::GraphicallyAcceleratedItem3D*, unsigned int);
+		void (*customAnimationCallback)(pen::GraphicallyAcceleratedItem3D*);
 		float unitA;
 		float unitB;
 		float unitC;
@@ -44,7 +45,7 @@ namespace pen {
 		static std::vector<pen::Animation3DItem> animationList;
 
 	public:
-		static void Add(pen::GraphicallyAcceleratedItem3D* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::GraphicallyAcceleratedItem3D*, unsigned int), const float& unitA, const float& unitB = 0.0f, const float& unitC = 0.0f, const float& unitD = 0.0f);
+		static void Add(pen::GraphicallyAcceleratedItem3D* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::GraphicallyAcceleratedItem3D*, unsigned int), void (*onCustomAnimationCallback)(pen::GraphicallyAcceleratedItem3D*), const float& unitA, const float& unitB = 0.0f, const float& unitC = 0.0f, const float& unitD = 0.0f);
 		static bool CheckStatus(const pen::Animation3DItem& item);
 		static void Animate(pen::Animation3DItem item);
 		static void Run();

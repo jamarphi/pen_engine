@@ -27,18 +27,23 @@ namespace pen {
         TextEditor::TextEditor(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor,
             pen::Vec4 objectAccentColor, pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), bool (*onKeyCallback)(pen::ui::Item*, int, int), 
             std::string initialText, std::string objectTextureName, float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
+            if (objectTextureName != "") {
+                data = pen::CreateSprite(objectPositions.x, objectPositions.y, objectSize.x, objectSize.y, objectTextureName, itemTexCoordStartX,
+                    itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
+                data->color = objectAccentColor;
+            }
+            else {
+                data = pen::DrawRect(objectPositions.x, objectPositions.y, objectSize.x, objectSize.y, objectAccentColor);
+            }
             id = objectId;
             isUI = true;
             pen::State* inst = pen::State::Get();
-            positions = objectPositions;
-            size = objectSize;
+            SetPosition(objectPositions);
+            SetSize(objectSize);
             parent = objectParent;
             userOnClickCallback = onClickCallback;
             userOnKeyCallback = onKeyCallback;
-            isFixed = true;
-            angles = pen::Vec3(0.0f, 0.0f, 0.0f);
             isClickable = true;
-            isSingular = true;
             isTextEditor = true;
 
             textureName = objectTextureName;
@@ -50,16 +55,11 @@ namespace pen {
 
             origText = initialText;
 
-            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::QUAD, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
-                itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
-
             shapeType = pen::ui::Shape::QUAD;
 
-            color = objectAccentColor;
-
             /*----First child item is the container window----*/
-            Push(new pen::ui::Item(ID_ANY, pen::Vec3(positions.x + (0.03f * size.x), positions.y + (0.03f * size.y), positions.z), 
-                pen::Vec2(0.94f * size.x, 0.94f * size.y), pen::ui::Shape::QUAD, objectColor, this, onClickCallback, true));
+            Push(new pen::ui::Item(ID_ANY, pen::Vec3(GetPosition()->x + (0.03f * GetSize()->x), GetPosition()->y + (0.03f * GetSize()->y), GetPosition()->z), 
+                pen::Vec2(0.94f * GetSize()->x, 0.94f * GetSize()->y), objectColor, this, onClickCallback));
             containerWindow = childItems[0];
 
             float* offset = new float[2]{0.0f};
@@ -67,37 +67,37 @@ namespace pen {
             /*----First child item is the container window----*/
 
             /*----Initialize the text box within the container window----*/
-            containerWindow->Push(new pen::ui::TextBox(ID_ANY, initialText, pen::Vec3(containerWindow->positions.x,
-                containerWindow->positions.y + containerWindow->size.y - pen::State::Get()->textScaling, containerWindow->positions.z),
-                100, pen::PEN_TRANSPARENT, objectAccentColor, containerWindow, onClickCallback, true, "", 0.0f, 0.0f, 1.0f, 1.0f, true));
+            containerWindow->Push(new pen::ui::TextBox(ID_ANY, initialText, pen::Vec3(containerWindow->GetPosition()->x,
+                containerWindow->GetPosition()->y + containerWindow->GetSize()->y - pen::State::Get()->textScaling, containerWindow->GetPosition()->z),
+                100, pen::PEN_TRANSPARENT, objectAccentColor, containerWindow, onClickCallback, "", 0.0f, 0.0f, 1.0f, 1.0f));
             windowTextBox = containerWindow->childItems[0];
-            float textBoxScaling = (windowTextBox->size.x / containerWindow->size.x > 1.0f || windowTextBox->size.x / containerWindow->size.x < 0.5f ? 0.6f : windowTextBox->size.x / containerWindow->size.x);
+            float textBoxScaling = (windowTextBox->GetSize()->x / containerWindow->GetSize()->x > 1.0f || windowTextBox->GetSize()->x / containerWindow->GetSize()->x < 0.5f ? 0.6f : windowTextBox->GetSize()->x / containerWindow->GetSize()->x);
             pen::ui::Scale(windowTextBox, pen::Vec2(textBoxScaling, textBoxScaling), true);
             /*Scale the textbox by itself without updating its itemScaling variable*/
-            windowTextBox->size.x = containerWindow->size.x;
-            for (int i = 0; i < windowTextBox->childItems.size(); i+=2) windowTextBox->childItems[i + 1]->isClickable = true;
+            windowTextBox->SetSize(pen::Vec2(containerWindow->GetSize()->x, windowTextBox->GetSize()->y));
+            for (int i = 0; i < windowTextBox->childItems.size() - 1; i+=2) windowTextBox->childItems[i + 1]->isClickable = true;
             /*----Initialize the text box within the container window----*/
 
             /*----Create text cursor----*/
             containerWindow->Push(new pen::ui::Item(ID_ANY,
-                pen::Vec3(containerWindow->positions.x, containerWindow->positions.y + containerWindow->size.y - 20.0f, containerWindow->positions.z),
-                pen::Vec2(inst->textScaling * windowTextBox->itemScaling / 2.0f, 3.0f), pen::ui::Shape::QUAD, objectAccentColor, containerWindow, nullptr, true));
+                pen::Vec3(containerWindow->GetPosition()->x, containerWindow->GetPosition()->y + containerWindow->GetSize()->y - 20.0f, containerWindow->GetPosition()->z),
+                pen::Vec2(inst->textScaling * windowTextBox->itemScaling / 2.0f, 3.0f), objectAccentColor, containerWindow, nullptr));
             textCursor = containerWindow->childItems[1];
             textCursor->AllowActive(false);
             /*----Create text cursor----*/
 
             /*----Create the vertical scroll bar for this window----*/
-            containerWindow->Push(new pen::ui::ScrollBar(ID_ANY, pen::Vec3(containerWindow->positions.x + containerWindow->size.x - (0.05f * containerWindow->size.x),
-                containerWindow->positions.y, containerWindow->positions.z),
-                pen::Vec2(0.05f * containerWindow->size.x, containerWindow->size.y), objectAccentColor, objectColor, 0, 1, containerWindow, nullptr));
+            containerWindow->Push(new pen::ui::ScrollBar(ID_ANY, pen::Vec3(containerWindow->GetPosition()->x + containerWindow->GetSize()->x - (0.05f * containerWindow->GetSize()->x),
+                containerWindow->GetPosition()->y, containerWindow->GetPosition()->z),
+                pen::Vec2(0.05f * containerWindow->GetSize()->x, containerWindow->GetSize()->y), objectAccentColor, objectColor, 0, 1, containerWindow, nullptr));
             verticalScrollBar = containerWindow->childItems[2];
             verticalScrollBar->AllowActive(false);
             /*----Create the vertical scroll bar for this window----*/
 
             /*----Create the horizontal scroll bar for this window----*/
-            containerWindow->Push(new pen::ui::ScrollBar(ID_ANY, pen::Vec3(containerWindow->positions.x,
-                containerWindow->positions.y, containerWindow->positions.z),
-                pen::Vec2(containerWindow->size.x, 0.05f * containerWindow->size.y), objectAccentColor, objectColor, 1, 0, containerWindow, nullptr));
+            containerWindow->Push(new pen::ui::ScrollBar(ID_ANY, pen::Vec3(containerWindow->GetPosition()->x,
+                containerWindow->GetPosition()->y, containerWindow->GetPosition()->z),
+                pen::Vec2(containerWindow->GetSize()->x, 0.05f * containerWindow->GetSize()->y), objectAccentColor, objectColor, 1, 0, containerWindow, nullptr));
             horizontalScrollBar = containerWindow->childItems[3];
             horizontalScrollBar->AllowActive(false);
             /*----Create the horizontal scroll bar for this window----*/
@@ -105,18 +105,15 @@ namespace pen {
             CheckActiveStatus();
         }
 
-        TextEditor::~TextEditor() {}
-
         void TextEditor::UpdateTextCursor(pen::ui::Item* textCharacter) {
             /*Set the text cursor based on which text character was clicked*/
-            textCursor->positions.x = textCharacter->positions.x + textCharacter->size.x + 3.0f;
-            textCursor->positions.y = textCharacter->positions.y - 3.0f;
-            textCursor->positions.z = textCharacter->positions.z;
+            textCursor->SetPosition(pen::Vec3(textCharacter->GetPosition()->x + textCharacter->GetSize()->x + 3.0f, textCharacter->GetPosition()->y - 3.0f, textCharacter->GetPosition()->z));
 
             cursorIdx = textCharacter->charRowIdx * TEXT_EDITOR_LINE_LENGTH + textCharacter->charColumnIdx + 1;
 
             windowTextBox->childItems.size() > 0 ? textCursor->AllowActive(true) : textCursor->AllowActive(false);
 
+            pen::Flush();
             pen::ui::Submit();
         }
 
@@ -131,51 +128,51 @@ namespace pen {
             }
 
             /*For the horizontal scroll bar*/
-            float textBoxLength = windowTextBox->size.x;
-            float initialX = windowTextBox->positions.x;
+            float textBoxLength = windowTextBox->GetSize()->x;
+            float initialX = windowTextBox->GetPosition()->x;
             float finalX = 0.0f;
 
-            if (containerWindow->sliderOffset[1] == 0.0f && windowTextBox->positions.x > containerWindow->positions.x) {
+            if (containerWindow->sliderOffset[1] == 0.0f && windowTextBox->GetPosition()->x > containerWindow->GetPosition()->x) {
                 /*Caps it off at the beginning*/
-                finalX = containerWindow->positions.x;
+                finalX = containerWindow->GetPosition()->x;
             }
-            else if (containerWindow->sliderOffset[1] == 1.0f && (windowTextBox->positions.x < containerWindow->positions.x
-                || windowTextBox->positions.x + windowTextBox->size.x > containerWindow->positions.x + containerWindow->size.x)) {
+            else if (containerWindow->sliderOffset[1] == 1.0f && (windowTextBox->GetPosition()->x < containerWindow->GetPosition()->x
+                || windowTextBox->GetPosition()->x + windowTextBox->GetSize()->x > containerWindow->GetPosition()->x + containerWindow->GetSize()->x)) {
                 /*Caps it off at the end*/
-                finalX = containerWindow->positions.x - windowTextBox->size.x;
+                finalX = containerWindow->GetPosition()->x - windowTextBox->GetSize()->x;
             }
             else {
-                finalX = containerWindow->positions.x + (-1.0f * containerWindow->sliderOffset[1] * textBoxLength);
+                finalX = containerWindow->GetPosition()->x + (-1.0f * containerWindow->sliderOffset[1] * textBoxLength);
             }
 
             /*For the vertical scroll bar*/
-            windowTextBox->heightOfScrollParentItems = windowTextBox->size.y;
-            float initialY = windowTextBox->positions.y + windowTextBox->size.y;
+            windowTextBox->heightOfScrollParentItems = windowTextBox->GetSize()->y;
+            float initialY = windowTextBox->GetPosition()->y + windowTextBox->GetSize()->y;
             float finalY = 0.0f;
-            if (containerWindow->sliderOffset[0] == 0.0f && (windowTextBox->positions.y + windowTextBox->size.y >= containerWindow->positions.y + containerWindow->size.y - inst->textScaling - 0.5f
-                || windowTextBox->positions.y + windowTextBox->size.y <= containerWindow->positions.y + containerWindow->size.y - inst->textScaling + 0.5f)) {
+            if (containerWindow->sliderOffset[0] == 0.0f && (windowTextBox->GetPosition()->y + windowTextBox->GetSize()->y >= containerWindow->GetPosition()->y + containerWindow->GetSize()->y - inst->textScaling - 0.5f
+                || windowTextBox->GetPosition()->y + windowTextBox->GetSize()->y <= containerWindow->GetPosition()->y + containerWindow->GetSize()->y - inst->textScaling + 0.5f)) {
                 /*Caps it off at the beginning*/
-                finalY = containerWindow->positions.y + containerWindow->size.y - inst->textScaling - windowTextBox->size.y;
+                finalY = containerWindow->GetPosition()->y + containerWindow->GetSize()->y - inst->textScaling - windowTextBox->GetSize()->y;
             }
-            else if (containerWindow->sliderOffset[0] == 1.0f && (windowTextBox->positions.y >= containerWindow->positions.y + containerWindow->size.y - inst->textScaling - 0.5f
-                || windowTextBox->positions.y <= containerWindow->positions.y + containerWindow->size.y - inst->textScaling + 0.5f)) {
+            else if (containerWindow->sliderOffset[0] == 1.0f && (windowTextBox->GetPosition()->y >= containerWindow->GetPosition()->y + containerWindow->GetSize()->y - inst->textScaling - 0.5f
+                || windowTextBox->GetPosition()->y <= containerWindow->GetPosition()->y + containerWindow->GetSize()->y - inst->textScaling + 0.5f)) {
                 /*Caps it off at the end*/
-                finalY = containerWindow->positions.y + containerWindow->size.y - inst->textScaling + windowTextBox->size.y;
+                finalY = containerWindow->GetPosition()->y + containerWindow->GetSize()->y - inst->textScaling + windowTextBox->GetSize()->y;
             }
             else {
-                finalY = containerWindow->positions.y + containerWindow->size.y - inst->textScaling
+                finalY = containerWindow->GetPosition()->y + containerWindow->GetSize()->y - inst->textScaling
                     - (containerWindow->sliderOffset[0] * windowTextBox->heightOfScrollParentItems);
             }
             
-            pen::Vec3 translation = pen::Vec3(finalX - initialX, finalY - initialY, 0.0f);
-            pen::ui::Translate(windowTextBox, translation, true, true, false);
+            pen::Vec2 translation = pen::Vec2(finalX - initialX, finalY - initialY);
+            pen::ui::Translate(windowTextBox, translation, true);
 
             for (int i = 0; i < windowTextBox->childItems.size(); i++) {
                 /*Check to see if text is within bounds*/
-                if (windowTextBox->childItems[i]->positions.x + windowTextBox->childItems[i]->size.x < containerWindow->positions.x
-                    || windowTextBox->childItems[i]->positions.x > containerWindow->positions.x + containerWindow->size.x
-                    || windowTextBox->childItems[i]->positions.y + windowTextBox->childItems[i]->size.y < containerWindow->positions.y
-                    || windowTextBox->childItems[i]->positions.y > containerWindow->positions.y + containerWindow->size.y) {
+                if (windowTextBox->childItems[i]->GetPosition()->x + windowTextBox->childItems[i]->GetSize()->x < containerWindow->GetPosition()->x
+                    || windowTextBox->childItems[i]->GetPosition()->x > containerWindow->GetPosition()->x + containerWindow->GetSize()->x
+                    || windowTextBox->childItems[i]->GetPosition()->y + windowTextBox->childItems[i]->GetSize()->y < containerWindow->GetPosition()->y
+                    || windowTextBox->childItems[i]->GetPosition()->y > containerWindow->GetPosition()->y + containerWindow->GetSize()->y) {
                     windowTextBox->childItems[i]->AllowActive(false);
                 }
                 else {
@@ -183,6 +180,7 @@ namespace pen {
                 }
             }
 
+            pen::Flush();
             pen::ui::Submit();
         }
 
@@ -227,9 +225,9 @@ namespace pen {
 
                     int counter = 0;
                     for (int i = 0; i < windowTextBox->childItems.size(); i += 2) {
-                        if ((*xPos >= windowTextBox->childItems[i + 1]->positions.x && *xPos <= windowTextBox->childItems[i + 1]->positions.x
-                            + windowTextBox->childItems[i + 1]->size.x) && (*yPos >= windowTextBox->childItems[i + 1]->positions.y && *yPos
-                                <= windowTextBox->childItems[i + 1]->positions.y + windowTextBox->childItems[i + 1]->size.y)) {
+                        if ((*xPos >= windowTextBox->childItems[i + 1]->GetPosition()->x && *xPos <= windowTextBox->childItems[i + 1]->GetPosition()->x
+                            + windowTextBox->childItems[i + 1]->GetSize()->x) && (*yPos >= windowTextBox->childItems[i + 1]->GetPosition()->y && *yPos
+                                <= windowTextBox->childItems[i + 1]->GetPosition()->y + windowTextBox->childItems[i + 1]->GetSize()->y)) {
                             /*Highlight this character and update the text cursor position*/
                             windowTextBox->childItems[i]->AllowActive(true);
 
@@ -266,6 +264,7 @@ namespace pen {
                     }
 
                     if (isTextHighlighted) textHighlighted = true;
+                    pen::Flush();
                     pen::ui::Submit();
                 }
                 return true;
@@ -361,50 +360,50 @@ namespace pen {
                     for (int i = 0; i < windowTextBox->childItems.size(); i += 2) windowTextBox->childItems[i + 1]->isClickable = true;
 
                     /*Check to see if vertical scroll bar is needed*/
-                    if (windowTextBox->size.y > containerWindow->size.y / 4.0f * 3.0f) {
+                    if (windowTextBox->GetSize()->y > containerWindow->GetSize()->y / 4.0f * 3.0f) {
                         verticalScrollBar->AllowActive(true);
                     }
 
                     /*Check to see if horizontal scroll bar is needed*/
-                    if (windowTextBox->childItems[windowTextBox->childItems.size() - 1]->positions.x > containerWindow->positions.x + containerWindow->size.x) {
+                    if (windowTextBox->childItems[windowTextBox->childItems.size() - 1]->GetPosition()->x > containerWindow->GetPosition()->x + containerWindow->GetSize()->x) {
                         horizontalScrollBar->AllowActive(true);
                         if (key != pen::in::KEYS::BACKSPACE) {
-                            float textOffset = (containerWindow->positions.x + containerWindow->size.x - windowTextBox->childItems[windowTextBox->childItems.size() - 1]->size.x)
-                                - (windowTextBox->childItems[windowTextBox->childItems.size() - 1]->positions.x);
-                            pen::ui::Translate(windowTextBox, pen::Vec3(textOffset, 0.0f, 0.0f), true);
-                            containerWindow->sliderOffset[1] += (-1.0f * textOffset * (horizontalScrollBar->size.x - horizontalScrollBar->childItems[0]->size.x - horizontalScrollBar->childItems[1]->size.x)
+                            float textOffset = (containerWindow->GetPosition()->x + containerWindow->GetSize()->x - windowTextBox->childItems[windowTextBox->childItems.size() - 1]->GetSize()->x)
+                                - (windowTextBox->childItems[windowTextBox->childItems.size() - 1]->GetPosition()->x);
+                            pen::ui::Translate(windowTextBox, pen::Vec2(textOffset, 0.0f), true);
+                            containerWindow->sliderOffset[1] += (-1.0f * textOffset * (horizontalScrollBar->GetSize()->x - horizontalScrollBar->childItems[0]->GetSize()->x - horizontalScrollBar->childItems[1]->GetSize()->x)
                                 / (TEXT_EDITOR_LINE_LENGTH * windowTextBox->itemScaling * pen::State::Get()->textScaling));
                             if (containerWindow->sliderOffset[1] > 1.0f) {
                                 containerWindow->sliderOffset[1] /= 1000.0f;
                                 if (containerWindow->sliderOffset[1] > 1.0f) containerWindow->sliderOffset[1] = 1.0f;
                             }
-                            pen::ui::Translate(horizontalScrollBar->childItems[2], pen::Vec3(containerWindow->sliderOffset[1]
-                                * (horizontalScrollBar->size.x - horizontalScrollBar->childItems[0]->size.x - horizontalScrollBar->childItems[1]->size.x), 0.0f, 0.0f), true);
-                            if (horizontalScrollBar->childItems[2]->positions.x + horizontalScrollBar->childItems[2]->size.x > horizontalScrollBar->childItems[1]->positions.x)
-                                horizontalScrollBar->childItems[2]->positions.x = horizontalScrollBar->childItems[1]->positions.x - horizontalScrollBar->childItems[2]->size.x;
+                            pen::ui::Translate(horizontalScrollBar->childItems[2], pen::Vec2(containerWindow->sliderOffset[1]
+                                * (horizontalScrollBar->GetSize()->x - horizontalScrollBar->childItems[0]->GetSize()->x - horizontalScrollBar->childItems[1]->GetSize()->x), 0.0f), true);
+                            if (horizontalScrollBar->childItems[2]->GetPosition()->x + horizontalScrollBar->childItems[2]->GetSize()->x > horizontalScrollBar->childItems[1]->GetPosition()->x)
+                                horizontalScrollBar->childItems[2]->GetPosition()->x = horizontalScrollBar->childItems[1]->GetPosition()->x - horizontalScrollBar->childItems[2]->GetSize()->x;
                         }
                     }
 
                     if (key == pen::in::KEYS::BACKSPACE && horizontalScrollBar->forceActive) {
                         float textOffset = windowTextBox->itemScaling * pen::State::Get()->textScaling;
-                        pen::ui::Translate(windowTextBox, pen::Vec3(textOffset, 0.0f, 0.0f), true);
-                        containerWindow->sliderOffset[1] += (-1.0f / 1000.0f * textOffset * (horizontalScrollBar->size.x - horizontalScrollBar->childItems[0]->size.x - horizontalScrollBar->childItems[1]->size.x)
+                        pen::ui::Translate(windowTextBox, pen::Vec2(textOffset, 0.0f), true);
+                        containerWindow->sliderOffset[1] += (-1.0f / 1000.0f * textOffset * (horizontalScrollBar->GetSize()->x - horizontalScrollBar->childItems[0]->GetSize()->x - horizontalScrollBar->childItems[1]->GetSize()->x)
                             / (TEXT_EDITOR_LINE_LENGTH * windowTextBox->itemScaling * pen::State::Get()->textScaling));
                         if (containerWindow->sliderOffset[1] < 0.0f) {
                             containerWindow->sliderOffset[1] = 0.0f;
                         }
-                        pen::ui::Translate(horizontalScrollBar->childItems[2], pen::Vec3(-1.0f * containerWindow->sliderOffset[1]
-                            * (horizontalScrollBar->size.x - horizontalScrollBar->childItems[0]->size.x - horizontalScrollBar->childItems[1]->size.x), 0.0f, 0.0f), true);
-                        if (horizontalScrollBar->childItems[2]->positions.x < horizontalScrollBar->childItems[0]->positions.x + horizontalScrollBar->childItems[0]->size.x
+                        pen::ui::Translate(horizontalScrollBar->childItems[2], pen::Vec2(-1.0f * containerWindow->sliderOffset[1]
+                            * (horizontalScrollBar->GetSize()->x - horizontalScrollBar->childItems[0]->GetSize()->x - horizontalScrollBar->childItems[1]->GetSize()->x), 0.0f), true);
+                        if (horizontalScrollBar->childItems[2]->GetPosition()->x < horizontalScrollBar->childItems[0]->GetPosition()->x + horizontalScrollBar->childItems[0]->GetSize()->x
                             || containerWindow->sliderOffset[1] < 0.1f)
-                            horizontalScrollBar->childItems[2]->positions.x = horizontalScrollBar->childItems[0]->positions.x + horizontalScrollBar->childItems[0]->size.x;
+                            horizontalScrollBar->childItems[2]->GetPosition()->x = horizontalScrollBar->childItems[0]->GetPosition()->x + horizontalScrollBar->childItems[0]->GetSize()->x;
                     }
 
                     UpdateTextCursor(windowTextBox->childItems[(cursorIdx > 0 ? cursorIdx * 2 - 1 : 0)]);
 
                     for (int i = 1; i < windowTextBox->childItems.size(); i+=2) {
-                        if (windowTextBox->childItems[i]->positions.x < containerWindow->positions.x ||
-                            windowTextBox->childItems[i]->positions.x > containerWindow->positions.x + containerWindow->size.x) {
+                        if (windowTextBox->childItems[i]->GetPosition()->x < containerWindow->GetPosition()->x ||
+                            windowTextBox->childItems[i]->GetPosition()->x > containerWindow->GetPosition()->x + containerWindow->GetSize()->x) {
                             windowTextBox->childItems[i]->AllowActive(false);
                         }
                         else {
@@ -412,6 +411,7 @@ namespace pen {
                         }
                     }
 
+                    pen::Flush();
                     pen::ui::Submit();
                 }
             }
@@ -421,8 +421,8 @@ namespace pen {
         std::string TextEditor::ConvertChar(const int& character) {
             /*Convert char to ascii byte code*/
             if (character == pen::in::KEYS::ENTER) {
-                pen::ui::Translate(windowTextBox, pen::Vec3(containerWindow->positions.x - windowTextBox->positions.x, 0.0f, 0.0f), true);
-                horizontalScrollBar->childItems[2]->positions.x = horizontalScrollBar->childItems[0]->positions.x + horizontalScrollBar->childItems[0]->size.x;
+                pen::ui::Translate(windowTextBox, pen::Vec2(containerWindow->GetPosition()->x - windowTextBox->GetPosition()->x, 0.0f), true);
+                horizontalScrollBar->childItems[2]->GetPosition()->x = horizontalScrollBar->childItems[0]->GetPosition()->x + horizontalScrollBar->childItems[0]->GetSize()->x;
                 containerWindow->sliderOffset[1] = 0.0f;
                 return "\n";
             }

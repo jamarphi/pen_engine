@@ -223,16 +223,24 @@ namespace pen {
         FileModal::FileModal(uint32_t objectId, unsigned int userIntent, std::string userMimeType, pen::Vec4 objectColor, pen::Vec4 objectAccentColor,
             pen::ui::Item* objectParent, void (*onPathLoadCallback)(pen::ui::Item*, std::string, bool), std::string objectTextureName, float itemTexCoordStartX, float itemTexCoordStartY,
             float itemTexCoordEndX, float itemTexCoordEndY) {
+            pen::Vec2 position = pen::Vec2(pen::PixelBufferHeight() / 3.0f, pen::PixelBufferHeight() / 3.0f);
+            pen::Vec2 size = pen::Vec2(pen::PixelBufferHeight() / 3.0f, pen::PixelBufferHeight() / 2.0f);
+            if (objectTextureName != "") {
+                data = pen::CreateSprite(position.x, position.y, size.x, size.y, objectTextureName, itemTexCoordStartX,
+                    itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
+                data->color = objectAccentColor;
+            }
+            else {
+                data = pen::DrawRect(position.x, position.y, size.x, size.y, objectAccentColor);
+            }
             id = objectId;
             isUI = true;
             pen::State* inst = pen::State::Get();
-            positions = pen::Vec3(inst->screenWidth / 3.0f, inst->screenHeight / 3.0f, 0.0f);
-            size = pen::Vec2(inst->screenWidth / 3.0f, inst->screenHeight / 2.0f);
+            SetPosition(pen::Vec3(position.x, position.y, 0.0f));
+            SetSize(pen::Vec2(size.x, size.y));
             parent = objectParent;
             userOnClickCallback = &OnFileModalSetFocus;
             userOnPathLoadCallback = onPathLoadCallback;
-            isFixed = true;
-            angles = pen::Vec3(0.0f, 0.0f, 0.0f);
             isClickable = true;
             fileModalIntent = userIntent;
             fileModalMimeType = "";
@@ -247,12 +255,7 @@ namespace pen {
             texCoordEndX = itemTexCoordEndX;
             texCoordEndY = itemTexCoordEndY;
 
-            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::QUAD, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
-                itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
-
             shapeType = pen::ui::Shape::QUAD;
-
-            color = objectAccentColor;
 
             std::string objectTitle = "";
             std::string fileInputText = "";
@@ -273,28 +276,28 @@ namespace pen {
             }
 
             /*Initialize the title*/
-            Push(new pen::ui::TextBox(ID_ANY, objectTitle, pen::Vec3(positions.x, positions.y + size.y - (0.1f * size.y), 0.0f),
-                objectTitle.size(), 0.1f * size.y, pen::PEN_TRANSPARENT, objectColor, nullptr, nullptr, true));
-            childItems[0]->size.x = size.x;
+            Push(new pen::ui::TextBox(ID_ANY, objectTitle, pen::Vec3(position.x, position.y + size.y - (0.1f * size.y), 0.0f),
+                objectTitle.size(), 0.1f * size.y, pen::PEN_TRANSPARENT, objectColor, nullptr, nullptr));
+            childItems[0]->SetSize(pen::Vec2(size.x, childItems[0]->GetSize()->y));
 
             /*List component*/
-            Push(new pen::ui::VerticalList(ID_ANY, pen::Vec3(positions.x, positions.y + (size.y / 5.0f), positions.z),
+            Push(new pen::ui::VerticalList(ID_ANY, pen::Vec3(position.x, position.y + (size.y / 5.0f), 0.0f),
                 pen::Vec2(size.x, size.y / 3.0f * 2.1f), objectAccentColor, objectColor, this, nullptr));
             list = childItems[1];
 
             /*Cancel button*/
-            Push(new pen::ui::Button(ID_ANY, "X", pen::Vec3(positions.x + (size.x / 10.0f * 9.0f), positions.y + (size.y / 10.0f * 9.0f), 0.0f),
-                size.x / 10.0f, pen::PEN_TRANSPARENT, objectAccentColor, this, &OnFileModalButtonClicked, true));
+            Push(new pen::ui::Button(ID_ANY, "X", pen::Vec3(position.x + (size.x / 10.0f * 9.0f), position.y + (size.y / 10.0f * 9.0f), 0.0f),
+                size.x / 10.0f, pen::PEN_TRANSPARENT, objectAccentColor, this, &OnFileModalButtonClicked));
             cancelBtn = childItems[2];
 
             /*Confirm button*/
-            Push(new pen::ui::Button(ID_ANY, "OK", pen::Vec3(positions.x + (size.x / 10.0f * 8.0f), positions.y + size.y / 11.0f, 0.0f),
-                size.x / 10.0f, pen::PEN_TRANSPARENT, objectColor, this, &OnFileModalButtonClicked, true));
+            Push(new pen::ui::Button(ID_ANY, "OK", pen::Vec3(position.x + (size.x / 10.0f * 8.0f), position.y + size.y / 11.0f, 0.0f),
+                size.x / 10.0f, pen::PEN_TRANSPARENT, objectColor, this, &OnFileModalButtonClicked));
             confirmBtn = childItems[3];
 
             /*File input box*/
-            Push(new pen::ui::TextBox(ID_ANY, fileInputText, pen::Vec3(positions.x, positions.y + size.y / 9.0f, positions.z), 20, pen::PEN_TRANSPARENT, pen::PEN_WHITE,
-                this, nullptr, true));
+            Push(new pen::ui::TextBox(ID_ANY, fileInputText, pen::Vec3(position.x, position.y + size.y / 9.0f, 0.0f), 20, pen::PEN_TRANSPARENT, pen::PEN_WHITE,
+                this, nullptr));
             fileInput = childItems[4];
             fileInput->itemScaling = 0.8f;
 
@@ -304,7 +307,7 @@ namespace pen {
             }
 
             if (childItems[0]->childItems.size() > 0) {
-                if (childItems[0]->childItems[0]->positions.y < childItems[0]->positions.y) {
+                if (childItems[0]->childItems[0]->GetPosition()->y < childItems[0]->GetPosition()->y) {
                     /*Hide the title*/
                     for (int i = 0; i < childItems[0]->childItems.size(); i++) childItems[0]->childItems[i]->AllowActive(false);
                 }
@@ -314,8 +317,6 @@ namespace pen {
 
             CheckActiveStatus();
         }
-
-        FileModal::~FileModal() {}
 
         void FileModal::UpdateFileModalListing(std::string directoryPath, bool recursive, bool firstIter) {
             /*Load in new list items based on given directory path for Windows*/      
@@ -359,7 +360,7 @@ namespace pen {
                                     /*Adds a file to the list*/
                                     fileModalList.push_back(directoryPath + entryName);
                                     if (fileModalIntent != pen::ui::FILE_INTENT::SELECT_FILES) {
-                                        list->Push(new pen::ui::Button(ID_ANY, entryName, pen::Vec3(0.0f, inst->screenHeight - 40.0f, 0.0f), 50, pen::PEN_BLUE, color, list, &OnFileModalItemSelected, true));
+                                        list->Push(new pen::ui::Button(ID_ANY, entryName, pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 50, pen::PEN_BLUE, *GetColor(), list, &OnFileModalItemSelected));
                                         if (list->childItems[list->childItems.size() - 2]->itemScaling > 1.0f) {
                                             float scaling = 1.0f / list->childItems[list->childItems.size() - 2]->itemScaling;
                                             pen::ui::Scale(list->childItems[list->childItems.size() - 2], pen::Vec2(scaling, scaling), true);
@@ -369,7 +370,7 @@ namespace pen {
                                 else {
                                     /*Adds a directory to the list*/
                                     if (entryName.find(".") == std::string::npos && entryName != "..") {
-                                        list->Push(new pen::ui::Button(ID_ANY, entryName, pen::Vec3(0.0f, inst->screenHeight - 40.0f, 0.0f), 50, pen::PEN_YELLOW, color, list, &OnFileModalItemSelected, true));
+                                        list->Push(new pen::ui::Button(ID_ANY, entryName, pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 50, pen::PEN_YELLOW, *GetColor(), list, &OnFileModalItemSelected));
                                         if (list->childItems[list->childItems.size() - 2]->itemScaling > 1.0f) {
                                             float scaling = 1.0f / list->childItems[list->childItems.size() - 2]->itemScaling;
                                             pen::ui::Scale(list->childItems[list->childItems.size() - 2], pen::Vec2(scaling, scaling), true);
@@ -384,7 +385,7 @@ namespace pen {
                     /*This adds a way to get to the previous directory if not loaded in*/
                     if (list->childItems.size() >= 2 && directoryPath != "C://") {
                         if (list->childItems[1]->origText != "..") {
-                            list->Push(new pen::ui::Button(ID_ANY, "..", pen::Vec3(0.0f, inst->screenHeight - 40.0f, 0.0f), 50, pen::PEN_YELLOW, color, list, &OnFileModalItemSelected, true));
+                            list->Push(new pen::ui::Button(ID_ANY, "..", pen::Vec3(0.0f, inst->screenHeight - 40.0f, 0.0f), 50, pen::PEN_YELLOW, *GetColor(), list, &OnFileModalItemSelected));
                             pen::ui::Item* prevDir = list->childItems[list->childItems.size() - 2];
                             std::vector<pen::ui::Item*> tempList;
                             for (int i = 0; i < list->childItems.size(); i++) {
@@ -405,7 +406,7 @@ namespace pen {
 
                             /*This redundant item is pushed and popped to force an update of the vertical list component without
                             having to make the UpdateItemPositions function available to pen::ui::Item*/
-                            list->Push(new pen::ui::Button(ID_ANY, "..", pen::Vec3(0.0f, inst->screenHeight - 40.0f, 0.0f), 50, pen::PEN_YELLOW, color, list, &OnFileModalItemSelected, true));
+                            list->Push(new pen::ui::Button(ID_ANY, "..", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 50, pen::PEN_YELLOW, *GetColor(), list, &OnFileModalItemSelected));
                             list->Pop();
                         }
                     }

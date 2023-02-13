@@ -23,7 +23,7 @@ under the License.
 namespace pen {
 	std::vector<pen::AnimationPixel3DItem> AnimationPixel3D::animationList = {};
 
-	void AnimationPixel3D::Add(pen::Item3D* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::Item3D*, unsigned int), const float& unitA, const float& unitB, const float& unitC, const float& unitD) {
+	void AnimationPixel3D::Add(pen::Item3D* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::Item3D*, unsigned int), void (*onCustomAnimationCallback)(pen::Item3D*), const float& unitA, const float& unitB, const float& unitC, const float& unitD) {
 		/*Add animation to the queue*/
 		int frames = 0;
 		float deltaTime = 0.0035f;
@@ -36,6 +36,7 @@ namespace pen {
 		newItem.frames = frames;
 		newItem.ran = false;
 		newItem.onAnimationEnd = onAnimationEndEvent;
+		newItem.customAnimationCallback = onCustomAnimationCallback;
 		if (type == pen::AnimationType::COLOR) {
 			newItem.unitA = (unitA - item->color.x) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
 			newItem.unitB = (unitB - item->color.y) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
@@ -98,6 +99,9 @@ namespace pen {
 			item.item->color.y += item.unitB;
 			item.item->color.z += item.unitC;
 			item.item->color.w += item.unitD;
+			break;
+		case 9:
+			if (item.customAnimationCallback != nullptr) (*item.customAnimationCallback)(item.item);
 			break;
 		default:
 			break;

@@ -150,20 +150,20 @@ public:
 
     void InitializeObjects() {
         float posX = 1.0f;
-        float posY = pen::Pen::ScreenHeight() - (pen::Pen::ScreenHeight() / 10.0f);
-        pen::Vec2 size = pen::Vec2(pen::Pen::ScreenWidth() / 10.0f - 5.0f, pen::Pen::ScreenHeight() / 10.0f - 5.0f);
+        float posY = pen::PixelBufferHeight() - (pen::PixelBufferHeight() / 10.0f);
+        pen::Vec2 size = pen::Vec2(pen::PixelBufferWidth() / 10.0f - 5.0f, pen::PixelBufferWidth() / 10.0f - 5.0f);
 
         /*Create the grid*/
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < M; j++) {
                 pen::ui::AddItem(new pen::ui::TextBox(i * N + j, std::to_string(userMatrix[i][j]), 
-                    pen::Vec3(posX + ((pen::Pen::ScreenWidth() / 10) * j), posY - ((pen::Pen::ScreenHeight() / 10.0f) * i), 0.0f), size.x, size.y, 
+                    pen::Vec3(posX + ((pen::PixelBufferWidth() / 10) * j), posY - ((pen::PixelBufferHeight() / 10.0f) * i), 0.0f), size.x, size.y,
                     (userMatrix[i][j] == 1) ? pen::BLUE : pen::PEN_RED, pen::PEN_WHITE));
             }
         }
         
         /*Add textbox for current area*/
-        pen::ui::AddItem(new pen::ui::TextBox(102, "Current area: 0", pen::Vec3(30.0f, pen::Pen::ScreenHeight() - 50.0f, 0.0f), pen::Pen::ScreenWidth() / 3.0f,
+        pen::ui::AddItem(new pen::ui::TextBox(102, "Current area: 0", pen::Vec3(30.0f, pen::PixelBufferHeight() - 50.0f, 0.0f), pen::PixelBufferWidth() / 3.0f,
             pen::PEN_WHITE, pen::PEN_BLACK));
     }
 
@@ -244,7 +244,7 @@ public:
                 /*Algorithm is finished*/
                 const std::string maxArea = "Your max area is: " + std::to_string(rectArea);
                 pen::ui::AddItem(new pen::ui::TextBox(101, maxArea,
-                    pen::Vec3(pen::Pen::ScreenWidth() / 2.0f, pen::Pen::ScreenHeight() / 2.0f - 10.0f, 0.0f), (pen::Pen::ScreenWidth() / 4.0f), (pen::Pen::ScreenHeight() / 10.0f),
+                    pen::Vec3(pen::PixelBufferWidth() / 2.0f, pen::PixelBufferHeight() / 2.0f - 10.0f, 0.0f), (pen::PixelBufferWidth() / 4.0f), (pen::PixelBufferHeight() / 10.0f),
                     pen::PEN_WHITE, pen::PEN_BLACK));
             }
             else {

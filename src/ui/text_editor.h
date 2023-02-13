@@ -48,7 +48,6 @@ namespace pen {
 				pen::Vec4 objectAccentColor = pen::Vec4(0.8f, 0.8f, 0.8f, 1.0f), pen::ui::Item* objectParent = nullptr, bool (*onClickCallback)(pen::ui::Item*, int, int) = nullptr, bool (*onKeyCallback)(pen::ui::Item*, int, int) = nullptr, 
 				std::string initialText = "", std::string objectTextureName = "", float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f,
 				float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
-			~TextEditor();
 
 			void UpdateTextCursor(pen::ui::Item* textCharacter);
 			void ScrollBarUpdateItemPositions();

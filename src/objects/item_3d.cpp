@@ -24,19 +24,17 @@ namespace pen {
     GraphicallyAcceleratedItem3D::GraphicallyAcceleratedItem3D() {}
 
     GraphicallyAcceleratedItem3D::GraphicallyAcceleratedItem3D(bool childItem, pen::Vec3 objectPositions, unsigned int objectShapeType, pen::Vec4 objectColor,
-        bool objectIsFixed, float* objectBufferPositions, const std::string& objectTexture) {
+        float* objectBufferPositions, const std::string& objectTexture) {
         /*3D child item constructor*/
-        positions = objectPositions;
-        size = pen::Vec2(50.0f, 50.0f);
-        isFixed = objectIsFixed;
-        angles = pen::Vec3(0.0f, 0.0f, 0.0f);
+        SetPosition(objectPositions);
+        SetSize(pen::Vec2(50.0f, 50.0f));
         isSingular = true;
         shapeType = objectShapeType;
         color = objectColor;
         model = pen::Mat4x4(1.0f);
         textureName = objectTexture;
 
-        bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::OBJ_3D, objectColor, objectBufferPositions, 0.0f, 0.0f, 0.0f, GetAssetId());
+        bufferPositions = pen::ui::Shape::GetItemBatchData(*GetPosition(), *GetSize(), pen::ui::Shape::OBJ_3D, objectColor, objectBufferPositions, 0.0f, 0.0f, 0.0f, GetAssetId());
 
         /*Checks to make sure the item is on the screen to be rendered*/
         CheckActiveStatus();
@@ -44,15 +42,13 @@ namespace pen {
 
 #ifndef __PEN_MAC_IOS__
     GraphicallyAcceleratedItem3D::GraphicallyAcceleratedItem3D(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor,
-        bool objectIsFixed, std::string objectTextureName,
+        std::string objectTextureName,
         float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
         /*Regular constructor*/
         id = objectId;
-        positions = objectPositions;
+        SetPosition(objectPositions);
         /*Size does not matter for the main item*/
-        size = objectSize;
-        isFixed = objectIsFixed;
-        angles = pen::Vec3(0.0f, 0.0f, 0.0f);
+        SetSize(objectSize);
         isSingular = true;
 
         shapeType = pen::ui::Shape::OBJ_3D;
@@ -73,15 +69,13 @@ namespace pen {
     }
 #else
     GraphicallyAcceleratedItem3D::GraphicallyAcceleratedItem3D(int* layerIndices, uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor,
-        bool objectIsFixed, std::string objectTextureName,
+        std::string objectTextureName,
         float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
         /*Regular constructor*/
         id = objectId;
-        positions = objectPositions;
+        SetPosition(objectPositions);
         /*Size does not matter for the main item*/
-        size = objectSize;
-        isFixed = objectIsFixed;
-        angles = pen::Vec3(0.0f, 0.0f, 0.0f);
+        SetSize(objectSize);
         isSingular = true;
 
         shapeType = pen::ui::Shape::OBJ_3D;
@@ -101,10 +95,7 @@ namespace pen {
     }
 #endif
 
-    GraphicallyAcceleratedItem3D::~GraphicallyAcceleratedItem3D() {
-        bufferPositions.clear();
-        textureName = "";
-    }
+    GraphicallyAcceleratedItem3D::~GraphicallyAcceleratedItem3D() {}
 
     void GraphicallyAcceleratedItem3D::Push(pen::ui::Item* item) {
         /*Adds child items to be rendered after item*/
@@ -134,18 +125,18 @@ namespace pen {
         }
     }
 
-    pen::Vec3 GraphicallyAcceleratedItem3D::GetPosition() {
-        /*Returns the position of the first triangle*/
-        return pen::op::Mat4x4MultVec3(model, childItems[0]->positions, false);
+    pen::Vec3* GraphicallyAcceleratedItem3D::GetPosition() {
+        /*The get position method for 3d items should do nothing, this is done by translating the model matrix with the first triangle manually*/
+        return nullptr;
     }
 
     void GraphicallyAcceleratedItem3D::SetPosition(pen::Vec3 objectPos) {
         /*The set position method for 3d items should do nothing*/
     }
 
-    pen::Vec2 GraphicallyAcceleratedItem3D::GetSize() {
+    pen::Vec2* GraphicallyAcceleratedItem3D::GetSize() {
         /*The get size method for 3d items should do nothing*/
-        return pen::Vec2(0.0f, 0.0f);
+        return nullptr;
     }
 
     void GraphicallyAcceleratedItem3D::SetSize(pen::Vec2 objectSize) {
@@ -153,11 +144,7 @@ namespace pen {
     }
 
     void GraphicallyAcceleratedItem3D::SetColor(pen::Vec4 objectColor) {
-        /*Updates the color of the 3d item and its children*/
-        color = objectColor;
-        for (int i = 0; i < childItems.size(); i++) {
-            childItems[i]->color = objectColor;
-        }
+        /*The set color function should do nothing*/
     }
 
     void GraphicallyAcceleratedItem3D::UpdateTexture(const std::string& path) {

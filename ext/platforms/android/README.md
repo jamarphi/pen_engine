@@ -1,6 +1,6 @@
 # 1.8.1 - Cross Platform For Android
 
-Currently the Windows build for android does not render any items.  Currently the Mac build for android does not render GUI items.
+Currently the Windows build for android does not render any items.
 
 When using OnRender, you now have to pass your logic into a callback function as follows:
 

@@ -32,7 +32,6 @@ namespace pen {
 			NavBar(uint32_t objectId, float height, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
 				pen::ui::Item* objectParent = nullptr, bool (*onClickCallback)(pen::ui::Item*, int, int) = nullptr, std::string objectTextureName = "",float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f,
 				float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
-			~NavBar();
 
 			void Push(pen::ui::Item* item);
 			void UpdateItemPositions();

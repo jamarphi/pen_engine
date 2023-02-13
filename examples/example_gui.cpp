@@ -29,7 +29,7 @@ const unsigned int SCR_HEIGHT = 540;
 
 bool changeColor(pen::ui::Item* item, int button, int action) {
     if (button == pen::in::KEYS::MOUSE_LEFT && action == pen::in::KEYS::PRESSED) {
-        (item->color.x == pen::PEN_BLUE.x) ? item->SetColor(pen::PEN_RED) : item->SetColor(pen::PEN_BLUE);
+        (item->GetColor()->x == pen::PEN_BLUE.x) ? item->SetColor(pen::PEN_RED) : item->SetColor(pen::PEN_BLUE);
         pen::ui::Submit();
     }
     return true;
@@ -44,29 +44,29 @@ public:
 
     void InitializeObjects() {
         pen::Vec3 positions = pen::Vec3(300.0f, 200.0f, 0.0f);
-        pen::Vec2 size = pen::Vec2((pen::Pen::ScreenWidth() / 4.0f * 3.0f) - (pen::Pen::ScreenWidth() / 4.0f), (pen::Pen::ScreenHeight() / 4.0f * 3.0f) - (pen::Pen::ScreenHeight() / 4.0f));
+        pen::Vec2 size = pen::Vec2((pen::PixelBufferWidth() / 4.0f * 3.0f) - (pen::PixelBufferWidth() / 4.0f), (pen::PixelBufferHeight() / 4.0f * 3.0f) - (pen::PixelBufferHeight() / 4.0f));
 
         /*Nav bar*/
         pen::ui::Item* navBar = pen::ui::AddItem(new pen::ui::NavBar(0, 20.0f, pen::PEN_LIGHT_GRAY));
-        navBar->Push(new pen::ui::Button(ID_ANY, "File", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 4, pen::PEN_GRAY, pen::PEN_BLACK, navBar, nullptr, true));
+        navBar->Push(new pen::ui::Button(ID_ANY, "File", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 4, pen::PEN_GRAY, pen::PEN_BLACK, navBar, nullptr));
         /*Nav bar*/
 
         /*Vertical list*/
         pen::ui::Item* vertList = pen::ui::AddItem(new pen::ui::VerticalList(0, pen::Vec3(10.0f, 100.0f, 0.0f),
             size, pen::PEN_LIGHT_GRAY, pen::PEN_GRAY, nullptr, nullptr, "Context"));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 1", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 2", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 3", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 4", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 5", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 6", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 7", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 8", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 9", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 10", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 11", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 12", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
-        vertList->Push(new pen::ui::Button(ID_ANY, "Option 13", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor, true));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 1", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 2", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 3", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 4", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 5", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 6", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 7", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 8", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 9", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 10", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 11", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 12", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
+        vertList->Push(new pen::ui::Button(ID_ANY, "Option 13", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, vertList, &changeColor));
         /*Vertical list*/
 
         /*Slider*/

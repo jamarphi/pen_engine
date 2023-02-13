@@ -28,9 +28,9 @@ namespace pen {
 			TextCharacterItem();
 			TextCharacterItem(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::ui::Item* objectParent, 
 				bool (*onClickCallback)(pen::ui::Item*, int, int), pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f), 
-				bool objectIsFixed = false, std::string objectTextureName = "", unsigned int row = 0, unsigned int column = 0);
-			~TextCharacterItem();
+				std::string objectTextureName = "", unsigned int row = 0, unsigned int column = 0);
 			bool OnClick(pen::ui::Item* item, const int& button, const int& action);
+			void UpdateTextCharacter(unsigned char characterIndex);
 		};
 	}
 }

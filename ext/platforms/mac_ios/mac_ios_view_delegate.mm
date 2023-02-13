@@ -111,14 +111,17 @@ static long indexCount;
     /*Flip y position to start from the bottom*/
     yPos = coreStateInst->actualScreenHeight - yPos;
 
-    /*Scale based on screen width and height*/
+    /*Scale based on screen width and height and convert to pixel buffer coordinates*/
     xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
     yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
+    xPos = xPos * pen::PixelBufferWidth() / coreStateInst->actualScreenWidth;
+    yPos = yPos * pen::PixelBufferHeight() / coreStateInst->actualScreenHeight;
+
     if(coreStateInst->mobileMouse->size() > 0) {
-        coreStateInst->mobileMouse->at(0)->x = xPos;
-        coreStateInst->mobileMouse->at(0)->y = yPos;
+        coreStateInst->mobileMouse->at(0)->x = (int)xPos;
+        coreStateInst->mobileMouse->at(0)->y = (int)yPos;
     }else{
-        coreStateInst->mobileMouse->push_back(new pen::Tap{0, xPos, yPos});
+        coreStateInst->mobileMouse->push_back(new pen::Tap{0, (int)xPos, (int)yPos});
     }
 }
 
@@ -135,15 +138,17 @@ static long indexCount;
     /*Flip y position to start from the bottom*/
     yPos = coreStateInst->actualScreenHeight - yPos;
 
-    /*Scale based on screen width and height*/
+    /*Scale based on screen width and height and convert to pixel buffer coordinates*/
     xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
     yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
+    xPos = xPos * pen::PixelBufferWidth() / coreStateInst->actualScreenWidth;
+    yPos = yPos * pen::PixelBufferHeight() / coreStateInst->actualScreenHeight;
 
     if(coreStateInst->mobileMouse->size() > 0) {
-        coreStateInst->mobileMouse->at(0)->x = xPos;
-        coreStateInst->mobileMouse->at(0)->y = yPos;
+        coreStateInst->mobileMouse->at(0)->x = (int)xPos;
+        coreStateInst->mobileMouse->at(0)->y = (int)yPos;
     }else{
-        coreStateInst->mobileMouse->push_back(new pen::Tap{0, xPos, yPos});
+        coreStateInst->mobileMouse->push_back(new pen::Tap{0, (int)xPos, (int)yPos});
     }
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
 }
@@ -159,14 +164,17 @@ static long indexCount;
         /*Flip y position to start from the bottom*/
         yPos = inst->actualScreenHeight - yPos;
 
-        /*Scale based on screen width and height*/
+        /*Scale based on screen width and height and convert to pixel buffer coordinates*/
         xPos = xPos * inst->screenWidth / inst->actualScreenWidth;
         yPos = yPos * inst->screenHeight / inst->actualScreenHeight;
+        xPos = xPos * pen::PixelBufferWidth() / coreStateInst->actualScreenWidth;
+        yPos = yPos * pen::PixelBufferHeight() / coreStateInst->actualScreenHeight;
+
         if(coreStateInst->mobileMouse->size() > 0) {
-            coreStateInst->mobileMouse->at(0)->x = xPos;
-            coreStateInst->mobileMouse->at(0)->y = yPos;
+            coreStateInst->mobileMouse->at(0)->x = (int)xPos;
+            coreStateInst->mobileMouse->at(0)->y = (int)yPos;
         }else{
-            coreStateInst->mobileMouse->push_back(new pen::Tap{0, xPos, yPos});
+            coreStateInst->mobileMouse->push_back(new pen::Tap{0, (int)xPos, (int)yPos});
         }
 
         bool cameraHandled = pen::Render::Get()->camera.HandleInput(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::HELD, true);
@@ -190,14 +198,16 @@ static long indexCount;
     /*Flip y position to start from the bottom*/
     yPos = coreStateInst->actualScreenHeight - yPos;
 
-    /*Scale based on screen width and height*/
+    /*Scale based on screen width and height and convert to pixel buffer coordinates*/
     xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
     yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
+    xPos = xPos * pen::PixelBufferWidth() / coreStateInst->actualScreenWidth;
+    yPos = yPos * pen::PixelBufferHeight() / coreStateInst->actualScreenHeight;
     if(coreStateInst->mobileMouse->size() > 0) {
-        coreStateInst->mobileMouse->at(0)->x = xPos;
-        coreStateInst->mobileMouse->at(0)->y = yPos;
+        coreStateInst->mobileMouse->at(0)->x = (int)xPos;
+        coreStateInst->mobileMouse->at(0)->y = (int)yPos;
     }else{
-        coreStateInst->mobileMouse->push_back(new pen::Tap{0, xPos, yPos});
+        coreStateInst->mobileMouse->push_back(new pen::Tap{0, (int)xPos, (int)yPos});
     }
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::RELEASED, 0);
 }
@@ -272,7 +282,17 @@ static long indexCount;
     for (int i = 0; i < touches.count; i++){
         UITouch* touch = [touchArray objectAtIndex:i];
         CGPoint location = [touch locationInView:inst.iosMtkView];
-        coreStateInst->mobileMouse->push_back(new pen::Tap{(int) touch, (double)location.x, (double)coreStateInst->actualScreenHeight - (double)location.y});
+        double xPos = (double)location.x;
+        double yPos = (double)location.y;
+        /*Flip y position to start from the bottom*/
+        yPos = coreStateInst->actualScreenHeight - yPos;
+
+        /*Scale based on screen width and height and convert to pixel buffer coordinates*/
+        xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
+        yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
+        xPos = xPos * pen::PixelBufferWidth() / coreStateInst->actualScreenWidth;
+        yPos = yPos * pen::PixelBufferHeight() / coreStateInst->actualScreenHeight;
+        coreStateInst->mobileMouse->push_back(new pen::Tap{(int) touch, (int)xPos, (int)yPos});
     }
     pen::Pen::mobile_click_callback(pen::in::KEYS::MOUSE_LEFT, pen::in::KEYS::PRESSED, 0);
 }
@@ -285,10 +305,20 @@ static long indexCount;
     for (int i = 0; i < touches.count; i++){
         UITouch* touch = [touchArray] objectAtIndex:i];
         CGPoint location = [touch locationInView:inst.iosMtkView];
+        double xPos = (double)location.x;
+        double yPos = (double)location.y;
+        /*Flip y position to start from the bottom*/
+        yPos = coreStateInst->actualScreenHeight - yPos;
+
+        /*Scale based on screen width and height and convert to pixel buffer coordinates*/
+        xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
+        yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
+        xPos = xPos * pen::PixelBufferWidth() / coreStateInst->actualScreenWidth;
+        yPos = yPos * pen::PixelBufferHeight() / coreStateInst->actualScreenHeight;
         for (int j = 0; j < inst->mobileMouse->size(); j++) {
             if (inst->mobileMouse->at(j)->id == (int)touch) {
-                inst->mobileMouse->at(j)->x = (double)location.x;
-                inst->mobileMouse->at(j)->y = (double)coreStateInst->actualScreenHeight - (double)location.y;
+                inst->mobileMouse->at(j)->x = (int)xPos;
+                inst->mobileMouse->at(j)->y = (int)yPos;
                 break;
             }
         }
@@ -305,11 +335,21 @@ static long indexCount;
     for (int i = 0; i < touches.count; i++){
         UITouch* touch = [touchArray objectAtIndex:i];
         CGPoint location = [touch locationInView:inst.iosMtkView];
+        double xPos = (double)location.x;
+        double yPos = (double)location.y;
+        /*Flip y position to start from the bottom*/
+        yPos = coreStateInst->actualScreenHeight - yPos;
+
+        /*Scale based on screen width and height and convert to pixel buffer coordinates*/
+        xPos = xPos * coreStateInst->screenWidth / coreStateInst->actualScreenWidth;
+        yPos = yPos * coreStateInst->screenHeight / coreStateInst->actualScreenHeight;
+        xPos = xPos * pen::PixelBufferWidth() / coreStateInst->actualScreenWidth;
+        yPos = yPos * pen::PixelBufferHeight() / coreStateInst->actualScreenHeight;
         for (int j = 0; j < inst->mobileMouse->size(); j++) {
             if (inst->mobileMouse->at(j)->id == (int)touch) {
                 /*Updates the mobileMouse vector with the released point for handling in mobile_click_callback before removing it*/
-                inst->mobileMouse->at(j)->x = (double)location.x;
-                inst->mobileMouse->at(j)->y = (double)coreStateInst->actualScreenHeight - (double)location.y;
+                inst->mobileMouse->at(j)->x = (int)xPos;
+                inst->mobileMouse->at(j)->y = (int)yPos;
                 id.push_back((int)touch);
                 break;
             }

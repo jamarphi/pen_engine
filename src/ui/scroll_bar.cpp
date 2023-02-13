@@ -27,15 +27,21 @@ namespace pen {
         ScrollBar::ScrollBar(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor,
             pen::Vec4 objectAccentColor, unsigned int order, unsigned int mode, pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), std::string objectTextureName, float itemTexCoordStartX, float itemTexCoordStartY,
             float itemTexCoordEndX, float itemTexCoordEndY) {
+            if (objectTextureName != "") {
+                data = pen::CreateSprite(objectPositions.x, objectPositions.y, objectSize.x, objectSize.y, objectTextureName, itemTexCoordStartX,
+                    itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
+                data->color = objectColor;
+            }
+            else {
+                data = pen::DrawRect(objectPositions.x, objectPositions.y, objectSize.x, objectSize.y, objectColor);
+            }
             id = objectId;
             isUI = true;
             pen::State* inst = pen::State::Get();
-            positions = objectPositions;
-            size = objectSize;
+            SetPosition(objectPositions);
+            SetSize(objectSize);
             parent = objectParent;
             userOnClickCallback = onClickCallback;
-            isFixed = true;
-            angles = pen::Vec3(0.0f, 0.0f, 0.0f);
             isClickable = true;
             sliderOrder = order;
             sliderMode = mode;
@@ -47,38 +53,35 @@ namespace pen {
             texCoordEndX = itemTexCoordEndX;
             texCoordEndY = itemTexCoordEndY;
 
-            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::QUAD, pen::PEN_TRANSPARENT, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
-                itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
-
             shapeType = pen::ui::Shape::QUAD;
 
-            color = pen::PEN_TRANSPARENT;
+            SetColor(pen::PEN_TRANSPARENT);
 
             if (sliderMode == 0) {
                 /*Left button*/
-                Push(new pen::ui::Item(ID_ANY, pen::Vec3(positions.x, positions.y, positions.z),
-                    pen::Vec2(0.1f * size.x, size.y), pen::ui::Shape::QUAD, objectColor, this, onClickCallback, true));
+                Push(new pen::ui::Item(ID_ANY, pen::Vec3(GetPosition()->x, GetPosition()->y, GetPosition()->z),
+                    pen::Vec2(0.1f * GetSize()->x, GetSize()->y), objectColor, this, onClickCallback));
 
                 /*Right button*/
-                Push(new pen::ui::Item(ID_ANY, pen::Vec3(positions.x + size.x - (0.1f * size.x), positions.y, positions.z),
-                    pen::Vec2(0.1f * size.x, size.y), pen::ui::Shape::QUAD, objectColor, this, onClickCallback, true));
+                Push(new pen::ui::Item(ID_ANY, pen::Vec3(GetPosition()->x + GetSize()->x - (0.1f * GetSize()->x), GetPosition()->y, GetPosition()->z),
+                    pen::Vec2(0.1f * GetSize()->x, GetSize()->y), objectColor, this, onClickCallback));
 
                 /*Bar*/
-                Push(new pen::ui::Item(ID_ANY, pen::Vec3(positions.x + (0.1f * size.x), positions.y, positions.z),
-                    pen::Vec2(0.2f * size.x, size.y), pen::ui::Shape::QUAD, objectColor, this, onClickCallback, true));
+                Push(new pen::ui::Item(ID_ANY, pen::Vec3(GetPosition()->x + (0.1f * GetSize()->x), GetPosition()->y, GetPosition()->z),
+                    pen::Vec2(0.2f * GetSize()->x, GetSize()->y), objectColor, this, onClickCallback));
             }
             else {
                 /*Up button*/
-                Push(new pen::ui::Item(ID_ANY, pen::Vec3(positions.x, positions.y + size.y - (0.1f * size.y), positions.z),
-                    pen::Vec2(size.x, 0.1f * size.y), pen::ui::Shape::QUAD, objectColor, this, onClickCallback, true));
+                Push(new pen::ui::Item(ID_ANY, pen::Vec3(GetPosition()->x, GetPosition()->y + GetSize()->y - (0.1f * GetSize()->y), GetPosition()->z),
+                    pen::Vec2(GetSize()->x, 0.1f * GetSize()->y), objectColor, this, onClickCallback));
 
                 /*Down button*/
-                Push(new pen::ui::Item(ID_ANY, pen::Vec3(positions.x, positions.y, positions.z),
-                    pen::Vec2(size.x, 0.1f * size.y), pen::ui::Shape::QUAD, objectColor, this, onClickCallback, true));
+                Push(new pen::ui::Item(ID_ANY, pen::Vec3(GetPosition()->x, GetPosition()->y, GetPosition()->z),
+                    pen::Vec2(GetSize()->x, 0.1f * GetSize()->y), objectColor, this, onClickCallback));
 
                 /*Bar*/
-                Push(new pen::ui::Item(ID_ANY, pen::Vec3(positions.x, positions.y + size.y - (0.1f * size.y) - (0.2f * size.y), positions.z),
-                    pen::Vec2(size.x, 0.2f * size.y), pen::ui::Shape::QUAD, objectColor, this, onClickCallback, true));
+                Push(new pen::ui::Item(ID_ANY, pen::Vec3(GetPosition()->x, GetPosition()->y + GetSize()->y - (0.1f * GetSize()->y) - (0.2f * GetSize()->y), GetPosition()->z),
+                    pen::Vec2(GetSize()->x, 0.2f * GetSize()->y), objectColor, this, onClickCallback));
             }
 
             childItems[0]->isClickable = false;
@@ -87,8 +90,6 @@ namespace pen {
 
             CheckActiveStatus();
         }
-
-        ScrollBar::~ScrollBar() {}
 
         bool ScrollBar::OnClick(pen::ui::Item* item, const int& button, const int& action) {
             /*Handles on click events for scroll bars*/
@@ -118,12 +119,15 @@ namespace pen {
 
                 if (sliderMode == 0) {
                     /*Scroll bar is horizontal*/
-                    scrollTranslation = (*xPos - (item->childItems[2]->positions.x + (item->childItems[2]->size.x / 2.0f)));
+                    scrollTranslation = (*xPos - (item->childItems[2]->GetPosition()->x + (item->childItems[2]->GetSize()->x / 2.0f)));
 
-                    item->childItems[2]->positions.x = (*xPos - (item->childItems[2]->size.x / 2.0f));
-                    if (item->parent != nullptr) 1.0f - (item->parent->sliderOffset[sliderOrder] = ((item->childItems[2]->positions.x + (item->childItems[2]->size.x / 2.0f)
-                        - item->positions.x) / (item->size.x - item->childItems[0]->size.x - item->childItems[1]->size.x)));
-
+                    item->childItems[2]->SetPosition(pen::Vec3(*xPos - (item->childItems[2]->GetSize()->x / 2.0f), item->childItems[2]->GetPosition()->y, 0.0f));
+                    if (item->parent != nullptr) item->childItems[2]->SetPosition(pen::Vec3(item->childItems[2]->GetPosition()->x,
+                        1.0f - (item->parent->sliderOffset[sliderOrder] = ((item->childItems[2]->GetPosition()->x + (item->childItems[2]->GetSize()->x / 2.0f)
+                            - item->GetPosition()->x) / (item->GetSize()->x - item->childItems[0]->GetSize()->x - item->childItems[1]->GetSize()->x)))
+                        , 0.0f));
+                     
+                    
                     if (item->parent != nullptr) {
                         if (!item->parent->isList) item->parent->ScrollBarUpdateItemPositions();
 
@@ -133,10 +137,10 @@ namespace pen {
                         }
                     }
 
-                    if (item->childItems[2]->positions.x + item->childItems[2]->size.x > item->childItems[1]->positions.x
+                    if (item->childItems[2]->GetPosition()->x + item->childItems[2]->GetSize()->x > item->childItems[1]->GetPosition()->x
                         || *xPos > inst->screenWidth) {
                         /*Set scroll bar back to end*/
-                        item->childItems[2]->positions.x = item->childItems[1]->positions.x - item->childItems[2]->size.x;
+                        item->childItems[2]->SetPosition(pen::Vec3(item->childItems[1]->GetPosition()->x - item->childItems[2]->GetSize()->x, item->childItems[2]->GetPosition()->y, 0.0f));
                         if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = 1.0f;
                         scrollItems = false;
                         if (item->parent != nullptr) {
@@ -148,10 +152,10 @@ namespace pen {
                             }
                         }
                     }
-                    else if (item->childItems[2]->positions.x < item->childItems[0]->positions.x + item->childItems[0]->size.x
+                    else if (item->childItems[2]->GetPosition()->x < item->childItems[0]->GetPosition()->x + item->childItems[0]->GetSize()->x
                         || *xPos < 0.0f) {
                         /*Set scroll bar back to beginning*/
-                        item->childItems[2]->positions.x = item->childItems[0]->positions.x + item->childItems[0]->size.x;
+                        item->childItems[2]->SetPosition(pen::Vec3(item->childItems[0]->GetPosition()->x + item->childItems[0]->GetSize()->x, item->childItems[2]->GetPosition()->y, 0.0f));
                         if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = 0.0f;
                         scrollItems = false;
                         if (item->parent != nullptr) {
@@ -166,11 +170,13 @@ namespace pen {
                 }
                 else {
                     /*Scroll bar is vertical*/
-                    scrollTranslation = (*yPos - (item->childItems[2]->positions.y + (item->childItems[2]->size.y / 2.0f)));
+                    scrollTranslation = (*yPos - (item->childItems[2]->GetPosition()->y + (item->childItems[2]->GetSize()->y / 2.0f)));
 
-                    item->childItems[2]->positions.y = (*yPos - (item->childItems[2]->size.y / 2.0f));
-                    if (item->parent != nullptr) 1.0f - (item->parent->sliderOffset[sliderOrder] = (1 - ((item->childItems[2]->positions.y + (item->childItems[2]->size.y / 2.0f)
-                        - item->positions.y) / (item->size.y - item->childItems[0]->size.y - item->childItems[1]->size.y))));
+                    item->childItems[2]->SetPosition(pen::Vec3(item->childItems[2]->GetPosition()->x, (*yPos - (item->childItems[2]->GetSize()->y / 2.0f)), 0.0f));
+                    if (item->parent != nullptr) item->childItems[2]->SetPosition(pen::Vec3(item->childItems[2]->GetPosition()->x,
+                        1.0f - (item->parent->sliderOffset[sliderOrder] = (1 - ((item->childItems[2]->GetPosition()->y + (item->childItems[2]->GetSize()->y / 2.0f)
+                            - item->GetPosition()->y) / (item->GetSize()->y - item->childItems[0]->GetSize()->y - item->childItems[1]->GetSize()->y))))
+                        , 0.0f));
 
                     if (item->parent != nullptr) {
                         if (!item->parent->isList) item->parent->ScrollBarUpdateItemPositions();
@@ -181,10 +187,10 @@ namespace pen {
                         }
                     }
 
-                    if (item->childItems[2]->positions.y < item->childItems[1]->positions.y + item->childItems[1]->size.y
+                    if (item->childItems[2]->GetPosition()->y < item->childItems[1]->GetPosition()->y + item->childItems[1]->GetSize()->y
                         || *yPos < 0.0f) {
                         /*Set scroll bar back to end*/
-                        item->childItems[2]->positions.y = item->positions.y + item->childItems[1]->size.y;
+                        item->childItems[2]->SetPosition(pen::Vec3(item->childItems[2]->GetPosition()->x, item->GetPosition()->y + item->childItems[1]->GetSize()->y, 0.0f));
                         if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = 1.0f;
                         scrollItems = false;
                         if (item->parent != nullptr) {
@@ -196,10 +202,10 @@ namespace pen {
                             }
                         }
                     }
-                    else if (item->childItems[2]->positions.y + item->childItems[2]->size.y > item->childItems[0]->positions.y
+                    else if (item->childItems[2]->GetPosition()->y + item->childItems[2]->GetSize()->y > item->childItems[0]->GetPosition()->y
                         || *yPos > inst->screenHeight) {
                         /*Set scroll bar back to beginning*/
-                        item->childItems[2]->positions.y = item->positions.y + item->size.y - item->childItems[0]->size.y - item->childItems[2]->size.y;
+                        item->childItems[2]->SetPosition(pen::Vec3(item->childItems[2]->GetPosition()->x, item->GetPosition()->y + item->GetSize()->y - item->childItems[0]->GetSize()->y - item->childItems[2]->GetSize()->y, 0.0f));
                         if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = 0.0f;
                         scrollItems = false;
                         if (item->parent != nullptr) {
@@ -226,28 +232,28 @@ namespace pen {
 
         void ScrollBar::VerticalListDrag(pen::ui::Item* item, double* xPos, double* yPos, const float& scrollTranslation) {
             /*Updates the list items of the vertical list component*/
-            pen::Vec3 translation = pen::Vec3(0.0f, 0.0f, 0.0f);
+            pen::Vec2 translation = pen::Vec2(0.0f, 0.0f);
             
-            if (scrollTranslation + (item->childItems[2]->positions.y + (item->childItems[2]->size.y / 2.0f)) < item->positions.y + item->childItems[1]->size.y + (item->childItems[2]->size.y / 2.0f)) {
+            if (scrollTranslation + (item->childItems[2]->GetPosition()->y + (item->childItems[2]->GetSize()->y / 2.0f)) < item->GetPosition()->y + item->childItems[1]->GetSize()->y + (item->childItems[2]->GetSize()->y / 2.0f)) {
                 /*Cap it at the bottom*/
-                translation.y = -1.0f * (item->positions.y + item->childItems[1]->size.y - (item->childItems[2]->positions.y + (item->childItems[2]->size.y / 2.0f)))
-                    * heightOfScrollParentItems / item->size.y;
+                translation.y = -1.0f * (item->GetPosition()->y + item->childItems[1]->GetSize()->y - (item->childItems[2]->GetPosition()->y + (item->childItems[2]->GetSize()->y / 2.0f)))
+                    * heightOfScrollParentItems / item->GetSize()->y;
             }
-            else if (scrollTranslation + (item->childItems[2]->positions.y + (item->childItems[2]->size.y / 2.0f)) > item->positions.y + item->size.y - item->childItems[0]->size.y) {
+            else if (scrollTranslation + (item->childItems[2]->GetPosition()->y + (item->childItems[2]->GetSize()->y / 2.0f)) > item->GetPosition()->y + item->GetSize()->y - item->childItems[0]->GetSize()->y) {
                 /*Cap it at the top*/
-                translation.y = -1.0f * (item->positions.y + item->size.y - item->childItems[0]->size.y - (item->childItems[2]->positions.y + (item->childItems[2]->size.y / 2.0f)))
-                    * heightOfScrollParentItems / item->size.y;
+                translation.y = -1.0f * (item->GetPosition()->y + item->GetSize()->y - item->childItems[0]->GetSize()->y - (item->childItems[2]->GetPosition()->y + (item->childItems[2]->GetSize()->y / 2.0f)))
+                    * heightOfScrollParentItems / item->GetSize()->y;
             }
             else {
-                translation.y = -1.0f * scrollTranslation * heightOfScrollParentItems / item->size.y;
+                translation.y = -1.0f * scrollTranslation * heightOfScrollParentItems / item->GetSize()->y;
             }
 
             for (int i = 1; i < item->parent->childItems.size() - 1; i++) {
-                pen::ui::Translate(item->parent->childItems[i], translation, true, true, false);
+                pen::ui::Translate(item->parent->childItems[i], translation, true);
 
                 /*Check to make sure each item is not outside boundaries*/
-                if (item->parent->childItems[i]->positions.y < item->parent->positions.y
-                    || (item->parent->childItems[i]->positions.y + item->parent->childItems[i]->size.y > item->parent->childItems[0]->positions.y)) {
+                if (item->parent->childItems[i]->GetPosition()->y < item->parent->GetPosition()->y
+                    || (item->parent->childItems[i]->GetPosition()->y + item->parent->childItems[i]->GetSize()->y > item->parent->childItems[0]->GetPosition()->y)) {
                     item->parent->childItems[i]->AllowActive(false);
                 }
                 else {
@@ -255,6 +261,7 @@ namespace pen {
                 }
             }
 
+            pen::Flush();
             pen::ui::Submit();
         }
     }

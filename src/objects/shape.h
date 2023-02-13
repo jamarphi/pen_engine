@@ -39,11 +39,10 @@ namespace pen {
             static unsigned int QUAD;
             static unsigned int BUFFER;
             static unsigned int OBJ_3D;
-            static unsigned int COMPLEX;
-            static std::vector<float> GetItemBatchData(pen::Vec3 pos, pen::Vec2 size, unsigned int shapeType, pen::Vec4 color, float* oldPositions, const float& angleX, const float& angleY, const float& angleZ,
-                float texId = 0.0f,
+            static std::vector<float> GetItemBatchData(pen::Vec3 position, pen::Vec2 size, unsigned int shapeType, pen::Vec4 color,
+                float* oldPositions,float texId = 0.0f,
                 float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
-            static std::vector<float> BitmapFontPosition(pen::Vec3 pos, pen::Vec2 size, pen::Vec4 color, unsigned char characterIndex, float* oldPositions, const float& angleX, const float& angleY, const float& angleZ);
+            static std::vector<float> UpdateBitmapFontPosition(unsigned char characterIndex);
         };
     }
 }

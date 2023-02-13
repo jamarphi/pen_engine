@@ -89,8 +89,7 @@ namespace pen {
 			if (dataList.size() == 0) isInstanced = false;
 			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
 				if (pen::ui::LM::layers[i]->shapeType == item->shapeType &&
-					pen::ui::LM::layers[i]->isFixed == item->isFixed && pen::ui::LM::layers[i]->isSingular == item->isSingular
-					&& pen::ui::LM::layers[i]->isInstanced == isInstanced) {
+					pen::ui::LM::layers[i]->isFixed == item->isFixed && pen::ui::LM::layers[i]->isSingular == item->isSingular) {
 					if (pen::ui::LM::layers[i]->itemCount + item->itemCount + 1 < MAX_OBJECTS_SINGULAR) {
 						/*Adds the item to an existing layer that has space available*/
 						bool pushed = pen::ui::LM::layers[i]->Push(item);
@@ -105,7 +104,7 @@ namespace pen {
 					else {
 						/*Creates a new layer for this shape type, isFixed, isSingular and/or isInstanced status*/
 						pen::ui::LM::layers.push_back(new pen::Layer(pen::ui::LM::generalLayerId,
-							item->shapeType, item->isFixed, item->isSingular, item->isWireFrame));
+							item->shapeType, item->isFixed, item->isUI, item->isSingular));
 						pen::ui::LM::generalLayerId++;
 						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item);
 #ifndef __PEN_MAC_IOS__
@@ -121,7 +120,7 @@ namespace pen {
 
 			/*Creates the first layer for this shape type, isFixed, isSingular and/or isInstanced status*/
 			pen::ui::LM::layers.push_back(new pen::Layer(pen::ui::LM::generalLayerId,
-				item->shapeType, item->isFixed, item->isSingular, item->isWireFrame));
+				item->shapeType, item->isFixed, item->isUI, item->isSingular));
 			pen::ui::LM::generalLayerId++;
 			pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item);
 #ifndef __PEN_MAC_IOS__
@@ -250,7 +249,6 @@ namespace pen {
 			pen::Layer::indexCount = pen::ui::LM::layers.size() * 6 * MAX_OBJECTS_SINGULAR;
 			bool isInstanced = false;
 #endif
-
 			for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
 #ifdef __PEN_MAC_IOS__
 				if (pen::ui::LM::layers[i]->instancedDataList != nullptr) {
@@ -300,25 +298,22 @@ namespace pen {
 			return nullptr;
 		}
 
-		static bool InitializePixelBuffer(bool (*onKeyCallback)(pen::ui::Item*, int, int), bool (*onClickCallback)(pen::ui::Item*, int, int), bool (*onDragCallback)(pen::ui::Item*, double*, double*)) {
+		static bool InitializePixelBuffer() {
 			/*Create a layer specifically for pixel-by-pixel drawing*/
 			pen::State* inst = pen::State::Get();
 			if (pen::ui::LM::pixelLayer != nullptr) return true;
 			inst->usingBuffer = true;
 			inst->depthBuffer = new float[1280 * 720]{ 0.0f };
-			pen::ui::LM::pixelLayer = new pen::Layer(pen::ui::LM::generalLayerId, pen::ui::Shape::BUFFER, true, false, false);
+			pen::ui::LM::pixelLayer = new pen::Layer(pen::ui::LM::generalLayerId, pen::ui::Shape::BUFFER, true, true, false);
 			pen::ui::LM::layers.push_back(pen::ui::LM::pixelLayer);
 			pen::ui::Sort();
 			pen::ui::LM::generalLayerId++;
 			
-			/*Allocates an array of points for dealing with pixel drawing*/
+			/*Allocates an array of points for pixel drawing*/
 			pen::ui::LM::pixelLayer->Push(new pen::ui::Item(PIXEL_DRAWING_ID,
 				pen::Vec3(0.0f, 0.0f, 0.0f),
 				pen::Vec2(inst->screenWidth, inst->screenHeight),
 				pen::ui::Shape::BUFFER, pen::PEN_WHITE, nullptr, nullptr, true, "pixel"));
-			if (onKeyCallback != nullptr) pen::ui::LM::pixelLayer->layerItems[0]->userOnKeyCallback = onKeyCallback;
-			if (onClickCallback != nullptr) pen::ui::LM::pixelLayer->layerItems[0]->userOnClickCallback = onClickCallback;
-			if (onDragCallback != nullptr) pen::ui::LM::pixelLayer->layerItems[0]->userOnDragCallback = onDragCallback;	
 			pen::ui::PixelLayerAlloc();
 #ifndef __PEN_MAC_IOS__
 			pen::ui::LM::pixelLayer->Initialize();
@@ -529,7 +524,7 @@ namespace pen {
 			}
 		}
 
-		static pen::ui::Item* AddGraphicallyAcceleratedItem3D(const uint32_t& id, const std::string& path, const pen::Vec4& objectColor, const bool& isInstanced, const std::vector<pen::Vec3*>& dataList, const bool& objectIsFixed, const bool& isWireFrame) {
+		static pen::ui::Item* AddGraphicallyAcceleratedItem3D(const uint32_t& id, const std::string& path, const pen::Vec4& objectColor, const bool& isInstanced, const std::vector<pen::Vec3*>& dataList, const bool& isWireFrame) {
 			/*Loads in an obj file for the vertices and indices*/
 			std::string tempPath = (path.find(":") != std::string::npos) ? path : GENERAL_MODEL_SOURCE + path;
 
@@ -578,10 +573,10 @@ namespace pen {
 
 #ifndef __PEN_MAC_IOS__
 					pen::ui::Item* item3D = new pen::GraphicallyAcceleratedItem3D(id, pen::Vec3(0.0f, 0.0f, 0.0f), pen::Vec2(50.0f, 50.0f),
-						objectColor, objectIsFixed);
+						objectColor);
 #else
 					pen::ui::Item* GraphicallyAcceleratedItem3D = new pen::GraphicallyAcceleratedItem3D(pen::Layer::batchIndices, id, pen::Vec3(0.0f, 0.0f, 0.0f), pen::Vec2(50.0f, 50.0f),
-						objectColor, objectIsFixed);
+						objectColor);
 #endif
 					item3D->isWireFrame = isWireFrame;
 
@@ -700,38 +695,38 @@ namespace pen {
 									vertices[index1].x, vertices[index1].y, vertices[index1].z, 0.0f, 0.0f, 0.0f, 0.0f, texCoords[index1].x, texCoords[index1].y, 0.0f
 								};
 								item3D->Push(new pen::GraphicallyAcceleratedItem3D(true, pen::Vec3(vertices[index1].x, vertices[index1].y, vertices[index1].z),
-									pen::ui::Shape::POINT, tempMaterialVector[index1] != nullptr ? tempMaterialVector[index1]->color : item3D->color, item3D->isFixed, &buffPositions[0], tempMaterialVector[index1] != nullptr ? tempMaterialVector[index1]->texture : ""));
+									pen::ui::Shape::POINT, tempMaterialVector[index1] != nullptr ? tempMaterialVector[index1]->color : pen::PEN_WHITE, &buffPositions[0], tempMaterialVector[index1] != nullptr ? tempMaterialVector[index1]->texture : ""));
 
 								buffPositions = {
 									vertices[index2].x, vertices[index2].y, vertices[index2].z, 0.0f, 0.0f, 0.0f, 0.0f, texCoords[index2].x, texCoords[index2].y, 0.0f
 								};
 								item3D->Push(new pen::GraphicallyAcceleratedItem3D(true, pen::Vec3(vertices[index2].x, vertices[index2].y, vertices[index2].z),
-									pen::ui::Shape::POINT, tempMaterialVector[index2] != nullptr ? tempMaterialVector[index2]->color : item3D->color, item3D->isFixed, & buffPositions[0], tempMaterialVector[index2] != nullptr ? tempMaterialVector[index2]->texture : ""));
+									pen::ui::Shape::POINT, tempMaterialVector[index2] != nullptr ? tempMaterialVector[index2]->color : pen::PEN_WHITE, & buffPositions[0], tempMaterialVector[index2] != nullptr ? tempMaterialVector[index2]->texture : ""));
 
 								buffPositions = {
 									vertices[index3].x, vertices[index3].y, vertices[index3].z, 0.0f, 0.0f, 0.0f, 0.0f, texCoords[index3].x, texCoords[index3].y, 0.0f
 								};
 								item3D->Push(new pen::GraphicallyAcceleratedItem3D(true, pen::Vec3(vertices[index3].x, vertices[index3].y, vertices[index3].z),
-									pen::ui::Shape::POINT, tempMaterialVector[index3] != nullptr ? tempMaterialVector[index3]->color : item3D->color, item3D->isFixed, &buffPositions[0], tempMaterialVector[index3] != nullptr ? tempMaterialVector[index3]->texture : ""));
+									pen::ui::Shape::POINT, tempMaterialVector[index3] != nullptr ? tempMaterialVector[index3]->color : pen::PEN_WHITE, &buffPositions[0], tempMaterialVector[index3] != nullptr ? tempMaterialVector[index3]->texture : ""));
 							}
 							else {
 								buffPositions = {
 									vertices[index1].x, vertices[index1].y, vertices[index1].z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
 								};
 								item3D->Push(new pen::GraphicallyAcceleratedItem3D(true, pen::Vec3(vertices[index1].x, vertices[index1].y, vertices[index1].z),
-									pen::ui::Shape::POINT, tempMaterialVector[index1] != nullptr ? tempMaterialVector[index1]->color : item3D->color, item3D->isFixed, & buffPositions[0], tempMaterialVector[index1] != nullptr ? tempMaterialVector[index1]->texture : ""));
+									pen::ui::Shape::POINT, tempMaterialVector[index1] != nullptr ? tempMaterialVector[index1]->color : pen::PEN_WHITE, & buffPositions[0], tempMaterialVector[index1] != nullptr ? tempMaterialVector[index1]->texture : ""));
 
 								buffPositions = {
 									vertices[index2].x, vertices[index2].y, vertices[index2].z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
 								};
 								item3D->Push(new pen::GraphicallyAcceleratedItem3D(true, pen::Vec3(vertices[index2].x, vertices[index2].y, vertices[index2].z),
-									pen::ui::Shape::POINT, tempMaterialVector[index2] != nullptr ? tempMaterialVector[index2]->color : item3D->color, item3D->isFixed, & buffPositions[0], tempMaterialVector[index2] != nullptr ? tempMaterialVector[index2]->texture : ""));
+									pen::ui::Shape::POINT, tempMaterialVector[index2] != nullptr ? tempMaterialVector[index2]->color : pen::PEN_WHITE, & buffPositions[0], tempMaterialVector[index2] != nullptr ? tempMaterialVector[index2]->texture : ""));
 
 								buffPositions = {
 									vertices[index3].x, vertices[index3].y, vertices[index3].z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
 								};
 								item3D->Push(new pen::GraphicallyAcceleratedItem3D(true, pen::Vec3(vertices[index3].x, vertices[index3].y, vertices[index3].z),
-									pen::ui::Shape::POINT, tempMaterialVector[index3] != nullptr ? tempMaterialVector[index3]->color : item3D->color, item3D->isFixed, & buffPositions[0], tempMaterialVector[index3] != nullptr ? tempMaterialVector[index3]->texture : ""));
+									pen::ui::Shape::POINT, tempMaterialVector[index3] != nullptr ? tempMaterialVector[index3]->color : pen::PEN_WHITE, & buffPositions[0], tempMaterialVector[index3] != nullptr ? tempMaterialVector[index3]->texture : ""));
 							}
 
 							if (index4 > -1) {
@@ -753,14 +748,14 @@ namespace pen {
 										vertices[index4].x, vertices[index4].y, vertices[index4].z, 0.0f, 0.0f, 0.0f, 0.0f, texCoords[index4].x, texCoords[index4].y, 0.0f
 									};
 									item3D->Push(new pen::GraphicallyAcceleratedItem3D(true, pen::Vec3(vertices[index4].x, vertices[index4].y, vertices[index4].z),
-										pen::ui::Shape::POINT, tempMaterialVector[index4] != nullptr ? tempMaterialVector[index4]->color : item3D->color, item3D->isFixed, &buffPositions[0], tempMaterialVector[index4] != nullptr ? tempMaterialVector[index4]->texture : ""));
+										pen::ui::Shape::POINT, tempMaterialVector[index4] != nullptr ? tempMaterialVector[index4]->color : pen::PEN_WHITE, &buffPositions[0], tempMaterialVector[index4] != nullptr ? tempMaterialVector[index4]->texture : ""));
 								}
 								else {
 									buffPositions = {
 										vertices[index4].x, vertices[index4].y, vertices[index4].z, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
 									};
 									item3D->Push(new pen::GraphicallyAcceleratedItem3D(true, pen::Vec3(vertices[index4].x, vertices[index4].y, vertices[index4].z),
-										pen::ui::Shape::POINT, tempMaterialVector[index4] != nullptr ? tempMaterialVector[index4]->color : item3D->color, item3D->isFixed, & buffPositions[0], tempMaterialVector[index4] != nullptr ? tempMaterialVector[index4]->texture : ""));
+										pen::ui::Shape::POINT, tempMaterialVector[index4] != nullptr ? tempMaterialVector[index4]->color : pen::PEN_WHITE, & buffPositions[0], tempMaterialVector[index4] != nullptr ? tempMaterialVector[index4]->texture : ""));
 								}
 							}
 							else {
@@ -799,7 +794,7 @@ namespace pen {
 						}
 						idCount++;
 						pen::ui::LM::layers.push_back(new pen::Layer3D(layerId,
-							item3D->shapeType, item3D->isFixed, item3D->isSingular, item3D->isWireFrame, isInstanced, dataList));	
+							item3D->shapeType, item3D->isSingular, item3D->isWireFrame, isInstanced, dataList));	
 						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Push(item3D, i);
 #ifndef __PEN_MAC_IOS__
 						pen::ui::LM::layers[pen::ui::LM::layers.size() - 1]->Initialize();

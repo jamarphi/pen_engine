@@ -57,7 +57,6 @@ namespace pen {
 			FileModal(uint32_t objectId, unsigned int userIntent, std::string userMimeType, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f), pen::Vec4 objectAccentColor = pen::Vec4(0.8f, 0.8f, 0.8f, 1.0f), 
 				pen::ui::Item* objectParent = nullptr, void (*onPathLoadCallback)(pen::ui::Item*, std::string, bool) = nullptr, std::string objectTextureName = "", float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f,
 				float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
-			~FileModal();
 
 			void UpdateFileModalListing(std::string directoryPath, bool recursive = false, bool firstIter = true);
 		};

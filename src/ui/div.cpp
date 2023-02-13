@@ -27,15 +27,21 @@ namespace pen {
         Div::Div(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor, unsigned int objectOrientation,
             pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), std::string objectTextureName, float itemTexCoordStartX, float itemTexCoordStartY,
             float itemTexCoordEndX, float itemTexCoordEndY) {
+            if (objectTextureName != "") {
+                data = pen::CreateSprite(objectPositions.x, objectPositions.y, objectSize.x, objectSize.y, objectTextureName, itemTexCoordStartX,
+                    itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
+                data->color = objectColor;
+            }
+            else {
+                data = pen::DrawRect(objectPositions.x, objectPositions.y, objectSize.x, objectSize.y, objectColor);
+            }
             id = objectId;
             isUI = true;
             pen::State* inst = pen::State::Get();
-            positions = objectPositions;
-            size = objectSize;
+            SetPosition(objectPositions);
+            SetSize(objectSize);
             parent = objectParent;
             userOnClickCallback = onClickCallback;
-            isFixed = true;
-            angles = pen::Vec3(0.0f, 0.0f, 0.0f);
             isClickable = true;
             orientation = objectOrientation;
 
@@ -46,42 +52,26 @@ namespace pen {
             texCoordEndX = itemTexCoordEndX;
             texCoordEndY = itemTexCoordEndY;
 
-            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::QUAD, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
-                itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
-
             shapeType = pen::ui::Shape::QUAD;
 
-            color = objectColor;
             CheckActiveStatus();
         }
 
-        Div::~Div() {}
-
         void Div::Push(pen::ui::Item* item) {
             /*Adds child items to be rendered after item*/
-            if (shapeType == pen::ui::Shape::TRI || shapeType == pen::ui::Shape::QUAD) {
-                if (item->shapeType != shapeType) {
-                    std::cout << "You must use the same shape type for items that are children of this item" << std::endl;
-                }
-                else {
-                    childItems.push_back(item);
-                    itemCount += item->itemCount + 1;
-                    UpdateContents();
-                }
-            }
+            childItems.push_back(item);
+            UpdateContents();
         }
 
         void Div::Pop(int idx) {
             /*Removes the most recent child item or at a specified index*/
             if (childItems.size() > 0) {
                 if (idx == -1) {
-                    itemCount -= childItems[childItems.size() - 1]->itemCount - 1;
                     pen::ui::Item* tempItem = childItems[childItems.size() - 1];
                     childItems.pop_back();
                     RemoveItem(tempItem);
                 }
                 else {
-                    itemCount -= childItems[idx]->itemCount - 1;
                     pen::ui::Item* tempItem = childItems[idx];
                     std::vector<pen::ui::Item*> tempList = {};
                     for (int i = 0; i < childItems.size(); i++) {
@@ -104,44 +94,45 @@ namespace pen {
                 float totalPaddingLength = paddingLength * (childItems.size() / 2) * 2.0f;
                 if (orientation == 0) {
                     /*Div is horizontal*/
-                    float itemWidth = (size.x - totalPaddingLength) / (float)childItems.size();
+                    float itemWidth = (GetSize()->x - totalPaddingLength) / (float)childItems.size();
                     int tallestItemIdx = 0;
                     float maxHeight = 0.0f;
 
                     for (int i = 0; i < childItems.size(); i++) {
-                        if (childItems[i]->size.y > maxHeight) {
+                        if (childItems[i]->GetSize()->y > maxHeight) {
                             tallestItemIdx = i;
-                            maxHeight = childItems[i]->size.y;
+                            maxHeight = childItems[i]->GetSize()->y;
                         }
                     }
-                    size.y = maxHeight;
-                    pen::ui::Scale(this, pen::Vec2(1.0f, itemWidth / childItems[tallestItemIdx]->size.x), true, false);
+                    GetSize()->y = maxHeight;
+                    SetSize(pen::Vec2(GetSize()->x, maxHeight));
+                    pen::ui::Scale(this, pen::Vec2(1.0f, itemWidth / childItems[tallestItemIdx]->GetSize()->x), true);
 
                     for (int j = 0; j < childItems.size(); j++) {
-                        pen::ui::Scale(childItems[j], pen::Vec2(itemWidth / childItems[j]->size.x, itemWidth / childItems[j]->size.x), true);
+                        pen::ui::Scale(childItems[j], pen::Vec2(itemWidth / childItems[j]->GetSize()->x, itemWidth / childItems[j]->GetSize()->x));
                         float offsetDis = (float)j * (itemWidth + paddingLength);
-                        pen::ui::Translate(childItems[j], pen::Vec3((positions.x + offsetDis) - childItems[j]->positions.x, (positions.y + (size.y / 2.0f)) - (childItems[j]->positions.y + (childItems[j]->size.y / 2.0f)), 0.0f),true);
+                        pen::ui::Translate(childItems[j], pen::Vec2((GetPosition()->x + offsetDis) - childItems[j]->GetPosition()->x, (GetPosition()->y + (GetSize()->y / 2.0f)) - (childItems[j]->GetPosition()->y + (childItems[j]->GetSize()->y / 2.0f))));
                     }
                 }
                 else {
                     /*Div is vertical*/
-                    float itemHeight = (size.y - totalPaddingLength) / childItems.size();
+                    float itemHeight = (GetSize()->y - totalPaddingLength) / childItems.size();
                     int longestItemIdx = 0;
                     float maxWidth = 0.0f;
 
                     for (int i = 0; i < childItems.size(); i++) {
-                        if (childItems[i]->size.x > maxWidth) {
+                        if (childItems[i]->GetSize()->x > maxWidth) {
                             longestItemIdx = i;
-                            maxWidth = childItems[i]->size.x;
+                            maxWidth = childItems[i]->GetSize()->x;
                         }
                     }
-                    size.x = maxWidth;
-                    pen::ui::Scale(this, pen::Vec2(itemHeight / childItems[longestItemIdx]->size.y, 1.0f), true, false);
+                    SetSize(pen::Vec2(maxWidth, GetSize()->y));
+                    pen::ui::Scale(this, pen::Vec2(itemHeight / childItems[longestItemIdx]->GetSize()->y, 1.0f), true);
 
                     for (int j = 0; j < childItems.size(); j++) {
-                        pen::ui::Scale(childItems[j], pen::Vec2(itemHeight / childItems[j]->size.y, itemHeight / childItems[j]->size.y), true);
-                        float offsetDis = ((positions.y + size.y) - ((float)j * (itemHeight + paddingLength)) - itemHeight) - positions.y;
-                        pen::ui::Translate(childItems[j], pen::Vec3((positions.x + (size.x / 2.0f)) - (childItems[j]->positions.x + (childItems[j]->size.x / 2.0f)), (positions.y + offsetDis) - childItems[j]->positions.y, 0.0f),true);
+                        pen::ui::Scale(childItems[j], pen::Vec2(itemHeight / childItems[j]->GetSize()->y, itemHeight / childItems[j]->GetSize()->y));
+                        float offsetDis = ((GetPosition()->y + GetSize()->y) - ((float)j * (itemHeight + paddingLength)) - itemHeight) - GetPosition()->y;
+                        pen::ui::Translate(childItems[j], pen::Vec2((GetPosition()->x + (GetSize()->x / 2.0f)) - (childItems[j]->GetPosition()->x + (childItems[j]->GetSize()->x / 2.0f)), (GetPosition()->y + offsetDis) - childItems[j]->GetPosition()->y));
                     }
                 }
             }

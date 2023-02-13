@@ -170,7 +170,7 @@ Be sure to exclude the examples folder from your project.
 
 ---------------------------------------------------------------------------
 
-# 1.1.1 - Managing Assets
+# 1.2 - Managing Assets
 
 To make managing assets easier you can do:
 
@@ -184,23 +184,7 @@ If you want to access the assets use:
 
 ---------------------------------------------------------------------------
 
-# 1.2 - Complex Shapes
-
-To add your own vertex and index data for gui items, pass in pointers to that data like so:
-
-    std::vector<float> position = { 300.0f, 200.0f, 0.0f, 400.0f, 200.0f, 0.0f, 350.0f, 300.0f, 0.0f };
-    std::vector<int> indices = { 0, 1, 2 };
-    pen::ui::AddItem(new pen::ui::Item(0, &position[0], 3, &indices[0], 3));
-
----------------------------------------------------------------------------
-
 # 1.3 - Pixel Drawing
-
-To draw pixels first call:
-    
-    pen::InitializePixels(bool (*onKeyCallback)(pen::ui::Item*, int, int) = nullptr, bool (*onClickCallback)(pen::ui::Item*, int, int) = nullptr, bool (*onDragCallback)(pen::ui::Item*, double*, double*) = nullptr);
-    
-This will let Pen Engine know that you want to use pixels to draw.  The callback functions are optional for handling user input in the pixel buffer.  Read the input section to know how to handle input.
 
 To grab a pointer to the pixel buffer use:
 
@@ -224,6 +208,11 @@ The pixel buffer will return a nullptr if accessed directly for Android builds, 
 pen::PixelBufferWidth() and pen::PixelBufferHeight() are used since the texels on the screen are in a different space, this way all of the pixels can be
 covered properly.
 
+When linking event listeners to the pixel buffer, the GUI event listeners will get overrided.  To enable the GUI listeners again pass nullptr into the fiels.
+To link event listeners to the pixel buffer do:
+
+    Pen::SetPBEventListeners(bool (*onClickCallback)(pen::ui::Item*, int, int), bool (*onDragCallback)(pen::ui::Item*, double*, double*), bool (*onKeyCallback)(pen::ui::Item*, int, int));
+
 If you want to convert between screen and pixel buffer coordinates you can do:
 
     - pen::ScreenToPixel(float* x, float* y);
@@ -231,15 +220,15 @@ If you want to convert between screen and pixel buffer coordinates you can do:
 
 You can pan the pixel buffer based on screen dimensions with:
 
-    pen::Pan(float panX, float panY, bool reset = false);
+    pen::ui::Pan(float panX, float panY, bool reset = false);
 
 You can zoom in or out on the pixel buffer based on screen dimensions with:
 
-    pen::Zoom(float mag);
+    pen::ui::Zoom(float mag, bool reset = false);
 
 You can create sprites as well in the pixel buffer using:
 
-    pen::ui::Item* item = pen::CreateSprite(int startX, int startY, int width, int height, const std::string& path,
+    pen::Item* item = pen::CreateSprite(int startX, int startY, int width, int height, const std::string& path,
 			float spriteTexCoordStartX = 0.0f, float spriteTexCoordStartY = 0.0f, float spriteTexCoordEndX = 1.0f, float spriteTexCoordEndY = 1.0f,
 			bool compress = false, float (*displayFunction)(int, int, float) = nullptr)
 
@@ -337,6 +326,11 @@ There are eleven basic components already defined for creating graphical user in
 For some of the components above such as the ScrollBar component, 
 when nullptr is passed to it for your click callback function, it handles the event by default.
 
+This is for doing animations where the height at certain parts of the animation may need to change and model a math function.
+To add this display function do:
+
+    item->UpdateDisplayFunction(float (*displayFunction)(int, int, float));
+
 The sames goes for the Slider component as far as the click callback function, sliders do not need a parent item.
 The pen::ui::Item class can also be used for GUIs.  For the slider it has to be double-clicked to use.
 
@@ -407,10 +401,10 @@ There are four types of items that can be animated:
 
 To animate an item or a camera, simply add an item to the animation manager:
 
-    - For gui items: pen::AnimationUI::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::ui::Item*, unsigned int), unitA, unitB, unitC, unitD);
-    - For 2D pixel items: pen::AnimationPixel::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::Item*, unsigned int), unitA, unitB, unitC, unitD);
-    - For 3D pixel items: pen::AnimationPixel3D::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::Item3D*, unsigned int), unitA, unitB, unitC, unitD);
-    - For 3D graphically accelerated items: pen::Animation3D::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::GraphicallyAcceleratedItem3D*, unsigned int), unitA, unitB, unitC, unitD);
+    - For gui items: pen::AnimationUI::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::ui::Item*, unsigned int), void (*customAnimationCallback)(pen::ui::Item*), unitA, unitB, unitC, unitD);
+    - For 2D pixel items: pen::AnimationPixel::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::Item*, unsigned int), void (*customAnimationCallback)(pen::Item*), unitA, unitB, unitC, unitD);
+    - For 3D pixel items: pen::AnimationPixel3D::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::Item3D*, unsigned int), void (*customAnimationCallback)(pen::Item3D*), unitA, unitB, unitC, unitD);
+    - For 3D graphically accelerated items: pen::Animation3D::Add(item, type, ms, infinite, void (*onAnimationEndEvent)(pen::GraphicallyAcceleratedItem3D*, unsigned int), void (*customAnimationCallback)(pen::GraphicallyAcceleratedItem3D*), unitA, unitB, unitC, unitD);
 
     1. The item is a pointer to an item you already created.
     2. The type is the transformation, an example is pen::AnimationType::TRANSLATE.
@@ -418,7 +412,8 @@ To animate an item or a camera, simply add an item to the animation manager:
     4. The infinite boolean is for if you want to run this animation forever, this means that any other animation
        with the same item and type will not run.
     5. An optional callback that happens when the animation added is ended, it takes the type of item as a pointer and the unsigned int used for the animation type.
-    6. The four units unitA, unitB, unitC, and unitD, are used to pass in values for the transformations.  If you are doing
+    6. This callback is used for doing custom animations.
+    7. The four units unitA, unitB, unitC, and unitD, are used to pass in values for the transformations.  If you are doing
        rotation for instance, then you only need to use unitA, this means unitB , unitC, and unitD will be ignored.
 
 To run the animation manager after adding items do:
@@ -438,6 +433,7 @@ The types of animations listed are:
     - pen::AnimationType::LOOK
     - pen::AnimationType::ZOOM
     - pen::AnimationType::COLOR
+    - pen::AnimationType::CUSTOM
     
 The pen::AnimationType::ZOOM type is only used for panning the pixel buffer for 2D applications.
 

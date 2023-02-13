@@ -40,7 +40,7 @@ namespace pen {
 
 	class Renderer {
 	public:
-		static int drawType[7];
+		static int drawType[6];
 	public:
 		static void Clear();
 #ifndef __PEN_MAC_IOS__

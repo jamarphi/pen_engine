@@ -26,16 +26,23 @@ namespace pen {
 
         NavBar::NavBar(uint32_t objectId, float height, pen::Vec4 objectColor, pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), std::string objectTextureName,
             float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
+            float positionY = pen::PixelBufferHeight() - height;
+            if (objectTextureName != "") {
+                data = pen::CreateSprite(0, positionY, pen::PixelBufferWidth(), height, objectTextureName, itemTexCoordStartX,
+                    itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
+                data->color = objectColor;
+            }
+            else {
+                data = pen::DrawRect(0, positionY, pen::PixelBufferWidth(), height, objectColor);
+            }
             id = objectId;
             isUI = true;
             pen::State* inst = pen::State::Get();
-            positions = pen::Vec3(0.0f, inst->screenHeight - height, 0.0f);
-            size = pen::Vec2(inst->screenWidth, height);
-            if (size.y >= inst->textScaling) size.y = inst->textScaling - 0.1f;
+            SetPosition(pen::Vec3(0.0f, positionY, 0.0f));
+            SetSize(pen::Vec2(pen::PixelBufferWidth(), height));
+            if (GetSize()->y >= inst->textScaling) SetSize(pen::Vec2(GetSize()->x, inst->textScaling - 0.1f));
             parent = objectParent;
             userOnClickCallback = onClickCallback;
-            isFixed = true;
-            angles = pen::Vec3(0.0f, 0.0f, 0.0f);
             isClickable = true;
 
             textureName = objectTextureName;
@@ -45,30 +52,15 @@ namespace pen {
             texCoordEndX = itemTexCoordEndX;
             texCoordEndY = itemTexCoordEndY;
 
-            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::QUAD, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
-                itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
-
             shapeType = pen::ui::Shape::QUAD;
-
-            color = objectColor;
 
             CheckActiveStatus();
         }
 
-        NavBar::~NavBar() {}
-
         void NavBar::Push(pen::ui::Item* item) {
             /*Adds child items to be rendered after item, automatically updates child item positions to fit the nav bar*/
-            if (shapeType == pen::ui::Shape::TRI || shapeType == pen::ui::Shape::QUAD) {
-                if (item->shapeType != shapeType) {
-                    std::cout << "You must use the same shape type for items that are children of this item" << std::endl;
-                }
-                else {
-                    childItems.push_back(item);
-                    itemCount += item->itemCount + 1;
-                    UpdateItemPositions();
-                }
-            }
+            childItems.push_back(item);
+            UpdateItemPositions();
         }
 
         void NavBar::UpdateItemPositions() {
@@ -77,34 +69,30 @@ namespace pen {
             for (int i = 0; i < childItems.size(); i++) {
                 if (i == 0) {
                     /*Set first button relative to the nav bar*/
-                    childItems[i]->positions.x = positions.x;
-                    childItems[i]->positions.y = positions.y;
-                    childItems[i]->positions.z = positions.z;
+                    childItems[i]->SetPosition(*GetPosition());
 
                     /*This happens in order to update the positions of the text characters*/
                     childItems[i]->UpdateText(childItems[i]->origText);
 
-                    pen::ui::Scale(childItems[i], pen::Vec2(size.y / childItems[i]->size.y, size.y / childItems[i]->size.y));
+                    pen::ui::Scale(childItems[i], pen::Vec2(GetSize()->y / childItems[i]->GetSize()->y, GetSize()->y / childItems[i]->GetSize()->y));
 
                     /*Updates the text to be level with its container*/
                     for (int j = 0; j < childItems[i]->childItems.size(); j++) {
-                        childItems[i]->childItems[j]->positions.y = childItems[i]->positions.y;
+                        childItems[i]->childItems[j]->SetPosition(pen::Vec3(childItems[i]->childItems[j]->GetPosition()->x, childItems[i]->GetPosition()->y, 0.0f));
                     }
                 }
                 else {
                     /*Set the rest of the buttons relative to the previous ones*/
-                    childItems[i]->positions.x = childItems[i - 1]->positions.x + childItems[i - 1]->size.x;
-                    childItems[i]->positions.y = positions.y;
-                    childItems[i]->positions.z = positions.z;
+                    childItems[i]->SetPosition(pen::Vec3(childItems[i - 1]->GetPosition()->x + childItems[i - 1]->GetSize()->x, GetPosition()->y, 0.0f));
 
                     /*This happens in order to update the positions of the text characters*/
                     childItems[i]->UpdateText(childItems[i]->origText);
 
-                    pen::ui::Scale(childItems[i], pen::Vec2(size.y / childItems[i]->size.y, size.y / childItems[i]->size.y));
+                    pen::ui::Scale(childItems[i], pen::Vec2(GetSize()->y / childItems[i]->GetSize()->y, GetSize()->y / childItems[i]->GetSize()->y));
 
                     /*Updates the text to be level with its container*/
                     for (int k = 0; k < childItems[i]->childItems.size(); k++) {
-                        childItems[i]->childItems[k]->positions.y = childItems[i]->positions.y;
+                        childItems[i]->childItems[k]->SetPosition(pen::Vec3(childItems[i]->childItems[k]->GetPosition()->x, childItems[i]->GetPosition()->y, 0.0f));
                     }
                 }
             }

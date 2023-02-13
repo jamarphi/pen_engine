@@ -24,14 +24,14 @@ namespace pen {
     
     Layer::Layer(){}
 
-    Layer::Layer(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame) {
+    Layer::Layer(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsUI, bool objectIsSingular) {
         /*Layers are separated mainly based on the shape type of the objects they contain, if it is fixed, and if it is instanced*/
         indexCount = 0;
         va = VertexArray();
         shapeType = objectShapeType;
         isFixed = objectIsFixed;
+        isUI = objectIsUI;
         isSingular = objectIsSingular;
-        isWireFrame = objectIsWireFrame;
         id = generalId;
         translation = pen::Vec3(1.0f, 1.0f, 0.0f);
         model = pen::Mat4x4(1.0f);
@@ -90,8 +90,6 @@ namespace pen {
         }
         pen::Layer::buffersInitialized = true;
 #endif
-
-        if (shapeType == pen::ui::Shape::COMPLEX) indexCount = layerItems[0]->complexIndexCount;
     }
 
 #ifndef __PEN_MAC_IOS__
@@ -108,19 +106,21 @@ namespace pen {
 
     bool Layer::Push(pen::ui::Item* item, const unsigned int& offset) {
         /*Adds an item with all its children to the layer*/
-        if (layerItems.size() > MAX_OBJECTS_SINGULAR || (isSingular && itemCount > 0)) {
+        if (itemCount > MAX_OBJECTS_SINGULAR || (isSingular && itemCount > 0)) {
+            if (itemCount > 0) {
+                if (layerItems[0]->isUI) {
+                    /*Ignore the max limit for gui items since they are in the pixel buffer*/
+                    layerItems.push_back(item);
+                    itemCount += item->itemCount + 1;
+                    return true;
+                }
+            }
             return false;
         }
         else {
-            if (item->shapeType != shapeType) {
-                std::cout << "You must use the same shape type for items that are part of this layer" << std::endl;
-                return false;
-            }
-            else {
-                layerItems.push_back(item);
-                itemCount += item->itemCount + 1;
-                return true;
-            }
+            layerItems.push_back(item);
+            itemCount += item->itemCount + 1;
+            return true;
         }
     }
 
@@ -149,7 +149,7 @@ namespace pen {
 #else
     void Layer::CombineBuffers(int layerIndex) {
 #endif
-        /*Combines the buffers of all the items associated with the layer*/
+        /*Combines the buffer of the pixel layer and 2D background quads*/
 
         /*Resets the vertices array before combining buffers*/
 #ifndef __PEN_MAC_IOS__
@@ -187,7 +187,7 @@ namespace pen {
         itemSize = vertexNum * BATCH_VERTEX_ELEMENTS;
 
         for (int i = 0; i < layerItems.size(); i++) {
-            if (!layerItems[i]->isActive) continue;
+            if (!layerItems[i]->isActive || !layerItems[i]->isBackground) continue;
             int subItemCount = 0;
 
             /*Some objects can have more than the just their own buffer data since they can have child items*/
@@ -240,15 +240,15 @@ namespace pen {
 
                 subItemCount += itemSize;
                 bufferOffset += itemSize;
-                
+
 #ifndef __PEN_MAC_IOS__
-                UpdateIndexCount(&indexCount, layerItems[i]->complexIndexCount);
+                UpdateIndexCount(&indexCount);
 #endif
             }
         }
     }
 
-    void Layer::UpdateIndexCount(int* idxCount, const unsigned int& complexIdxCount) {
+    void Layer::UpdateIndexCount(int* idxCount) {
         /*Updates the index count for the active items to be rendered*/
         switch (shapeType) {
         case 0:
@@ -267,10 +267,6 @@ namespace pen {
         case 4:
             //Quads
             *idxCount += 6;
-            break;
-        case 6:
-            //Complex shapes
-            *idxCount = complexIdxCount;
             break;
         default:
             break;
@@ -320,15 +316,6 @@ namespace pen {
                 batchIndices[i + 5] = offset;
 
                 offset += 4;
-            }
-            break;
-        case 6:
-            //Complex shapes          
-            for (int i = 0; i < layerItems.size(); i ++) {
-                for (int j = 0; j < layerItems[i]->complexIndexCount; j++) {
-                    batchIndices[counter] = layerItems[i]->complexIndices[j];
-                    counter++;
-                }
             }
             break;
         default:

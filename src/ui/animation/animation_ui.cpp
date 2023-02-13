@@ -23,7 +23,7 @@ under the License.
 namespace pen {
 	std::vector<pen::AnimationUIItem> AnimationUI::animationList = {};
 
-	void AnimationUI::Add(pen::ui::Item* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::ui::Item*, unsigned int), const float& unitA, const float& unitB, const float& unitC, const float& unitD) {
+	void AnimationUI::Add(pen::ui::Item* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::ui::Item*, unsigned int), void (*onCustomAnimationCallback)(pen::ui::Item*), const float& unitA, const float& unitB, const float& unitC, const float& unitD) {
 		/*Add animation to the queue*/
 		int frames = 0;
 		float deltaTime = 0.0035f;
@@ -36,11 +36,12 @@ namespace pen {
 		newItem.frames = frames;
 		newItem.ran = false;
 		newItem.onAnimationEnd = onAnimationEndEvent;
+		newItem.customAnimationCallback = onCustomAnimationCallback;
 		if (type == pen::AnimationType::COLOR) {
-			newItem.unitA = (unitA - item->color.x) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
-			newItem.unitB = (unitB - item->color.y) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
-			newItem.unitC = (unitC - item->color.z) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
-			newItem.unitD = (unitD - item->color.w) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitA = (unitA - item->GetColor()->x) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitB = (unitB - item->GetColor()->y) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitC = (unitC - item->GetColor()->z) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
+			newItem.unitD = (unitD - item->GetColor()->w) * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
 		}
 		else {
 			newItem.unitA = unitA * deltaTime / ((float)ms / 1000.0f) / ((float)ms / 1000.0f); /*((float)ms / 1000.0f) at end extra constant hack to make it more accurate*/
@@ -113,15 +114,15 @@ namespace pen {
 		case 1:
 		case 2:
 			/*Rotate, unit A is used since there is only one value*/
-			pen::ui::Rotate(item.item, item.unitA, item.type, true, pen::Vec2(0.0f, 0.0f), true, false, true);
+			pen::ui::Rotate(item.item, item.unitA, true);
 			break;
 		case 3:
-			/*Translation, three units are used since there are three values*/
-			pen::ui::Translate(item.item, pen::Vec3(item.unitA, item.unitB, item.unitC), true, true, false);
+			/*Translation, two units are used since there are two values*/
+			pen::ui::Translate(item.item, pen::Vec2(item.unitA, item.unitB), true);
 			break;
 		case 4:
 			/*Scale, two units are used since there are only two values*/
-			pen::ui::Scale(item.item, pen::Vec2(item.unitA, item.unitB > 0 ? item.unitB : item.unitA), true, true, false);
+			pen::ui::Scale(item.item, pen::Vec2(item.unitA, item.unitB > 0 ? item.unitB : item.unitA), true);
 			break;
 		case 5:
 		case 6:
@@ -130,10 +131,15 @@ namespace pen {
 			break;
 		case 8:
 			/*Updates the color, all four units are used since there are four values*/
-			item.item->color.x += item.unitA;
-			item.item->color.y += item.unitB;
-			item.item->color.z += item.unitC;
-			item.item->color.w += item.unitD;
+			item.item->SetColor(pen::Vec4(
+				item.item->GetColor()->x + item.unitA,
+				item.item->GetColor()->y + item.unitB,
+				item.item->GetColor()->z + item.unitC,
+				item.item->GetColor()->w + item.unitD
+			));
+			break;
+		case 9:
+			if (item.customAnimationCallback != nullptr) (*item.customAnimationCallback)(item.item);
 			break;
 		default:
 			break;

@@ -119,8 +119,8 @@ namespace pen {
 #endif
 
         /*Set initial scaling for text characters*/
-        inst->textScaling = 25;
-        stateInst->textScaling = 25;
+        inst->textScaling = 30;
+        stateInst->textScaling = 30;
 
         /*Set the projections and views for the application*/
         pen::Mat4x4 proj = pen::op::Ortho(inst->appOrthoCoord[0], inst->appOrthoCoord[1], inst->appOrthoCoord[2],
@@ -163,13 +163,17 @@ namespace pen {
         glLineWidth(3.0f);
 #endif
 
+        /*Initializes the pixel buffer*/
+        pen::ui::InitializePixelBuffer();
+        pen::ui::Submit();
+
         /*Sets time points for time elapsed*/
         Get()->timePoint1 = std::chrono::system_clock::now();
 
         /*Adds framerate info to the screen*/
         if (debug) {
             pen::ui::AddItem(new pen::ui::TextBox(DEBUG_ID, "Framerate: 0.0 fps", pen::Vec3(SCREEN_WIDTH / 9 * 5, Get()->SCREEN_HEIGHT / 10 * 9, -0.5f),
-                Get()->SCREEN_WIDTH / 9 * 5, pen::PEN_TRANSPARENT, pen::PEN_WHITE, nullptr, nullptr, true));
+                Get()->SCREEN_WIDTH / 9 * 5, pen::PEN_TRANSPARENT, pen::PEN_WHITE, nullptr, nullptr));
         }
     }
 
@@ -265,7 +269,6 @@ namespace pen {
     void Pen::GetMousePos(double* x, double* y) {
         /*Returns the mouse position*/
         pen::State* inst = pen::State::Get();
-
         glfwGetCursorPos(GetWindow(), x, y);
 
         /*Flip y position to start from the bottom*/
@@ -274,6 +277,8 @@ namespace pen {
         /*Scale based on screen width and height*/
         *x = *x * inst->screenWidth / inst->actualScreenWidth;
         *y = *y * inst->screenHeight / inst->actualScreenHeight;
+        *x = *x * pen::PixelBufferWidth() / inst->actualScreenWidth;
+        *y = *y * pen::PixelBufferHeight() / inst->actualScreenHeight;
     }
 #else
     std::vector<pen::Tap*>* Pen::GetMousePos() {
@@ -336,18 +341,26 @@ namespace pen {
 
     void Pen::HandleGUIDragEvents(bool choice) {
         /*Toggles GUI drag events*/
+#ifndef __PEN_MOBILE__
+        pen::State::Get()->handleGUIDragEvents = choice;
+#else
 #ifndef __PEN_ANDROID__
 #if TARGET_OS_OSX
         pen::State::Get()->handleGUIDragEvents = choice;
+#endif
 #endif
 #endif
     }
 
     void Pen::HandleGUIKeyEvents(bool choice) {
         /*Toggles GUI key events*/
+#ifndef __PEN_MOBILE__
+        pen::State::Get()->handleGUIKeyEvents = choice;
+#else
 #ifndef __PEN_ANDROID__
 #if TARGET_OS_OSX
         pen::State::Get()->handleGUIKeyEvents = choice;
+#endif
 #endif
 #endif
     }
@@ -374,12 +387,23 @@ namespace pen {
 #endif
     }
 
-    static void RunAnimations() {
+    void Pen::RunAnimations() {
         /*Runs animations for the different item types*/
         pen::AnimationUI::Run();
         pen::AnimationPixel::Run();
         pen::AnimationPixel3D::Run();
         pen::Animation3D::Run();
+    }
+
+    void Pen::SetPBEventListeners(bool (*onClickCallback)(pen::ui::Item*, int, int), bool (*onDragCallback)(pen::ui::Item*, double*, double*), bool (*onKeyCallback)(pen::ui::Item*, int, int)) {
+        /*Sets the event listeners for the pixel buffer window itself*/
+        pen::State::Get()->pixelEvents = true;
+        if (onClickCallback == nullptr && onDragCallback == nullptr && onKeyCallback == nullptr) pen::State::Get()->pixelEvents = false;
+        pen::ui::LM::pixelLayer->layerItems[0]->userOnClickCallback = onClickCallback;
+        pen::ui::LM::pixelLayer->layerItems[0]->userOnDragCallback = onDragCallback;
+        pen::ui::LM::pixelLayer->layerItems[0]->userOnKeyCallback = onKeyCallback;
+        pen::State::SetDraggable(pen::ui::LM::pixelLayer->layerItems[0]);
+        pen::State::SetKeyable(pen::ui::LM::pixelLayer->layerItems[0]);
     }
 
     void Pen::InitializeAsciiMap() {
@@ -482,6 +506,20 @@ namespace pen {
         inst->asciiMap.Insert("~", 94);
     }
 
+    namespace ui {
+        void Pan(float panX, float panY, bool reset) {
+            /*Pan the pixel buffer*/
+            pen::PanLayerCamera(panX, panY, 0.0f);
+            if (reset) pen::Render::Get()->camera.cameraPosition = pen::Vec3(0.0f, 0.0f, 0.0f);
+        }
+
+        void Zoom(float mag, bool reset) {
+            /*Zooms the pixel buffer*/
+            pen::PanLayerCamera(0.0f, 0.0f, mag);
+            if (reset) pen::Render::Get()->camera.cameraFov = 90.0f;
+        }
+    }
+
 #ifndef __PEN_MOBILE__
     void framebuffer_size_callback(glfwwindow* window, int width, int height)
     {
@@ -499,7 +537,7 @@ namespace pen {
     }
 #endif
 
-    bool Pen::HandleClick(pen::ui::Item* item, double* xPos, double* yPos, const int& button, const int& action) {
+    bool Pen::HandleClick(pen::ui::Item* item, const int& xPos, const int& yPos, const int& button, const int& action) {
         bool eventHandled = false;
         int counter = item->childItems.size() - 1;
         for (int i = 0; i < item->childItems.size(); i++) {
@@ -508,8 +546,8 @@ namespace pen {
             if (eventHandled) return true;
         }
 
-        if ((*xPos >= item->positions.x && *xPos <= item->positions.x + item->size.x) &&
-            (*yPos >= item->positions.y && *yPos <= item->positions.y + item->size.y) &&
+        if ((xPos >= item->GetPosition()->x && xPos <= item->GetPosition()->x + item->GetSize()->x) &&
+            (yPos >= item->GetPosition()->y && yPos <= item->GetPosition()->y + item->GetSize()->y) &&
             item->isActive && item->forceActive && item->isClickable) {
             return item->OnClick(item, button, action);
         }
@@ -523,8 +561,10 @@ namespace pen {
     {
         pen::State* inst = pen::State::Get();
         if (inst->handleGUIClickEvents || inst->handleCameraInput) {
-            if (button == pen::in::KEYS::MOUSE_LEFT && action == pen::in::KEYS::PRESSED) pen::State::Get()->keyableItem = nullptr;
-            if (button == pen::in::KEYS::MOUSE_LEFT && action == pen::in::KEYS::RELEASED) pen::State::Get()->draggableItem = nullptr;
+            if (!pen::State::Get()->pixelEvents) {
+                if (button == pen::in::KEYS::MOUSE_LEFT && action == pen::in::KEYS::PRESSED) pen::State::Get()->keyableItem = nullptr;
+                if (button == pen::in::KEYS::MOUSE_LEFT && action == pen::in::KEYS::RELEASED) pen::State::Get()->draggableItem = nullptr;
+            }
             double x = 0.0f, y = 0.0f;
             bool eventHandled = false;
             double* xPos = &x;
@@ -536,12 +576,12 @@ namespace pen {
             if (!cameraHandled) {
                 int layerCounter = pen::ui::LM::layers.size() - 1;
                 for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-                    if (pen::ui::LM::layers[layerCounter - i]->isFixed) {
+                    if (pen::ui::LM::layers[layerCounter - i]->isUI) {
                         /*Only loop through layers that have GUI components*/
                         int counter = pen::ui::LM::layers[layerCounter - i]->layerItems.size() - 1;
                         for (int j = 0; j < pen::ui::LM::layers[layerCounter - i]->layerItems.size(); j++) {
                             if (pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j]->isUI) {
-                                eventHandled = Pen::HandleClick(pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j], xPos, yPos, button, action);
+                                eventHandled = Pen::HandleClick(pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j], (int)*xPos, (int)*yPos, button, action);
                                 if (eventHandled) break;
                             }
                         }
@@ -592,8 +632,8 @@ namespace pen {
     void Pen::mobile_click_callback(int button, int action, int mods)
     {
         /*Handles touch events for mobile devices*/
-        double* xPos;
-        double* yPos;
+        int* xPos;
+        int* yPos;
         std::vector<pen::Tap>* taps = Pen::GetMousePos();
         xPos = &taps->at(taps->size() - 1).x;
         yPos = &taps->at(taps->size() - 1).y;
@@ -613,12 +653,12 @@ namespace pen {
             if (!cameraHandled){
                 int layerCounter = pen::ui::LM::layers.size() - 1;
                 for (int i = 0; i < pen::ui::LM::layers.size(); i++) {
-                    if (pen::ui::LM::layers[layerCounter - i]->isFixed) {
+                    if (pen::ui::LM::layers[layerCounter - i]->isUI) {
                         /*Only loop through layers that have GUI components*/
                         int counter = pen::ui::LM::layers[layerCounter - i]->layerItems.size() - 1;
                         for (int j = 0; j < pen::ui::LM::layers[layerCounter - i]->layerItems.size(); j++) {
                             if (pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j]->isUI) {
-                                eventHandled = Pen::HandleClick(pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j], xPos, yPos, button, action);
+                                eventHandled = Pen::HandleClick(pen::ui::LM::layers[layerCounter - i]->layerItems[counter - j], *xPos, *yPos, button, action);
                                 if (eventHandled) break;
                             }
                         }

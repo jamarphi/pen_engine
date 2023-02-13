@@ -28,29 +28,27 @@ namespace pen {
         }
 
         Button::Button(uint32_t objectId, std::string userText, pen::Vec3 objectPositions, int objectTextLength, pen::Vec4 objectColor, pen::Vec4 objectTextColor, 
-            pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), bool objectIsFixed, std::string objectTextureName,
+            pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), std::string objectTextureName,
             float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY) {
             /*Regular constructor*/
             isUI = true;
             id = objectId;
-            positions = objectPositions;
+            SetPosition(objectPositions);
             parent = objectParent;
             userOnClickCallback = onClickCallback;
-            isFixed = objectIsFixed;
             origText = userText;
-            angles = pen::Vec3(0.0f, 0.0f, 0.0f);
             isClickable = true;
             if (objectParent != nullptr) isListItem = objectParent->isList ? true : false;
 
-            color = objectColor;
             textColor = objectTextColor;
             textureName = objectTextureName;
 
             /*Sets the cycles variable for how many lines of text there is*/
             textLength = objectTextLength;
-            size.x = 0.0f;
             GetTextCyclesNum(userText);
-            size.y = pen::State::Get()->textScaling * cycles + (cycles > 1 ? pen::State::Get()->textScaling : 0);
+            float objectHeight = pen::State::Get()->textScaling * cycles + (cycles > 1 ? pen::State::Get()->textScaling : 0);
+            data = pen::DrawRect(objectPositions.x, objectPositions.y, 300, objectHeight, objectColor);
+            SetSize(pen::Vec2(300.0f, objectHeight));
 
             /*The width of the text box gets updated here*/
             SetTextCycles(userText);
@@ -60,18 +58,10 @@ namespace pen {
             texCoordEndX = itemTexCoordEndX;
             texCoordEndY = itemTexCoordEndY;
 
-            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::QUAD, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
-                itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
-
             shapeType = pen::ui::Shape::QUAD;
 
             /*CheckActiveStatus() occurs in CombineChildBuffers() as well*/
             CombineChildBuffers();
-        }
-
-        Button::~Button() {
-            bufferPositions.clear();
-            textureName = "";
         }
     }
 }

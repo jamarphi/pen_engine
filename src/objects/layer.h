@@ -54,6 +54,7 @@ namespace pen {
         static int indexCount;
 #endif
 		
+		/*For the pixel buffer and static 2D background quads*/
 		unsigned int itemCount = 0;
 		VertexArray va;
 		VertexBuffer vb;
@@ -67,6 +68,7 @@ namespace pen {
 		pen::Vec3 translation;
 		unsigned int shapeType;
 		bool isFixed = false;
+		bool isUI = false;
 		bool is3D = false;
 		bool isWireFrame = false;
 		pen::Mat4x4 model;
@@ -87,7 +89,7 @@ namespace pen {
 		unsigned int itemOffset = 0;
 
 		Layer();
-		Layer(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsSingular, bool objectIsWireFrame);
+		Layer(uint16_t generalId, unsigned int objectShapeType, bool objectIsFixed, bool objectIsUI, bool objectIsSingular);
 		~Layer();
 
 		
@@ -109,6 +111,6 @@ namespace pen {
 		virtual void InitializeIndices();
 
 	private:
-		void UpdateIndexCount(int* idxCount, const unsigned int& complexIdxCount);
+		void UpdateIndexCount(int* idxCount);
 	};
 }

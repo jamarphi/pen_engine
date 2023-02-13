@@ -209,10 +209,11 @@ namespace pen {
         static void HandleGUIClickEvents(bool choice, bool (*userClickCatchAll)());
         static void HandleGUIDragEvents(bool choice);
         static void HandleGUIKeyEvents(bool choice);
-        static bool HandleClick(pen::ui::Item* item, double* xPos, double* yPos, const int& button, const int& action);
+        static bool HandleClick(pen::ui::Item* item, const int& xPos, const int& yPos, const int& button, const int& action);
         static void EnableDepthTesting(bool choice);
         static void HandleCameraInput(bool choice, float speed = 1.0f, void (*onCameraEvent)() = nullptr);
         static void RunAnimations();
+        static void SetPBEventListeners(bool (*onClickCallback)(pen::ui::Item*, int, int), bool (*onDragCallback)(pen::ui::Item*, double*, double*), bool (*onKeyCallback)(pen::ui::Item*, int, int));
 
 #ifdef __PEN_MOBILE__
         static void mobile_click_callback(int button, int action, int mods);
@@ -228,4 +229,9 @@ namespace pen {
     private:
         void InitializeAsciiMap();
     };
+
+    namespace ui {
+        static void Pan(float panX, float panY, bool reset = false);
+        static void Zoom(float mag, bool reset = false);
+    }
 }

@@ -27,6 +27,7 @@ under the License.
 #ifndef __PEN_MOBILE__
 #include "../../dependencies/glfw/include/glfw3.h"
 #endif
+#include "../core/color.h"
 #include "../core/character.h"
 #include "../objects/containers/map.h"
 #include "../ops/operations/trig.h"
@@ -56,8 +57,8 @@ namespace pen {
 
 	struct Tap {
 		int id;
-		double x;
-		double y;
+		int x;
+		int y;
 	};
 
 	class State {
@@ -79,6 +80,7 @@ namespace pen {
 		bool handleGUIDragEvents = false;
 		bool handleGUIKeyEvents = false;
 		bool handleCameraInput = false;
+		bool pixelEvents = false;
 		void* draggableItem = nullptr;
 		void* keyableItem = nullptr;
 		void(*onCameraEvent)() = nullptr;

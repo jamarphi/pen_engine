@@ -25,30 +25,28 @@ namespace pen {
         TextBox::TextBox() { isUI = true; }
 
         TextBox::TextBox(uint32_t objectId, std::string userText, pen::Vec3 objectPositions, int objectTextLength, float objectHeight, pen::Vec4 objectColor, pen::Vec4 objectTextColor, 
-            pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), bool objectIsFixed, std::string objectTextureName,
+            pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), std::string objectTextureName,
             float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY, bool textEditor) {
             /*Constructor for user supplied height*/
             isUI = true;
             id = objectId;
-            positions = objectPositions; 
+            SetPosition(objectPositions); 
             parent = objectParent;
             userOnClickCallback = onClickCallback;
-            isFixed = objectIsFixed;
             origText = userText;
-            angles = pen::Vec3(0.0f, 0.0f, 0.0f);
             isClickable = false;
             if (objectParent != nullptr) isListItem = objectParent->isList ? true : false;
 
-            color = objectColor;
             textColor = objectTextColor;
             textureName = objectTextureName;
             isTextEditor = textEditor;
 
             /*Sets the cycles variable for how many lines of text there is*/
             textLength = objectTextLength;
-            size.x = 0.0f;
             GetTextCyclesNum(userText);
-            size.y = objectHeight;
+            SetSize(pen::Vec2(0.0f, objectHeight));
+            data = pen::DrawRect(objectPositions.x, objectPositions.y, 300, objectHeight, objectColor);
+            SetSize(pen::Vec2(300.0f, objectHeight));
 
             /*The width of the text box gets updated here*/
             SetTextCycles(userText);
@@ -59,11 +57,8 @@ namespace pen {
             texCoordEndY = itemTexCoordEndY;
 
             /*For empty text boxes*/
-            if (size.x == 0.0f) size.x = 50.0f;
-            if (size.y == 0.0f) size.y = pen::State::Get()->textScaling;
-
-            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::QUAD, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
-                itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
+            if (GetSize()->x == 0.0f) pen::Scale(data, 50 / GetSize()->x, 1.0f);
+            if (GetSize()->y == 0.0f) pen::Scale(data, 1.0f, pen::State::Get()->textScaling / data->height);
 
             shapeType = pen::ui::Shape::QUAD;
 
@@ -72,29 +67,28 @@ namespace pen {
         }
 
         TextBox::TextBox(uint32_t objectId, std::string userText, pen::Vec3 objectPositions, int objectTextLength, pen::Vec4 objectColor, pen::Vec4 objectTextColor, 
-            pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), bool objectIsFixed, std::string objectTextureName,
+            pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), std::string objectTextureName,
             float itemTexCoordStartX, float itemTexCoordStartY, float itemTexCoordEndX, float itemTexCoordEndY, bool textEditor) {
             /*Regular constructor*/
             isUI = true;
+            isUI = true;
             id = objectId;
-            positions = objectPositions; 
+            SetPosition(objectPositions); 
             parent = objectParent;
             userOnClickCallback = onClickCallback;
-            isFixed = objectIsFixed;
             origText = userText;
-            angles = pen::Vec3(0.0f, 0.0f, 0.0f);
             isClickable = false;
 
-            color = objectColor;
             textColor = objectTextColor;
             textureName = objectTextureName;
             isTextEditor = textEditor;
 
             /*Sets the cycles variable for how many lines of text there is*/
             textLength = objectTextLength;
-            size.x = 0.0f;
             GetTextCyclesNum(userText);
-            size.y = pen::State::Get()->textScaling * cycles + (cycles > 1 ? pen::State::Get()->textScaling : 0);
+            float objectHeight = pen::State::Get()->textScaling * cycles + (cycles > 1 ? pen::State::Get()->textScaling : 0);
+            data = pen::DrawRect(objectPositions.x, objectPositions.y, 300, objectHeight, objectColor);
+            SetSize(pen::Vec2(300.0f, objectHeight));
 
             /*The width of the text box gets updated here*/
             SetTextCycles(userText);
@@ -105,11 +99,8 @@ namespace pen {
             texCoordEndY = itemTexCoordEndY;
 
             /*For empty text boxes*/
-            if (size.x == 0.0f) size.x = 50.0f;
-            if (size.y == 0.0f) size.y = pen::State::Get()->textScaling;
-
-            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::QUAD, objectColor, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
-                itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
+            if (GetSize()->x == 0.0f) pen::Scale(data, 50 / GetSize()->x, 1.0f);;
+            if (GetSize()->y == 0.0f) pen::Scale(data, 1.0f, pen::State::Get()->textScaling / GetSize()->y);
 
             shapeType = pen::ui::Shape::QUAD;
 
@@ -117,14 +108,9 @@ namespace pen {
             CombineChildBuffers();
         }
 
-        TextBox::~TextBox() {
-            bufferPositions.clear();
-            textureName = "";
-        }
-
         void TextBox::SetTextLength() {
             /*Sets the max amount of text characters per line*/
-            textLength = (unsigned int)((size.x / pen::State::Get()->textScaling - 1) * 2);
+            textLength = (unsigned int)((GetSize()->x / pen::State::Get()->textScaling - 1) * 2);
             if (textLength <= 0) textLength = 1;
         }
 
@@ -145,21 +131,19 @@ namespace pen {
                 delete childItems[i];
             }
             childItems.clear();
-            itemCount = 0;
             
             origText = userText;
 
             /*Updates the cycles variable for how many lines of text there is*/
             GetTextCyclesNum(userText);
-            size.y = (pen::State::Get()->textScaling * cycles + (cycles > 1 ? pen::State::Get()->textScaling : 0)) * itemScaling;
+            pen::Scale(data, 1.0f, ((pen::State::Get()->textScaling * cycles + (cycles > 1 ? pen::State::Get()->textScaling : 0)) * itemScaling) / GetSize()->y);
 
-            size.x = 0.0f;
             /*Updates the text, the width of the text box gets updated here*/
             SetTextCycles(userText);
 
             /*For empty text boxes*/
-            if (size.x == 0.0f) size.x = 50.0f;
-            if (size.y == 0.0f) size.y = pen::State::Get()->textScaling;
+            if (GetSize()->x == 0.0f) pen::Scale(data, 1.0f, 50 / data->height);
+            if (GetSize()->y == 0.0f) pen::Scale(data, 1.0f, pen::State::Get()->textScaling / data->height);
         }
     }
 }

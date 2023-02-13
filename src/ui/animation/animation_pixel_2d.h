@@ -22,6 +22,7 @@ under the License.
 #include "../../state/layer_manager.h"
 #include "../position.h"
 #include "../../state/pixel.h"
+#include "../../renderer/render.h"
 
 namespace pen {
 		struct AnimationPixelItem {
@@ -31,6 +32,7 @@ namespace pen {
 			int frames;
 			bool ran;
 			void (*onAnimationEnd)(pen::Item*, unsigned int);
+			void (*customAnimationCallback)(pen::Item*);
 			float unitA;
 			float unitB;
 			float unitC;
@@ -42,7 +44,7 @@ namespace pen {
 		static std::vector<pen::AnimationPixelItem> animationList;
 
 		public:
-		static void Add(pen::Item* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::Item*, unsigned int), const float& unitA, const float& unitB = 0.0f, const float& unitC = 0.0f, const float& unitD = 0.0f);
+		static void Add(pen::Item* item, const unsigned int& type, const long& ms, const bool& infinite, void (*onAnimationEndEvent)(pen::Item*, unsigned int), void (*onCustomAnimationCallback)(pen::Item*), const float& unitA, const float& unitB = 0.0f, const float& unitC = 0.0f, const float& unitD = 0.0f);
 		static bool CheckStatus(const pen::AnimationPixelItem& item);
 		static void Animate(pen::AnimationPixelItem item);
 		static void Run();

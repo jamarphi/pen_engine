@@ -31,16 +31,22 @@ namespace pen {
         Slider::Slider(uint32_t objectId, unsigned int objectSliderOrder, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectSliderSquareColor,
             pen::Vec4 objectSliderBarColor, pen::ui::Item* objectParent, bool (*onClickCallback)(pen::ui::Item*, int, int), std::string objectTextureName, float itemTexCoordStartX, float itemTexCoordStartY,
             float itemTexCoordEndX, float itemTexCoordEndY) {
+            if (objectTextureName != "") {
+                data = pen::CreateSprite(objectPositions.x, objectPositions.y, objectSize.x, objectSize.y, objectTextureName, itemTexCoordStartX,
+                    itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
+                data->color = pen::PEN_TRANSPARENT;
+            }
+            else {
+                data = pen::DrawRect(objectPositions.x, objectPositions.y, objectSize.x, objectSize.y, pen::PEN_TRANSPARENT);
+            }
             id = objectId;
             sliderOrder = objectSliderOrder;
             isUI = true;
             pen::State* inst = pen::State::Get();
-            positions = objectPositions;
-            size = objectSize;
+            SetPosition(objectPositions);
+            SetSize(objectSize);
             parent = objectParent;
             userOnClickCallback = onClickCallback;
-            isFixed = true;
-            angles = pen::Vec3(0.0f, 0.0f, 0.0f);
             isClickable = true;
 
             textureName = objectTextureName;
@@ -50,23 +56,17 @@ namespace pen {
             texCoordEndX = itemTexCoordEndX;
             texCoordEndY = itemTexCoordEndY;
 
-            bufferPositions = pen::ui::Shape::GetItemBatchData(positions, size, pen::ui::Shape::QUAD, pen::PEN_TRANSPARENT, nullptr, 0.0f, 0.0f, 0.0f, GetAssetId(),
-                itemTexCoordStartX, itemTexCoordStartY, itemTexCoordEndX, itemTexCoordEndY);
-
             shapeType = pen::ui::Shape::QUAD;
 
-            color = pen::PEN_TRANSPARENT;
             sliderBarColor = objectSliderBarColor;
             sliderSquareColor = objectSliderSquareColor;
 
-            sliderMode = (size.x > size.y) ? 0 : 1;
+            sliderMode = (GetSize()->x > GetSize()->y) ? 0 : 1;
 
             InitializeSlider();
 
             CheckActiveStatus();
         }
-
-        Slider::~Slider() {}
 
         bool Slider::OnClick(pen::ui::Item* item, const int& button, const int& action) {
             /*Handles on click events for slider bars*/
@@ -90,43 +90,44 @@ namespace pen {
             /*Slide the slider square over and update the offset*/
             if (sliderMode == 0) {
                 /*Slider is horizontal*/
-                item->childItems[1]->positions.x = *xPos - (item->childItems[1]->size.x / 2.0f);
-                if(item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = (item->childItems[1]->positions.x + (item->childItems[1]->size.x / 2.0f)
-                    - item->positions.x) / item->size.x;
+                item->childItems[1]->SetPosition(pen::Vec3(*xPos - (item->childItems[1]->GetSize()->x / 2.0f), item->childItems[1]->GetPosition()->y, 0.0f));
+                if(item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = (item->childItems[1]->GetPosition()->x + (item->childItems[1]->GetSize()->x / 2.0f)
+                    - item->GetPosition()->x) / item->GetSize()->x;
 
-                if (item->childItems[1]->positions.x + (item->childItems[1]->size.x / 2.0f) < item->positions.x
+                if (item->childItems[1]->GetPosition()->x + (item->childItems[1]->GetSize()->x / 2.0f) < item->GetPosition()->x
                     || *xPos < 0.0f) {
                     /*Set slider square back to beginning*/
-                    item->childItems[1]->positions.x = item->positions.x - (item->childItems[1]->size.x / 2.0f);
+                    item->childItems[1]->SetPosition(pen::Vec3(item->GetPosition()->x - (item->childItems[1]->GetSize()->x / 2.0f), item->childItems[1]->GetPosition()->y, 0.0f));
                     if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = 0.0f;
                 }
-                else if (item->childItems[1]->positions.x + (item->childItems[1]->size.x / 2.0f) > item->positions.x + item->size.x
+                else if (item->childItems[1]->GetPosition()->x + (item->childItems[1]->GetSize()->x / 2.0f) > item->GetPosition()->x + item->GetSize()->x
                     || *xPos > inst->screenWidth) {
                     /*Set slider square back to end*/
-                    item->childItems[1]->positions.x = item->positions.x + item->size.x - (item->childItems[1]->size.x / 2.0f);
+                    item->childItems[1]->SetPosition(pen::Vec3(item->GetPosition()->x + item->GetSize()->x - (item->childItems[1]->GetSize()->x / 2.0f), item->childItems[1]->GetPosition()->y, 0.0f));
                     if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = 1.0f;
                 }
             }
             else {
                 /*Slider is vertical*/
-                item->childItems[1]->positions.y = *yPos - (item->childItems[1]->size.y / 2.0f);
-                if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = (item->childItems[1]->positions.y + (item->childItems[1]->size.y / 2.0f)
-                    - item->positions.y) / item->size.y;
+                item->childItems[1]->SetPosition(pen::Vec3(item->childItems[1]->GetPosition()->x, *yPos - (item->childItems[1]->GetSize()->y / 2.0f), 0.0f));
+                if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = (item->childItems[1]->GetPosition()->y + (item->childItems[1]->GetSize()->y / 2.0f)
+                    - item->GetPosition()->y) / item->GetSize()->y;
 
-                if (item->childItems[1]->positions.y + (item->childItems[1]->size.y / 2.0f) < item->positions.y
+                if (item->childItems[1]->GetPosition()->y + (item->childItems[1]->GetSize()->y / 2.0f) < item->GetPosition()->y
                     || *yPos < 0.0f) {
                     /*Set slider square back to beginning*/
-                    item->childItems[1]->positions.y = item->positions.y - (item->childItems[1]->size.y / 2.0f);
+                    item->childItems[1]->SetPosition(pen::Vec3(item->childItems[1]->GetPosition()->x, item->GetPosition()->y - (item->childItems[1]->GetSize()->y / 2.0f), 0.0f));
                     if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = 0.0f;
                 }
-                else if (item->childItems[1]->positions.y + (item->childItems[1]->size.y / 2.0f) > item->positions.y + item->size.y
+                else if (item->childItems[1]->GetPosition()->y + (item->childItems[1]->GetSize()->y / 2.0f) > item->GetPosition()->y + item->GetSize()->y
                     || *yPos > inst->screenHeight) {
                     /*Set slider square back to end*/
-                    item->childItems[1]->positions.y = item->positions.y + item->size.y - (item->childItems[1]->size.y / 2.0f);
+                    item->childItems[1]->SetPosition(pen::Vec3(item->childItems[1]->GetPosition()->x, item->GetPosition()->y + item->GetSize()->y - (item->childItems[1]->GetSize()->y / 2.0f), 0.0f));
                     if (item->parent != nullptr) item->parent->sliderOffset[sliderOrder] = 1.0f;
                 }  
             }
 
+            pen::Flush();
             pen::ui::Submit();
 
             if (userOnDragCallback != nullptr) {
@@ -165,27 +166,27 @@ namespace pen {
                 /*Slider is horizontal*/
 
                 /*Static slider bar*/
-                Push(new pen::ui::Item(ID_ANY, pen::Vec3(positions.x, positions.y + (size.y / 2.0f) - (0.1 * size.y / 2.0f), positions.z),
-                    pen::Vec2(size.x, 0.1f * size.y), pen::ui::Shape::QUAD, sliderBarColor, this, userOnClickCallback, true));
+                Push(new pen::ui::Item(ID_ANY, pen::Vec3(GetPosition()->x, GetPosition()->y + (GetSize()->y / 2.0f) - (0.1 * GetSize()->y / 2.0f), GetPosition()->z),
+                    pen::Vec2(GetSize()->x, 0.1f * GetSize()->y), sliderBarColor, this, userOnClickCallback));
 
                 /*Slider square*/
-                Push(new pen::ui::Item(ID_ANY, pen::Vec3(positions.x - (size.y / 2.0f), positions.y, positions.z),
-                    pen::Vec2(size.y, size.y), pen::ui::Shape::QUAD, sliderSquareColor, this, userOnClickCallback, true));
+                Push(new pen::ui::Item(ID_ANY, pen::Vec3(GetPosition()->x - (GetSize()->y / 2.0f), GetPosition()->y, GetPosition()->z),
+                    pen::Vec2(GetSize()->y, GetSize()->y), sliderSquareColor, this, userOnClickCallback));
 
-                initialSliderPoint = positions.x;
+                initialSliderPoint = GetPosition()->x;
             }
             else {
                 /*Slider is vertical*/
 
                 /*Static slider bar*/
-                Push(new pen::ui::Item(ID_ANY, pen::Vec3(positions.x + (size.x / 2.0f) - (0.1 * size.x / 2.0f), positions.y, positions.z),
-                    pen::Vec2(0.1 * size.x, size.y), pen::ui::Shape::QUAD, sliderBarColor, this, userOnClickCallback, true));
+                Push(new pen::ui::Item(ID_ANY, pen::Vec3(GetPosition()->x + (GetSize()->x / 2.0f) - (0.1 * GetSize()->x / 2.0f), GetPosition()->y, GetPosition()->z),
+                    pen::Vec2(0.1 * GetSize()->x, GetSize()->y), sliderBarColor, this, userOnClickCallback));
 
                 /*Slider square*/
-                Push(new pen::ui::Item(ID_ANY, pen::Vec3(positions.x, positions.y + size.y - (size.x / 2.0f), positions.z),
-                    pen::Vec2(size.x, size.x), pen::ui::Shape::QUAD, sliderSquareColor, this, userOnClickCallback, true));
+                Push(new pen::ui::Item(ID_ANY, pen::Vec3(GetPosition()->x, GetPosition()->y + GetSize()->y - (GetSize()->x / 2.0f), GetPosition()->z),
+                    pen::Vec2(GetSize()->x, GetSize()->x), sliderSquareColor, this, userOnClickCallback));
 
-                initialSliderPoint = positions.y;
+                initialSliderPoint = GetPosition()->y;
             }
 
             childItems[0]->isClickable = false;

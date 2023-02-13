@@ -29,14 +29,13 @@ namespace pen {
 			TextBox();
 			/*This is the regular constructor*/
 			TextBox(uint32_t objectId, std::string userText, pen::Vec3 objectPositions, int objectTextLength, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f), pen::Vec4 objectTextColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
-				pen::ui::Item* objectParent = nullptr, bool (*onClickCallback)(pen::ui::Item*, int, int) = nullptr, bool objectIsFixed = true, std::string objectTextureName = "",
+				pen::ui::Item* objectParent = nullptr, bool (*onClickCallback)(pen::ui::Item*, int, int) = nullptr, std::string objectTextureName = "",
 				float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f, bool textEditor = false);
 
 			/*This is for an initial textbox height from the user*/
 			TextBox(uint32_t objectId, std::string userText, pen::Vec3 objectPositions, int objectTextLength, float objectHeight, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f), pen::Vec4 objectTextColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
-				pen::ui::Item* objectParent = nullptr, bool (*onClickCallback)(pen::ui::Item*, int, int) = nullptr, bool objectIsFixed = true,std::string objectTextureName = "",
+				pen::ui::Item* objectParent = nullptr, bool (*onClickCallback)(pen::ui::Item*, int, int) = nullptr,std::string objectTextureName = "",
 				float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f, float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f, bool textEditor = false);
-			~TextBox();
 			void SetTextLength();
 			void SetTextColor(pen::Vec4 itemTextColor, int pos = -1);
 			void UpdateText(const std::string& userText);

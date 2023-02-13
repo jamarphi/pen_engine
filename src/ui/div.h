@@ -32,7 +32,6 @@ namespace pen {
 			Div(uint32_t objectId, pen::Vec3 objectPositions, pen::Vec2 objectSize, pen::Vec4 objectColor = pen::Vec4(1.0f, 1.0f, 1.0f, 1.0f), unsigned int objectOrientation = 0,
 				pen::ui::Item* objectParent = nullptr, bool (*onClickCallback)(pen::ui::Item*, int, int) = nullptr, std::string objectTextureName = "", float itemTexCoordStartX = 0.0f, float itemTexCoordStartY = 0.0f,
 				float itemTexCoordEndX = 1.0f, float itemTexCoordEndY = 1.0f);
-			~Div();
 
 			void Push(pen::ui::Item* item);
 			void Pop(int idx = -1);
